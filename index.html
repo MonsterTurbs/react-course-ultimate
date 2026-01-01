@@ -5,17 +5,311 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>react-course-ultimate</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 16px; line-height: 1.6; }
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #666666;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --link: #0b57d0;
+      --chip: #f3f4f6;
+      --shadow: 0 8px 24px rgba(0,0,0,.06);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .wrap { max-width: 980px; margin: 32px auto; padding: 0 16px; }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 14px;
+      padding: 18px 16px;
+      box-shadow: var(--shadow);
+    }
+
+    h1 { margin: 0 0 6px; font-size: 22px; }
+    .sub { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .bar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .search {
+      width: 100%;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    .btn {
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .btn:hover { border-color: #cfcfcf; }
+
+    .note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      color: var(--muted);
+      background: #fff;
+      font-size: 13px;
+    }
+
+    main { margin-top: 18px; }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .card-h {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .card-h h2 { margin: 0; font-size: 16px; }
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    details {
+      border-top: 1px solid var(--border);
+      padding: 0;
+    }
+
+    summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 12px 16px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      user-select: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    .folder-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .folder-title strong {
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .muted { color: var(--muted); font-size: 12px; }
+
+    .items { padding: 0 16px 14px; }
+
+    ul { margin: 0; padding-left: 18px; }
+    li { margin: 6px 0; }
+
+    a { color: var(--link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
     code { background:#f3f3f3; padding:2px 6px; border-radius:6px; }
-    a { color:#0b57d0; }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding: 10px 0 26px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 640px) {
+      .bar { grid-template-columns: 1fr; }
+      .btn { width: 100%; }
+    }
   </style>
 </head>
-<body>
-  <h1>react-course-ultimate</h1>
-  <p>This site is hosted on GitHub Pages.</p>
-  <p>Next step: add links here to your course folders/files.</p>
 
-  <!-- Example link (edit based on your actual folder/file names) -->
-  <!-- <p><a href="01_getting-started/01-welcome-to-this-course.html">Getting Started</a></p> -->
+<body>
+  <div class="wrap">
+    <header>
+      <h1>react-course-ultimate</h1>
+      <p class="sub">Public course files hosted on GitHub Pages</p>
+
+      <div class="bar">
+        <input id="q" class="search" type="search" placeholder="Search lessons (e.g., react, components, hooks, nextjs)..." />
+        <button id="toggleAll" class="btn" type="button">Expand all</button>
+      </div>
+
+      <div class="note">
+        Tip: If a link does not open, double-check the exact folder/file name (including spaces and capitalization).
+      </div>
+    </header>
+
+    <main class="card" id="toc">
+      <div class="card-h">
+        <h2>Table of Contents</h2>
+        <span class="chip" id="countChip">0 links</span>
+      </div>
+
+      <!-- ========= EDIT BELOW: Add your folders + links ========= -->
+
+      <details open>
+        <summary>
+          <div class="folder-title">
+            <strong>01 - Welcome / Getting Started</strong>
+            <span class="muted">Intro + setup</span>
+          </div>
+          <span class="muted">▶</span>
+        </summary>
+        <div class="items">
+          <ul>
+            <!-- Replace href values with your real paths -->
+            <li><a href="01_getting-started/01-welcome-to-this-course.html">Welcome to this course</a></li>
+            <li><a href="01_getting-started/02-what-is-react.html">What is React</a></li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          <div class="folder-title">
+            <strong>02 - React Fundamentals</strong>
+            <span class="muted">Basics + core concepts</span>
+          </div>
+          <span class="muted">▶</span>
+        </summary>
+        <div class="items">
+          <ul>
+            <li><a href="02-react-fundamentals/01-introduction.html">Introduction</a></li>
+            <li><a href="02-react-fundamentals/02-components-and-props.html">Components and Props</a></li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          <div class="folder-title">
+            <strong>03 - Next.js</strong>
+            <span class="muted">App Router, SSR/SSG</span>
+          </div>
+          <span class="muted">▶</span>
+        </summary>
+        <div class="items">
+          <ul>
+            <li><a href="03-nextjs/01-introduction.html">Next.js Introduction</a></li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- ========= EDIT ABOVE: Add your folders + links ========= -->
+    </main>
+
+    <footer>
+      Maintained by MonsterTurbs • GitHub Pages
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const q = document.getElementById('q');
+      const toc = document.getElementById('toc');
+      const toggleAllBtn = document.getElementById('toggleAll');
+      const countChip = document.getElementById('countChip');
+
+      const sections = Array.from(toc.querySelectorAll('details'));
+      const allLinks = Array.from(toc.querySelectorAll('a'));
+
+      function updateCount(visibleLinks) {
+        countChip.textContent = visibleLinks + (visibleLinks === 1 ? " link" : " links");
+      }
+
+      function normalize(s) {
+        return (s || "").toLowerCase().trim();
+      }
+
+      function applyFilter() {
+        const term = normalize(q.value);
+        let visible = 0;
+
+        sections.forEach((sec) => {
+          const links = Array.from(sec.querySelectorAll('a'));
+          let anyInSection = false;
+
+          links.forEach((a) => {
+            const text = normalize(a.textContent);
+            const href = normalize(a.getAttribute('href') || "");
+            const match = !term || text.includes(term) || href.includes(term);
+
+            a.parentElement.classList.toggle('hidden', !match);
+            if (match) { anyInSection = true; visible++; }
+          });
+
+          sec.classList.toggle('hidden', !anyInSection);
+          if (term && anyInSection) sec.open = true;
+        });
+
+        updateCount(visible);
+      }
+
+      function setAll(open) {
+        sections.forEach(s => {
+          if (!s.classList.contains('hidden')) s.open = open;
+        });
+        toggleAllBtn.textContent = open ? "Collapse all" : "Expand all";
+        toggleAllBtn.dataset.state = open ? "open" : "closed";
+      }
+
+      // init
+      updateCount(allLinks.length);
+      toggleAllBtn.dataset.state = "open";
+
+      q.addEventListener('input', applyFilter);
+
+      toggleAllBtn.addEventListener('click', () => {
+        const isOpen = toggleAllBtn.dataset.state === "open";
+        setAll(!isOpen);
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fetching Orders — React Router Loaders + Search Order (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #047857;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .soft { background: var(--soft); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #eef2ff;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7faff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #ecfdf5;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+    }
+
+    .danger {
+      border-left: 4px solid var(--danger);
+      background: #fef2f2;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+
+    .table th, .table td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    .table th {
+      background: var(--soft);
+      text-align: left;
+    }
+
+    /* Print styles (A4, clean margins, no URL after links) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Keep blocks from splitting awkwardly */
+      header, .card, pre, .note, .table { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Printer-friendly sizing */
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li, .table { font-size: 12.2px; }
+
+      /* Remove automatic URL printing */
+      a[href]::after { content: "" !important; }
+
+      /* Ensure code blocks print legibly */
+      pre {
+        color: #111 !important;
+        background: #f2f2f2 !important;
+        border: 1px solid #ddd;
+      }
+
+      .chip {
+        border-color: #ddd;
+        background: #f7f7f7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">📦 Orders Feature — React Router Loaders</p>
+      <h1>🧾 Fetching Orders by ID (Search + Loader + URL Params)</h1>
+      <p class="subtitle">
+        Implement the “look up an order by ID” requirement: add a search input in the header, navigate to
+        <code>/order/:orderId</code>, and fetch the order via a route loader.
+      </p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">🔎 SearchOrder</span>
+        <span class="chip">🧭 useNavigate()</span>
+        <span class="chip">🧩 loader</span>
+        <span class="chip">🧷 params.orderId</span>
+        <span class="chip">🪝 useLoaderData()</span>
+        <span class="chip">🧯 errorElement</span>
+        <span class="chip">🌀 global loading</span>
+      </div>
+    </header>
+
+    <section class="card soft">
+      <h2>📌 Where we are in the project</h2>
+      <p>
+        At this point, the app can already fetch and show the pizza <strong>menu</strong> from the API.
+        Next, we implement another requirement:
+      </p>
+      <div class="note">
+        ✅ Users should be able to <strong>look up an order</strong> using a unique <strong>order ID</strong>.
+      </div>
+      <p class="muted">
+        We still can’t create orders yet, but we can use existing (dummy) order IDs to fetch previously-created orders.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>🎯 Goal of this lecture</h2>
+      <ol>
+        <li>🔎 Add a header search field to input an order ID</li>
+        <li>🧭 Navigate to <code>/order/&lt;id&gt;</code> on submit</li>
+        <li>📥 Fetch the order using a <strong>loader</strong> (same pattern as Menu)</li>
+        <li>🪝 Display fetched data with <code>useLoaderData()</code></li>
+      </ol>
+    </section>
+
+    <section class="card soft">
+      <h2>1) 🔎 Create <code>SearchOrder.jsx</code> (Order feature)</h2>
+      <p>
+        The search UI belongs to the <strong>order feature</strong>, so it lives in <code>features/order/</code>.
+        It uses a controlled input and a form so Enter submits naturally.
+      </p>
+
+      <h3>Why wrap in a form?</h3>
+      <ul>
+        <li>⌨️ Pressing <strong>Enter</strong> submits automatically</li>
+        <li>✅ Good UX + minimal code</li>
+      </ul>
+
+      <div class="note warn">
+        ⚠️ In a SPA, prevent the default form submit to avoid a full page reload.
+      </div>
+
+      <h3>Conceptual component</h3>
+      <pre>import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+export default function SearchOrder() {
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!query) return;
+
+    navigate(`/order/${query}`);
+    setQuery("");
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        placeholder="Search order #"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
+    </form>
+  );
+}</pre>
+
+      <div class="note good">
+        ✅ Result: typing an ID and pressing Enter routes you to <code>/order/&lt;id&gt;</code>.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2) 📥 Add a loader to fetch the order data</h2>
+      <p>
+        We repeat the same loader approach used for the menu:
+      </p>
+      <ol>
+        <li>🧪 Create the loader in the Order page file</li>
+        <li>🧩 Attach the loader to the <code>/order/:orderId</code> route</li>
+        <li>🪝 Read loader data in the Order component</li>
+      </ol>
+
+      <div class="note">
+        ✅ The service function <code>getOrder(id)</code> already exists in <code>apiRestaurant</code>.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🧷 Getting URL params inside a loader</h2>
+      <p>
+        In components, you might use <code>useParams()</code>, but loaders are regular functions (not React components),
+        so hooks don’t work there.
+      </p>
+
+      <div class="note good">
+        ✅ React Router passes an object to the loader, including <strong><code>params</code></strong>.
+      </div>
+
+      <h3>Param naming must match the route</h3>
+      <p class="muted">
+        If the route is <code>/order/:orderId</code>, then the loader reads <code>params.orderId</code>.
+      </p>
+
+      <pre>// Order.jsx
+import { getOrder } from "../../services/apiRestaurant";
+
+export async function loader({ params }) {
+  const order = await getOrder(params.orderId);
+  return order;
+}
+
+export default function Order() {
+  // ...
+}</pre>
+    </section>
+
+    <section class="card">
+      <h2>3) 🧩 Attach the order loader to the route</h2>
+      <p>
+        Import and rename the loader in the router setup to avoid name collisions:
+      </p>
+      <pre>import Order, { loader as orderLoader } from "./features/order/Order";</pre>
+
+      <p>Then wire it up:</p>
+      <pre>{
+  path: "/order/:orderId",
+  element: <Order />,
+  loader: orderLoader,
+  // errorElement (recommended) shown below
+}</pre>
+    </section>
+
+    <section class="card soft">
+      <h2>🧯 Handling “order not found” errors</h2>
+      <p>
+        If the API can’t find an order for that ID, the loader will throw (or return a failed request), and React Router
+        can show an error UI.
+      </p>
+
+      <div class="note warn">
+        ⚠️ To keep the app layout visible, put the <code>errorElement</code> on the same route that can fail.
+      </div>
+
+      <pre>{
+  path: "/order/:orderId",
+  element: <Order />,
+  loader: orderLoader,
+  errorElement: <Error />,
+}</pre>
+
+      <p class="muted">
+        This way, the error appears inside your layout instead of replacing the whole app.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>4) 🪝 Read the fetched order in the Order page</h2>
+      <p>
+        Replace any dummy/fake order data with the loader’s data:
+      </p>
+      <pre>import { useLoaderData } from "react-router-dom";
+
+export default function Order() {
+  const order = useLoaderData();
+
+  return (
+    <div>
+      <h2>Order #{order.id}</h2>
+      {/* render details */}
+    </div>
+  );
+}</pre>
+
+      <div class="note good">
+        ✅ Now the order page is truly dynamic: changing the URL changes the data.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🌀 Bonus: Global loading indicator works automatically</h2>
+      <p>
+        Because the app already uses <code>useNavigation()</code> in <code>AppLayout</code>, the loading spinner appears
+        for <strong>any</strong> route transition that triggers data loading — including order fetching.
+      </p>
+      <ul>
+        <li>🔎 Search → navigate to <code>/order/:orderId</code></li>
+        <li>📥 Order loader runs</li>
+        <li>🌀 Spinner shows briefly</li>
+        <li>✅ Order data renders when done</li>
+      </ul>
+      <div class="note">
+        ✅ This is exactly why the loader indicator was placed at the layout level.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>✅ Mini checklist</h2>
+      <ul>
+        <li>✅ SearchOrder uses <code>useState</code> for a controlled input</li>
+        <li>✅ Form submit uses <code>preventDefault()</code></li>
+        <li>✅ <code>useNavigate()</code> sends the user to <code>/order/${query}</code></li>
+        <li>✅ Order route is <code>/order/:orderId</code></li>
+        <li>✅ Loader reads <code>{ params }</code> and uses <code>params.orderId</code></li>
+        <li>✅ Order page uses <code>useLoaderData()</code> (no more dummy data)</li>
+        <li>✅ Add <code>errorElement</code> to the order route to keep layout visible</li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="card soft">
+      <h2>➡️ What’s next</h2>
+      <p>
+        Next steps typically include showing richer order UI (status, pricing, items), and then implementing
+        order creation via React Router <strong>actions</strong> (form submissions).
+      </p>
+    </section>
+
+    <footer class="muted" style="margin-top:16px; font-size:12px;">
+      Print format: A4, single-column, word-wrapped, clean margins.
+    </footer>
+  </main>
+</body>
+</html>

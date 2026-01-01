@@ -1,0 +1,394 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — How Diffing Works (Reviewer / Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      padding: 18px 18px 12px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.6rem;
+      line-height: 1.25;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 1.25rem;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 1.08rem;
+      line-height: 1.25;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol { margin: 8px 0 12px 22px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.92rem;
+    }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .callout.soft { background: var(--soft); }
+
+    .k {
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .quiz {
+      border-left: 5px solid var(--border);
+      padding: 10px 14px;
+      background: var(--soft);
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .answers {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+      color: var(--muted);
+    }
+
+    /* Print: A4, clean margins, single column, no cut-off */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { background: #fff !important; }
+      main { max-width: none; padding: 0; }
+      header, .callout, pre, .quiz { border-color: #d9d9d9; }
+      header { background: #fff; }
+      .chip { background: #fff; }
+
+      /* Avoid awkward page breaks */
+      h1, h2, h3 { break-after: avoid; page-break-after: avoid; }
+      p, li, .callout, pre, .quiz { break-inside: avoid; page-break-inside: avoid; }
+
+      /* If any links exist, print as normal text (no URLs) */
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>🧠 React — How Diffing Works (Reviewer / Study Guide)</h1>
+      <p class="sub">Focus: the diffing algorithm inside React’s reconciliation (Fiber) and why it affects state, performance, and the <span class="mono">key</span> prop.</p>
+      <div class="chips">
+        <span class="chip">✅ Beginner-friendly</span>
+        <span class="chip">🧩 Concepts + examples</span>
+        <span class="chip">⚠️ State implications</span>
+        <span class="chip">🔑 Keys preview</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+      </div>
+    </header>
+
+    <div class="hr"></div>
+
+    <h2>🎯 Big idea: What is “diffing”?</h2>
+    <p>
+      <span class="k">Diffing</span> is the step-by-step comparison React performs between the <span class="k">previous</span> UI snapshot and the <span class="k">next</span> UI snapshot.
+      It happens during <span class="k">reconciliation</span> (inside the render phase) to decide the <span class="k">minimum DOM operations</span> needed.
+    </p>
+
+    <div class="callout soft">
+      <p><span class="k">Key point ✅</span>: Diffing compares elements <span class="k">by position in the tree</span>. It does not “understand” your intent—it follows rules.</p>
+    </div>
+
+    <h2>🧱 The 2 core assumptions (why diffing is fast)</h2>
+    <ol>
+      <li>
+        <p><span class="k">Different element types → different trees</span> 🧨</p>
+        <p class="sub">If a node changes from <span class="mono">div</span> to <span class="mono">header</span> (or <span class="mono">SearchBar</span> to <span class="mono">ProfileMenu</span>), React assumes it’s not the same “thing”.</p>
+      </li>
+      <li>
+        <p><span class="k">Stable keys → same identity across renders</span> 🔑</p>
+        <p class="sub">If an element has a <span class="mono">key</span> that stays consistent over time, React can match it reliably between renders.</p>
+      </li>
+    </ol>
+
+    <div class="callout">
+      <p><span class="k">Why this matters ⚡</span>: With these assumptions, React can avoid expensive comparisons and do near-linear work in common cases.</p>
+    </div>
+
+    <h2>🧭 The only 2 situations React cares about</h2>
+    <p>During diffing, React asks only two questions at each position:</p>
+    <ul>
+      <li>❓ <span class="k">Did the element type change</span> at this position?</li>
+      <li>❓ <span class="k">Or is it the same element type</span> at this position?</li>
+    </ul>
+
+    <div class="hr"></div>
+
+    <h2>1) 🚨 Different element at the same position</h2>
+    <p>
+      If the element <span class="k">type</span> changes at the same tree position, React assumes the old element is no longer valid.
+      Result: <span class="k">destroy old node + all children</span>, then <span class="k">create new node + new children</span>.
+    </p>
+
+    <h3>✅ Example A: DOM type changes (<span class="mono">div</span> → <span class="mono">header</span>)</h3>
+    <pre><code>// Render #1
+&lt;div&gt;
+  &lt;SearchBar /&gt;
+&lt;/div&gt;
+
+// Render #2 (same position, different type)
+&lt;header&gt;
+  &lt;SearchBar /&gt;
+&lt;/header&gt;</code></pre>
+
+    <div class="callout">
+      <p><span class="k">What React does 🧯</span></p>
+      <ul>
+        <li>🗑️ Remove the <span class="mono">div</span> from the DOM</li>
+        <li>🗑️ Remove its children (including the existing <span class="mono">SearchBar</span> instance)</li>
+        <li>🆕 Insert a new <span class="mono">header</span></li>
+        <li>🆕 Create a <span class="k">brand-new</span> <span class="mono">SearchBar</span> instance as its child</li>
+      </ul>
+      <p><span class="k">State impact ⚠️</span>: Any state inside <span class="mono">SearchBar</span> is <span class="k">reset</span> because it becomes a new component instance.</p>
+    </div>
+
+    <h3>✅ Example B: Component type changes (<span class="mono">SearchBar</span> → <span class="mono">ProfileMenu</span>)</h3>
+    <pre><code>// Render #1
+&lt;Nav&gt;
+  &lt;SearchBar /&gt;
+&lt;/Nav&gt;
+
+// Render #2
+&lt;Nav&gt;
+  &lt;ProfileMenu /&gt;
+&lt;/Nav&gt;</code></pre>
+
+    <div class="callout">
+      <p><span class="k">Result 💥</span>: <span class="mono">SearchBar</span> is destroyed (including its state) and replaced with a new <span class="mono">ProfileMenu</span> instance.</p>
+    </div>
+
+    <div class="callout soft">
+      <p><span class="k">Practical takeaway ✅</span>: Changing a component’s type at a position is like saying: “This is a totally different widget now.” React responds by wiping the subtree.</p>
+    </div>
+
+    <div class="hr"></div>
+
+    <h2>2) ✅ Same element at the same position</h2>
+    <p>
+      If the element type is the <span class="k">same</span> at the same position, React keeps the node.
+      It will only update what changed (attributes/props), and it will <span class="k">preserve component state</span>.
+    </p>
+
+    <h3>✅ Example A: Same DOM element type; only attributes change</h3>
+    <pre><code>// Render #1
+&lt;div className="box"&gt;...&lt;/div&gt;
+
+// Render #2
+&lt;div className="box box--active"&gt;...&lt;/div&gt;</code></pre>
+
+    <div class="callout">
+      <p><span class="k">What React does 🔧</span></p>
+      <ul>
+        <li>✅ Keep the same <span class="mono">div</span> in the DOM</li>
+        <li>🔁 Mutate the attribute(s): update <span class="mono">class</span></li>
+        <li>✅ All children stay (unless their own diff says otherwise)</li>
+      </ul>
+    </div>
+
+    <h3>✅ Example B: Same component type; only props change</h3>
+    <pre><code>// Render #1
+&lt;SearchBar weight={400} /&gt;
+
+// Render #2
+&lt;SearchBar weight={700} /&gt;</code></pre>
+
+    <div class="callout">
+      <p><span class="k">What React does 🧩</span></p>
+      <ul>
+        <li>✅ Keep the same <span class="mono">SearchBar</span> instance</li>
+        <li>🔁 Pass new props (e.g., <span class="mono">weight</span>)</li>
+        <li>✅ Preserve the component’s internal state</li>
+      </ul>
+    </div>
+
+    <div class="callout soft">
+      <p><span class="k">Practical takeaway ✅</span>: Same type + same position = “same identity” → state survives.</p>
+    </div>
+
+    <div class="hr"></div>
+
+    <h2>⚠️ Why this matters in real apps</h2>
+    <ul>
+      <li>🧠 <span class="k">State resets</span> happen when React decides a subtree is “new” (type changed at the same position).</li>
+      <li>🧩 <span class="k">State is preserved</span> when the element type stays the same at the same position.</li>
+      <li>🚀 React updates the DOM efficiently: it mutates attributes/props instead of replacing nodes when possible.</li>
+    </ul>
+
+    <div class="callout">
+      <p><span class="k">Common beginner confusion 😵</span>: “But I only changed a small thing!”</p>
+      <p>
+        If that “small thing” changes the <span class="k">type at a position</span> (e.g., conditional rendering swaps components), React may rebuild the subtree and reset state.
+      </p>
+    </div>
+
+    <h2>🔑 Preview: Where does the <span class="mono">key</span> prop fit?</h2>
+    <p>
+      Sometimes you <span class="k">want</span> to control identity. The <span class="mono">key</span> prop helps React match elements correctly across renders,
+      especially in lists. If keys are unstable (e.g., using array index in a reordering list), React can match the “wrong” elements and cause weird UI/state behavior.
+    </p>
+
+    <div class="callout soft">
+      <p><span class="k">Quick rule of thumb ✅</span></p>
+      <ul>
+        <li>🔑 Use a <span class="k">stable</span> unique key that represents the item’s identity (e.g., database id).</li>
+        <li>⚠️ Avoid index keys when items can be inserted/removed/reordered.</li>
+      </ul>
+      <p class="sub">Next lecture (usually) shows how keys can force a component to reset or preserve state intentionally.</p>
+    </div>
+
+    <div class="hr"></div>
+
+    <h2>🧾 Cheat sheet (memorize this)</h2>
+    <ul>
+      <li>✅ <span class="k">Diffing compares by position</span> in the tree.</li>
+      <li>🧨 <span class="k">Type changed</span> at the same position → destroy old subtree → create new subtree → state resets.</li>
+      <li>🧩 <span class="k">Same type</span> at the same position → keep node → update props/attributes → state preserved.</li>
+      <li>🔑 <span class="k">Stable key</span> helps React match “same” elements across renders (especially in lists).</li>
+    </ul>
+
+    <h2>📝 Mini-quiz (for retention)</h2>
+    <div class="quiz">
+      <ol>
+        <li>
+          If a node changes from <span class="mono">&lt;div&gt;</span> to <span class="mono">&lt;header&gt;</span> at the same position, what happens to its children’s state?
+        </li>
+        <li>
+          True/False: If <span class="mono">SearchBar</span> stays at the same position and only its props change, its state is preserved.
+        </li>
+        <li>
+          Why does React prefer updating attributes/props instead of rebuilding the entire DOM on every render?
+        </li>
+        <li>
+          What is one risk of using array indexes as keys in a list that can be reordered?
+        </li>
+      </ol>
+      <div class="answers">
+        <p><span class="k">Suggested answers ✅</span></p>
+        <ol>
+          <li>State resets because the whole subtree is destroyed and rebuilt.</li>
+          <li>True.</li>
+          <li>DOM writes are expensive; React tries to reuse existing DOM and apply minimal changes.</li>
+          <li>React may match the wrong items, causing incorrect UI/state to “move” to other rows.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="hr"></div>
+
+    <h2>✅ Quick recap</h2>
+    <p>
+      Diffing is fast because React uses simple rules:
+      <span class="k">different types = rebuild</span>,
+      <span class="k">same type = preserve + update</span>,
+      and <span class="k">stable keys</span> help identity across renders.
+      These rules explain many real-world behaviors (especially unexpected state resets).
+    </p>
+
+    <p class="sub">End of reviewer.</p>
+  </main>
+</body>
+</html>

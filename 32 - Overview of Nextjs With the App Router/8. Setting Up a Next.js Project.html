@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Setting Up a Next.js Project — Reviewer & Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --warnbg: #fff7ed;
+      --warnborder: #fdba74;
+      --goodbg: #f0fdf4;
+      --goodborder: #86efac;
+      --codebg: #0b0f14;
+      --codetext: #e8e8e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 20px 52px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.65rem;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.86rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 1.25rem;
+      border-left: 5px solid var(--border);
+      padding-left: 10px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { margin: 8px 0 10px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .box {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+    .box strong { display: inline-block; margin-bottom: 6px; }
+
+    .callout {
+      border-left: 5px solid var(--border);
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    .warn {
+      border-left: 6px solid var(--warnborder);
+      background: var(--warnbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #fed7aa;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 6px solid var(--goodborder);
+      background: var(--goodbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #bbf7d0;
+      margin: 12px 0;
+    }
+
+    .steps {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      margin: 12px 0;
+    }
+    .steps .row {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .steps .row:first-child { border-top: 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .code {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0;
+      background: #fff;
+    }
+    .code .label {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    pre {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow: auto;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      white-space: pre;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .qa details {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+    .qa summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+    }
+    .qa summary::-webkit-details-marker { display: none; }
+    .qa .answer {
+      margin-top: 8px;
+      color: #222;
+    }
+
+    .footer {
+      margin-top: 26px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      .chip, .box, .callout, .warn, .good, .steps, .code, .qa details {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .box, .callout, .warn, .good, .steps, .code, .qa details { break-inside: avoid; }
+      a[href]::after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Setting Up a Next.js Project — Reviewer & Study Guide</h1>
+      <p class="subtitle">Beginner-friendly notes • Single-column • Print-ready (A4) • Icons & emoticons included</p>
+      <div class="meta">
+        <span class="chip">📦 create-next-app</span>
+        <span class="chip">🧭 App Router</span>
+        <span class="chip">🎨 Tailwind</span>
+        <span class="chip">🧹 Clean starter files</span>
+        <span class="chip">🖥️ SSR verified</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Goal of this lecture 🎯</h2>
+      <p>
+        Now that you understand what Next.js is, the next step is to create your first Next.js app.
+        This is similar to creating a React project with Vite or Create React App—just a different starter tool.
+      </p>
+
+      <div class="good">
+        <strong>Project we will build in Part 5:</strong>
+        <p>
+          A customer-facing website for <strong>The Wild Oasis</strong> (based on the same data you used earlier),
+          where users can view cabins, create reservations, manage profiles, and update/delete their bookings.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Create the project (use Next.js v14) 🧰</h2>
+      <p>
+        The instructor asks you to use <strong>Next.js version 14</strong> so your project matches the course exactly.
+        Next.js releases major versions regularly, and behavior can change.
+      </p>
+
+      <div class="code">
+        <div class="label">Terminal (create project)</div>
+        <pre><code>npx create-next-app@14 the-wild-oasis-website</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>Where do you run this?</strong>
+        <p>
+          In any folder you want (example in the lecture: Desktop). The command creates a new folder for your project.
+        </p>
+      </div>
+
+      <div class="warn">
+        <strong>⚠️ Tip:</strong>
+        <p>
+          If you run <code>create-next-app@latest</code> in the future, you might get a newer Next.js version.
+          That’s why the course pins v14.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Answer the setup questions (recommended choices) ✅</h2>
+      <p>
+        <code>create-next-app</code> asks a few questions. In the lecture, you mostly accept defaults, except TypeScript.
+      </p>
+
+      <div class="steps" role="region" aria-label="create-next-app choices">
+        <div class="row">🟦 TypeScript? <strong>No</strong> (so everyone can follow without TS)</div>
+        <div class="row">🧹 ESLint? <strong>Yes</strong></div>
+        <div class="row">🎨 Tailwind? <strong>Yes</strong> (used for styling in the course)</div>
+        <div class="row">🧭 App Router? <strong>Yes</strong> (recommended modern router)</div>
+        <div class="row">(Others) Use defaults unless you know you want something else</div>
+      </div>
+
+      <div class="callout">
+        <strong>If you know TypeScript:</strong>
+        <p>
+          You can choose Yes, but the course project is taught without TypeScript.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Open the project in VS Code 🧑‍💻</h2>
+      <p>
+        Once installation finishes, move into the folder and open it in VS Code.
+      </p>
+
+      <div class="code">
+        <div class="label">Terminal (open in VS Code)</div>
+        <pre><code>cd the-wild-oasis-website
+code .</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>Alternative:</strong>
+        <p>Drag-and-drop the folder into VS Code.</p>
+      </div>
+
+      <div class="good">
+        <strong>Bonus noted in the lecture:</strong>
+        <p>
+          Next.js may initialize a Git repository automatically, which you’ll see in VS Code source control.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Quick project tour: what matters most 🗂️</h2>
+      <p>
+        You will see many files. You do not need to understand all of them immediately.
+        Focus on the ones that explain how Next.js works.
+      </p>
+
+      <div class="grid">
+        <div class="box">
+          <strong>Key files/folders (mentioned):</strong>
+          <ul>
+            <li><code>package.json</code> — a Next.js app is also a Node.js app</li>
+            <li><code>next.config.js</code> — config file (starts empty, later you’ll add settings)</li>
+            <li><code>public/</code> — static assets (like in Vite / CRA)</li>
+          </ul>
+        </div>
+        <div class="box">
+          <strong>Most important:</strong>
+          <ul>
+            <li><code>app/</code> folder — enables the <strong>App Router</strong> ✅</li>
+            <li>Inside <code>app/</code> you’ll see conventions like <code>page.js</code> and <code>layout.js</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>App Router vs Pages Router (practical rule):</strong>
+        <p>
+          <strong>App Router</strong> uses the <code>app/</code> folder.
+          If you were using the legacy Pages Router, you’d use a <code>pages/</code> folder instead.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Clean up starter files (simple “Hello Next!” page) 🧹</h2>
+      <p>
+        The instructor deletes some default starter files (layout/CSS/icon) to keep the project clean,
+        then simplifies <code>app/page.js</code>.
+      </p>
+
+      <div class="code">
+        <div class="label">app/page.js (simple starter)</div>
+        <pre><code>export default function Page() {
+  return &lt;h1&gt;Hello Next!&lt;/h1&gt;;
+}</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>Key idea:</strong>
+        <p>
+          <code>page.js</code> exports a normal React component. Next.js uses conventions to treat it as a route/page.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Run the dev server 🚀</h2>
+      <p>
+        Check <code>package.json</code> scripts, then run the development server.
+      </p>
+
+      <div class="code">
+        <div class="label">Terminal (start Next.js dev server)</div>
+        <pre><code>npm run dev</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>Open the app:</strong>
+        <p>
+          Your terminal prints a local URL (often <code>http://localhost:3000</code>). Command/Ctrl+click it to open.
+        </p>
+      </div>
+
+      <div class="good">
+        <strong>Expected result:</strong>
+        <p>
+          You should see <strong>Hello Next!</strong> in the browser.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>8) Verify SSR: check “View Page Source” 🕵️‍♂️</h2>
+      <p>
+        The lecture emphasizes a simple proof that SSR is happening:
+        use <strong>View Page Source</strong> in the browser.
+      </p>
+
+      <div class="box">
+        <strong>Why “View Page Source” matters:</strong>
+        <ul>
+          <li><strong>Elements tab</strong> shows the current DOM after JavaScript runs.</li>
+          <li><strong>View Page Source</strong> shows what was downloaded from the server.</li>
+        </ul>
+      </div>
+
+      <div class="good">
+        <strong>SSR confirmation:</strong>
+        <p>
+          If you see your <code>&lt;h1&gt;Hello Next!&lt;/h1&gt;</code> in the page source, the server generated that HTML and sent it.
+        </p>
+      </div>
+    </section>
+
+    <section class="qa">
+      <h2>9) Mini Quiz (self-check) 🧪</h2>
+
+      <details>
+        <summary>Q1) Why does the course use Next.js v14 instead of @latest?</summary>
+        <div class="answer">
+          To ensure everyone uses the same behavior/features as in the videos. Newer versions can change defaults and APIs.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q2) What folder enables the App Router?</summary>
+        <div class="answer">
+          The <code>app/</code> folder.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q3) What command starts the dev server?</summary>
+        <div class="answer">
+          <code>npm run dev</code>.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q4) What is the quickest way to confirm SSR in the browser?</summary>
+        <div class="answer">
+          Use “View Page Source” and check if your rendered HTML (like <code>Hello Next!</code>) is present.
+        </div>
+      </details>
+    </section>
+
+    <p class="footer">
+      End of reviewer. Next lecture: add routes and more pages so you can start navigating in Next.js.
+    </p>
+  </main>
+</body>
+</html>

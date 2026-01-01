@@ -1,0 +1,457 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Route Handlers — API Endpoints (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --ok: #0f7b0f;
+      --warn: #8a5a00;
+      --bad: #b00020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 6px;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 8px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 6px;
+    }
+
+    p { margin: 8px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout .title {
+      font-weight: 700;
+      margin: 0 0 6px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .callout.ok { border-left: 6px solid var(--ok); }
+    .callout.warn { border-left: 6px solid var(--warn); }
+    .callout.bad { border-left: 6px solid var(--bad); }
+    .callout.info { border-left: 6px solid var(--accent); }
+
+    ul { margin: 8px 0 8px 18px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #f2f4ff;
+      border-radius: 10px;
+      border: 1px solid #0b1020;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    .inline-code {
+      background: #f6f8fa;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 0.95em;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 860px) {
+      .two-col { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* PRINT (A4) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { padding: 0; margin: 0; max-width: none; }
+      .chip { border-color: #cfcfcf; }
+      pre { page-break-inside: avoid; }
+      .card, .callout { page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Creating an API Endpoint with Next.js Route Handlers</h1>
+      <p class="subtitle">Reviewer / Study Guide — beginner-friendly notes + practical examples (single-column, A4 print-ready)</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Route Handlers (App Router)</span>
+        <span class="chip">🔁 Focus: GET endpoint + dynamic params</span>
+        <span class="chip">🧰 Concepts: Request/Response web standards</span>
+        <span class="chip">✅ Goal: Build <span class="inline-code">/api/cabins/[cabinId]</span></span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Big picture: Why Route Handlers? 🤔</h2>
+      <p>
+        In modern Next.js (App Router), you often <strong>don’t need</strong> to build custom API endpoints just to mutate data,
+        because <strong>Server Actions</strong> can handle many mutation workflows.
+        <em>However</em>, Route Handlers are still valuable when you need a classic HTTP API endpoint.
+      </p>
+
+      <div class="callout info">
+        <p class="title">💡 When Route Handlers are still useful</p>
+        <ul>
+          <li><strong>External consumers</strong> (e.g., affiliates, mobile app, partners) need a JSON API.</li>
+          <li>You want to <strong>hide your Supabase endpoints/keys</strong> behind your own abstraction.</li>
+          <li>You want to <strong>aggregate</strong> data from multiple sources into a single response.</li>
+          <li>You need endpoints for <strong>webhooks</strong> or integrations (often POST-based).</li>
+        </ul>
+      </div>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Important constraint</p>
+        <p>
+          A folder cannot have both <span class="inline-code">page.js</span> and <span class="inline-code">route.js</span>
+          because that would conflict: pages return HTML, route handlers return non-HTML (usually JSON).
+        </p>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>2) What is a Route Handler? 🧩</h2>
+      <p>
+        A Route Handler is created by adding a convention file named <span class="inline-code">route.js</span>
+        inside a route segment folder (under <span class="inline-code">app</span> in App Router).
+        When a request hits that route, Next.js executes your handler and returns the response (commonly JSON).
+      </p>
+
+      <div class="card">
+        <h3>Route Handlers map to HTTP verbs</h3>
+        <p>
+          You export functions with names matching HTTP methods.
+          Example: <span class="inline-code">GET</span>, <span class="inline-code">POST</span>, <span class="inline-code">PUT</span>,
+          <span class="inline-code">PATCH</span>, <span class="inline-code">DELETE</span>, <span class="inline-code">HEAD</span>, <span class="inline-code">OPTIONS</span>.
+        </p>
+      </div>
+
+      <div class="callout info">
+        <p class="title">🌐 Web standards inside Route Handlers</p>
+        <p>
+          Route Handlers use the <strong>Request</strong> and <strong>Response</strong> web APIs (same concepts as in browsers).
+          A common pattern is returning JSON via <span class="inline-code">Response.json(...)</span>.
+        </p>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>3) Minimal example: <span class="inline-code">/api</span> returning JSON 🧪</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Folder structure</h3>
+          <pre>app/
+  api/
+    route.js</pre>
+          <p class="subtitle">(No <span class="inline-code">page.js</span> here.)</p>
+        </div>
+
+        <div class="card">
+          <h3>route.js (GET)</h3>
+          <pre>// app/api/route.js
+
+export async function GET() {
+  return Response.json({ test: "test" });
+}</pre>
+        </div>
+      </div>
+
+      <div class="callout ok">
+        <p class="title">✅ What you should see</p>
+        <p>
+          Visiting <span class="inline-code">/api</span> returns JSON (not HTML). If you forget to <strong>return</strong> the response,
+          you won’t see any JSON.
+        </p>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>4) Practical example: <span class="inline-code">/api/cabins/[cabinId]</span> 🏡</h2>
+      <p>
+        Goal: build an endpoint for an “affiliate” that can request:
+        <strong>cabin details</strong> + <strong>booked dates</strong> for that cabin.
+      </p>
+
+      <div class="card">
+        <h3>Folder structure with a dynamic segment</h3>
+        <pre>app/
+  api/
+    cabins/
+      [cabinId]/
+        route.js</pre>
+        <p>
+          The dynamic folder name <span class="inline-code">[cabinId]</span> becomes the parameter key.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Accessing params inside the handler</h3>
+        <p>
+          The handler receives <span class="inline-code">request</span> as the first argument and a context object (with <span class="inline-code">params</span>)
+          as the second argument.
+        </p>
+        <pre>// app/api/cabins/[cabinId]/route.js
+
+export async function GET(request, { params }) {
+  // params.cabinId matches the folder name [cabinId]
+  const { cabinId } = params;
+
+  return Response.json({ cabinId });
+}</pre>
+      </div>
+
+      <div class="callout ok">
+        <p class="title">✅ Test it</p>
+        <p>
+          Visiting <span class="inline-code">/api/cabins/89</span> should return JSON like <span class="inline-code">{ "cabinId": "89" }</span>.
+        </p>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>5) Fetch data safely + return combined JSON 🧱</h2>
+      <p>
+        In the lecture, the handler calls two functions (example names):
+        <span class="inline-code">getCabin(cabinId)</span> and <span class="inline-code">getBookedDatesByCabinId(cabinId)</span>.
+        Because these are independent, we fetch them in parallel using <span class="inline-code">Promise.all</span>.
+      </p>
+
+      <div class="card">
+        <h3>Pattern: parallel fetching + try/catch error handling</h3>
+        <pre>// app/api/cabins/[cabinId]/route.js
+
+import { getCabin, getBookedDatesByCabinId } from "@/lib/data-service";
+
+export async function GET(request, { params }) {
+  const { cabinId } = params;
+
+  try {
+    const [cabin, bookedDates] = await Promise.all([
+      getCabin(cabinId),
+      getBookedDatesByCabinId(cabinId),
+    ]);
+
+    return Response.json({ cabin, bookedDates });
+  } catch (err) {
+    // In route handlers, app error boundaries (error.js) won’t catch like normal pages.
+    return Response.json(
+      { message: "Cabin not found." },
+      { status: 404 }
+    );
+  }
+}</pre>
+      </div>
+
+      <div class="callout info">
+        <p class="title">🧠 Why try/catch here?</p>
+        <p>
+          Route handlers are not “page UI.” Your UI error boundaries don’t behave the same way.
+          If something fails (e.g., cabinId doesn’t exist), you should send a clear JSON error
+          and a proper HTTP status code.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Common beginner mistakes</p>
+        <ul>
+          <li>Forgetting <strong>return</strong> before <span class="inline-code">Response.json(...)</span>.</li>
+          <li>Using <span class="inline-code">page.js</span> in the same folder as <span class="inline-code">route.js</span>.</li>
+          <li>Not setting an HTTP status for errors (clients can’t distinguish success vs failure well).</li>
+          <li>Doing sequential awaits when requests don’t depend on each other (slow “waterfall”).</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>6) Mental model: What happens when you hit the endpoint? 🧭</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Request → execute handler → response</h3>
+          <ul>
+            <li>Client requests <span class="inline-code">/api/cabins/90</span>.</li>
+            <li>Next.js matches route segments and runs <span class="inline-code">GET</span> in <span class="inline-code">route.js</span>.</li>
+            <li>Your code loads data (Supabase, other services, etc.).</li>
+            <li>You return JSON using <span class="inline-code">Response.json</span>.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Why this can be safer than exposing Supabase directly 🔒</h3>
+          <ul>
+            <li>You control the exact response shape (contract).</li>
+            <li>You can combine multiple sources into one response.</li>
+            <li>You keep service keys and private tables hidden.</li>
+            <li>You can add throttling, auth checks, logging, etc. later.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>7) Quick practice tasks ✍️</h2>
+      <div class="card">
+        <h3>Practice A: Add a second endpoint</h3>
+        <ul>
+          <li>Create <span class="inline-code">/api/health</span> that returns <span class="inline-code">{ status: "ok" }</span>.</li>
+          <li>Return status code <span class="inline-code">200</span>.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Practice B: Validate the cabinId</h3>
+        <ul>
+          <li>If <span class="inline-code">cabinId</span> is missing or not numeric, return:
+            <span class="inline-code">{ message: "Invalid cabinId" }</span> with status <span class="inline-code">400</span>.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Practice C: Extend response</h3>
+        <ul>
+          <li>Add a new field <span class="inline-code">source: "next-route-handler"</span> in the JSON response.</li>
+        </ul>
+      </div>
+
+      <div class="callout ok">
+        <p class="title">✅ Checkpoint</p>
+        <p>
+          If you can explain why <span class="inline-code">route.js</span> cannot live beside <span class="inline-code">page.js</span>,
+          and why <span class="inline-code">Promise.all</span> helps performance, you understood the core ideas.
+        </p>
+      </div>
+    </section>
+
+    <footer class="hr"></footer>
+    <p class="subtitle">
+      End of notes — Next: Authentication section (as mentioned in the lecture).
+    </p>
+  </main>
+</body>
+</html>

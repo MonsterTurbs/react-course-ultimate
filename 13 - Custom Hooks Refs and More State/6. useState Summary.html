@@ -1,0 +1,328 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — useState Summary (Create + Update State)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --accent:#111111;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .muted{ color: var(--muted); }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🧠 React Study Guide: <code>useState</code> Summary (Create + Update State)</h1>
+      <p class="subtitle">A compact “single-slide” reference for how to create and update state correctly, including lazy initialization and functional updates.</p>
+      <div class="meta">
+        <span class="chip">✅ Create state: value or callback</span>
+        <span class="chip">✅ Update state: value or callback</span>
+        <span class="chip">⚠️ Rule: never mutate arrays/objects</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What does <code>useState</code> do?</h2>
+      <p><code>useState</code> helps you:</p>
+      <ul>
+        <li>✅ create a <strong>state variable</strong> (the current value)</li>
+        <li>✅ get a <strong>setter function</strong> (to update that value)</li>
+      </ul>
+
+      <pre><code>const [count, setCount] = useState(0);
+//   state   setter</code></pre>
+
+      <div class="callout">
+        <strong>Reminder:</strong> Calling the setter triggers a re-render with the new state.
+      </div>
+    </section>
+
+    <section>
+      <h2>1) 🧱 Creating state: two valid patterns</h2>
+
+      <div class="grid">
+        <div class="rule">
+          <h3>✅ A) Simple initial value (most common)</h3>
+          <pre><code>const [name, setName] = useState("Reymond");
+const [isOpen, setIsOpen] = useState(false);
+const [items, setItems] = useState([]);</code></pre>
+          <p class="muted">Use this when the initial state is a literal value and does not require work to compute.</p>
+        </div>
+
+        <div class="rule">
+          <h3>✅ B) Lazy initial state via callback ("lazy evaluation")</h3>
+          <p>Use this when the initial value depends on some computation (e.g., reading localStorage).</p>
+          <pre><code>const [watched, setWatched] = useState(() =&gt; {
+  const stored = localStorage.getItem("watched");
+  return stored ? JSON.parse(stored) : [];
+});</code></pre>
+          <div class="callout">
+            <strong>Key idea:</strong> This initializer function runs <em>only once</em> (on the initial render). Subsequent re-renders ignore it.
+          </div>
+        </div>
+      </div>
+
+      <h3>🧪 Requirements for the initializer callback</h3>
+      <ul>
+        <li>🧼 Must be a <strong>pure</strong> function (no unexpected side effects)</li>
+        <li>🚫 Must require <strong>no arguments</strong></li>
+      </ul>
+
+      <div class="callout">
+        <strong>Don’t do this:</strong> <code>useState(getInitial())</code> — it calls the function every render.
+      </div>
+
+      <pre><code>// ❌ Avoid (function runs every render)
+const [data, setData] = useState(getInitialData());
+
+// ✅ Prefer (React calls it once)
+const [data, setData] = useState(() =&gt; getInitialData());</code></pre>
+    </section>
+
+    <section>
+      <h2>2) 🔁 Updating state: two valid patterns</h2>
+
+      <div class="grid">
+        <div class="rule">
+          <h3>✅ A) Set the next value directly</h3>
+          <p>Use this when the next state does <strong>not</strong> depend on the current state.</p>
+          <pre><code>setCount(1000);
+setIsOpen(true);
+setName("Jonas");</code></pre>
+        </div>
+
+        <div class="rule">
+          <h3>✅ B) Functional update (preferred when next depends on current)</h3>
+          <p>Use this when the next state is calculated from the current state (example: increment).</p>
+          <pre><code>// ✅ safest increment
+setCount((cur) =&gt; cur + 1);
+
+// ✅ toggle based on current value
+setIsOpen((open) =&gt; !open);</code></pre>
+          <div class="callout">
+            <strong>Why preferred?</strong> It avoids bugs caused by stale state during rapid updates or batching.
+          </div>
+        </div>
+      </div>
+
+      <h3>🧼 Requirements for the update callback</h3>
+      <ul>
+        <li>🧠 Should be a <strong>pure</strong> function</li>
+        <li>➡️ Must return the <strong>next state</strong></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>⚠️ Golden rule: never mutate objects/arrays</h2>
+      <p>If your state is an object or array, you must create a <strong>new</strong> object/array that includes your change.</p>
+
+      <div class="grid">
+        <div class="rule">
+          <h3>❌ Wrong (mutation)</h3>
+          <pre><code>// array mutation
+watched.push(newMovie);
+setWatched(watched);
+
+// object mutation
+user.name = "New Name";
+setUser(user);</code></pre>
+        </div>
+
+        <div class="rule">
+          <h3>✅ Right (immutable updates)</h3>
+          <pre><code>// add to array
+setWatched((cur) =&gt; [...cur, newMovie]);
+
+// remove from array
+setWatched((cur) =&gt; cur.filter((m) =&gt; m.id !== id));
+
+// update object
+setUser((cur) =&gt; ({
+  ...cur,
+  name: "New Name",
+}));</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Why it matters:</strong> React relies on new references to detect changes and re-render correctly.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 One-page cheat sheet (keep this handy)</h2>
+      <ul>
+        <li>🧱 Create state: <code>useState(value)</code> or <code>useState(() =&gt; computedValue)</code></li>
+        <li>🔁 Update state: <code>setX(value)</code> or <code>setX(cur =&gt; next)</code></li>
+        <li>✅ Prefer functional updates when next depends on current</li>
+        <li>⚠️ Never mutate arrays/objects — always create new ones</li>
+      </ul>
+
+      <pre><code>// Create
+const [x, setX] = useState(0);
+const [y, setY] = useState(() =&gt; expensiveInit());
+
+// Update
+setX(10);
+setX((cur) =&gt; cur + 1);
+
+// Immutable object/array
+setArr((cur) =&gt; [...cur, item]);
+setObj((cur) =&gt; ({ ...cur, key: value }));</code></pre>
+
+      <p class="muted">If this feels confusing at first, that’s normal. The patterns become automatic after you build a few components.</p>
+    </section>
+
+  </main>
+</body>
+</html>

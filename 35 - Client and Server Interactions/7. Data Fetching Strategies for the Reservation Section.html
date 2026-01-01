@@ -1,0 +1,376 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js — Data Fetching Strategies (Reservation Section) — Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #0b1020;
+      --codefg: #e8eefc;
+      --accent: #1a73e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 16px 16px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12.5px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    section {
+      margin: 14px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .warn {
+      border-left: 4px solid #b42318;
+      background: #fff6f6;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .box {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 12px;
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .small { color: var(--muted); font-size: 13px; }
+
+    /* Print (A4) */
+    @page { size: A4; margin: 14mm; }
+    @media print {
+      :root { --bg: #ffffff; --text: #000000; --muted: #333333; }
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      pre { white-space: pre-wrap; word-break: break-word; }
+      .chip { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 Next.js — Data Fetching Strategies (Reservation Section)</h1>
+      <p class="subtitle">Reviewer / study guide: how to fetch multiple data pieces on one page without blocking the whole UI, and how to use streaming with <code>Suspense</code>.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Reservation page data</span>
+        <span class="chip">⚡ Performance: avoid waterfalls</span>
+        <span class="chip">🌊 Streaming: Suspense</span>
+        <span class="chip">🧩 Pattern: Server fetch → props to Client</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Learning goals</h2>
+      <ul>
+        <li>Understand why fetching everything in one place can create a <b>blocking waterfall</b>.</li>
+        <li>Use <b>parallel fetching</b> with <code>Promise.all</code> to reduce total time.</li>
+        <li>Use <b>component-level data fetching + streaming</b> (Server Component + <code>Suspense</code>) for a better UX.</li>
+        <li>Know what data belongs where: <b>Server fetch</b> for data, <b>Client Components</b> for interactivity.</li>
+        <li>Keep pages clean by extracting UI into components like <code>&lt;Cabin /&gt;</code> and <code>&lt;Reservation /&gt;</code>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧩 What data is needed for the Reservation section?</h2>
+      <div class="grid">
+        <div class="box">
+          <h3>1) Cabin data 🏠</h3>
+          <ul>
+            <li>Used for page title (e.g., show <code>cabin.name</code>)</li>
+            <li>Used for pricing display in the DateSelector</li>
+            <li>Used for max guests in ReservationForm (<code>cabin.maxCapacity</code>)</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>2) Booked dates 🗓️</h3>
+          <ul>
+            <li>Used to disable already-reserved dates in the calendar</li>
+            <li>Fetched via something like <code>getBookedDatesByCabinId(cabinId)</code></li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>3) Settings ⚙️</h3>
+          <ul>
+            <li>Minimum booking length</li>
+            <li>Maximum booking length</li>
+            <li>Fetched via <code>getSettings()</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><b>Key idea:</b> Client Components (like a date picker UI) should usually <b>not</b> fetch data directly. Instead: fetch on the <b>server</b> and pass down props. ✅</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🐢 Problem: “Blocking waterfall” when fetching sequentially</h2>
+      <p>If you do this in a Server Component:</p>
+      <pre><code>// ❌ Sequential (waterfall)
+const cabin = await getCabin(params.cabinId);
+const settings = await getSettings();
+const bookedDates = await getBookedDatesByCabinId(params.cabinId);
+</code></pre>
+      <p>Then the requests happen in order:</p>
+      <ul>
+        <li>Wait for <code>getCabin</code> → then start <code>getSettings</code></li>
+        <li>Wait for <code>getSettings</code> → then start <code>getBookedDatesByCabinId</code></li>
+      </ul>
+      <div class="warn">
+        <p><b>Why it’s bad:</b> even if requests don’t depend on each other, the UI is blocked by the slow chain. Users wait longer before seeing anything.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>⚡ Fix #1: Parallel fetching using Promise.all</h2>
+      <p>This reduces total time to roughly the slowest request:</p>
+      <pre><code>// ✅ Parallel fetch
+const [cabin, settings, bookedDates] = await Promise.all([
+  getCabin(params.cabinId),
+  getSettings(),
+  getBookedDatesByCabinId(params.cabinId),
+]);
+</code></pre>
+      <div class="callout">
+        <p><b>When this is enough:</b> when it’s okay that the whole page waits until the slowest request finishes.</p>
+      </div>
+      <p class="small">But: the page is still blocked until all data is ready. So UX can still be improved.</p>
+    </section>
+
+    <section>
+      <h2>🌊 Fix #2 (Better UX): Component-level fetching + Streaming with Suspense</h2>
+      <p><b>Goal:</b> show the cabin details immediately, while only the reservation UI waits on slower data.</p>
+
+      <h3>Step A: Extract reservation into its own Server Component</h3>
+      <pre><code>// Reservation.js (Server Component)
+export default async function Reservation({ cabin }) {
+  const [settings, bookedDates] = await Promise.all([
+    getSettings(),
+    getBookedDatesByCabinId(cabin.id),
+  ]);
+
+  return (
+    &lt;div className="grid grid-cols-2 border border-primary-800 min-h-[400px] mb-10"&gt;
+      &lt;DateSelector settings={settings} bookedDates={bookedDates} cabin={cabin} /&gt;
+      &lt;ReservationForm cabin={cabin} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <h3>Step B: Wrap it in Suspense on the page</h3>
+      <pre><code>// page.js (Server Component)
+import { Suspense } from "react";
+
+export default async function Page({ params }) {
+  const cabin = await getCabin(params.cabinId);
+
+  return (
+    &lt;&gt;
+      &lt;Cabin cabin={cabin} /&gt;
+
+      &lt;Suspense fallback={&lt;Spinner /&gt;}&gt;
+        &lt;Reservation cabin={cabin} /&gt;
+      &lt;/Suspense&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout">
+        <p><b>Result:</b> The page renders cabin info right away. Only the Reservation part shows a spinner while its data loads. This is a big UX win.</p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3>Why this works (simple explanation) 🙂</h3>
+      <ul>
+        <li><code>Cabin</code> loads fast → user sees content immediately.</li>
+        <li><code>Reservation</code> is “suspending” while it fetches settings + booked dates.</li>
+        <li><code>Suspense</code> shows a fallback UI for only that section.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧠 Data passing: “Whole objects” vs “minimal props”</h2>
+      <p>You might pass full objects as props (easy), but be mindful:</p>
+      <ul>
+        <li>✅ <b>Pros:</b> fewer props to manage, quicker to code</li>
+        <li>⚠️ <b>Cons:</b> can over-share data; may increase component coupling</li>
+      </ul>
+      <div class="callout">
+        <p><b>Rule of thumb:</b> If you only need 1–2 fields, pass only those fields. If you need many fields, passing the object can be more maintainable.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Note: Request memoization (deduping) in Next.js</h2>
+      <p>Next.js can deduplicate identical data fetches during a single request (often called “request memoization”).</p>
+      <ul>
+        <li>This can allow calling the same fetch in multiple places without multiple network trips.</li>
+        <li>Still, for shallow trees, fetching once and passing props is often simpler.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧹 Cleanup tips (VS Code productivity)</h2>
+      <ul>
+        <li>Remove unused imports quickly: <span class="kbd">Shift</span> + <span class="kbd">Alt</span> + <span class="kbd">O</span> (Windows/Linux) or <span class="kbd">Shift</span> + <span class="kbd">Option</span> + <span class="kbd">O</span> (Mac)</li>
+        <li>Keep page files readable: extract UI blocks into components like <code>Cabin.js</code> and <code>Reservation.js</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>✅ Quick self-check (practice)</h2>
+      <ol>
+        <li>What 3 data sources are needed for the reservation section?</li>
+        <li>Explain the “waterfall” problem in one sentence.</li>
+        <li>When do you use <code>Promise.all</code>?</li>
+        <li>Why is <code>Suspense</code> better for UX here?</li>
+        <li>Why is it preferred to fetch data on the server (when possible) instead of in client components?</li>
+      </ol>
+      <p class="small">If you can answer these, you’ve understood the core strategy choices. 👍</p>
+    </section>
+
+    <section>
+      <h2>📌 Summary</h2>
+      <ul>
+        <li>🧱 Fetching everything in the page can cause slow, blocking UI.</li>
+        <li>⚡ <code>Promise.all</code> reduces waiting by running requests in parallel.</li>
+        <li>🌊 Best UX: split page into components and stream slow parts with <code>Suspense</code>.</li>
+        <li>🧩 Keep client components for interactivity; keep server components for data fetching.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

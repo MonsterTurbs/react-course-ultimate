@@ -1,0 +1,577 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Auth (Auth.js / NextAuth) — Setup (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #0b57d0;
+      --good: #0f7b3e;
+      --warn: #8a5a00;
+      --bad: #b00020;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 28px 22px 64px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 16px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      line-height: 1.25;
+      margin: 0 0 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .chip b { color: var(--text); font-weight: 650; }
+
+    nav {
+      margin-top: 16px;
+      border-top: 1px dashed var(--border);
+      padding-top: 12px;
+    }
+
+    nav h2 {
+      font-size: 1.05rem;
+      margin: 0 0 8px;
+    }
+
+    nav ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    nav li { margin: 4px 0; }
+
+    section {
+      margin-top: 20px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      margin: 0 0 10px;
+      letter-spacing: -0.01em;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin: 16px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .note, .tip, .warn, .danger {
+      border: 1px solid var(--border);
+      border-left-width: 6px;
+      border-radius: 12px;
+      padding: 12px 12px;
+      background: var(--soft);
+      margin: 12px 0;
+    }
+
+    .note { border-left-color: var(--accent); }
+    .tip { border-left-color: var(--good); }
+    .warn { border-left-color: var(--warn); }
+    .danger { border-left-color: var(--bad); }
+
+    .note strong, .tip strong, .warn strong, .danger strong { font-weight: 750; }
+
+    ul, ol {
+      margin: 10px 0;
+      padding-left: 22px;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: var(--mono);
+      font-size: 0.92rem;
+    }
+
+    pre {
+      background: #0b1020;
+      color: #f2f2f2;
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+      border: 1px solid rgba(0,0,0,0.15);
+      margin: 10px 0;
+    }
+
+    pre code { color: inherit; }
+
+    .k { color: #9cdcfe; }
+    .s { color: #ce9178; }
+    .c { color: #6a9955; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--soft);
+      text-align: left;
+      font-weight: 700;
+    }
+
+    .divider {
+      margin: 18px 0;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+      margin: 10px 0;
+    }
+
+    .checklist li {
+      padding-left: 0;
+      margin: 8px 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px 12px;
+    }
+
+    .checklist b { font-weight: 750; }
+
+    .qa {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .qa .q { margin: 0 0 8px; font-weight: 750; }
+    .qa .a { margin: 0; color: var(--muted); }
+
+    /* Print styles (A4 + clean output) */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+
+      /* Avoid cutting boxes / code blocks */
+      header, section, .note, .tip, .warn, .danger, pre, table, .qa, .checklist li {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      /* Prevent printing URLs */
+      a[href]:after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+
+      /* Slightly denser for paper */
+      body { font-size: 11.5pt; line-height: 1.45; }
+      h1 { font-size: 17pt; }
+      h2 { font-size: 13.5pt; }
+      h3 { font-size: 12pt; }
+      pre { font-size: 10.3pt; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🔐 Next.js Authentication Setup (Auth.js / NextAuth v5) — Reviewer</h1>
+      <p class="subtitle">
+        Beginner-friendly guide for setting up Google login using Auth.js (formerly NextAuth) inside a Next.js App Router project.
+      </p>
+      <div class="meta">
+        <span class="chip">📦 <b>Library</b>: Auth.js / NextAuth</span>
+        <span class="chip">🧭 <b>Router</b>: App Router</span>
+        <span class="chip">🧪 <b>Provider</b>: Google OAuth</span>
+        <span class="chip">🧠 <b>Focus</b>: Env vars + route handler wiring</span>
+      </div>
+      <nav aria-label="Table of contents">
+        <h2>📚 Table of Contents</h2>
+        <ol>
+          <li><a href="#big-picture">Big picture</a></li>
+          <li><a href="#concepts">Key concepts and terms</a></li>
+          <li><a href="#env">Step 1 — Environment variables</a></li>
+          <li><a href="#google">Step 2 — Google Developer Console (OAuth)</a></li>
+          <li><a href="#install">Step 3 — Install Auth.js / NextAuth</a></li>
+          <li><a href="#auth-file">Step 4 — Create <code>_lib/auth.js</code></a></li>
+          <li><a href="#route-handler">Step 5 — Create the Auth route handler</a></li>
+          <li><a href="#test">Step 6 — Test the auth routes</a></li>
+          <li><a href="#troubleshooting">Troubleshooting checklist</a></li>
+          <li><a href="#quick-quiz">Quick quiz</a></li>
+        </ol>
+      </nav>
+    </header>
+
+    <section id="big-picture">
+      <h2>🗺️ Big picture</h2>
+      <p>
+        Auth.js (previously called <b>NextAuth</b>) is a library that helps you add authentication to a Next.js app.
+        It is <b>not</b> an authentication database/service by itself.
+      </p>
+      <ul>
+        <li>✅ You connect Auth.js to an <b>auth provider</b> (Google, GitHub, etc.).</li>
+        <li>✅ Auth.js handles the <b>OAuth flow</b> and session handling.</li>
+        <li>✅ Your app can then read the logged-in user/session and protect routes later.</li>
+      </ul>
+
+      <div class="note">
+        <strong>🧩 Why still learn route handlers?</strong>
+        Even if server actions reduce the need for custom API endpoints, route handlers remain useful for building internal or partner APIs,
+        and Auth.js relies on route handlers for its own auth endpoints.
+      </div>
+
+      <div class="tip">
+        <strong>💡 Mental model:</strong>
+        You configure Auth.js once (providers + secrets), then Next.js exposes a set of <b>/api/auth/*</b> endpoints that drive login/logout,
+        callback handling, provider discovery, etc.
+      </div>
+    </section>
+
+    <section id="concepts">
+      <h2>🧠 Key concepts and terms</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Term</th>
+            <th>Meaning (simple)</th>
+            <th>Why it matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Provider</b></td>
+            <td>External login source (Google, GitHub, etc.)</td>
+            <td>You choose the login method your users will use.</td>
+          </tr>
+          <tr>
+            <td><b>OAuth Client ID / Secret</b></td>
+            <td>Credentials Google gives your app</td>
+            <td>Google uses these to verify your app during login.</td>
+          </tr>
+          <tr>
+            <td><b>Redirect URI</b></td>
+            <td>The callback URL Google sends users back to after login</td>
+            <td>If it does not match exactly, login will fail.</td>
+          </tr>
+          <tr>
+            <td><b>NEXTAUTH_URL</b></td>
+            <td>Your app's base URL (dev or prod)</td>
+            <td>Used to correctly generate callback URLs and handle cookies.</td>
+          </tr>
+          <tr>
+            <td><b>NEXTAUTH_SECRET</b></td>
+            <td>Server-side secret for signing/encrypting</td>
+            <td>Required for secure sessions/tokens.</td>
+          </tr>
+          <tr>
+            <td><b>Route Handler</b></td>
+            <td><code>route.js</code> file that responds with JSON, not HTML</td>
+            <td>Auth.js uses this to implement <code>/api/auth/*</code> endpoints.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warn">
+        <strong>⚠️ Important:</strong> Auth.js reads environment variable names exactly. Typos will break authentication.
+      </div>
+    </section>
+
+    <section id="env">
+      <h2>🧾 Step 1 — Environment variables</h2>
+      <p>
+        In your <code>.env.local</code> (or equivalent), add these values.
+        During development, your app usually runs on <code>http://localhost:3000</code>.
+      </p>
+
+      <pre><code><span class="c"># Base URL of your app (dev)</span>
+NEXTAUTH_URL=http://localhost:3000
+
+<span class="c"># Secret used by Auth.js to sign/encrypt session data</span>
+NEXTAUTH_SECRET=__GENERATE_A_STRONG_SECRET__
+
+<span class="c"># Google provider credentials from Google Developer Console</span>
+AUTH_GOOGLE_ID=__YOUR_GOOGLE_CLIENT_ID__
+AUTH_GOOGLE_SECRET=__YOUR_GOOGLE_CLIENT_SECRET__
+</code></pre>
+
+      <div class="tip">
+        <strong>🔑 Generating a strong secret:</strong>
+        Use a secure secret generator (common practice) and paste the result into <code>NEXTAUTH_SECRET</code>.
+        A random long string is recommended.
+      </div>
+
+      <div class="warn">
+        <strong>🧷 Match your dev URL exactly:</strong>
+        If your dev server is on port <code>3001</code>, then <code>NEXTAUTH_URL</code> must reflect that.
+        If you use <code>127.0.0.1</code> instead of <code>localhost</code>, it must also match.
+      </div>
+    </section>
+
+    <section id="google">
+      <h2>🟦 Step 2 — Google Developer Console (OAuth)</h2>
+      <p>
+        Goal: create OAuth credentials so Google will allow your Next.js app to log users in.
+      </p>
+
+      <ol>
+        <li>✅ Create a <b>Google Cloud Project</b> (any name is fine).</li>
+        <li>✅ Configure the <b>OAuth consent screen</b> (choose <b>External</b> for most personal projects).</li>
+        <li>✅ Create <b>OAuth Client ID</b> credentials for a <b>Web application</b>.</li>
+        <li>✅ Add the correct <b>Authorized JavaScript origins</b> and <b>Redirect URI</b>.</li>
+      </ol>
+
+      <h3>📌 Origins and Redirect URI (critical)</h3>
+      <p>
+        Use your dev base URL for origins, and a callback URL that Auth.js expects.
+      </p>
+
+      <div class="note">
+        <strong>🧭 Typical dev values:</strong>
+        <ul>
+          <li><b>Authorized JavaScript origins</b>: <code>http://localhost:3000</code></li>
+          <li><b>Authorized redirect URI</b>: <code>http://localhost:3000/api/auth/callback/google</code></li>
+        </ul>
+        📝 The redirect URI must match exactly (including lowercase/uppercase and path).
+      </div>
+
+      <div class="warn">
+        <strong>🧪 Testing mode:</strong>
+        If your consent screen is in “Testing”, only the users you add as test users can log in.
+        Later, you can publish the app for broader access.
+      </div>
+    </section>
+
+    <section id="install">
+      <h2>📦 Step 3 — Install Auth.js / NextAuth</h2>
+      <p>
+        In the lecture, version 5 is used (Auth.js direction). At the time, it may require installing the beta tag.
+      </p>
+
+      <pre><code>npm install next-auth@beta</code></pre>
+
+      <div class="note">
+        <strong>ℹ️ Why @beta?</strong>
+        The library historically had a v4 “NextAuth” and a newer v5 aligned with “Auth.js”.
+        Depending on when you install, you may or may not need the beta tag.
+      </div>
+    </section>
+
+    <section id="auth-file">
+      <h2>🧩 Step 4 — Create <code>_lib/auth.js</code></h2>
+      <p>
+        Create a file (convention used in the lecture): <code>app/_lib/auth.js</code>.
+        This file sets up providers and exports helper utilities.
+      </p>
+
+      <pre><code><span class="c">// app/_lib/auth.js</span>
+import NextAuth from "next-auth";
+import Google from "next-auth/providers/google";
+
+const authConfig = {
+  providers: [
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+    }),
+  ],
+};
+
+export const {
+  auth,
+  handlers: { GET, POST },
+} = NextAuth(authConfig);
+</code></pre>
+
+      <div class="tip">
+        <strong>✅ What you get from <code>NextAuth(authConfig)</code>:</strong>
+        <ul>
+          <li><b>auth</b> — helper you can call later (usually in server contexts) to get session/user info.</li>
+          <li><b>handlers.GET/POST</b> — route handlers you re-export in <code>/api/auth/[...nextauth]/route.js</code>.</li>
+        </ul>
+      </div>
+
+      <div class="warn">
+        <strong>⚠️ Environment variable names must match:</strong>
+        <code>AUTH_GOOGLE_ID</code> and <code>AUTH_GOOGLE_SECRET</code> must be exactly the same names you used in your env file.
+      </div>
+    </section>
+
+    <section id="route-handler">
+      <h2>🛣️ Step 5 — Create the Auth route handler</h2>
+      <p>
+        In App Router, Auth.js endpoints live under a route handler.
+        Create this file structure:
+      </p>
+
+      <pre><code>app/
+  api/
+    auth/
+      [...nextauth]/
+        route.js</code></pre>
+
+      <p>
+        Then re-export the GET and POST handlers from your <code>_lib/auth.js</code> file.
+      </p>
+
+      <pre><code><span class="c">// app/api/auth/[...nextauth]/route.js</span>
+export { GET, POST } from "@/app/_lib/auth";
+</code></pre>
+
+      <div class="note">
+        <strong>🧵 Catch-all segment:</strong>
+        <code>[...nextauth]</code> means all routes starting with <code>/api/auth</code> (signin, signout, callback, providers, etc.)
+        are handled by Auth.js.
+      </div>
+    </section>
+
+    <section id="test">
+      <h2>🧪 Step 6 — Test the auth routes</h2>
+
+      <div class="checklist">
+        <li>✅ Open the Sign In endpoint: <b>/api/auth/signin</b> → you should see “Sign in with Google”. 😄</li>
+        <li>✅ Open the Providers endpoint: <b>/api/auth/providers</b> → you should see JSON describing configured providers. 🧾</li>
+      </div>
+
+      <div class="tip">
+        <strong>🎉 If you see the Google sign-in button:</strong>
+        Your provider + route handler wiring is correct.
+        Next, you will typically handle session data and authorization rules.
+      </div>
+
+      <div class="warn">
+        <strong>🧩 What if login “works” but nothing happens after?</strong>
+        At this stage, you may not yet have implemented logic that reads the session and updates UI.
+        The OAuth flow can be correct even if your app doesn’t show the user yet.
+      </div>
+    </section>
+
+    <section id="troubleshooting">
+      <h2>🛠️ Troubleshooting checklist</h2>
+
+      <div class="danger">
+        <strong>🚨 80% of setup issues are caused by one of these:</strong>
+        <ul>
+          <li>Env var typos: <code>NEXTAUTH_URL</code>, <code>NEXTAUTH_SECRET</code>, <code>AUTH_GOOGLE_ID</code>, <code>AUTH_GOOGLE_SECRET</code></li>
+          <li>Redirect URI mismatch (wrong path, wrong host, wrong port)</li>
+          <li>Wrong “origin” vs “redirect URI” fields in Google console</li>
+          <li>Consent screen still in Testing without adding your Google account as a test user</li>
+        </ul>
+      </div>
+
+      <h3>🧾 Quick self-audit</h3>
+      <ul>
+        <li>🧩 Is your dev server actually running on the same URL as <code>NEXTAUTH_URL</code>?</li>
+        <li>🔁 Does the Google redirect URI match your app route: <code>/api/auth/callback/google</code>?</li>
+        <li>🔐 Did you restart the dev server after changing <code>.env.local</code>? (Env changes usually require restart.)</li>
+        <li>🧪 If consent screen is “Testing”, are you listed as a test user?</li>
+      </ul>
+
+      <div class="tip">
+        <strong>✅ Habit:</strong>
+        When debugging, compare your setup line-by-line with a known working configuration.
+        One missing character is enough to break the flow.
+      </div>
+    </section>
+
+    <section id="quick-quiz">
+      <h2>📝 Quick quiz (for retention)</h2>
+
+      <div class="qa">
+        <p class="q">1) Is Auth.js an authentication database/service like Supabase Auth?</p>
+        <p class="a">No. Auth.js is a library that integrates providers (Google, GitHub, etc.) and manages auth flow + sessions inside Next.js.</p>
+      </div>
+
+      <div class="qa">
+        <p class="q">2) Why must the Google Redirect URI match exactly?</p>
+        <p class="a">Because Google validates that the callback is one of the explicitly allowed URIs. Any mismatch blocks the login flow.</p>
+      </div>
+
+      <div class="qa">
+        <p class="q">3) Where do Auth.js endpoints typically live in the App Router?</p>
+        <p class="a">In a route handler: <code>app/api/auth/[...nextauth]/route.js</code>, re-exporting GET/POST handlers from your auth config file.</p>
+      </div>
+
+      <div class="qa">
+        <p class="q">4) What is the quickest check that your setup is working?</p>
+        <p class="a">Open <code>/api/auth/signin</code>. If you see “Sign in with Google”, the provider and route handler wiring is correct.</p>
+      </div>
+
+      <div class="note">
+        <strong>📌 Next lecture hint:</strong>
+        After setup, the next step is usually to read session/user data (server-side) and add route protection (middleware/authorization).
+      </div>
+    </section>
+  </main>
+</body>
+</html>

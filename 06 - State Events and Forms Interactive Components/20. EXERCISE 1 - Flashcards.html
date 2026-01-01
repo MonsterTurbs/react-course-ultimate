@@ -1,0 +1,406 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Exercise — Flashcards (State Practice) | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background: #fef2f2; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn, .callout.danger{ background:#ffffff; }
+      .card, .term, pre, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>EXERCISE 1 — Flashcards (State Practice) 🃏</h1>
+      <p class="subtitle">
+        Lecture reviewer: build interactive flashcards using a single piece of state (<code>selectedId</code>) and practice list rendering + events.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">🧠 useState</span>
+        <span class="chip">🗺️ map()</span>
+        <span class="chip">🔑 key prop</span>
+        <span class="chip">🖱️ onClick</span>
+        <span class="chip">🎯 Conditional rendering</span>
+        <span class="chip">🧩 “one state controls many”</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) What You’re Building</h2>
+      <div class="callout">
+        <p><strong>Goal:</strong> A flashcard grid where each card shows a <strong>question</strong> by default. When you click a card, it flips to show the <strong>answer</strong>. 🙂</p>
+        <ul>
+          <li>Click a card → it opens (shows answer)</li>
+          <li>Click another card → the previous one closes, the new one opens</li>
+          <li>Click the same open card again → it closes (back to question)</li>
+        </ul>
+      </div>
+
+      <div class="term">
+        <div class="icon">🧩</div>
+        <div class="body">
+          <p class="title">Key idea</p>
+          <p class="desc">You can control a whole UI with <strong>one piece of state</strong> that stores the “currently selected card ID”.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Starter Data (Questions Array)</h2>
+      <div class="card">
+        <p class="mini">You get an array of objects. Each object has:</p>
+        <ul>
+          <li><code>id</code> (unique)</li>
+          <li><code>question</code></li>
+          <li><code>answer</code></li>
+        </ul>
+        <p class="mini">Only the question is visible by default.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Step 1 — Render the Cards (Static First) 🗺️</h2>
+      <div class="card">
+        <h3>Map over the questions array</h3>
+        <p class="mini">You already know the pattern: JavaScript mode → <code>map</code> → return JSX.</p>
+        <pre><code>function Flashcards() {
+  return (
+    &lt;div className="flashcards"&gt;
+      {questions.map((question) =&gt; (
+        &lt;div key={question.id}&gt;
+          &lt;p&gt;{question.question}&lt;/p&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</code></pre>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Don’t forget:</strong> add <code>className="flashcards"</code> to the container so your CSS grid styling works. 🧱</p>
+        <p class="mini">Also copy <code>style.css</code> if you’re running it outside CodeSandbox.</p>
+      </div>
+
+      <div class="card">
+        <h3>Fix the key warning 🔑</h3>
+        <p class="mini">
+          Every element rendered inside a list needs a unique <code>key</code>. Here, the best key is <code>question.id</code>.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Step 2 — Add One Piece of State: <code>selectedId</code> 🧠</h2>
+      <div class="card">
+        <p><strong>State meaning:</strong> which card is currently open?</p>
+        <pre><code>import { useState } from "react";
+
+function Flashcards() {
+  const [selectedId, setSelectedId] = useState(null);
+  // null means: no card is open
+
+  return (...);
+}</code></pre>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Why <code>null</code>?</strong> ✅</p>
+        <p class="mini">It represents “nothing selected” (all cards show questions).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Step 3 — Use State to Decide What to Show (Question vs Answer) 🎯</h2>
+      <div class="card">
+        <p class="mini">
+          While mapping, compare <code>question.id</code> to <code>selectedId</code>. If they match, show the answer; otherwise show the question.
+        </p>
+        <pre><code>{questions.map((question) =&gt; (
+  &lt;div key={question.id}&gt;
+    &lt;p&gt;
+      {question.id === selectedId
+        ? question.answer
+        : question.question}
+    &lt;/p&gt;
+  &lt;/div&gt;
+))}</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Conditional styling (selected class) 🎨</h3>
+        <p class="mini">Also apply the CSS class <code>selected</code> when the card is open:</p>
+        <pre><code>&lt;div
+  key={question.id}
+  className={question.id === selectedId ? "selected" : ""}
+&gt;
+  ...
+&lt;/div&gt;</code></pre>
+      </div>
+
+      <div class="callout">
+        <p><strong>Why this works:</strong> each mapped card has access to its own <code>question</code> object, so each card can compare its ID to the selected ID. ✅</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Step 4 — Update State on Click 🖱️</h2>
+      <div class="card">
+        <h3>A) Create a click handler that receives an ID</h3>
+        <pre><code>function handleClick(id) {
+  setSelectedId(id);
+}</code></pre>
+        <p class="mini">But we need to pass the clicked card’s ID into the handler.</p>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Important React rule:</strong> event handlers must receive a <em>function</em>, not a function call. 🚫</p>
+        <p class="mini">
+          Wrong: <code>onClick={handleClick(question.id)}</code> (runs immediately)
+          <br />
+          Correct: <code>onClick={() =&gt; handleClick(question.id)}</code>
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>B) Attach it to the card</h3>
+        <pre><code>&lt;div
+  key={question.id}
+  onClick={() =&gt; handleClick(question.id)}
+&gt;
+  ...
+&lt;/div&gt;</code></pre>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Result:</strong> clicking different cards switches the open card. ✅</p>
+        <p class="mini">But clicking the same card again still doesn’t close it yet — that’s the next step.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Step 5 — Toggle the Same Card (Open ↔ Close) 🔁</h2>
+      <div class="card">
+        <p class="mini">
+          If you click an already-open card, set <code>selectedId</code> back to <code>null</code>.
+          Otherwise set it to the clicked card ID.
+        </p>
+        <pre><code>function handleClick(id) {
+  setSelectedId(id !== selectedId ? id : null);
+}</code></pre>
+      </div>
+
+      <div class="callout">
+        <p><strong>Behavior achieved:</strong></p>
+        <ul>
+          <li>Click closed card → opens it (selectedId becomes that id)</li>
+          <li>Click a different card → switches selection</li>
+          <li>Click the same open card → closes it (selectedId becomes null)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>8) Full Minimal Version (Putting It All Together) ✅</h2>
+      <div class="card">
+        <pre><code>import { useState } from "react";
+
+export default function Flashcards({ questions }) {
+  const [selectedId, setSelectedId] = useState(null);
+
+  function handleClick(id) {
+    setSelectedId(id !== selectedId ? id : null);
+  }
+
+  return (
+    &lt;div className="flashcards"&gt;
+      {questions.map((question) =&gt; (
+        &lt;div
+          key={question.id}
+          className={question.id === selectedId ? "selected" : ""}
+          onClick={() =&gt; handleClick(question.id)}
+        &gt;
+          &lt;p&gt;
+            {question.id === selectedId
+              ? question.answer
+              : question.question}
+          &lt;/p&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</code></pre>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Study note:</strong> This exercise is a great example of “state modeling”. Instead of many booleans, you store a single selected ID. 🎯</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>9) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>Why is <code>selectedId</code> enough to control all cards?</li>
+          <li>Why do we use <code>null</code> as the initial state?</li>
+          <li>What is wrong with <code>onClick={handleClick(question.id)}</code>?</li>
+          <li>Explain the toggle logic: <code>id !== selectedId ? id : null</code>.</li>
+          <li>What is the role of the <code>key</code> prop in the map?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li>Only one card can be open, so one ID models the entire UI state.</li>
+          <li><code>null</code> means “no selection”.</li>
+          <li>It runs immediately instead of waiting for the click event.</li>
+          <li>If clicking a different card, open it; if clicking the same card, close it.</li>
+          <li>Keys help React track list items between renders.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Keep margins around ~14mm and enable background graphics only if you want shaded callouts.
+    </footer>
+  </main>
+</body>
+</html>

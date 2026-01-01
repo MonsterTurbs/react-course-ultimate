@@ -1,0 +1,367 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Eat-N-Split (Static App: List of Friends)</title>
+  <style>
+    /* ------------------------------
+       Print-friendly, A4, single-column
+       ------------------------------ */
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      hyphens: auto;
+    }
+
+    .page {
+      max-width: 900px; /* screen comfort */
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 16px 16px 12px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.5rem;
+      line-height: 1.25;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 0.86rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main {
+      margin-top: 16px;
+    }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.15rem;
+    }
+
+    h3 {
+      margin: 12px 0 8px;
+      font-size: 1.03rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 8px 22px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid #999;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92em;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      overflow: auto;
+      line-height: 1.5;
+      font-size: 0.92rem;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-radius: 0; }
+      header { background: #fff; }
+      .chip { background: #fff; }
+      pre { page-break-inside: avoid; }
+      section { page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Eat-N-Split — Static App (List of Friends) ✅</h1>
+      <p class="sub">Reviewer / Study Guide (Beginner-friendly) — focus: rendering a list, components, props, keys, and conditional UI.</p>
+      <div class="meta">
+        <span class="chip">📌 React Fundamentals</span>
+        <span class="chip">🧩 Components & Props</span>
+        <span class="chip">🧾 Rendering Lists</span>
+        <span class="chip">🎛️ Conditional Rendering</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) Goal of this lecture 🎯</h2>
+        <ul>
+          <li>Set up the project files and start the dev server. 🧰</li>
+          <li>Render a <strong>Friends List</strong> from an array of objects. 👥</li>
+          <li>Create a reusable <strong>Friend</strong> component for each friend item. 🧱</li>
+          <li>Show different UI text + styling based on a friend’s <code>balance</code>. 🎨</li>
+        </ul>
+        <div class="callout">
+          💡 Mindset: First build the UI <em>statically</em> (no state yet), then later add state and interactions.
+        </div>
+      </section>
+
+      <section>
+        <h2>2) Project setup recap 🧪</h2>
+        <h3>Files you keep</h3>
+        <ul>
+          <li><code>src/App.js</code> — your main component file.</li>
+          <li><code>src/index.js</code> — entry point that renders <code>&lt;App /&gt;</code>.</li>
+          <li><code>src/index.css</code> — styles already prepared for layout.</li>
+        </ul>
+
+        <h3>Start the dev server</h3>
+        <p>In the project folder, run:</p>
+        <pre><code>npm start</code></pre>
+
+        <div class="callout">
+          ✅ If you see your UI in the browser, it means <code>index.js</code> is importing <code>index.css</code> and rendering <code>App</code> correctly.
+        </div>
+      </section>
+
+      <section>
+        <h2>3) Data model: friends array 🧠</h2>
+        <p>The starter code includes an array of objects (each object = one friend):</p>
+        <ul>
+          <li><code>id</code> — unique identifier (important for React list keys) 🔑</li>
+          <li><code>name</code> — displayed in the UI 🧍</li>
+          <li><code>image</code> — URL used for the avatar 🖼️</li>
+          <li><code>balance</code> — used to display who owes who 💸</li>
+        </ul>
+
+        <div class="callout">
+          💸 Balance meaning:
+          <ul>
+            <li><strong>negative</strong> (e.g. -7): you owe your friend</li>
+            <li><strong>positive</strong> (e.g. 20): your friend owes you</li>
+            <li><strong>zero</strong>: you are even</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Build the component tree 🌳</h2>
+        <p>We start with a simple tree (everything in one file for now):</p>
+        <ul>
+          <li><code>App</code> (main parent)</li>
+          <li><code>FriendsList</code> (renders the list container)</li>
+          <li><code>Friend</code> (renders one friend row) × many</li>
+        </ul>
+
+        <h3>Why split into components? 🤝</h3>
+        <ul>
+          <li>Keeps code readable and maintainable.</li>
+          <li>You can reuse <code>Friend</code> UI logic for each item.</li>
+          <li>Makes it easier later to add state + events.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>5) Render a list using <code>map()</code> 🧾</h2>
+        <p>Basic idea: loop over the array and return JSX for each item.</p>
+        <pre><code>// FriendsList.jsx (concept)
+function FriendsList({ friends }) {
+  return (
+    &lt;ul&gt;
+      {friends.map((friend) =&gt; (
+        &lt;li key={friend.id}&gt;{friend.name}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          🔑 Key rule: Every element in a rendered list needs a <code>key</code> prop that is <strong>stable and unique</strong> (usually an <code>id</code>).
+        </div>
+      </section>
+
+      <section>
+        <h2>6) Move each list item into a <code>Friend</code> component 🧱</h2>
+        <p>Instead of writing a big block of JSX inside <code>map()</code>, we create <code>Friend</code> and pass the current object as a prop:</p>
+        <pre><code>// FriendsList.jsx (concept)
+function FriendsList({ friends }) {
+  return (
+    &lt;ul&gt;
+      {friends.map((friend) =&gt; (
+        &lt;Friend key={friend.id} friend={friend} /&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+
+        <pre><code>// Friend.jsx (concept)
+function Friend({ friend }) {
+  return (
+    &lt;li&gt;
+      &lt;img src={friend.image} alt={friend.name} /&gt;
+      &lt;h3&gt;{friend.name}&lt;/h3&gt;
+      {/* status text goes here */}
+      &lt;button className="button"&gt;Select&lt;/button&gt;
+    &lt;/li&gt;
+  );
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>7) Conditional rendering for balance text 🎛️</h2>
+        <p>We display different text and styling depending on the balance:</p>
+        <ul>
+          <li>🔴 If balance is negative: <em>“You owe NAME X€”</em></li>
+          <li>🟢 If balance is positive: <em>“NAME owes you X€”</em></li>
+          <li>⚪ If balance is zero: <em>“You and NAME are even”</em></li>
+        </ul>
+
+        <pre><code>// Friend.jsx (concept)
+function Friend({ friend }) {
+  return (
+    &lt;li&gt;
+      &lt;img src={friend.image} alt={friend.name} /&gt;
+      &lt;h3&gt;{friend.name}&lt;/h3&gt;
+
+      {friend.balance &lt; 0 &amp;&amp; (
+        &lt;p className="red"&gt;
+          You owe {friend.name} {Math.abs(friend.balance)}€
+        &lt;/p&gt;
+      )}
+
+      {friend.balance &gt; 0 &amp;&amp; (
+        &lt;p className="green"&gt;
+          {friend.name} owes you {friend.balance}€
+        &lt;/p&gt;
+      )}
+
+      {friend.balance === 0 &amp;&amp; (
+        &lt;p&gt;You and {friend.name} are even&lt;/p&gt;
+      )}
+
+      &lt;button className="button"&gt;Select&lt;/button&gt;
+    &lt;/li&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          ✅ Why <code>Math.abs()</code>? It removes the negative sign, so <code>-7</code> becomes <code>7</code>.
+        </div>
+      </section>
+
+      <section>
+        <h2>8) Quick self-check ✅</h2>
+        <ul>
+          <li>Can you explain what <code>map()</code> returns in React? 🧠</li>
+          <li>Why does React need a <code>key</code> prop in lists? 🔑</li>
+          <li>When should you create a new component (like <code>Friend</code>)? 🧩</li>
+          <li>What’s the difference between <code>&amp;&amp;</code> conditional rendering vs a ternary? ⚖️</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>9) Common beginner mistakes to avoid ⚠️</h2>
+        <ul>
+          <li>❌ Forgetting the <code>key</code> prop inside list rendering.</li>
+          <li>❌ Using array index as a key when a real <code>id</code> exists.</li>
+          <li>❌ Trying to handle all JSX inside <code>map()</code> (hard to read).</li>
+          <li>❌ Forgetting that negative values need <code>Math.abs()</code> for display.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>10) What’s next? ➡️</h2>
+        <ul>
+          <li>Add interactivity: selecting a friend (events + state). 🖱️</li>
+          <li>Build the “Add Friend” form and the bill-splitting form. 🧾</li>
+          <li>Lift state up when multiple components need the same data. ⬆️</li>
+        </ul>
+        <div class="callout">
+          🚀 If you understand this lecture, you already have the foundation for most “list-based” React UIs.
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

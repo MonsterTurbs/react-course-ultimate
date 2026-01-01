@@ -1,0 +1,397 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Handling Events the React Way (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #fcfcfc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-left: 6px;
+      white-space: nowrap;
+    }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--codebg);
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+
+      /* Ensure consistent print colors */
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🖱️ Handling Events the React Way (Reviewer)</h1>
+      <p class="subtitle">Beginner-friendly study guide based on the lecture transcript. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar" aria-hidden="false">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: Use your browser’s Print dialog and select A4 (Portrait). Turn on “Background graphics” if needed.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#big-idea">Big idea: Events in React are declarative</a></li>
+          <li><a href="#onclick">The <code>onClick</code> prop and naming rules</a></li>
+          <li><a href="#callback">Critical rule: pass a function, don’t call it</a></li>
+          <li><a href="#other-events">Other events (example: <code>onMouseEnter</code>)</a></li>
+          <li><a href="#handlers">Best practice: extract handler functions</a></li>
+          <li><a href="#next">What comes next: updating UI needs state</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="big-idea">
+      <h2>🎯 Big idea: Events in React are declarative</h2>
+      <p>
+        In vanilla JavaScript, we often handle events imperatively by selecting DOM nodes and attaching listeners:
+        <span class="tag">Imperative</span>
+      </p>
+      <pre><code>// Vanilla JS (imperative)
+const btn = document.querySelector(".btn");
+btn.addEventListener("click", () =&gt; {
+  alert("Clicked!");
+});</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ React approach:</strong> You don’t manually select DOM elements. Instead, you declare event handlers directly in JSX.</p>
+        <ul>
+          <li>🧠 You describe <em>what should happen</em> when an event occurs.</li>
+          <li>🧩 The handler is placed on the element that triggers the event (e.g., a button).</li>
+          <li>🚫 No <code>addEventListener</code> in React component JSX.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="onclick">
+      <h2>🖱️ The <code>onClick</code> prop and naming rules</h2>
+      <p>
+        In React, event handlers are set using props like <code>onClick</code>.
+        Naming is consistent:
+      </p>
+      <ul>
+        <li>✅ Prefix with <code>on</code> (e.g., <code>onClick</code>)</li>
+        <li>✅ Event name is <strong>camelCase</strong> (Click, MouseEnter, Change, Submit, etc.)</li>
+        <li>✅ Value must be a <strong>function</strong> (not a string)</li>
+      </ul>
+
+      <div class="card">
+        <h3>Example: inline handler (quick test) ⚡</h3>
+        <pre><code>&lt;button onClick={() =&gt; alert("Previous")}&gt;
+  Previous
+&lt;/button&gt;
+
+&lt;button onClick={() =&gt; alert("Next")}&gt;
+  Next
+&lt;/button&gt;</code></pre>
+        <p class="muted">This works and is fine for small demos, but can get messy if logic grows.</p>
+      </div>
+    </section>
+
+    <section id="callback">
+      <h2>🚨 Critical rule: pass a function, don’t call it</h2>
+      <p>
+        A very common beginner mistake is accidentally <strong>calling</strong> a function instead of passing a function.
+        React will execute it immediately during render.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>❌ Wrong: function call (runs immediately)</h3>
+          <pre><code>// This calls alert immediately when the component renders
+&lt;button onMouseEnter={alert("TEST")}&gt;
+  Hover me
+&lt;/button&gt;</code></pre>
+          <p class="muted">Why? Because <code>alert("TEST")</code> is executed right away and returns a value, not a callback function.</p>
+        </div>
+
+        <div class="card">
+          <h3>✅ Correct: callback function (runs later)</h3>
+          <pre><code>// This passes a function that React can call later
+&lt;button onMouseEnter={() =&gt; alert("TEST")}&gt;
+  Hover me
+&lt;/button&gt;</code></pre>
+          <p class="muted">Think: “I’m giving React a recipe (function), not the finished meal (result).”</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Rule of thumb 🧠</strong></p>
+        <ul>
+          <li>✅ Use <code>onClick={handleSomething}</code></li>
+          <li>✅ Use <code>onClick={() =&gt; handleSomething(arg)}</code> when you need arguments</li>
+          <li>🚫 Avoid <code>onClick={handleSomething()}</code> (that calls it immediately)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="other-events">
+      <h2>🧷 Other events: example <code>onMouseEnter</code></h2>
+      <p>
+        React supports many DOM-like events. The pattern stays the same: <code>on</code> + EventName (camelCase).
+      </p>
+      <ul>
+        <li>🖱️ <code>onClick</code> — button clicks</li>
+        <li>🧭 <code>onMouseEnter</code> — cursor enters an element</li>
+        <li>⌨️ <code>onChange</code> — input/select changes</li>
+        <li>📨 <code>onSubmit</code> — form submission</li>
+      </ul>
+
+      <pre><code>&lt;button onMouseEnter={() =&gt; alert("Hovered!")}&gt;
+  Hover me
+&lt;/button&gt;</code></pre>
+
+      <p class="muted">Same mental model: React calls your function when the event occurs.</p>
+    </section>
+
+    <section id="handlers">
+      <h2>🧱 Best practice: extract handler functions</h2>
+      <p>
+        In real projects, you usually don’t keep the handler inline. Instead, define a function in the component body
+        and pass it by reference.
+      </p>
+
+      <div class="card">
+        <h3>Example: <code>handlePrevious</code> and <code>handleNext</code> 🧠</h3>
+        <pre><code>function App() {
+  function handlePrevious() {
+    alert("Previous");
+  }
+
+  function handleNext() {
+    alert("Next");
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={handlePrevious}&gt;Previous&lt;/button&gt;
+      &lt;button onClick={handleNext}&gt;Next&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+      </div>
+
+      <div class="callout">
+        <p><strong>Why the “handle…” naming? 🏷️</strong></p>
+        <ul>
+          <li>📌 It signals that the function is an <strong>event handler</strong>.</li>
+          <li>🔎 It makes JSX easier to scan: <code>onClick={handleNext}</code> is self-explanatory.</li>
+          <li>🧹 Cleaner JSX: less logic inside markup.</li>
+        </ul>
+      </div>
+
+      <p class="muted">
+        Note: sometimes you’ll still use an inline arrow function when you need to pass arguments or combine logic.
+        That’s normal—just don’t overuse it.
+      </p>
+    </section>
+
+    <section id="next">
+      <h2>➡️ What comes next: changing UI needs state</h2>
+      <p>
+        In the “Steps” component, clicking <strong>Next</strong> should change the current step and the displayed message.
+        But a normal variable (like <code>const step = 1</code>) will not update the UI.
+      </p>
+
+      <div class="callout">
+        <p><strong>Key transition 🔑</strong></p>
+        <ul>
+          <li>🖱️ <strong>Events</strong> tell us <em>when</em> the user did something.</li>
+          <li>🧠 <strong>State</strong> is how React remembers data that changes over time.</li>
+          <li>🔁 Updating state is what triggers a re-render (UI refresh).</li>
+        </ul>
+      </div>
+
+      <p class="muted">Next lecture: you’ll learn state and how event handlers update the UI through state updates.</p>
+    </section>
+
+    <footer>
+      <p>
+        Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

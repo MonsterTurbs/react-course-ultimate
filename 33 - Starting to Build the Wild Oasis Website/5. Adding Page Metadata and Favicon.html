@@ -1,0 +1,459 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js — Page Metadata & Favicon (Reviewer)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --codebg:#0b1020;
+      --codefg:#e8eefc;
+      --accent:#0b57d0;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px 42px;
+    }
+
+    header{
+      border-bottom:1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 24px;
+      margin: 0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    nav{
+      margin: 16px 0 0;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    nav h2{
+      font-size: 14px;
+      margin: 0 0 8px;
+    }
+
+    nav ul{
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    nav a{
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    nav a:hover{ text-decoration: underline; }
+
+    h2{
+      margin: 22px 0 10px;
+      font-size: 18px;
+    }
+
+    h3{
+      margin: 16px 0 8px;
+      font-size: 15.5px;
+    }
+
+    p{ margin: 10px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--accent);
+      background: #fff;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout .title{
+      margin:0 0 6px;
+      font-weight: 700;
+    }
+
+    .callout .muted{ color: var(--muted); margin: 0; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    ul,ol{ margin: 8px 0 8px 20px; }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.08);
+      overflow:auto;
+      line-height: 1.5;
+      margin: 10px 0;
+    }
+
+    .inline{
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 0 6px;
+      border-radius: 6px;
+    }
+
+    .hr{
+      height:1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .two{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    .card h4{
+      margin:0 0 6px;
+      font-size: 14px;
+    }
+
+    .small{ font-size: 13px; color: var(--muted); }
+
+    /* Print styles (A4) */
+    @page{
+      size: A4;
+      margin: 14mm 14mm 16mm;
+    }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      nav a{ color: #111; text-decoration: none; }
+      /* Avoid awkward breaks */
+      h1,h2,h3{ page-break-after: avoid; }
+      pre, .callout, .card{ page-break-inside: avoid; }
+      a[href]::after{ content: ""; } /* never print URLs */
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧭 Next.js — Adding Page Metadata & Favicon</h1>
+      <p class="subtitle">Print-friendly reviewer / study guide (Next.js App Router). Focus: <span class="inline">metadata</span>, <span class="inline">title templates</span>, <span class="inline">description</span>, and <span class="inline">favicon</span>.</p>
+      <div class="meta">
+        <span class="chip">Single-column</span>
+        <span class="chip">A4 print-ready</span>
+        <span class="chip">Beginner-friendly</span>
+        <span class="chip">With examples</span>
+      </div>
+
+      <nav aria-label="Table of contents">
+        <h2>📌 Table of Contents</h2>
+        <ul>
+          <li><a href="#big-idea">Big idea: metadata via conventions</a></li>
+          <li><a href="#root-vs-page">Root layout vs per-page metadata</a></li>
+          <li><a href="#title-template">Title templates ("%s") + default</a></li>
+          <li><a href="#description">SEO description metadata</a></li>
+          <li><a href="#favicon">Favicon via <span class="inline">icon</span> file convention</a></li>
+          <li><a href="#debug">How to verify in DevTools</a></li>
+          <li><a href="#pitfalls">Common pitfalls</a></li>
+          <li><a href="#quick-check">Quick check (mini-quiz + checklist)</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <section id="big-idea">
+      <h2>1) 🧠 Big idea: Next.js metadata is convention-driven</h2>
+      <p>
+        In the <strong>App Router</strong>, Next.js has a built-in API for metadata. Instead of manually writing
+        <span class="inline">&lt;title&gt;</span> and <span class="inline">&lt;meta&gt;</span> tags inside a custom HTML head,
+        you typically export a <span class="inline">metadata</span> object from a <span class="inline">layout.js</span> or <span class="inline">page.js</span>.
+      </p>
+
+      <div class="callout">
+        <p class="title">✅ Why this matters</p>
+        <p class="muted">
+          It centralizes SEO-related data, works naturally with routing/layouts, and keeps your app aligned with Next.js conventions.
+        </p>
+      </div>
+    </section>
+
+    <section id="root-vs-page">
+      <h2>2) 🧩 Root layout vs per-page metadata</h2>
+
+      <div class="two">
+        <div class="card">
+          <h4>🌍 Root layout metadata (global default)</h4>
+          <p class="small">Export metadata in <span class="inline">app/layout.js</span> to apply it across pages by default.</p>
+          <pre><code>// app/layout.js
+export const metadata = {
+  title: "The Wild Oasis",
+};
+
+export default function RootLayout({ children }) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  );
+}
+</code></pre>
+        </div>
+
+        <div class="card">
+          <h4>📄 Page metadata (override)</h4>
+          <p class="small">Export metadata in <span class="inline">app/cabins/page.js</span> to override the layout default.</p>
+          <pre><code>// app/cabins/page.js
+export const metadata = {
+  title: "Cabins",
+};
+
+export default function Page() {
+  return &lt;h1&gt;Cabins&lt;/h1&gt;;
+}
+</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p class="title">📝 Key rule</p>
+        <p class="muted">Page-level metadata overrides layout metadata for that route.</p>
+      </div>
+
+      <div class="callout">
+        <p class="title">🧪 Observation from the lecture</p>
+        <p class="muted">
+          The instructor noticed a brief <em>title flicker</em> (e.g., momentarily showing something like localhost) while navigating.
+          They suspect it’s a Next.js issue/bug and didn’t find a clean fix at the time.
+        </p>
+      </div>
+    </section>
+
+    <section id="title-template">
+      <h2>3) 🏷️ Better titles: template + default (real-world pattern)</h2>
+      <p>
+        A common website pattern is:
+        <strong>PageName · SiteName</strong>
+        (or <strong>PageName | SiteName</strong>, etc.).
+        Next.js supports this through a more advanced title configuration.
+      </p>
+
+      <pre><code>// app/layout.js
+export const metadata = {
+  title: {
+    template: "%s | The Wild Oasis",
+    default: "Welcome | The Wild Oasis",
+  },
+};
+</code></pre>
+
+      <div class="callout">
+        <p class="title">🔎 How it works</p>
+        <ul>
+          <li><span class="inline">template</span> uses <span class="inline">%s</span> as a placeholder.</li>
+          <li>If a page exports <span class="inline">metadata.title</span>, it replaces <span class="inline">%s</span>.</li>
+          <li>If a page does not export a title, Next.js uses <span class="inline">default</span>.</li>
+        </ul>
+      </div>
+
+      <p><strong>Example result:</strong></p>
+      <ul>
+        <li>Cabins page title → <span class="inline">Cabins | The Wild Oasis</span></li>
+        <li>Home page title (no override) → <span class="inline">Welcome | The Wild Oasis</span></li>
+      </ul>
+    </section>
+
+    <section id="description">
+      <h2>4) 🧾 Add a description (SEO)</h2>
+      <p>
+        The description becomes a <span class="inline">meta name="description"</span> entry in the document head.
+        If you set it on the root layout, it becomes the default description for all pages (unless overridden).
+      </p>
+
+      <pre><code>// app/layout.js
+export const metadata = {
+  title: {
+    template: "%s | The Wild Oasis",
+    default: "Welcome | The Wild Oasis",
+  },
+  description:
+    "Luxurious cabin hotel in the Italian Dolomites, surrounded by mountains and forests.",
+};
+</code></pre>
+
+      <div class="callout">
+        <p class="title">✅ Beginner tip</p>
+        <p class="muted">
+          If you don’t see the description in <em>View Page Source</em>, check the <strong>Elements</strong> tab instead. Some metadata
+          is easier to confirm there depending on how the app is rendered.
+        </p>
+      </div>
+    </section>
+
+    <section id="favicon">
+      <h2>5) ⭐ Favicon (tab icon) the Next.js way</h2>
+      <p>
+        Traditionally, favicons require manual <span class="inline">&lt;link rel="icon" ...&gt;</span> tags.
+        In Next.js App Router, you can often do this with a convention-based file.
+      </p>
+
+      <div class="callout">
+        <p class="title">✅ Convention</p>
+        <p class="muted">
+          Put a file named <span class="inline">icon</span> in the <span class="inline">app</span> folder (e.g., <span class="inline">app/icon.png</span>).
+          Next.js will use it as the favicon/app icon.
+        </p>
+      </div>
+
+      <pre><code>// Example structure
+app/
+  icon.png      // ✅ Next.js picks this up automatically
+  layout.js
+  page.js
+public/
+  ...
+</code></pre>
+
+      <div class="callout">
+        <p class="title">📝 Notes</p>
+        <ul>
+          <li>The file can be PNG (useful for transparency), ICO, etc.</li>
+          <li>In the lecture, they copied an existing logo image, renamed it to <span class="inline">icon.png</span>, and placed it in <span class="inline">app/</span>.</li>
+          <li>No extra code was needed—Next.js handled it.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="debug">
+      <h2>6) 🔧 How to verify metadata quickly</h2>
+      <div class="grid">
+        <div class="card">
+          <h4>🧪 Check the tab title</h4>
+          <ul>
+            <li>Navigate between routes.</li>
+            <li>Confirm the title updates per-page (or via template).</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>🔍 Check description meta tag</h4>
+          <ul>
+            <li>Open DevTools → <strong>Elements</strong>.</li>
+            <li>Search for <span class="inline">meta name="description"</span>.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>⭐ Check favicon</h4>
+          <ul>
+            <li>Look at the browser tab icon.</li>
+            <li>If it doesn’t update, do a hard refresh.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="pitfalls">
+      <h2>7) ⚠️ Common pitfalls</h2>
+      <ul>
+        <li><strong>Wrong file name:</strong> for favicon/app icon, the convention matters. Use <span class="inline">icon.png</span> (or the correct supported name) in <span class="inline">app/</span>.</li>
+        <li><strong>Expecting everything in “View Page Source”:</strong> some metadata is easier to confirm in <strong>Elements</strong>.</li>
+        <li><strong>Cache confusion:</strong> titles/icons may appear to “lag” due to caching. Try a hard refresh if needed.</li>
+        <li><strong>Overriding unintentionally:</strong> a page exporting <span class="inline">metadata</span> may override what you expect from the root layout.</li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">✅ Practical guideline</p>
+        <p class="muted">Set sensible defaults in the root layout, then override only where the page truly needs unique metadata.</p>
+      </div>
+    </section>
+
+    <section id="quick-check">
+      <h2>8) ✅ Quick check</h2>
+
+      <h3>Mini-quiz (answer mentally)</h3>
+      <ol>
+        <li>Where do you export global default metadata? (Which file?)</li>
+        <li>How do you override the title for only the cabins page?</li>
+        <li>What does <span class="inline">%s</span> mean in the title template?</li>
+        <li>Where do you verify <span class="inline">meta name="description"</span> if you can’t find it in page source?</li>
+        <li>What file name + location gives you a favicon with no extra code?</li>
+      </ol>
+
+      <h3>Implementation checklist</h3>
+      <ul>
+        <li>✅ Root layout exports <span class="inline">metadata</span> with <span class="inline">title</span> (and optionally template/default).</li>
+        <li>✅ Root layout exports a global <span class="inline">description</span>.</li>
+        <li>✅ Pages that need custom titles export <span class="inline">metadata</span> locally.</li>
+        <li>✅ Favicon/app icon file exists at <span class="inline">app/icon.png</span>.</li>
+        <li>✅ Verified in DevTools (title, description, favicon).</li>
+      </ul>
+
+      <div class="hr"></div>
+      <p class="small">
+        Next topic preview: Next.js also makes working with <strong>fonts</strong> easier (custom fonts are common in real sites).
+      </p>
+    </section>
+  </main>
+</body>
+</html>

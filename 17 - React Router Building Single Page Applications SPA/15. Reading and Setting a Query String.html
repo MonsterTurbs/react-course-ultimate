@@ -1,0 +1,387 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Router — Query String (Search Params) — Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --code: #0b1020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    .chiprow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--chip);
+      font-size: 12px;
+      color: #222;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 12px;
+      background: var(--soft);
+      margin: 12px 0;
+    }
+
+    .callout {
+      border-left: 4px solid #c9c9c9;
+      padding: 10px 12px;
+      background: #ffffff;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    .callout .title {
+      font-weight: 700;
+      margin: 0 0 6px;
+      font-size: 13px;
+    }
+
+    ul { margin: 8px 0 8px 20px; }
+    li { margin: 6px 0; }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--code);
+      color: #f3f6ff;
+      overflow: auto;
+      font-size: 12.5px;
+      line-height: 1.55;
+      white-space: pre;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .mini {
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { padding: 0; max-width: none; }
+      a { color: inherit; text-decoration: none; }
+      /* Do not print URLs after links */
+      a[href]:after { content: "" !important; }
+      /* Keep blocks from breaking awkwardly */
+      h1, h2, h3 { page-break-after: avoid; }
+      pre, .card, .callout { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧭 React Router — Reading and Setting a Query String (Search Params)</h1>
+      <p class="subtitle">Reviewer / Study Guide • Single-column • A4 print-ready</p>
+      <div class="chiprow">
+        <span class="chip">✅ Goal: Store UI state in URL</span>
+        <span class="chip">🔎 Hook: <code>useSearchParams()</code></span>
+        <span class="chip">🧩 Works with: dynamic routes + params</span>
+        <span class="chip">🔁 Bonus: update query string from code</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) What is a Query String? (Search Params)</h2>
+      <p>
+        A <strong>query string</strong> is the part of the URL that starts after a <strong>?</strong>.
+        It lets you store small pieces of state in the URL, like <code>lat</code> and <code>lng</code>.
+      </p>
+
+      <div class="card">
+        <p class="mini"><strong>Example URL</strong></p>
+        <pre><code>/app/cities/739?lat=38.7223&amp;lng=-9.1393</code></pre>
+        <ul>
+          <li><code>/app/cities/739</code> → dynamic route param (city id)</li>
+          <li><code>?lat=...</code> and <code>&amp;lng=...</code> → query string values</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <p class="title">💡 Why this matters</p>
+        <ul>
+          <li><strong>Global access:</strong> any component can read URL state without prop drilling.</li>
+          <li><strong>Shareable/bookmarkable:</strong> the exact UI state is preserved in the link.</li>
+          <li><strong>Great for UI state:</strong> filters, sorting, open panels, map position, etc.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Step A — Create a Query String in a Link</h2>
+      <p>
+        You already build the city link using a dynamic route id. Now you append query string values
+        using <code>?</code> for the first value and <code>&amp;</code> for additional values.
+      </p>
+
+      <h3>✅ CityItem: build the URL with <code>lat</code> and <code>lng</code></h3>
+      <pre><code>import { Link } from "react-router-dom";
+
+function CityItem({ city }) {
+  const { id, position, cityName, emoji, date } = city;
+
+  return (
+    &lt;li&gt;
+      &lt;Link
+        to={`${id}?lat=${position.lat}&amp;lng=${position.lng}`}
+      &gt;
+        {emoji} {cityName} — {date}
+      &lt;/Link&gt;
+    &lt;/li&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout">
+        <p class="title">⚠️ Common mistake: leading slash</p>
+        <p class="mini">
+          If your nested route is already <code>/app/cities</code>, you usually want a <strong>relative</strong>
+          link like <code>to={\`$\{id\}?lat=...\`}</code>.
+          If you start with <code>/</code>, React Router will treat it as an <strong>absolute</strong> path
+          from the root.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Step B — Read Query String Values with <code>useSearchParams()</code></h2>
+      <p>
+        React Router provides <code>useSearchParams()</code>. It returns an array:
+        <code>[searchParams, setSearchParams]</code>.
+      </p>
+
+      <div class="card">
+        <p class="mini"><strong>How to read</strong></p>
+        <ul>
+          <li>Use <code>searchParams.get("lat")</code> to read the value.</li>
+          <li>The key must match your query string name (e.g., <code>lat</code>, <code>lng</code>).</li>
+          <li>Return values are strings; convert to numbers if needed.</li>
+        </ul>
+      </div>
+
+      <h3>✅ Map component: read <code>lat</code> and <code>lng</code></h3>
+      <pre><code>import { useSearchParams } from "react-router-dom";
+
+function Map() {
+  const [searchParams] = useSearchParams();
+
+  const lat = searchParams.get("lat");
+  const lng = searchParams.get("lng");
+
+  return (
+    &lt;h1&gt;🗺️ Position: {lat}, {lng}&lt;/h1&gt;
+  );
+}
+</code></pre>
+
+      <h3>✅ Any component can read it (example: City)</h3>
+      <pre><code>import { useSearchParams } from "react-router-dom";
+
+function City() {
+  const [searchParams] = useSearchParams();
+  const lat = searchParams.get("lat");
+  const lng = searchParams.get("lng");
+
+  return (
+    &lt;&gt;
+      &lt;h1&gt;🏙️ City page&lt;/h1&gt;
+      &lt;p&gt;📍 From URL: {lat}, {lng}&lt;/p&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout">
+        <p class="title">🧠 Beginner tip: strings vs numbers</p>
+        <p class="mini">
+          Query string values come back as strings. For map logic you’ll usually want numbers:
+          <code>const lat = Number(searchParams.get("lat"))</code>.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Step C — Update the Query String with <code>setSearchParams()</code></h2>
+      <p>
+        You can programmatically change the query string by calling <code>setSearchParams()</code>
+        with a new object containing the keys/values you want in the URL.
+      </p>
+
+      <h3>✅ Example: button that changes URL state</h3>
+      <pre><code>import { useSearchParams } from "react-router-dom";
+
+function Map() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const lat = searchParams.get("lat");
+  const lng = searchParams.get("lng");
+
+  function handleChangePosition() {
+    setSearchParams({ lat: 23, lng: 50 });
+  }
+
+  return (
+    &lt;&gt;
+      &lt;h1&gt;🗺️ Position: {lat}, {lng}&lt;/h1&gt;
+      &lt;button onClick={handleChangePosition}&gt;Change position&lt;/button&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout">
+        <p class="title">✅ What you just gained</p>
+        <ul>
+          <li>Updating the URL updates every component that reads those search params.</li>
+          <li>You created a “global UI state” without a new <code>useState</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Mental Model: URL as Global UI State</h2>
+      <div class="card">
+        <ul>
+          <li>🧩 <strong>Route params</strong> (e.g., <code>/cities/:id</code>) are best for identifying a resource.</li>
+          <li>🔎 <strong>Query string</strong> (e.g., <code>?lat=...&amp;lng=...</code>) is best for UI state like map position, filters, sort.</li>
+          <li>🔁 URL changes can be triggered by links (user navigation) or by code (setSearchParams).</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <p class="title">📌 Real-world examples</p>
+        <ul>
+          <li>🛒 Shop filters: <code>?color=black&amp;minPrice=100&amp;maxPrice=500</code></li>
+          <li>📊 Tables: <code>?sort=amount_desc&amp;page=3</code></li>
+          <li>🗺️ Maps: <code>?lat=...&amp;lng=...&amp;zoom=12</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Quick Checklist (memorize this)</h2>
+      <ul>
+        <li>✅ Create query string: <code>?</code> then <code>key=value</code></li>
+        <li>✅ Add more values: use <code>&amp;</code></li>
+        <li>✅ Read: <code>const [sp] = useSearchParams(); sp.get("key")</code></li>
+        <li>✅ Set: <code>setSearchParams({ key: value })</code></li>
+        <li>✅ Benefit: shareable + bookmarkable UI state</li>
+      </ul>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>Original Transcript (for reference)</h2>
+      <p class="mini">You can keep this for review; it will print cleanly in single column.</p>
+      <div class="card">
+        <p class="mini">
+          And now let's learn how to use the second way of storing state in the URL, which is the Query string...
+          (Lecture covers: building query string in <code>Link to</code>, reading via <code>useSearchParams</code>, and updating via <code>setSearchParams</code>, plus shareable/bookmarkable state.)
+        </p>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

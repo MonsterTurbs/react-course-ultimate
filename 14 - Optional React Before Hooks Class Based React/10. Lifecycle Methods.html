@@ -1,0 +1,444 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Lifecycle Methods (Class Components)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --accent:#1a73e8;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--accent);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .note{
+      border-left: 4px solid var(--border);
+      background: #fff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+    .danger{ color: var(--danger); font-weight:700; }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    th, td{
+      border:1px solid var(--border);
+      padding:8px 10px;
+      vertical-align: top;
+    }
+    th{ background: var(--panel); text-align:left; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>⏳ React Study Guide: Lifecycle Methods (Class Components)</h1>
+      <p class="subtitle">Focus: <code>componentDidMount</code>, <code>componentDidUpdate</code>, and <code>componentWillUnmount</code> — used to implement “search as you type” and “remember location via localStorage”.</p>
+      <div class="meta">
+        <span class="chip">🏛️ Class Components</span>
+        <span class="chip">🧩 Side Effects</span>
+        <span class="chip">⌨️ Search-as-you-type</span>
+        <span class="chip">💾 localStorage</span>
+        <span class="chip">🧹 Cleanup</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Goals (features we implement)</h2>
+      <ul>
+        <li>⌨️ <strong>Search as you type</strong>: every change to the location triggers a new weather fetch (no button needed).</li>
+        <li>💾 <strong>Remember last location</strong>: store the latest location in <code>localStorage</code> and restore it on reload.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Main idea:</strong> Lifecycle methods let class components run side effects at key moments: <em>mount</em>, <em>update</em>, and <em>unmount</em>.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 What lifecycle methods are</h2>
+      <p><strong>Lifecycle methods</strong> are special methods available on class components that React calls automatically at specific times.</p>
+      <ul>
+        <li>🧱 <strong>Mount</strong>: the component is created and inserted into the DOM</li>
+        <li>🔁 <strong>Update</strong>: the component re-renders due to state/props changes</li>
+        <li>🧨 <strong>Unmount</strong>: the component is removed/destroyed</li>
+      </ul>
+
+      <div class="note">
+        <strong>Relationship to hooks:</strong> Lifecycle methods are the closest class-based equivalent to <code>useEffect</code>, but they don’t map 1:1.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 The 3 most important lifecycle methods</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Lifecycle method</th>
+            <th>When it runs</th>
+            <th>Closest hooks mental model</th>
+            <th>Typical use</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>componentDidMount()</code></td>
+            <td>After the first render (DOM exists)</td>
+            <td><code>useEffect(() =&gt; { ... }, [])</code></td>
+            <td>Initial fetch, read localStorage, start timers</td>
+          </tr>
+          <tr>
+            <td><code>componentDidUpdate(prevProps, prevState)</code></td>
+            <td>After every re-render (not on mount)</td>
+            <td><code>useEffect(() =&gt; { ... }, [deps])</code> (but note: effects also run on mount)</td>
+            <td>React to state/prop changes (fetch, persist, sync)</td>
+          </tr>
+          <tr>
+            <td><code>componentWillUnmount()</code></td>
+            <td>Right before removal</td>
+            <td><code>useEffect(() =&gt; { return () =&gt; cleanup }, [deps])</code></td>
+            <td>Cleanup event listeners, timers, subscriptions</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>✅ Feature 1: Search as you type (fetch on updates)</h2>
+      <p>We want to fetch weather whenever <code>location</code> changes. In class components, that is a classic job for <code>componentDidUpdate</code>.</p>
+
+      <h3>1) Compare current vs previous state</h3>
+      <pre><code>componentDidUpdate(prevProps, prevState) {
+  // Only react when the location value actually changed
+  if (this.state.location !== prevState.location) {
+    this.fetchWeather();
+  }
+}</code></pre>
+
+      <div class="callout">
+        <strong>Why the comparison matters:</strong> Without checking, you can easily cause repeated fetches or even infinite loops.
+      </div>
+
+      <h3>2) Prevent invalid searches (minimum 2 chars)</h3>
+      <p>If the API requires at least 2 characters, short inputs should do nothing:</p>
+      <pre><code>fetchWeather = async () =&gt; {
+  if (this.state.location.length &lt; 2) {
+    // Optional: reset weather so the Weather component unmounts
+    this.setState({ weather: {} });
+    return;
+  }
+
+  // ...fetch logic...
+};</code></pre>
+
+      <div class="note">
+        <strong>UX note:</strong> This avoids noisy errors like “no location found” when the user typed only 1 letter.
+      </div>
+
+      <h3>3) Remove the “Get Weather” button</h3>
+      <p>Once the fetch runs on every update, the button becomes unnecessary (fetch is triggered by typing).</p>
+    </section>
+
+    <section>
+      <h2>✅ Feature 2: Persist location in localStorage</h2>
+      <p>We store the location on every update, then restore it on mount.</p>
+
+      <h3>A) Write to localStorage inside <code>componentDidUpdate</code></h3>
+      <pre><code>componentDidUpdate(prevProps, prevState) {
+  if (this.state.location !== prevState.location) {
+    // 1) persist
+    localStorage.setItem("location", this.state.location);
+
+    // 2) fetch new weather
+    this.fetchWeather();
+  }
+}</code></pre>
+
+      <div class="callout">
+        <strong>Reminder:</strong> localStorage values are strings, so storing <code>location</code> is direct (no JSON needed).
+      </div>
+
+      <h3>B) Read from localStorage inside <code>componentDidMount</code></h3>
+      <pre><code>componentDidMount() {
+  const stored = localStorage.getItem("location") || "";
+
+  // Setting state triggers a re-render
+  this.setState({ location: stored });
+}</code></pre>
+
+      <div class="rule">
+        <h3>What happens after mount (important chain)</h3>
+        <ul>
+          <li>1️⃣ <code>componentDidMount</code> reads localStorage and calls <code>setState</code></li>
+          <li>2️⃣ <code>setState</code> triggers a re-render</li>
+          <li>3️⃣ <code>componentDidUpdate</code> runs, sees the location changed</li>
+          <li>4️⃣ It persists (again) and calls <code>fetchWeather()</code></li>
+        </ul>
+        <p class="muted">This is why the previous-state comparison is essential.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧹 componentWillUnmount (cleanup)</h2>
+      <p><code>componentWillUnmount</code> runs when a component is removed from the UI.</p>
+
+      <div class="callout">
+        <strong>Hook analogy:</strong> Similar to returning a cleanup function from <code>useEffect</code>.
+      </div>
+
+      <p>In this lecture, the <code>App</code> component never unmounts, so it’s not a useful place for this method. But the <code>Weather</code> component <em>can</em> unmount when weather data is cleared (e.g., when <code>location</code> is too short and we reset <code>weather: {}</code>).</p>
+
+      <pre><code>class Weather extends React.Component {
+  componentWillUnmount() {
+    console.log("🌦️ Weather component is unmounting");
+    // Cleanup would go here (timers, subscriptions, listeners)
+  }
+
+  render() {
+    // ...
+  }
+}</code></pre>
+
+      <div class="note">
+        <strong>Typical cleanup tasks:</strong>
+        <ul>
+          <li>🧵 Cancel timers (<code>clearTimeout</code>, <code>clearInterval</code>)</li>
+          <li>📌 Remove event listeners</li>
+          <li>📡 Unsubscribe from external subscriptions</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>⚠️ Common pitfalls (and how to avoid them)</h2>
+      <ul>
+        <li class="warn"><strong>Infinite loops:</strong> calling <code>setState</code> inside <code>componentDidUpdate</code> without conditions can re-trigger updates forever.</li>
+        <li class="warn"><strong>No comparison:</strong> always compare <code>this.state</code> with <code>prevState</code> when doing update-driven side effects.</li>
+        <li class="warn"><strong>Spreading logic:</strong> class-based lifecycle code can end up split across methods (mount vs update). Hooks often feel cleaner because one effect can cover both.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧾 Minimal working pattern (all together)</h2>
+      <p class="muted">This is a compact template showing the key idea from the lecture.</p>
+
+      <pre><code>class App extends React.Component {
+  state = {
+    location: "",
+    isLoading: false,
+    weather: {},
+    displayLocation: "",
+  };
+
+  componentDidMount() {
+    const stored = localStorage.getItem("location") || "";
+    this.setState({ location: stored });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.location !== prevState.location) {
+      localStorage.setItem("location", this.state.location);
+      this.fetchWeather();
+    }
+  }
+
+  fetchWeather = async () =&gt; {
+    if (this.state.location.length &lt; 2) {
+      this.setState({ weather: {} });
+      return;
+    }
+
+    try {
+      this.setState({ isLoading: true });
+      // ...fetch + setState({ weather, displayLocation })...
+    } catch (err) {
+      // ...handle error...
+    } finally {
+      this.setState({ isLoading: false });
+    }
+  };
+
+  setLocation = (e) =&gt; {
+    this.setState({ location: e.target.value });
+  };
+
+  render() {
+    return (
+      &lt;div className="app"&gt;
+        &lt;h1&gt;Classy Weather&lt;/h1&gt;
+        &lt;input value={this.state.location} onChange={this.setLocation} /&gt;
+        {this.state.isLoading &amp;&amp; &lt;p className="loader"&gt;Loading...&lt;/p&gt;}
+        {this.state.weather.weathercode &amp;&amp; (
+          &lt;Weather weather={this.state.weather} location={this.state.displayLocation} /&gt;
+        )}
+      &lt;/div&gt;
+    );
+  }
+}</code></pre>
+    </section>
+
+    <section>
+      <h2>📌 Recap</h2>
+      <ul>
+        <li>✅ <code>componentDidMount</code>: read initial values (like localStorage) after first render.</li>
+        <li>✅ <code>componentDidUpdate</code>: react to changes (compare with <code>prevState</code>) to fetch + persist.</li>
+        <li>✅ <code>componentWillUnmount</code>: cleanup when a component is removed.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Takeaway:</strong> Even though class components are legacy, understanding these three methods is enough to navigate most older React codebases.
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

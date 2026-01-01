@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redux Toolkit — Back to Thunks (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .soft {
+      background: var(--soft);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #eef2ff;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7faff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .warn {
+      border-left: 4px solid #b45309;
+      background: #fff7ed;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    /* Print styles (A4, clean margins, no URL after links) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Keep cards from splitting awkwardly */
+      .card, pre, .note { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Make text slightly tighter and printer-friendly */
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li { font-size: 12.2px; }
+
+      /* Remove automatic URL printing */
+      a[href]::after { content: "" !important; }
+
+      /* Ensure dark code blocks still print legibly */
+      pre {
+        color: #111 !important;
+        background: #f2f2f2 !important;
+        border: 1px solid #ddd;
+      }
+
+      .chip {
+        border-color: #ddd;
+        background: #f7f7f7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">📘 The Ultimate React Course — Redux Toolkit & Thunks</p>
+      <h1>🔁 Back to Thunks: Currency Conversion (Redux Toolkit)</h1>
+      <p class="subtitle">
+        Reviewer / study guide with beginner-friendly explanations, practical steps, and code templates.
+      </p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">🧠 Thunk middleware (built-in)</span>
+        <span class="chip">🧩 createSlice</span>
+        <span class="chip">🏷️ Action types: slice/reducer</span>
+        <span class="chip">⏳ loading flag</span>
+        <span class="chip">💱 currency conversion flow</span>
+        <span class="chip">🛠️ createAsyncThunk (later)</span>
+      </div>
+    </header>
+
+    <section class="card soft">
+      <h2>🎯 Goal of this lesson</h2>
+      <p>
+        Bring back the <strong>Thunk-based currency conversion</strong> feature in a Redux Toolkit setup.
+        The instructor chooses the <strong>simpler approach</strong>: reuse a thunk action creator you already wrote,
+        instead of using <code>createAsyncThunk</code> (for now).
+      </p>
+      <ul>
+        <li>✅ Thunks work <strong>out of the box</strong> in Redux Toolkit (no extra install / setup).</li>
+        <li>✅ You can write your own thunk action creator and dispatch it normally.</li>
+        <li>✅ You must match the <strong>action type naming convention</strong> so reducers connect correctly.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>🧩 Quick refresher: What is a Thunk?</h2>
+      <p>
+        A <strong>Thunk</strong> is an action creator that returns a <strong>function</strong> instead of a plain object.
+        That function can do async work (like <code>fetch</code>) and then <strong>dispatch</strong> normal actions.
+      </p>
+      <div class="note">
+        ✅ In Redux Toolkit, thunk middleware is included by default via <code>configureStore</code>,
+        so your thunk action creators will run without additional setup.
+      </div>
+
+      <h3>Plain action vs Thunk action</h3>
+      <pre>// Plain action creator (synchronous)
+const increment = (amount) => ({ type: 'counter/increment', payload: amount });
+
+// Thunk action creator (asynchronous)
+const fetchAndIncrement = (amount) => async (dispatch, getState) => {
+  // async work here...
+  dispatch({ type: 'counter/increment', payload: amount });
+};</pre>
+    </section>
+
+    <section class="card">
+      <h2>🛠️ Two ways to do async in Redux Toolkit</h2>
+
+      <div class="two-col">
+        <div class="card soft" style="margin:0;">
+          <h3>1) Easier (used here): manual thunk</h3>
+          <ul>
+            <li>🧠 Reuse the thunk action creator you already wrote.</li>
+            <li>🧩 Less boilerplate for simple flows.</li>
+            <li>✅ Works immediately because RTK includes thunk middleware.</li>
+          </ul>
+        </div>
+
+        <div class="card soft" style="margin:0;">
+          <h3>2) Redux Toolkit way: createAsyncThunk</h3>
+          <ul>
+            <li>🏗️ Generates <code>pending/fulfilled/rejected</code> actions automatically.</li>
+            <li>📦 Usually paired with <code>extraReducers</code> for status handling.</li>
+            <li>⏭️ Instructor will use this in a future project.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="note warn">
+        ⚠️ Key idea: Both approaches are valid. Choose based on complexity and your team's conventions.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🏷️ Critical rule: Action type naming must match</h2>
+      <p>
+        When you create a slice with <code>createSlice</code>, Redux Toolkit generates actions with types like:
+        <strong><code>sliceName/reducerName</code></strong>.
+      </p>
+      <p>
+        If you stop exporting the auto-generated action creator and instead write your own thunk with the same action type,
+        Redux can still match it to the correct reducer.
+      </p>
+
+      <div class="note">
+        ✅ Rule of thumb: <strong>slice name</strong> + <code>"/"</code> + <strong>reducer name</strong>
+        must match exactly.
+      </div>
+
+      <pre>// Example: slice name = 'account', reducer name = 'deposit'
+// Then the action type must be:
+// 'account/deposit'</pre>
+    </section>
+
+    <section class="card">
+      <h2>💱 Implementing the currency conversion flow</h2>
+      <p class="muted">What the transcript describes (simplified into steps):</p>
+
+      <ol>
+        <li>📋 Copy/paste your old thunk action creator (currency conversion + deposit).</li>
+        <li>🧹 Stop exporting the auto-generated <code>deposit</code> action creator from <code>createSlice</code>.</li>
+        <li>🧠 Make sure your thunk dispatches an action with type <code>account/deposit</code> (or the correct slice/reducer type).</li>
+        <li>⏳ Add a reducer to track loading state while conversion is in progress.</li>
+        <li>✅ After the deposit is done, set loading back to false.</li>
+      </ol>
+
+      <h3>Suggested state fields</h3>
+      <ul>
+        <li>⏳ <code>state.isLoading</code> or <code>state.loading</code> — indicates conversion is in progress.</li>
+        <li>💰 <code>state.balance</code> — updated by the deposit reducer.</li>
+      </ul>
+
+      <div class="note warn">
+        ⚠️ Watch your naming: if you use <code>loading</code> in one place and <code>isLoading</code> in another,
+        the UI may not update correctly.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧱 Template: reducers + manual thunk (example)</h2>
+      <p>
+        The transcript’s idea is: when converting currency, set loading to <code>true</code>, fetch the conversion,
+        then dispatch the real deposit, and finally set loading back to <code>false</code>.
+      </p>
+
+      <pre>// accountSlice.js (conceptual template)
+import { createSlice } from '@reduxjs/toolkit';
+
+const initialState = {
+  balance: 0,
+  isLoading: false,
+  // ...other fields
+};
+
+const accountSlice = createSlice({
+  name: 'account',
+  initialState,
+  reducers: {
+    // Runs before async conversion
+    convertingCurrency(state) {
+      state.isLoading = true;
+    },
+
+    // Deposit reducer that updates the balance
+    deposit(state, action) {
+      state.balance += action.payload;
+      state.isLoading = false; // stop loading after successful deposit
+    },
+
+    // Example: reducer with no payload
+    payLoan(state) {
+      // ...
+    },
+  },
+});
+
+export const { convertingCurrency } = accountSlice.actions;
+// IMPORTANT: We do NOT export the auto-generated 'deposit' action creator here
+// because we will use our own thunk named 'deposit'.
+
+export default accountSlice.reducer;
+
+// ✅ Manual thunk action creator (same name as reducer action creator)
+export function deposit(amount, currency) {
+  return async function (dispatch, getState) {
+    try {
+      // If currency is already the base currency, deposit directly
+      if (currency === 'USD') {
+        dispatch({ type: 'account/deposit', payload: amount });
+        return;
+      }
+
+      dispatch(convertingCurrency());
+
+      // Fetch conversion rate (API endpoint depends on your project)
+      const res = await fetch(`https://api.exchangerate.host/convert?from=${currency}&to=USD&amount=${amount}`);
+      const data = await res.json();
+
+      const converted = Math.round((data?.result ?? amount) * 100) / 100;
+
+      // This must match: 'account/deposit'
+      dispatch({ type: 'account/deposit', payload: converted });
+    } catch (err) {
+      // Optional: handle errors (set loading false, store error message, etc.)
+      dispatch({ type: 'account/deposit', payload: 0 }); // example fallback; adjust as needed
+    }
+  };
+}</pre>
+
+      <div class="note">
+        ✅ Why does this work? Because Redux Toolkit already includes thunk middleware,
+        and the reducer will respond to <code>account/deposit</code> as long as the action type matches.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🐛 Troubleshooting mentioned in the transcript</h2>
+      <ul>
+        <li>🧰 A hard reload fixed a strange issue (possibly related to React DevTools interaction).</li>
+        <li>🧹 If you changed code and suddenly see errors, restore the expected state field names and remove leftover lines.</li>
+        <li>🔄 After edits, do a clean reload and re-test conversion (e.g., <em>100 to EUR</em>).</li>
+      </ul>
+      <div class="note warn">
+        ⚠️ DevTools-related quirks can happen. If state updates look inconsistent, try:
+        <strong>hard reload</strong>, stop/relauch dev server, or temporarily disable extensions.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>✅ Checklist (quick review)</h2>
+      <ul>
+        <li>☑️ Thunks work in RTK without installing anything.</li>
+        <li>☑️ You can reuse a manual thunk instead of <code>createAsyncThunk</code>.</li>
+        <li>☑️ If you write your own thunk named <code>deposit</code>, don’t export RTK’s auto <code>deposit</code> action creator.</li>
+        <li>☑️ Ensure action type matches <code>sliceName/reducerName</code> (e.g., <code>account/deposit</code>).</li>
+        <li>☑️ Add a reducer like <code>convertingCurrency</code> to set <code>isLoading = true</code>.</li>
+        <li>☑️ Set loading back to false after the deposit finishes.</li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="card">
+      <h2>📌 What’s next?</h2>
+      <p>
+        Next step is to <strong>convert the customer slice</strong> using similar Redux Toolkit logic.
+        That is covered in the final video of this section.
+      </p>
+    </section>
+
+    <footer class="muted" style="margin-top:16px; font-size:12px;">
+      Printed study guide format: A4, single column, word-wrapped, clean margins.
+    </footer>
+  </main>
+</body>
+</html>

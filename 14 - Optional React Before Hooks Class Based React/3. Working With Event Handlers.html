@@ -1,0 +1,381 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Working With Event Handlers (Class Components + this.setState)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .compare{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 4px;
+      font-size: 13.5px;
+    }
+    .compare th,
+    .compare td{
+      border:1px solid var(--border);
+      padding: 10px 10px;
+      vertical-align: top;
+    }
+    .compare th{
+      background: var(--panel);
+      text-align:left;
+      font-weight:700;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+    .danger{ color: var(--danger); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🏛️ React Study Guide: Working With Event Handlers (Class Components)</h1>
+      <p class="subtitle">Learn where to define event handlers in class components, why <code>this</code> becomes <code>undefined</code>, how to fix it with <code>bind</code>, and how to update state using <code>this.setState</code>.</p>
+      <div class="meta">
+        <span class="chip">🖱️ Events: <code>onClick</code></span>
+        <span class="chip">🧩 Handler location: class methods</span>
+        <span class="chip">🔗 Fix <code>this</code>: <code>bind</code> in constructor</span>
+        <span class="chip">🧠 State update: <code>this.setState</code></span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What we want to achieve</h2>
+      <p>We have a simple class component counter UI with <strong>-</strong> and <strong>+</strong> buttons. Now we want:</p>
+      <ul>
+        <li>➖ Clicking “-” decreases the count</li>
+        <li>➕ Clicking “+” increases the count</li>
+        <li>📅 Instead of showing the raw number, we’ll eventually show a date derived from that count</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧩 Where do event handlers live in class components?</h2>
+      <p>In function components, we often define handlers inside the component body. In class components, the recommended style is:</p>
+      <ul>
+        <li class="ok">✅ Keep <code>render()</code> as clean as possible</li>
+        <li class="ok">✅ Define handlers as <strong>class methods</strong></li>
+      </ul>
+
+      <div class="rule">
+        <h3>Example: define a handler as a class method</h3>
+        <pre><code>class Counter extends React.Component {
+  handleDecrement() {
+    // update state here
+  }
+
+  render() {
+    return (
+      &lt;button onClick={this.handleDecrement}&gt;-&lt;/button&gt;
+    );
+  }
+}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="warn">⚠️ The “this is undefined” problem</h2>
+      <p>A very common issue in older class-based React apps is that <code>this</code> becomes <code>undefined</code> inside event handlers.</p>
+
+      <div class="rule">
+        <h3>What happens?</h3>
+        <p>When React calls your handler, it effectively invokes it like a plain function — not as a method on your component instance — so the original <code>this</code> binding is lost.</p>
+        <pre><code>handleDecrement() {
+  console.log(this); // ❌ undefined (without binding)
+}</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Practical takeaway:</strong> Handlers used in JSX often lose their <code>this</code> binding in class components. You must fix it.
+      </div>
+    </section>
+
+    <section>
+      <h2>🔗 Fix it: bind handlers in the constructor</h2>
+      <p>The classic solution is to bind the method to the component instance inside <code>constructor</code>:</p>
+
+      <pre><code>constructor(props) {
+  super(props);
+
+  this.state = { count: 5 };
+
+  // ✅ Bind methods so `this` works inside handlers
+  this.handleDecrement = this.handleDecrement.bind(this);
+}</code></pre>
+
+      <div class="callout">
+        <strong>Why this works:</strong> <code>bind(this)</code> creates a new function whose <code>this</code> permanently points to the component instance.
+      </div>
+
+      <div class="callout">
+        <strong>Legacy code tip:</strong> In older codebases you will see these bindings everywhere.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Updating state in class components: <code>this.setState</code></h2>
+      <p><code>this.setState</code> is similar in spirit to a Hook setter (like <code>setCount</code>), but used on the class instance.</p>
+
+      <table class="compare" aria-label="Two ways to set state in class components">
+        <thead>
+          <tr>
+            <th>Approach</th>
+            <th>When to use</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1) Pass an object</strong></td>
+            <td>When next state does <em>not</em> depend on previous state</td>
+            <td><code>this.setState({ count: 10 })</code></td>
+          </tr>
+          <tr>
+            <td><strong>2) Pass a callback</strong></td>
+            <td class="ok"><strong>Preferred when next state depends on current state</strong></td>
+            <td><code>this.setState(cur =&gt; ({ count: cur.count - 1 }))</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <strong>Best practice:</strong> If you are updating based on the current value (increment/decrement), use the callback form.
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Full example: decrement + increment with proper binding</h2>
+      <p>This is a clean version of what the lecture builds, with both handlers bound and using callback <code>setState</code>:</p>
+
+      <pre><code>import React from "react";
+
+class Counter extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { count: 5 };
+
+    this.handleDecrement = this.handleDecrement.bind(this);
+    this.handleIncrement = this.handleIncrement.bind(this);
+  }
+
+  handleDecrement() {
+    this.setState((curState) =&gt; ({
+      count: curState.count - 1,
+    }));
+  }
+
+  handleIncrement() {
+    this.setState((curState) =&gt; ({
+      count: curState.count + 1,
+    }));
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;button onClick={this.handleDecrement}&gt;-&lt;/button&gt;
+        &lt;span&gt;{this.state.count}&lt;/span&gt;
+        &lt;button onClick={this.handleIncrement}&gt;+&lt;/button&gt;
+      &lt;/div&gt;
+    );
+  }
+}
+
+export default Counter;</code></pre>
+
+      <div class="callout">
+        <strong>Reminder:</strong> In JSX, pass the function reference (<code>this.handleIncrement</code>), do not call it (<code>this.handleIncrement()</code>).
+      </div>
+    </section>
+
+    <section>
+      <h2>📅 Bonus: display a date instead of the raw number</h2>
+      <p>The lecture then shows a small piece of “allowed” render logic: computing a date based on <code>this.state.count</code>.</p>
+      <p class="muted">The key idea is that small, simple transformations are okay inside <code>render()</code>. Just avoid defining functions there.</p>
+
+      <pre><code>render() {
+  const baseDate = new Date("2027-01-01");
+  baseDate.setDate(baseDate.getDate() + this.state.count);
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={this.handleDecrement}&gt;-&lt;/button&gt;
+      &lt;span&gt;{baseDate.toDateString()}&lt;/span&gt;
+      &lt;button onClick={this.handleIncrement}&gt;+&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+    </section>
+
+    <section>
+      <h2>🧪 Debug checklist (when your class handlers don’t work)</h2>
+      <ul>
+        <li>❓ Is <code>this</code> undefined inside the handler? → You forgot to bind.</li>
+        <li>❓ Are you doing <code>onClick={this.handleX()}</code>? → You accidentally called the function. Use <code>onClick={this.handleX}</code>.</li>
+        <li>❓ Are you updating based on previous state? → Use callback <code>setState</code>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>🧩 In class components, define event handlers as class methods (not inside <code>render()</code>).</li>
+        <li>⚠️ Handlers commonly lose <code>this</code> binding → <code>this</code> becomes undefined.</li>
+        <li>🔗 Fix by binding in <code>constructor</code>: <code>this.method = this.method.bind(this)</code>.</li>
+        <li>🧠 Update state with <code>this.setState</code>; prefer callback form when depending on current state.</li>
+        <li>📅 Small computations in <code>render()</code> are fine; avoid defining functions there.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

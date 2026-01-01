@@ -1,0 +1,401 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Performance — Optimization & Wasted Renders (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --soft2: #fbfbfb;
+      --accent: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px 44px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin: 0 0 8px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn:focus {
+      outline: 2px solid rgba(11, 87, 208, 0.25);
+      outline-offset: 2px;
+    }
+
+    .btn.primary {
+      border-color: rgba(11, 87, 208, 0.25);
+      background: rgba(11, 87, 208, 0.08);
+    }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    section h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: -0.1px;
+    }
+
+    section h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0f172a;
+      color: #e5e7eb;
+      border-radius: 12px;
+      overflow: auto;
+      font-size: 12.5px;
+      line-height: 1.55;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .mini {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .qa {
+      padding: 12px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .qa b { display: block; margin-bottom: 6px; }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* Print rules: A4, clean margins, hide interactive UI */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; }
+      .no-print { display: none !important; }
+      a { color: var(--text); text-decoration: none; }
+      pre { page-break-inside: avoid; }
+      section { break-inside: avoid-page; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>⚡ React Performance — Optimization & Wasted Renders</h1>
+      <p class="subtitle">Reviewer / Study Guide — Single-column, A4 print-ready</p>
+      <div class="toolbar no-print">
+        <button class="btn primary" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn" onclick="document.getElementById('quick-check').scrollIntoView({behavior:'smooth'})">✅ Quick Check</button>
+        <button class="btn" onclick="document.getElementById('cheatsheet').scrollIntoView({behavior:'smooth'})">🧰 Cheat Sheet</button>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What you’re learning in this lecture</h2>
+      <p>This lecture gives you a high-level map of <b>what can be optimized in React</b> and introduces the key concept you’ll optimize first: <b>wasted renders</b>.</p>
+      <div class="callout">
+        <span class="tag">🧠 Core idea</span>
+        React performance work is usually about being <b>selective</b>: optimize only when you have a real problem.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧭 The 3 main areas to optimize in React apps</h2>
+      <p>When React apps feel slow, it usually comes from one (or more) of these buckets:</p>
+      <ul>
+        <li><b>1) Prevent wasted renders</b> 🧹 — avoid re-rendering work that doesn’t change the DOM output.</li>
+        <li><b>2) Improve perceived speed & responsiveness</b> 🚀 — keep interactions fluid, avoid UI “lag”.</li>
+        <li><b>3) Reduce bundle size</b> 📦 — smaller JavaScript = faster downloads & startup.</li>
+      </ul>
+
+      <h3>🧰 Tools mentioned for each bucket</h3>
+      <ul>
+        <li><b>Wasted renders</b> 🧹
+          <ul>
+            <li>🧩 <code>memo</code> — memoize components (skip rendering if props are “the same”).</li>
+            <li>🧠 <code>useMemo</code> — memoize expensive computed values.</li>
+            <li>🔁 <code>useCallback</code> — memoize function references passed to children.</li>
+            <li>👶 Pass elements as <b>children</b> or normal props to avoid re-rendering them unnecessarily.</li>
+          </ul>
+        </li>
+        <li><b>Perceived speed</b> 🚀
+          <ul>
+            <li>🧠 <code>useMemo</code> / 🔁 <code>useCallback</code> — reduce work per render.</li>
+            <li>⏳ <code>useTransition</code> — keep UI responsive during non-urgent updates.</li>
+          </ul>
+        </li>
+        <li><b>Bundle size</b> 📦
+          <ul>
+            <li>🧱 Use fewer third-party packages where possible.</li>
+            <li>✂️ Code splitting + 💤 lazy loading (load code only when needed).</li>
+          </ul>
+        </li>
+      </ul>
+
+      <div class="callout">
+        <b>✅ Important mindset:</b>
+        <p class="mini">You don’t use these tools all the time. You learn them so you can grab the right one when you actually hit a performance issue.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🔄 When does a component instance re-render?</h2>
+      <p>In React, a component instance re-renders in <b>three</b> situations:</p>
+      <ul>
+        <li><b>1) Its own state changes</b> 🧩</li>
+        <li><b>2) A subscribed context value changes</b> 🌐</li>
+        <li><b>3) A parent re-renders</b> 👨‍👧‍👦 (children re-render by default when the parent renders)</li>
+      </ul>
+
+      <div class="callout">
+        <b>🤔 Common misconception: “Prop changes cause re-renders”</b>
+        <p class="mini">Props typically “change” because the <b>parent re-rendered</b>. And because children re-render when the parent re-renders, it <i>looks like</i> props are the direct cause. The deeper cause is the parent render.</p>
+      </div>
+
+      <div class="hr"></div>
+
+      <p><b>Also remember:</b> a re-render does <b>not automatically</b> mean the real DOM updates.</p>
+      <ul>
+        <li>Rendering = React calls your component function again and builds a new <b>Virtual DOM</b> snapshot.</li>
+        <li>Then React does <b>diffing/reconciliation</b> to decide if the real DOM needs changes.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🗑️ What is a “wasted render”?</h2>
+      <p>A <b>wasted render</b> is a render that produces <b>no change in the DOM</b>.</p>
+      <div class="callout">
+        <b>Why is it wasteful?</b>
+        <ul>
+          <li>React still did work: running component functions + building Virtual DOM + diffing.</li>
+          <li>But the output didn’t change, so that work didn’t improve the UI.</li>
+        </ul>
+      </div>
+
+      <h3>✅ When does it become a problem?</h3>
+      <ul>
+        <li>When re-renders happen <b>too frequently</b> (e.g., rapid state updates).</li>
+        <li>When a component is <b>slow to render</b> (expensive calculations, huge lists, heavy subtrees).</li>
+        <li>When users feel <b>lag</b>: delayed UI updates after interaction.</li>
+      </ul>
+
+      <div class="callout">
+        <span class="tag">⚠️ Reality check</span>
+        Most re-renders are fine because React is fast. Optimize only when you see measurable pain (lag, jank, slow interactions).
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Mini examples (beginner-friendly)</h2>
+
+      <h3>Example A: Parent re-render → child re-render (even if child output is same)</h3>
+      <pre><code>// Parent renders -> Child renders by default
+function Parent() {
+  const [count, setCount] = React.useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;Count: {count}&lt;/button&gt;
+      &lt;Child /&gt;
+    &lt;/div&gt;
+  );
+}
+
+function Child() {
+  console.log("Child rendered");
+  return &lt;p&gt;I didn't change... but I still rendered.&lt;/p&gt;;
+}
+</code></pre>
+      <p class="mini">If <code>Child</code> always returns the same DOM, many of those renders can be “wasted”. Later you’ll learn when <code>memo</code> makes sense.</p>
+
+      <h3>Example B: Memoizing a computed value</h3>
+      <pre><code>// useMemo prevents re-doing expensive work on every render
+const filtered = React.useMemo(() =&gt; {
+  return items.filter(x =&gt; x.name.includes(query));
+}, [items, query]);
+</code></pre>
+      <p class="mini">Use this when the computation is expensive and it’s re-running too often.</p>
+
+      <h3>Example C: Stabilizing a function passed to a child</h3>
+      <pre><code>// useCallback keeps the same function reference between renders
+const onSelect = React.useCallback((id) =&gt; {
+  setSelectedId(id);
+}, []);
+</code></pre>
+      <p class="mini">Useful when a child component is memoized and you want to avoid re-rendering it due to a “new” function prop each render.</p>
+    </section>
+
+    <section id="cheatsheet">
+      <h2>🧰 Cheat Sheet: How to think about optimization</h2>
+      <div class="grid">
+        <div class="qa">
+          <b>✅ Step 1: Identify the problem</b>
+          <ul>
+            <li>Is the app lagging, janky, or slow to respond?</li>
+            <li>Which component tree updates when it shouldn’t?</li>
+          </ul>
+        </div>
+        <div class="qa">
+          <b>✅ Step 2: Know the trigger</b>
+          <ul>
+            <li>State change? Context change? Parent render?</li>
+          </ul>
+        </div>
+        <div class="qa">
+          <b>✅ Step 3: Pick the right tool</b>
+          <ul>
+            <li>Wasted renders → <code>memo</code>, <code>useMemo</code>, <code>useCallback</code>, children props pattern</li>
+            <li>UI responsiveness → <code>useTransition</code>, reduce expensive render work</li>
+            <li>Bundle size → fewer deps, lazy loading, code splitting</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <b>📝 Simple rule-of-thumb</b>
+        <p class="mini">If you don’t see a real issue, prioritize clean code. Optimize later when you can measure improvement.</p>
+      </div>
+    </section>
+
+    <section id="quick-check">
+      <h2>✅ Quick Check (Self-Quiz)</h2>
+      <div class="grid">
+        <div class="qa">
+          <b>1) Name the 3 main performance areas in React apps.</b>
+          <p class="mini">Answer: wasted renders, perceived speed/responsiveness, bundle size.</p>
+        </div>
+        <div class="qa">
+          <b>2) List the 3 reasons a component instance re-renders.</b>
+          <p class="mini">Answer: state change, subscribed context change, parent re-render.</p>
+        </div>
+        <div class="qa">
+          <b>3) What is a wasted render?</b>
+          <p class="mini">Answer: a render that doesn’t change the DOM output (work happened, UI didn’t improve).</p>
+        </div>
+        <div class="qa">
+          <b>4) Why do people think “prop changes cause re-render”?</b>
+          <p class="mini">Answer: because props usually change when the parent re-renders, and children re-render with the parent.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p><b>Next up:</b> You’ll start optimizing wasted renders and learn tools like <code>memo</code>, <code>useMemo</code>, and <code>useCallback</code> in practical scenarios.</p>
+    </footer>
+  </div>
+</body>
+</html>

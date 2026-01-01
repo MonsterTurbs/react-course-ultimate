@@ -1,0 +1,348 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Sorting Items (Derived State)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --codebg: #fbfbfb;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px 18px 48px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 16px 16px 12px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    section {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 17px;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 12px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 0; padding-left: 18px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .kbd {
+      font-family: inherit;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .checklist li { margin: 7px 0; }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section {
+        border-radius: 0;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧳 Far Away App — Sorting Items (Derived State)</h1>
+      <p class="subtitle">How to add a <strong>Sort</strong> dropdown and render a <strong>sorted view</strong> of items without mutating state.</p>
+      <div class="meta">
+        <div>Key topics: 🧠 state for UI controls, 🎛️ controlled elements, 🧮 derived state, 🧊 immutability, 🔁 sorting strategies</div>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Goal of this lecture</h2>
+      <p>We want the user to pick a sorting rule using a dropdown:</p>
+      <ul>
+        <li>📝 <strong>Input order</strong> (original order items were added)</li>
+        <li>🔤 <strong>Description</strong> (alphabetical)</li>
+        <li>✅ <strong>Packed status</strong> (packed items move to the end)</li>
+      </ul>
+
+      <div class="callout">
+        <strong>⭐ Core idea:</strong>
+        <p>
+          The <em>items</em> array (state) should stay unchanged. We only compute a <em>sortedItems</em>
+          variable (derived state) and render that instead.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Where to build it</h2>
+      <p>
+        We implement sorting UI directly inside <code>PackingList</code> to keep it simple.
+        If we created another component, we might need to lift even more state up.
+      </p>
+      <div class="callout">
+        <strong>📍 Placement in JSX:</strong>
+        <p>Add a <code>&lt;div className="actions"&gt;</code> after the <code>&lt;ul&gt;</code> list to hold the dropdown (and later the clear button).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Controlled element for the select 🎛️</h2>
+      <p>
+        A dropdown (<code>&lt;select&gt;</code>) is an input element, so we treat it as a <strong>controlled element</strong>:
+      </p>
+      <ul class="checklist">
+        <li>1️⃣ Create state: <code>sortBy</code></li>
+        <li>2️⃣ Set <code>value={sortBy}</code></li>
+        <li>3️⃣ Add <code>onChange</code> to update state</li>
+      </ul>
+
+      <pre><code>// PackingList.jsx
+const [sortBy, setSortBy] = useState("input");
+
+&lt;select
+  value={sortBy}
+  onChange={(e) =&gt; setSortBy(e.target.value)}
+&gt;
+  &lt;option value="input"&gt;Sort by input order&lt;/option&gt;
+  &lt;option value="description"&gt;Sort by description&lt;/option&gt;
+  &lt;option value="packed"&gt;Sort by packed status&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+
+      <div class="callout">
+        <strong>🧠 Reminder:</strong>
+        <p>
+          Once you set <code>value={sortBy}</code>, React controls the dropdown. Without <code>onChange</code>, it becomes “read-only” and React will warn you.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Sorting with derived state 🧮</h2>
+      <p>
+        Sorting can be calculated from existing state (<code>items</code>) + current UI state (<code>sortBy</code>),
+        so we use a normal variable instead of <code>useState</code>.
+      </p>
+
+      <div class="callout">
+        <strong>⚠️ Critical rule: Do not mutate state</strong>
+        <p>
+          JavaScript <code>sort()</code> mutates the array. If you do <code>items.sort(...)</code>, you mutate React state directly (bug + unpredictable UI).
+          Fix: copy first using <code>slice()</code> (or spread) then sort.
+        </p>
+      </div>
+
+      <pre><code>// Derived state (no useState needed)
+let sortedItems;
+
+if (sortBy === "input") {
+  sortedItems = items;
+}
+
+if (sortBy === "description") {
+  sortedItems = items
+    .slice()
+    .sort((a, b) =&gt; a.description.localeCompare(b.description));
+}
+
+if (sortBy === "packed") {
+  sortedItems = items
+    .slice()
+    .sort((a, b) =&gt; Number(a.packed) - Number(b.packed));
+}</code></pre>
+
+      <h3>Why these sorting techniques work</h3>
+      <ul>
+        <li>🔤 <strong>Alphabetical:</strong> <code>localeCompare</code> handles string comparison properly (including locale rules).</li>
+        <li>✅ <strong>Boolean sort:</strong> <code>Number(false)=0</code>, <code>Number(true)=1</code>, so sorting by <code>0 - 1</code> moves packed items down.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>✅ React-friendly mental model:</strong>
+        <p>
+          State (<code>items</code>) is the “source of truth.” Sorting is just a “view” computed from it.
+          When <code>items</code> or <code>sortBy</code> changes, the component re-renders and <code>sortedItems</code> is recalculated automatically.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Render the sorted list (not the original list)</h2>
+      <p>
+        The final step is to render <code>sortedItems</code> in the map:
+      </p>
+
+      <pre><code>// BEFORE
+// {items.map(item =&gt; (...))}
+
+// AFTER
+{sortedItems.map((item) =&gt; (
+  &lt;Item
+    key={item.id}
+    item={item}
+    onDeleteItem={onDeleteItem}
+    onToggleItem={onToggleItem}
+  /&gt;
+))}</code></pre>
+
+      <div class="callout">
+        <strong>🧩 Result:</strong>
+        <p>
+          Switching the dropdown instantly changes the rendered order, while <code>items</code> state stays unchanged.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Common mistakes (and fixes) 🧯</h2>
+      <div class="grid">
+        <div class="callout">
+          <strong>❌ Mistake: Using state for sortedItems</strong>
+          <p>Creating <code>const [sortedItems, setSortedItems] = useState(...)</code> adds sync problems.</p>
+          <p><strong>✅ Fix:</strong> Use derived state (a normal variable) computed from <code>items</code> + <code>sortBy</code>.</p>
+        </div>
+
+        <div class="callout">
+          <strong>❌ Mistake: Mutating items with sort()</strong>
+          <p><code>items.sort(...)</code> mutates the array (state mutation).</p>
+          <p><strong>✅ Fix:</strong> <code>items.slice().sort(...)</code> or <code>[...items].sort(...)</code>.</p>
+        </div>
+
+        <div class="callout">
+          <strong>❌ Mistake: Missing onChange</strong>
+          <p>If <code>&lt;select value={sortBy}&gt;</code> has no <code>onChange</code>, it becomes read-only.</p>
+          <p><strong>✅ Fix:</strong> <code>onChange={(e) =&gt; setSortBy(e.target.value)}</code>.</p>
+        </div>
+
+        <div class="callout">
+          <strong>❌ Mistake: Incorrect option values</strong>
+          <p>If option values don’t match your conditions, sorting won’t change.</p>
+          <p><strong>✅ Fix:</strong> Ensure <code>value="input"</code>, <code>"description"</code>, <code>"packed"</code> align with your <code>if</code> checks.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Quick self-check ✅</h2>
+      <ul class="checklist">
+        <li>🧠 Did you create <code>sortBy</code> state with default <code>"input"</code>?</li>
+        <li>🎛️ Is the select controlled with <code>value</code> + <code>onChange</code>?</li>
+        <li>🧊 Are you copying the array before calling <code>sort()</code>?</li>
+        <li>🧮 Are you rendering <code>sortedItems</code> instead of <code>items</code>?</li>
+      </ul>
+
+      <div class="hr"></div>
+      <p><strong>Next lesson preview:</strong> Add the “Clear list” button 🧹 and confirm before wiping everything.</p>
+    </section>
+  </main>
+</body>
+</html>

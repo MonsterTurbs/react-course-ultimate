@@ -1,0 +1,442 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Reviewer — useReducer (Managing Related Pieces of State)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e7e7e7;
+      --soft:#f7f7f8;
+      --soft2:#fbfbfc;
+      --accent:#0b57d0;
+      --good:#0f7b3a;
+      --warn:#8a4b00;
+      --bad:#b42318;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, sans-serif;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px 44px;
+    }
+
+    header{
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      color: var(--muted);
+      margin: 0;
+      font-size: .98rem;
+    }
+
+    h2{
+      font-size: 1.2rem;
+      margin: 18px 0 10px;
+    }
+
+    h3{
+      font-size: 1.05rem;
+      margin: 14px 0 8px;
+    }
+
+    p{ margin: 8px 0; }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 12px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: var(--soft);
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.good{ border-left-color: var(--good); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.bad{ border-left-color: var(--bad); }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:.9rem;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+
+    ul{ margin: 8px 0 8px 20px; }
+    li{ margin: 6px 0; }
+
+    code, pre{ font-family: var(--mono); }
+    pre{
+      background:#0b1020;
+      color:#e8eefc;
+      padding: 12px 12px;
+      border-radius: 12px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: .92rem;
+      line-height: 1.45;
+    }
+
+    .mini{
+      font-size: .93rem;
+      color: var(--muted);
+    }
+
+    .toc{
+      border:1px dashed var(--border);
+      background:#fff;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 14px 0;
+    }
+    .toc a{ color: var(--text); text-decoration: none; }
+    .toc ol{ margin: 8px 0 0 20px; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .kpi{
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 12px;
+      background: #fff;
+    }
+
+    .kpi b{ display:block; margin-bottom: 4px; }
+
+    hr{
+      border: 0;
+      border-top: 1px solid var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print styles (A4, clean margins) */
+    @page { size: A4; margin: 14mm 14mm; }
+    @media print {
+      body{ background:#fff; }
+      .page{ max-width: unset; padding: 0; }
+      a{ color: inherit !important; text-decoration: none !important; }
+      .chip{ background:#fff; }
+      pre{ page-break-inside: avoid; }
+      .card, .callout, .kpi{ page-break-inside: avoid; }
+      .no-print{ display:none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 React Reviewer: useReducer — Managing Related Pieces of State</h1>
+      <p class="subtitle">Focus: moving from a single primitive state to an <b>object state</b> (count + step), using actions, a switch-based reducer, and a reset transition.</p>
+      <div class="chips">
+        <span class="chip">✅ Beginner-friendly</span>
+        <span class="chip">🧩 Reducer = pure function</span>
+        <span class="chip">🧠 One central place for transitions</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+      </div>
+    </header>
+
+    <section class="toc" aria-label="Table of contents">
+      <b>📌 Table of Contents</b>
+      <ol>
+        <li><a href="#goal">Goal of this lecture</a></li>
+        <li><a href="#from-primitive">From primitive state to object state</a></li>
+        <li><a href="#actions">Designing actions (type + payload)</a></li>
+        <li><a href="#switch">Reducer with switch (and why spread matters)</a></li>
+        <li><a href="#step">Adding step and using it for increment/decrement</a></li>
+        <li><a href="#reset">One dispatch: reset multiple fields</a></li>
+        <li><a href="#why">Why this is useful</a></li>
+        <li><a href="#pitfalls">Common pitfalls</a></li>
+        <li><a href="#cheatsheet">Cheat sheet</a></li>
+      </ol>
+    </section>
+
+    <section id="goal">
+      <h2>🎯 Goal of this lecture</h2>
+      <div class="callout">
+        <p><b>Problem:</b> We currently manage <code>count</code> and <code>step</code> separately. That’s fine… until state gets related and transitions become more complex.</p>
+        <p><b>Solution:</b> Put related values into a <b>single reducer state object</b> and manage updates via <b>named actions</b>.</p>
+      </div>
+      <div class="grid">
+        <div class="kpi">
+          <b>🙂 What improves?</b>
+          One “state transition hub” (the reducer) instead of scattered logic in many handlers.
+        </div>
+        <div class="kpi">
+          <b>🚀 Big win</b>
+          You can update multiple related fields with <b>one dispatch</b> (example: <code>reset</code>).
+        </div>
+      </div>
+    </section>
+
+    <section id="from-primitive">
+      <h2>1) 🔁 From primitive state to object state</h2>
+      <p>When state is more complex, reducers typically use an <b>object</b> as the state value.</p>
+
+      <div class="card">
+        <h3>✅ Define a shared initialState</h3>
+        <pre><code>const initialState = {
+  count: 0,
+  step: 1,
+};</code></pre>
+        <p class="mini">💡 This is reusable for reset and for initializing the reducer.</p>
+      </div>
+
+      <div class="card">
+        <h3>✅ useReducer now receives an object initial state</h3>
+        <pre><code>const [state, dispatch] = useReducer(reducer, initialState);
+
+// Optional: destructure for cleaner JSX
+const { count, step } = state;</code></pre>
+      </div>
+
+      <div class="callout warn">
+        <p><b>⚠️ Important:</b> Once your reducer state becomes an object, your reducer must always return an object with the same shape (or at least compatible shape).</p>
+      </div>
+    </section>
+
+    <section id="actions">
+      <h2>2) 🧾 Designing actions (type + payload)</h2>
+      <p>Instead of dispatching raw values (like <code>1</code> or <code>-1</code>), a common pattern is dispatching an <b>action object</b>:</p>
+      <pre><code>// Typical action shape
+{ type: "inc" }
+{ type: "dec" }
+{ type: "setCount", payload: 10 }
+{ type: "setStep", payload: 2 }</code></pre>
+
+      <div class="callout good">
+        <p><b>✅ Why do this?</b> The reducer can decide what “inc” means (ex: +1, or +step). This keeps logic centralized.</p>
+      </div>
+
+      <div class="card">
+        <h3>Example dispatches</h3>
+        <pre><code>// Buttons
+dispatch({ type: "inc" });
+dispatch({ type: "dec" });
+
+// Inputs
+dispatch({ type: "setCount", payload: Number(e.target.value) });
+dispatch({ type: "setStep", payload: Number(e.target.value) });</code></pre>
+      </div>
+    </section>
+
+    <section id="switch">
+      <h2>3) 🧠 Reducer with switch (and why spread matters)</h2>
+      <p>A reducer is a <b>pure function</b> that receives <code>state</code> and <code>action</code>, then returns the <b>next state</b>.</p>
+
+      <pre><code>function reducer(state, action) {
+  switch (action.type) {
+    case "inc":
+      return {
+        ...state,
+        count: state.count + 1,
+      };
+
+    case "dec":
+      return {
+        ...state,
+        count: state.count - 1,
+      };
+
+    case "setCount":
+      return {
+        ...state,
+        count: action.payload,
+      };
+
+    default:
+      throw new Error("Unknown action");
+  }
+}</code></pre>
+
+      <div class="callout">
+        <p><b>🧩 Why <code>...state</code>?</b> Because you’re updating only one property (like <code>count</code>) while keeping the others (like <code>step</code>) unchanged.</p>
+      </div>
+
+      <div class="callout warn">
+        <p><b>⚠️ Without spreading</b>, you might accidentally drop fields:</p>
+        <pre><code>// ❌ Bad: step gets lost
+return { count: state.count + 1 };</code></pre>
+      </div>
+    </section>
+
+    <section id="step">
+      <h2>4) ➕ Add step and use it in inc/dec</h2>
+      <p>Once <code>step</code> is in the same reducer state, updating it becomes another action type.</p>
+
+      <pre><code>case "setStep":
+  return {
+    ...state,
+    step: action.payload,
+  };</code></pre>
+
+      <p>Now make <code>inc</code> and <code>dec</code> use <code>step</code>:</p>
+      <pre><code>case "inc":
+  return { ...state, count: state.count + state.step };
+
+case "dec":
+  return { ...state, count: state.count - state.step };</code></pre>
+
+      <div class="callout good">
+        <p><b>✅ Benefit:</b> You’re modeling “count depends on step” directly in your reducer logic.</p>
+      </div>
+    </section>
+
+    <section id="reset">
+      <h2>5) 🔄 One dispatch: reset multiple fields</h2>
+      <p>With separate <code>useState</code> calls, resetting often requires multiple setter calls. With a reducer, you can do it in <b>one state transition</b>.</p>
+
+      <div class="card">
+        <h3>Dispatch</h3>
+        <pre><code>dispatch({ type: "reset" });</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Reducer case</h3>
+        <pre><code>case "reset":
+  return initialState;</code></pre>
+      </div>
+
+      <div class="callout">
+        <p><b>🧠 Key idea:</b> Reducers shine when multiple related fields must change together as a single “transaction”.</p>
+      </div>
+    </section>
+
+    <section id="why">
+      <h2>6) ✨ Why this is useful (beyond this small app)</h2>
+      <ul>
+        <li>🧭 <b>Centralized transitions:</b> all valid state changes are defined in one place (the reducer).</li>
+        <li>🧩 <b>Named actions:</b> reading <code>dispatch({ type: "reset" })</code> is clearer than multiple setter calls.</li>
+        <li>🧱 <b>Scales better:</b> as state grows, reducer patterns help prevent “handler spaghetti”.</li>
+        <li>🔍 <b>Debuggability:</b> actions are explicit; you can log action + state transitions easily.</li>
+      </ul>
+
+      <div class="callout warn">
+        <p><b>⚠️ Reality check:</b> For very simple state, <code>useState</code> remains the simplest and best choice.</p>
+      </div>
+    </section>
+
+    <section id="pitfalls">
+      <h2>7) 🧯 Common pitfalls</h2>
+      <div class="card">
+        <h3>❌ Forgetting to return a state for every action</h3>
+        <p>If your reducer returns <code>undefined</code>, React will crash or behave unpredictably.</p>
+      </div>
+
+      <div class="card">
+        <h3>❌ Mutating state</h3>
+        <pre><code>// ❌ Don’t do this
+state.count++;
+return state;</code></pre>
+        <p>Always return a new object using spread.</p>
+      </div>
+
+      <div class="card">
+        <h3>❌ Dropping other fields by not spreading</h3>
+        <p>If you return only <code>{ count: ... }</code>, you lose <code>step</code>.</p>
+      </div>
+
+      <div class="card">
+        <h3>❌ Inconsistent action types</h3>
+        <p>Typos like <code>"setstep"</code> vs <code>"setStep"</code> cause “Unknown action”. Prefer constants or enums in larger apps.</p>
+      </div>
+
+      <div class="card">
+        <h3>⚠️ String values from inputs</h3>
+        <p>Inputs provide strings; convert to number when needed:</p>
+        <pre><code>payload: Number(e.target.value)</code></pre>
+      </div>
+    </section>
+
+    <section id="cheatsheet">
+      <h2>🧾 Cheat sheet (quick reference)</h2>
+
+      <div class="card">
+        <h3>Reducer template</h3>
+        <pre><code>const initialState = { count: 0, step: 1 };
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "inc":
+      return { ...state, count: state.count + state.step };
+    case "dec":
+      return { ...state, count: state.count - state.step };
+    case "setCount":
+      return { ...state, count: action.payload };
+    case "setStep":
+      return { ...state, step: action.payload };
+    case "reset":
+      return initialState;
+    default:
+      throw new Error("Unknown action");
+  }
+}</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Dispatch examples</h3>
+        <pre><code>dispatch({ type: "inc" });
+dispatch({ type: "dec" });
+dispatch({ type: "setCount", payload: 10 });
+dispatch({ type: "setStep", payload: 2 });
+dispatch({ type: "reset" });</code></pre>
+      </div>
+
+      <div class="callout good">
+        <p><b>✅ Mental model:</b> <code>dispatch(action)</code> → reducer computes next state → React re-renders with the new state.</p>
+      </div>
+
+      <hr />
+      <p class="mini">End of reviewer. Print tip: Use your browser print dialog → Paper size A4 → Margins “Default” (CSS already sets safe A4 margins).</p>
+    </section>
+  </main>
+</body>
+</html>

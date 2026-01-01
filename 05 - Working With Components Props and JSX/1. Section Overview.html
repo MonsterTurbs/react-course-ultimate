@@ -1,0 +1,330 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Section 05 — Components, Props & JSX (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #111111;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 18px 0 8px;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 6px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 8px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .checklist {
+      list-style: none;
+      margin-left: 0;
+    }
+
+    .checklist li {
+      padding-left: 0;
+      margin: 8px 0;
+    }
+
+    .muted { color: var(--muted); }
+
+    /* PRINT SETTINGS */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; }
+      .page {
+        max-width: none;
+        padding: 0;
+        margin: 0;
+      }
+      header { border-bottom: 1px solid var(--border); }
+
+      /* Prevent browsers from printing URLs after links */
+      a[href]:after { content: "" !important; }
+
+      /* Avoid cutting */
+      pre, .card { page-break-inside: avoid; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧱 React Fundamentals — Components, Props & JSX</h1>
+      <p class="subtitle">Section Overview (Study Guide / Reviewer) — single-column, A4 print-ready</p>
+      <div class="meta">
+        <span class="chip">✅ Beginner-friendly</span>
+        <span class="chip">🖨️ Print to PDF (A4)</span>
+        <span class="chip">📌 Focus: Components • Props • JSX</span>
+      </div>
+    </header>
+
+    <section class="card callout">
+      <h2>🎯 What this section is about</h2>
+      <p>
+        In this section, you’ll learn three core building blocks of React apps:
+        <strong>components</strong>, <strong>props</strong>, and <strong>JSX</strong>.
+        You’ll also practice <strong>rendering lists</strong>, <strong>conditional rendering</strong>, and more—
+        while building your first beautiful project.
+      </p>
+      <p class="muted">
+        Goal mindset: learn the fundamentals, write code early, and build confidence quickly.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>🧠 Core concepts (simple explanations)</h2>
+      <div class="two-col">
+        <div>
+          <h3>1) Components (🧱 building blocks)</h3>
+          <ul>
+            <li><strong>What it is:</strong> a reusable piece of UI (like a Lego piece).</li>
+            <li><strong>Think:</strong> <em>Button</em>, <em>Header</em>, <em>Card</em>, <em>Profile</em>, <em>List</em>.</li>
+            <li><strong>Why it matters:</strong> keeps code organized, reusable, and easier to maintain.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>2) Props (📦 data passed into a component)</h3>
+          <ul>
+            <li><strong>What it is:</strong> inputs to a component (like function parameters).</li>
+            <li><strong>Use case:</strong> show different data in the same UI component.</li>
+            <li><strong>Rule of thumb:</strong> props flow from <em>parent → child</em>.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>3) JSX (✨ HTML-like syntax in JavaScript)</h3>
+          <ul>
+            <li><strong>What it is:</strong> a syntax that lets you write UI like HTML inside JavaScript.</li>
+            <li><strong>Why it matters:</strong> makes components easier to read and build.</li>
+            <li><strong>Reality:</strong> JSX becomes JavaScript under the hood.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧪 Mini examples (for quick recall)</h2>
+      <h3>✅ Component + JSX</h3>
+      <pre><code>function Welcome() {
+  return (
+    &lt;h1&gt;Hello, React! 👋&lt;/h1&gt;
+  );
+}</code></pre>
+
+      <div class="divider"></div>
+
+      <h3>📦 Props (parent passes data to child)</h3>
+      <pre><code>function ProfileCard({ name, role }) {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{name}&lt;/h2&gt;
+      &lt;p&gt;Role: {role}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+function App() {
+  return &lt;ProfileCard name="Reymond" role="React Learner" /&gt;;
+}</code></pre>
+
+      <div class="divider"></div>
+
+      <h3>📋 Rendering a list (map)</h3>
+      <pre><code>const skills = ["JS", "React", "CSS"];
+
+function Skills() {
+  return (
+    &lt;ul&gt;
+      {skills.map(skill =&gt; (
+        &lt;li key={skill}&gt;{skill} ✅&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+
+      <div class="divider"></div>
+
+      <h3>🔀 Conditional rendering (ternary)</h3>
+      <pre><code>function Status({ isOnline }) {
+  return (
+    &lt;p&gt;
+      {isOnline ? "Online 🟢" : "Offline ⚪"}
+    &lt;/p&gt;
+  );
+}</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>🛠️ What you will build/practice</h2>
+      <ul>
+        <li>🏗️ Build a “first beautiful project” using components and JSX.</li>
+        <li>🔁 Create and reuse components instead of repeating UI code.</li>
+        <li>📦 Share data between components using props.</li>
+        <li>📋 Render lists and handle common UI patterns (lists, cards, sections).</li>
+        <li>🔀 Use conditional rendering to show/hide UI based on data.</li>
+        <li>🧑‍💻 Practice solo by building a developer profile card.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>✅ Quick checklist (self-test)</h2>
+      <ul class="checklist">
+        <li>☐ I can explain what a component is in 1 sentence.</li>
+        <li>☐ I can pass props from a parent component to a child component.</li>
+        <li>☐ I can write JSX and embed JavaScript using <code>{...}</code>.</li>
+        <li>☐ I can render arrays using <code>map()</code> and set a stable <code>key</code>.</li>
+        <li>☐ I can use conditional rendering (ternary / &amp;&amp;) to control UI.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>🧾 Key terms (fast definitions)</h2>
+      <ul>
+        <li><strong>Component:</strong> a reusable UI unit (usually a function).</li>
+        <li><strong>Props:</strong> read-only input data for a component.</li>
+        <li><strong>JSX:</strong> syntax to describe UI in a component.</li>
+        <li><strong>Render:</strong> React drawing UI to the screen.</li>
+        <li><strong>List rendering:</strong> creating UI from arrays (often with <code>map</code>).</li>
+        <li><strong>Conditional rendering:</strong> showing different UI depending on data.</li>
+      </ul>
+    </section>
+
+    <section class="card callout">
+      <h2>🚀 Next step</h2>
+      <p>
+        Start the section lessons and keep your focus on the loop:
+        <strong>build small components → pass props → render lists → conditionally render UI</strong>.
+      </p>
+      <p class="muted">When the concepts feel “automatic,” you’re ready for bigger projects.</p>
+    </section>
+  </main>
+</body>
+</html>

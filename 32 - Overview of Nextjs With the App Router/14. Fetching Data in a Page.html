@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js (App Router) — Fetching Data in a Page (Server Components) | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #5a5a5a;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --chip: #f2f2f2;
+      --codebg: #0b0b0b;
+      --codetext: #f3f3f3;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      word-wrap: break-word;
+      hyphens: auto;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 20px 56px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 18px 18px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 16px 14px;
+      margin-top: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol { margin: 10px 0 10px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid #111;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 0 0 6px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      border-radius: 12px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .inline-code {
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      border: 0;
+      margin: 12px 0;
+    }
+
+    footer {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    /* Print rules (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-color: #d9d9d9; }
+      pre { page-break-inside: avoid; }
+      section { page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      a[href]:after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧠 Next.js (App Router) — Fetching Data in a Page (Server Components)</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) — Data fetching directly inside a page component using React Server Components (RSC).</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Server Components</span>
+        <span class="chip">⚙️ Skill: Server-side data fetching</span>
+        <span class="chip">🧪 Demo: JSONPlaceholder users</span>
+        <span class="chip">🖨️ A4 Print-ready</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Learning Goals</h2>
+        <ul>
+          <li>Understand why <strong>Next.js pages in the App Router are Server Components</strong> by default.</li>
+          <li>Fetch data using <span class="inline-code">fetch</span> directly inside a page component using <span class="inline-code">async/await</span>.</li>
+          <li>Know <strong>where console logs go</strong> (terminal vs browser console).</li>
+          <li>Render fetched data into HTML and confirm it’s already in the page source (SSR behavior).</li>
+          <li>Get a first feel for <strong>caching/navigation behavior</strong> in Next.js.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧩 Key Idea: Pages are Server Components</h2>
+        <div class="callout">
+          <strong>✅ Core concept</strong>
+          <div>In the Next.js <strong>App Router</strong> (the <span class="inline-code">app/</span> folder), <strong>pages are Server Components</strong>. That means the component runs on the server for the initial render, and it can safely fetch data on the server.</div>
+        </div>
+        <ul>
+          <li>Server Components run on the server → they can talk to databases, call APIs securely, and avoid client waterfalls.</li>
+          <li>Server Components do <strong>not</strong> use state/effects (no <span class="inline-code">useState</span>, <span class="inline-code">useEffect</span>).</li>
+          <li>They output HTML that gets sent to the browser.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Demo Walkthrough: Fetch Users Inside <span class="inline-code">/cabins</span></h2>
+        <p class="kicker">We will mimic the lecture: use a fake API (JSONPlaceholder) and fetch users directly inside a page component.</p>
+
+        <h3>1) Make the page component async</h3>
+        <p>In a Server Component, you can mark the component function as <span class="inline-code">async</span> and use <span class="inline-code">await</span> at the top level. That’s one of the “wow” moments in Next.js App Router.</p>
+
+        <pre><code>// app/cabins/page.js
+export default async function Page() {
+  // 1) Fetch
+  const res = await fetch("https://jsonplaceholder.typicode.com/users");
+
+  // 2) Convert to JSON
+  const users = await res.json();
+
+  // 3) Render
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Cabins&lt;/h1&gt;
+      &lt;ul&gt;
+        {users.map((user) =&gt; (
+          &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          <strong>💡 Why this works</strong>
+          <div>Because the page is a <strong>Server Component</strong>, it executes on the server, fetches the data there, and then sends the generated HTML to the browser.</div>
+        </div>
+
+        <h3>2) Where does <span class="inline-code">console.log</span> show up?</h3>
+        <p>If you add <span class="inline-code">console.log(users)</span> inside this page, you will typically see it in the <strong>terminal where Next.js runs</strong>, not in the browser console.</p>
+
+        <div class="grid">
+          <div class="card">
+            <p class="kicker">🖥️ Server logs</p>
+            <ul>
+              <li>Show in your terminal (where <span class="inline-code">npm run dev</span> is running).</li>
+              <li>Typical for Server Components, Server Actions, route handlers, etc.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <p class="kicker">🌐 Browser logs</p>
+            <ul>
+              <li>Show in DevTools Console.</li>
+              <li>Typical for Client Components and client-side JavaScript.</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>3) Proof it’s server-rendered</h3>
+        <ul>
+          <li>Right-click the page → <strong>View Page Source</strong> → you should see the users’ names already in the HTML.</li>
+          <li>Open DevTools → Network tab → navigate → you won’t see a client fetch for users (because it was done on the server).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>⏱️ Why the first visit can feel slower</h2>
+        <p>On the first visit to <span class="inline-code">/cabins</span>, Next.js must:</p>
+        <ol>
+          <li>Run the server component for that route,</li>
+          <li>Fetch the data from the API,</li>
+          <li>Generate HTML,</li>
+          <li>Send the finished HTML to the browser.</li>
+        </ol>
+        <div class="callout">
+          <strong>🧠 Mental model</strong>
+          <div>Server work happens <em>before</em> the HTML is delivered. So the user might wait a bit longer on the first hit—then navigation can feel faster later due to caching/prefetching.</div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🗃️ Caching (Quick Intro)</h2>
+        <p>The lecture mentions that after you navigate around, the data “is cached” and returning to the page can feel instant.</p>
+        <ul>
+          <li>Next.js can cache route segments and fetch results depending on configuration.</li>
+          <li>Navigation with <span class="inline-code">next/link</span> often feels SPA-like because routes are prefetched and cached (especially in production).</li>
+        </ul>
+        <div class="callout">
+          <strong>⚠️ Note</strong>
+          <div>Next.js caching can feel “aggressive.” You’ll learn later how to control it (e.g., forcing dynamic rendering, revalidation, cache options).</div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧰 Common Pitfalls (Beginner Checklist)</h2>
+        <ul>
+          <li>❌ Expecting server <span class="inline-code">console.log</span> to appear in the browser console.</li>
+          <li>❌ Using client-only APIs in a Server Component (e.g., <span class="inline-code">window</span>, <span class="inline-code">localStorage</span>).</li>
+          <li>❌ Trying to use React hooks like <span class="inline-code">useState</span> in a Server Component.</li>
+          <li>❌ Forgetting <span class="inline-code">await res.json()</span> (you’ll end up with a Promise instead of real data).</li>
+          <li>⚠️ Not handling errors (network failures) — you’ll typically add try/catch or Next.js error boundaries later.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Mini Practice (Quick Exercises)</h2>
+        <ol>
+          <li>✅ Replace the endpoint with <span class="inline-code">/posts</span> and render post titles instead of user names.</li>
+          <li>✅ Add a <span class="inline-code">&lt;p&gt;</span> above the list that shows: <span class="inline-code">Total users: {users.length}</span>.</li>
+          <li>✅ Add a simple guard:
+            <ul>
+              <li>If <span class="inline-code">!res.ok</span>, render an error message.</li>
+            </ul>
+          </li>
+        </ol>
+
+        <pre><code>// Example: basic error guard
+export default async function Page() {
+  const res = await fetch("https://jsonplaceholder.typicode.com/users");
+
+  if (!res.ok) {
+    return &lt;p&gt;❌ Failed to load users. Please try again.&lt;/p&gt;;
+  }
+
+  const users = await res.json();
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Cabins&lt;/h1&gt;
+      &lt;p&gt;✅ Total users: {users.length}&lt;/p&gt;
+      &lt;ul&gt;
+        {users.map((u) =&gt; (
+          &lt;li key={u.id}&gt;{u.name}&lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>📝 Quick Summary</h2>
+        <ul>
+          <li>🟨 In the App Router, <strong>pages are Server Components</strong> by default.</li>
+          <li>🚰 You can <strong>fetch data directly in the component</strong> using <span class="inline-code">async/await</span>.</li>
+          <li>🖥️ Server logs appear in the <strong>terminal</strong>, not the browser console.</li>
+          <li>📄 The fetched data can be present in <strong>View Page Source</strong> because it’s rendered on the server.</li>
+          <li>⚡ Navigation may feel fast later due to caching/prefetch behavior.</li>
+          <li>➡️ Next: add interactivity by introducing <strong>Client Components</strong>.</li>
+        </ul>
+      </section>
+
+      <footer>
+        Prepared for printing on A4. Tip: Use browser Print → Save as PDF.
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

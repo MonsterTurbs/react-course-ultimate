@@ -1,0 +1,365 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Quiz — Handling Loading, Error, and Ready Status (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #0b57d0;
+      --good: #0f766e;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --code-bg: #0b1020;
+      --code-text: #e6edf3;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      word-wrap: break-word;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px 60px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    section {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 8px 20px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .callout.good { border-left: 6px solid var(--good); }
+    .callout.warn { border-left: 6px solid var(--warn); }
+    .callout.bad  { border-left: 6px solid var(--bad); }
+
+    .grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .inline-code {
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--soft);
+      white-space: nowrap;
+    }
+
+    .mini {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      pre, .callout { break-inside: avoid; page-break-inside: avoid; }
+      a[href]::after { content: "" !important; } /* don’t print URLs */
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>⚙️ React Quiz — Handling <em>Loading</em>, <em>Error</em>, and <em>Ready</em> Status</h1>
+      <p class="subtitle">Study guide from the lecture transcript — single-column, A4 print-ready.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Conditional UI via <span class="inline-code">status</span></span>
+        <span class="chip">🧠 Skill: Derived state + component composition</span>
+        <span class="chip">🧱 Pattern: <span class="inline-code">useReducer</span> + actions</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Goal of this lecture</h2>
+      <p>Now that the reducer exists (and it stores <span class="inline-code">questions</span> + <span class="inline-code">status</span>), the next step is to <strong>render different UI screens</strong> depending on the current app status:</p>
+      <ul>
+        <li>⏳ <strong>loading</strong> → show a Loader</li>
+        <li>❌ <strong>error</strong> → show an Error message</li>
+        <li>✅ <strong>ready</strong> → show a Start Screen (quiz is ready to begin)</li>
+      </ul>
+      <div class="callout good">
+        <p><strong>Key idea:</strong> All these screens will appear inside the <span class="inline-code">&lt;Main&gt;</span> area. The Header stays the same; Main changes based on status. ✅</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧭 Status flow (mental model)</h2>
+      <div class="grid">
+        <div class="callout">
+          <p><strong>Start:</strong> <span class="inline-code">status = "loading"</span> ⏳</p>
+          <p class="mini">App is fetching questions from the fake API.</p>
+        </div>
+        <div class="callout">
+          <p><strong>Success:</strong> <span class="inline-code">dataReceived</span> action → <span class="inline-code">status = "ready"</span> ✅</p>
+          <p class="mini">Questions are stored in state; user can start the quiz.</p>
+        </div>
+        <div class="callout">
+          <p><strong>Failure:</strong> <span class="inline-code">dataFailed</span> action → <span class="inline-code">status = "error"</span> ❌</p>
+          <p class="mini">App shows a friendly error screen.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Step 1 — Destructure state for cleaner JSX</h2>
+      <p>Instead of repeatedly writing <span class="inline-code">state.status</span> and <span class="inline-code">state.questions</span>, destructure them once.</p>
+
+      <div class="callout warn">
+        <p><strong>Tip:</strong> You can destructure above the return, or do it inline. The lecture shows the inline approach, then uses <span class="inline-code">status</span> directly.</p>
+      </div>
+
+      <pre><code>// Inside App component
+const [{ questions, status }, dispatch] = useReducer(reducer, initialState);
+
+// Now you can use:
+// status ("loading" | "error" | "ready" | ...)
+// questions (array)
+</code></pre>
+
+      <p class="mini">Nested destructuring: the first item returned by <span class="inline-code">useReducer</span> is the state object; the second is <span class="inline-code">dispatch</span>.</p>
+    </section>
+
+    <section>
+      <h2>🧩 Step 2 — Conditional rendering inside Main</h2>
+      <p>The statuses are <strong>mutually exclusive</strong>, so you can render each one using simple <span class="inline-code">&&</span> checks (no ternaries needed).</p>
+
+      <pre><code>&lt;Main&gt;
+  {status === "loading" &amp;&amp; &lt;Loader /&gt;}
+  {status === "error" &amp;&amp; &lt;Error /&gt;}
+  {status === "ready" &amp;&amp; (
+    &lt;StartScreen numQuestions={numQuestions} /&gt;
+  )}
+&lt;/Main&gt;
+</code></pre>
+
+      <div class="callout good">
+        <p>✅ This keeps the UI logic very readable: “if loading, show loader; if error, show error; if ready, show start screen.”</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧱 Step 3 — Use presentational components for Loading and Error</h2>
+      <p>The lecture uses two simple components:</p>
+      <ul>
+        <li>⏳ <strong>Loader</strong> — no props, no state (pure UI)</li>
+        <li>❌ <strong>Error</strong> — no props, no state (pure UI)</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Why this matters:</strong> When UI chunks are reused or repeated, components keep your App clean and focused. 🧼</p>
+      </div>
+
+      <p class="mini">You just import them and display them based on <span class="inline-code">status</span>.</p>
+    </section>
+
+    <section>
+      <h2>🧪 Quick testing ideas (like in the lecture)</h2>
+      <ul>
+        <li>⏳ <strong>See loading clearly:</strong> open DevTools → Network → enable throttling (slow network). Then reload.</li>
+        <li>❌ <strong>Force an error:</strong> stop the fake API server (<span class="kbd">Ctrl</span> + <span class="kbd">C</span> in the server terminal), then reload the app.</li>
+        <li>✅ <strong>Back to normal:</strong> restart the server and reload.</li>
+      </ul>
+      <div class="callout warn">
+        <p>⚠️ Going fully “Offline” in DevTools may also break the page itself (depending on setup). Stopping the server is a cleaner error test.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Step 4 — Build the Ready screen (StartScreen)</h2>
+      <p>When <span class="inline-code">status === "ready"</span>, show a simple screen:</p>
+      <ul>
+        <li>👋 Welcome message</li>
+        <li>🧮 Number of questions (dynamic)</li>
+        <li>▶️ “Let’s start” button</li>
+      </ul>
+
+      <h3>✅ StartScreen component (example)</h3>
+      <pre><code>// StartScreen.js
+export default function StartScreen({ numQuestions }) {
+  return (
+    &lt;div className="start"&gt;
+      &lt;h2&gt;Welcome to The React Quiz! 👋&lt;/h2&gt;
+      &lt;h3&gt;{numQuestions} questions to test your React mastery 🧠&lt;/h3&gt;
+      &lt;button className="btn btn-ui"&gt;Let’s start ▶️&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout good">
+        <p>✅ This is still “presentational”: no reducer logic here yet. The button will start the quiz in the next lecture.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>📌 Derived state — Number of questions</h2>
+      <p>The number of questions is <strong>derived state</strong>: you can compute it from the questions array.</p>
+
+      <pre><code>// In App (derived state)
+const numQuestions = questions.length;
+
+// Pass down only what StartScreen needs
+{status === "ready" &amp;&amp; (
+  &lt;StartScreen numQuestions={numQuestions} /&gt;
+)}
+</code></pre>
+
+      <div class="callout">
+        <p>🧠 <strong>Rule of thumb:</strong> If you can compute a value from existing state/props, you usually don’t need to store it in state.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧯 Common pitfalls (beginner-friendly)</h2>
+      <ul>
+        <li>⚠️ <strong>“State is not defined”</strong>: happens if you destructure but still reference <span class="inline-code">state.something</span>. Update references to <span class="inline-code">status</span>/<span class="inline-code">questions</span>.</li>
+        <li>⚠️ <strong>Mutually exclusive UI</strong>: avoid nested ternaries early on; use simple checks first for clarity.</li>
+        <li>⚠️ <strong>Derived state duplication</strong>: don’t store <span class="inline-code">numQuestions</span> in state if it’s always <span class="inline-code">questions.length</span>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧾 Mini recap</h2>
+      <ul>
+        <li>✅ You used <span class="inline-code">status</span> to decide which UI to render inside <span class="inline-code">&lt;Main&gt;</span>.</li>
+        <li>✅ You showed <strong>Loader</strong> for loading, <strong>Error</strong> for error.</li>
+        <li>✅ You created <strong>StartScreen</strong> for ready state.</li>
+        <li>✅ You computed <span class="inline-code">numQuestions</span> as derived state and passed it as a prop.</li>
+      </ul>
+
+      <div class="divider"></div>
+      <p class="mini">Next lecture: start the quiz when the user clicks “Let’s start”. ▶️</p>
+    </section>
+
+  </main>
+</body>
+</html>

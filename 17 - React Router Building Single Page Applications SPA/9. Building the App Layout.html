@@ -1,0 +1,365 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WorldWise — Building the App Layout (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --code-bg: #f6f8fa;
+      --callout: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 17px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 14.5px;
+    }
+
+    p { margin: 8px 0; }
+
+    .toc {
+      margin-top: 12px;
+      padding: 12px;
+      background: #fff;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+    }
+
+    .toc ul { margin: 8px 0 0; padding-left: 18px; }
+    .toc li { margin: 4px 0; }
+
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      margin-left: 6px;
+      vertical-align: 1px;
+    }
+
+    .callout {
+      margin: 12px 0;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      background: var(--callout);
+      border-radius: 10px;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 6px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    ul { margin: 8px 0; padding-left: 18px; }
+    li { margin: 6px 0; }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 18px 0;
+    }
+
+    /* Print settings (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 18mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, .toc, .callout, pre { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; } /* don’t print URLs */
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>WorldWise — Building the App Layout</h1>
+      <p class="subtitle">Reviewer / study guide (print-friendly). Topic: creating the static layout for the main app screen using components + CSS Modules. 🧱🧭</p>
+
+      <section class="toc" aria-label="Table of contents">
+        <strong>Table of Contents</strong>
+        <ul>
+          <li><a href="#goal">Goal of this lecture</a></li>
+          <li><a href="#bigpicture">Big picture structure</a></li>
+          <li><a href="#steps">Implementation steps</a></li>
+          <li><a href="#snippet">VS Code snippet: quick CSS module import</a></li>
+          <li><a href="#patterns">Patterns and best practices</a></li>
+          <li><a href="#challenge">Mini challenge: Footer as a component</a></li>
+          <li><a href="#pitfalls">Common pitfalls</a></li>
+        </ul>
+      </section>
+    </header>
+
+    <section id="goal">
+      <h2>Goal of this lecture</h2>
+      <p>We build the <strong>static layout</strong> of the main app screen: <strong>Sidebar</strong> on the left + <strong>Map</strong> on the right. 🗺️</p>
+      <p class="mini">“Static” means: layout + components are on screen, but data/features (cities list, real map logic, etc.) can be added later.</p>
+
+      <div class="callout">
+        <strong>Key idea ✅</strong>
+        <p>Keep <strong>pages</strong> clean (mostly layout + composition), and push most markup/details into reusable <strong>components</strong>.</p>
+      </div>
+    </section>
+
+    <section id="bigpicture">
+      <h2>Big picture structure</h2>
+      <div class="grid">
+        <div class="callout">
+          <strong>Target UI layout 🧩</strong>
+          <ul>
+            <li><strong>AppLayout page</strong>: wraps everything in a flex container (or grid).</li>
+            <li><strong>&lt;Sidebar /&gt;</strong>: contains Logo, AppNav, City list placeholder, and a footer/copyright.</li>
+            <li><strong>&lt;Map /&gt;</strong>: placeholder map container on the right.</li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <strong>Folder organization 📁</strong>
+          <p>You can keep a <strong>flat components folder</strong> (simple), or create a <strong>folder per component</strong> (component + module + tests together). In this course, we keep it flat.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="steps">
+      <h2>Implementation steps</h2>
+
+      <h3>1) Move starter components into your components folder 📦</h3>
+      <ul>
+        <li>Take all starter components and place them into <code>src/components</code>.</li>
+        <li>After moving, delete the now-unneeded starter folder.</li>
+      </ul>
+
+      <h3>2) Create <code>Sidebar.jsx</code> 🧱</h3>
+      <p>The sidebar uses CSS Modules: <code>Sidebar.module.css</code> already exists and provides the class <code>sidebar</code>.</p>
+
+      <pre><code>// src/components/Sidebar.jsx
+import styles from "./Sidebar.module.css";
+import Logo from "./Logo";
+import AppNav from "./AppNav";
+
+export default function Sidebar() {
+  return (
+    &lt;div className={styles.sidebar}&gt;
+      &lt;Logo /&gt;
+      &lt;AppNav /&gt;
+
+      &lt;p&gt;List of cities&lt;/p&gt;
+
+      &lt;footer className={styles.footer}&gt;
+        &lt;p className={styles.copyright}&gt;
+          &amp;copy; {new Date().getFullYear()} by WorldWise Inc.
+        &lt;/p&gt;
+      &lt;/footer&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout">
+        <strong>Why compute the year like that? 🗓️</strong>
+        <p>It avoids manual updates every year, and it’s harmless at runtime.</p>
+      </div>
+
+      <h3>3) Create <code>Map.jsx</code> 🗺️</h3>
+      <p>For now, it’s only a placeholder with correct styling hooks.</p>
+
+      <pre><code>// src/components/Map.jsx
+import styles from "./Map.module.css";
+
+export default function Map() {
+  return &lt;div className={styles.mapContainer}&gt;Map&lt;/div&gt;;
+}
+</code></pre>
+
+      <h3>4) Compose them in <code>AppLayout.jsx</code> 🧭</h3>
+      <p>AppLayout should be “thin”: apply layout styles and render the main components.</p>
+
+      <pre><code>// src/pages/AppLayout.jsx
+import styles from "./AppLayout.module.css";
+import Sidebar from "../components/Sidebar";
+import Map from "../components/Map";
+
+export default function AppLayout() {
+  return (
+    &lt;div className={styles.app}&gt;
+      &lt;Sidebar /&gt;
+      &lt;Map /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <p class="mini">The layout works because <code>styles.app</code> is typically a flex container: sidebar on left, map on right.</p>
+
+      <hr class="divider" />
+
+      <h3>5) Confirm styling is applied ✅</h3>
+      <ul>
+        <li>If the layout looks “stacked” (sidebar above map), likely <code>styles.app</code> isn’t applied or the CSS module import is wrong.</li>
+        <li>If sidebar styles don’t apply, verify: <code>className={styles.sidebar}</code> and the correct module file name.</li>
+      </ul>
+    </section>
+
+    <section id="snippet">
+      <h2>VS Code snippet: quick CSS module import</h2>
+      <p>To speed up workflow, add a snippet that auto-imports the correct <code>.module.css</code> file. ⚡</p>
+
+      <div class="callout">
+        <strong>What the snippet does</strong>
+        <ul>
+          <li>When you type <code>csm</code> and hit enter, it inserts: <code>import styles from "./FileName.module.css"</code></li>
+          <li>It uses the current file name automatically.</li>
+        </ul>
+      </div>
+
+      <pre><code>// Suggested snippet body (conceptual)
+// Prefix: csm
+// Result:
+import styles from "./$TM_FILENAME_BASE.module.css";
+</code></pre>
+
+      <p class="mini">In the lecture, the snippet is stored in VS Code user snippets and triggered via prefix <code>CSM</code>.</p>
+    </section>
+
+    <section id="patterns">
+      <h2>Patterns and best practices</h2>
+      <ul>
+        <li>✅ <strong>Page = composition</strong>: Keep pages mostly for wiring components together.</li>
+        <li>✅ <strong>Component owns its styling</strong>: one <code>.module.css</code> per component.</li>
+        <li>✅ <strong>Use semantic HTML</strong>: using <code>&lt;footer&gt;</code> is fine even inside a sidebar.</li>
+        <li>✅ <strong>Prefer predictable imports</strong>: avoid overly clever destructuring of CSS module classes if it reduces clarity.</li>
+      </ul>
+    </section>
+
+    <section id="challenge">
+      <h2>Mini challenge: Footer as a component</h2>
+      <div class="callout">
+        <strong>Challenge 🎯</strong>
+        <p>Create a <code>SidebarFooter</code> component and move the footer markup + styles there.</p>
+        <ul>
+          <li>Create <code>SidebarFooter.jsx</code></li>
+          <li>Create <code>SidebarFooter.module.css</code></li>
+          <li>Move <code>footer</code> + <code>copyright</code> styles into the new module</li>
+          <li>Use it inside <code>Sidebar</code>: <code>&lt;SidebarFooter /&gt;</code></li>
+        </ul>
+      </div>
+
+      <pre><code>// Example usage
+// Sidebar.jsx
+import SidebarFooter from "./SidebarFooter";
+
+// ...
+&lt;SidebarFooter /&gt;
+</code></pre>
+    </section>
+
+    <section id="pitfalls">
+      <h2>Common pitfalls</h2>
+      <ul>
+        <li>⚠️ <strong>Wrong CSS module import path</strong>: e.g., importing from pages instead of components, or vice versa.</li>
+        <li>⚠️ <strong>CSS module file name mismatch</strong>: must be <code>ComponentName.module.css</code> (case-sensitive on many systems).</li>
+        <li>⚠️ <strong>Missing layout class</strong>: forgetting <code>className={styles.app}</code> in AppLayout will break the two-column layout.</li>
+        <li>⚠️ <strong>Over-stuffing pages</strong>: putting all sidebar markup directly in the page makes the codebase harder to scale.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Quick mental check ✅</strong>
+        <p>If you can describe the layout by reading only <code>AppLayout.jsx</code> (without drowning in markup), you’re doing it right.</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>Micro-review</h2>
+      <ul>
+        <li>🧱 Build layout with <strong>Sidebar</strong> + <strong>Map</strong>.</li>
+        <li>🎨 Style via <strong>CSS Modules</strong> (<code>styles.className</code>).</li>
+        <li>⚡ Add a <strong>snippet</strong> to speed up CSS module imports.</li>
+        <li>🧭 Keep pages clean; put details into reusable components.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

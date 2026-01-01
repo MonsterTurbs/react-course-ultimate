@@ -1,0 +1,441 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Hooks and Their Rules — Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --callout:#f7f7f7;
+      --accent:#0b57d0;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-wrap:break-word;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    h1{
+      margin: 0 0 6px 0;
+      font-size: 24px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      font-size: 12px;
+      color: var(--text);
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    main{display:block;}
+
+    .card{
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px;
+      margin: 12px 0;
+      background: #ffffff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      margin: 0 0 10px 0;
+      font-size: 18px;
+    }
+
+    h3{
+      margin: 14px 0 8px 0;
+      font-size: 15px;
+    }
+
+    p{margin: 8px 0;}
+    ul{margin: 8px 0 8px 18px; padding:0;}
+    li{margin: 6px 0;}
+
+    .callout{
+      background: var(--callout);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{font-weight:700;}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kbd{
+      display:inline-block;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fbfbfb;
+      overflow-x: auto;
+      page-break-inside: avoid;
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .two-col{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .badge{
+      display:inline-block;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      background: #fff;
+      margin-left: 6px;
+    }
+
+    .divider{
+      height:1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .qa{
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+      page-break-inside: avoid;
+    }
+
+    .qa h3{margin-top:0;}
+
+    /* Print */
+    @page{ size: A4; margin: 14mm 12mm; }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header{ border-radius: 0; }
+      .card{ border-radius: 0; }
+      a{ color: inherit; text-decoration: none; }
+      .chip{ border-color:#bbb; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>React Hooks and Their Rules</h1>
+      <p class="subtitle">🧠 Print-friendly reviewer / study guide (single-column, A4-ready)</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Hooks fundamentals</span>
+        <span class="chip">🧩 Focus: What hooks are + why rules exist</span>
+        <span class="chip">🧪 Includes: Examples + common mistakes</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>1) What is a React Hook? 🪝</h2>
+        <p><strong>Definition:</strong> A <strong>hook</strong> is a special React function that lets a function component “hook into” React’s internal features (state, effects, refs, context, etc.).</p>
+
+        <div class="callout">
+          <p><strong>Key idea:</strong> Hooks are like <em>APIs</em> that expose React internals—especially the <strong>Fiber tree</strong> (React’s internal data structure for tracking components and their state/effects).</p>
+        </div>
+
+        <h3>Why “use” at the start? ✅</h3>
+        <ul>
+          <li>All built-in hooks start with <code>use</code> (e.g., <code>useState</code>, <code>useEffect</code>).</li>
+          <li>This naming helps <strong>you</strong> recognize hooks quickly and helps tooling (like ESLint) enforce the rules.</li>
+          <li>Custom hooks must also start with <code>use</code> (e.g., <code>useFetch</code>, <code>useLocalStorage</code>).</li>
+        </ul>
+
+        <div class="callout">
+          <p>✨ <strong>Custom hooks</strong> are one of the best features of hooks: they let you <strong>reuse non-UI logic</strong> (logic that’s not about rendering).</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2) Why Hooks Were Introduced (Quick Context) ⏳</h2>
+        <ul>
+          <li>Before hooks, state + lifecycle logic often required <strong>class components</strong>.</li>
+          <li>Hooks made it possible for <strong>function components</strong> to use state, effects, and more.</li>
+          <li>This simplified component logic and made reuse easier (especially via custom hooks).</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>3) Built-in Hooks: The “Big Buckets” 🧰</h2>
+        <p>You don’t need to memorize all ~20+ hooks right now. Understand the <strong>categories</strong> first:</p>
+
+        <div class="grid">
+          <div class="callout">
+            <p><strong>Most used:</strong> <code>useState</code>, <code>useEffect</code>, and soon <code>useReducer</code>, <code>useContext</code> ⭐</p>
+            <p><strong>Often important:</strong> <code>useRef</code>, <code>useMemo</code>, <code>useCallback</code> 🧠</p>
+            <p><strong>Advanced / niche:</strong> Some hooks are less common or more specialized.</p>
+            <p><strong>Library authors:</strong> Some hooks exist mainly for library/framework tooling use.</p>
+          </div>
+        </div>
+
+        <div class="callout">
+          <p>📝 <strong>Practical tip:</strong> Learn hooks as you need them. Over-learning rare hooks early usually doesn’t pay off.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>4) The Two Rules of Hooks (Must Follow) 🚦</h2>
+
+        <h3>Rule #1: Call hooks only at the top level 🧱</h3>
+        <ul>
+          <li>✅ Call hooks at the top of your component (or custom hook).</li>
+          <li>❌ Don’t call hooks inside <strong>if</strong> statements, loops, or nested functions.</li>
+          <li>❌ Don’t call hooks after an <strong>early return</strong> (because it becomes conditional).</li>
+        </ul>
+
+        <pre><code>// ❌ Wrong: hook inside a conditional
+function Movie() {
+  if (someCondition) {
+    const [rating, setRating] = useState(0);
+  }
+  return null;
+}
+</code></pre>
+
+        <pre><code>// ✅ Correct: hook at the top level
+function Movie() {
+  const [rating, setRating] = useState(0);
+
+  if (someCondition) {
+    // conditional logic is fine
+  }
+
+  return null;
+}
+</code></pre>
+
+        <h3>Rule #2: Call hooks only from React functions 🧩</h3>
+        <ul>
+          <li>✅ Hooks can be called from <strong>function components</strong>.</li>
+          <li>✅ Hooks can be called from <strong>custom hooks</strong>.</li>
+          <li>❌ Don’t call hooks from regular helper functions.</li>
+          <li>❌ Don’t call hooks from class components.</li>
+        </ul>
+
+        <pre><code>// ❌ Wrong: hook in a regular function
+function formatAndTrack(value) {
+  const [x, setX] = useState(0);
+  return String(value);
+}
+</code></pre>
+
+        <pre><code>// ✅ Correct: wrap logic in a custom hook
+function useFormatAndTrack(value) {
+  const [x, setX] = useState(0);
+  return String(value);
+}
+</code></pre>
+
+        <div class="callout">
+          <p>🛡️ <strong>Good news:</strong> ESLint (React hook rules) will usually catch these mistakes immediately.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>5) The Real “Why” Behind Rule #1 (Order Matters) 🔁</h2>
+        <p><strong>Core requirement:</strong> Hooks must run in the <strong>same order</strong> on every render. Otherwise React can’t match the right hook call to the right stored value.</p>
+
+        <div class="callout">
+          <p>🧠 Think of hook calls like positions in a list:</p>
+          <ul>
+            <li>Hook #1 → its stored value</li>
+            <li>Hook #2 → its stored value</li>
+            <li>Hook #3 → its stored value</li>
+          </ul>
+          <p>If a hook disappears or moves, the mapping breaks.</p>
+        </div>
+
+        <h3>Behind the scenes: React stores hooks in a linked list 🔗</h3>
+        <p>On the initial render, React builds a <strong>Fiber tree</strong>. Each component’s Fiber keeps a <strong>linked list</strong> of the hooks used by that component instance.</p>
+
+        <pre><code>// Example call order (initial render)
+// 1) useState(A)
+// 2) useState(B)
+// 3) useEffect(Z)
+</code></pre>
+
+        <h3>What goes wrong with conditional hooks? 💥</h3>
+        <p>If you conditionally skip a hook on a later render, you change the order/shape of that linked list.</p>
+
+        <pre><code>// ❌ Hypothetical example (DO NOT DO THIS)
+function Example() {
+  const [a, setA] = useState(23);
+
+  // Conditionally creating state breaks hook order
+  if (a === 23) {
+    const [b, setB] = useState("");
+  }
+
+  useEffect(() =&gt; {
+    // ...
+  }, []);
+
+  return null;
+}
+</code></pre>
+
+        <ul>
+          <li>First render: condition is true → hook list is <code>[useState(a), useState(b), useEffect]</code></li>
+          <li>Later render: if <code>a</code> changes → condition becomes false → hook list becomes <code>[useState(a), useEffect]</code></li>
+          <li>React now gets “confused” because hook #2 used to be <code>useState(b)</code> but is now <code>useEffect</code>.</li>
+        </ul>
+
+        <div class="callout">
+          <p><strong>Result:</strong> incorrect state/effects get associated with the wrong hook call → bugs and unpredictable behavior.</p>
+        </div>
+
+        <h3>Why use call order at all? 🤔</h3>
+        <p>Because it’s a simple and efficient system:</p>
+        <ul>
+          <li>React can uniquely identify each hook by <strong>position</strong> (call order).</li>
+          <li>You don’t need to manually name hooks like “stateA”, “stateB” (which would be complex and error-prone).</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>6) Quick Mental Models to Remember 🧠</h2>
+
+        <div class="callout">
+          <p>🎧 <strong>Model 1:</strong> Hooks are like “ports” into React internals (Fiber state/effects/refs).</p>
+          <p>📍 <strong>Model 2:</strong> Hook call order is like “seat numbers” — don’t change seats between renders.</p>
+          <p>🧹 <strong>Model 3:</strong> Effects can add things to the outside world; cleanup removes them when needed.</p>
+        </div>
+
+        <h3>Common mistakes (and fixes) 🧯</h3>
+        <ul>
+          <li><strong>Mistake:</strong> Hook in <code>if</code> / loop → <strong>Fix:</strong> Move hook to top-level, put condition inside effect/logic.</li>
+          <li><strong>Mistake:</strong> Hook in helper function → <strong>Fix:</strong> Convert helper into a custom hook (<code>useSomething</code>).</li>
+          <li><strong>Mistake:</strong> Early return before hooks → <strong>Fix:</strong> Put hooks first, then guard render.</li>
+        </ul>
+
+        <pre><code>// ❌ Wrong: early return before hooks
+function Profile({ user }) {
+  if (!user) return null;
+  const [name, setName] = useState(user.name);
+  return null;
+}
+
+// ✅ Correct: hooks first
+function Profile({ user }) {
+  const [name, setName] = useState(user ? user.name : "");
+  if (!user) return null;
+  return null;
+}
+</code></pre>
+      </section>
+
+      <section class="card">
+        <h2>7) Mini-Quiz (Self-check) 📝</h2>
+        <div class="qa">
+          <h3>Q1) Why can’t hooks be called inside an <code>if</code> statement?</h3>
+          <p><strong>Answer:</strong> Because the hook might not run on every render, which changes hook call order and breaks React’s internal hook list mapping.</p>
+        </div>
+
+        <div class="qa">
+          <h3>Q2) Where can you call hooks?</h3>
+          <p><strong>Answer:</strong> Only inside function components or custom hooks (React functions).</p>
+        </div>
+
+        <div class="qa">
+          <h3>Q3) What’s the main benefit of custom hooks?</h3>
+          <p><strong>Answer:</strong> Reusing non-visual logic (data fetching, subscriptions, stateful logic) across components.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>8) One-page Checklist (Print &amp; Memorize) ✅</h2>
+        <ul>
+          <li>🪝 Hooks are special React functions that expose internal behavior (state/effects/refs/context).</li>
+          <li>🧩 Hooks start with <code>use</code> (built-in + custom).</li>
+          <li>🚫 Don’t call hooks in conditionals/loops/nested functions/after early returns.</li>
+          <li>🏗️ Call hooks only in function components or custom hooks.</li>
+          <li>🔁 Order must be the same every render (React uses call order to match hook → stored value).</li>
+          <li>🛡️ ESLint hook rules usually catch mistakes early.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Next Lesson Preview 🔜</h2>
+        <p>Next, you’ll likely test these rules in practice (including what happens when you try to break them), and then go deeper into other hooks like <code>useRef</code> and eventually custom hooks.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

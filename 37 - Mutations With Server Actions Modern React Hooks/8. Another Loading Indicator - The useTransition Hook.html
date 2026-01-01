@@ -1,0 +1,364 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Server Actions — Loading Indicator with useTransition (Reviewer)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --codebg:#0b0f19;
+      --codefg:#e8eaf0;
+      --accent:#0b57d0;
+      --good:#137333;
+      --warn:#b26a00;
+      --bad:#b00020;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+
+    header{
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: .98rem;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:var(--panel);
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:.85rem;
+      color:var(--muted);
+    }
+
+    h2{
+      font-size:1.25rem;
+      margin: 18px 0 10px;
+    }
+
+    h3{
+      font-size:1.05rem;
+      margin: 14px 0 8px;
+    }
+
+    p{margin: 10px 0;}
+
+    .callout{
+      border:1px solid var(--border);
+      background:var(--panel);
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin: 12px 0;
+    }
+
+    .callout strong{display:inline-block; margin-bottom:6px;}
+
+    .ok{border-left:6px solid var(--good);}
+    .warn{border-left:6px solid var(--warn);}
+    .bad{border-left:6px solid var(--bad);}
+
+    ul{margin: 8px 0 12px 22px;}
+    li{margin: 6px 0;}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      margin: 10px 0 14px;
+      padding: 12px 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.08);
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for print */
+      word-break: break-word;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:.9em;
+      border:1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 16px 0;
+    }
+
+    a{color: var(--accent); text-decoration: none;}
+    a:hover{text-decoration: underline;}
+
+    /* Print styles */
+    @page{ size: A4; margin: 16mm; }
+    @media print{
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; padding: 0; }
+      header{ margin-bottom: 12px; }
+      .chip{ background: #fff; }
+      a{ color: var(--text); text-decoration: none; }
+      a[href]::after{ content: ""; }
+      pre{ overflow: visible; }
+      h1,h2,h3{ break-after: avoid; page-break-after: avoid; }
+      .callout, pre{ break-inside: avoid; page-break-inside: avoid; }
+      li{ break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Next.js Server Actions — Loading Indicator with <code>useTransition</code> (Reviewer)</h1>
+      <p class="sub">How to show a spinner/loading state when a Server Action is triggered from a button click (not from a form action).</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Server Actions + UI Feedback</span>
+        <span class="chip">⚙️ React 18: Concurrent Feature</span>
+        <span class="chip">🧩 Next.js: Cache Revalidation Friendly</span>
+        <span class="chip">🖨️ Print-ready (A4)</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Context: Why <code>useFormStatus</code> is not enough here</h2>
+      <p>
+        In the <strong>Update Profile</strong> form, a loading label like “Updating…” was easy because the Server Action was used as the
+        form’s <code>action</code>. That setup enables the <code>useFormStatus</code> hook.
+      </p>
+
+      <div class="callout warn">
+        <strong>⚠️ Key constraint</strong>
+        <p>
+          <code>useFormStatus</code> only works for components <em>rendered inside</em> a <code>&lt;form&gt;</code> that is submitting.
+          If your Server Action is called from a <strong>button click</strong> (no form submit), <code>useFormStatus</code> cannot detect that.
+        </p>
+      </div>
+
+      <p>
+        Example situation: “Delete reservation” is triggered by clicking a delete button. No form submit is happening, so we need another mechanism.
+      </p>
+    </section>
+
+    <section>
+      <h2>2) The solution: <code>useTransition</code></h2>
+      <p>
+        <code>useTransition</code> is a React 18 hook (a “concurrent feature”). In plain React, it is used to mark a <strong>state update</strong>
+        as a <strong>transition</strong> so it can run in the background without blocking the UI.
+      </p>
+
+      <div class="callout ok">
+        <strong>💡 Next.js twist</strong>
+        <p>
+          In Next.js, we can also treat a <strong>Server Action invocation</strong> like a transition.
+          That gives us a boolean flag (pending) to drive a loading indicator while the action is running.
+        </p>
+      </div>
+
+      <h3>What <code>useTransition</code> returns</h3>
+      <ul>
+        <li><code>isPending</code> (boolean) → <strong>true</strong> while the transition is running</li>
+        <li><code>startTransition(fn)</code> → wrapper that marks <code>fn</code> as the transition work</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>3) Practical recipe: Delete Reservation + Spinner</h2>
+      <p>
+        Goal: When user clicks <strong>Delete</strong>, show a spinner while the Server Action deletes the booking and the UI is being updated.
+      </p>
+
+      <div class="callout">
+        <strong>✅ Pattern</strong>
+        <ul>
+          <li>Move the delete logic into <code>handleDelete</code></li>
+          <li>Wrap the server-action call inside <code>startTransition(() =&gt; ...)</code></li>
+          <li>Render spinner when <code>isPending === true</code></li>
+        </ul>
+      </div>
+
+      <h3>Example code (Client Component)</h3>
+      <pre><code>'use client';
+
+import { useTransition } from 'react';
+import SpinnerMini from './SpinnerMini';
+import { deleteReservation } from '@/app/_lib/actions'; // your Server Action
+
+export default function DeleteReservation({ bookingId }) {
+  const [isPending, startTransition] = useTransition();
+
+  function handleDelete() {
+    // Optional safety prompt so users don't delete by accident
+    const ok = confirm('Are you sure you want to delete this reservation?');
+    if (!ok) return;
+
+    startTransition(() =&gt; {
+      // Server Action call (runs on the server)
+      deleteReservation(bookingId);
+    });
+  }
+
+  return (
+    &lt;button
+      type="button"
+      onClick={handleDelete}
+      disabled={isPending}
+      className="text-sm underline disabled:opacity-50"
+      aria-busy={isPending}
+    &gt;
+      {!isPending ? (
+        &lt;&gt;🗑️ Delete&lt;/&gt;
+      ) : (
+        &lt;span className="mx-auto"&gt;
+          &lt;SpinnerMini /&gt;
+        &lt;/span&gt;
+      )}
+    &lt;/button&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout ok">
+        <strong>✅ What the user experiences</strong>
+        <ul>
+          <li>Click Delete → spinner shows immediately</li>
+          <li>Server Action runs (delete in DB + <code>revalidatePath</code>)</li>
+          <li>Updated UI renders: the reservation disappears</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) What’s happening behind the scenes</h2>
+      <ul>
+        <li>Next.js executes the Server Action on the server (as if it were an API endpoint).</li>
+        <li>The UI is refreshed by re-fetching data (cache revalidation), not by client state mutation.</li>
+        <li>Next.js wraps many navigation and data updates in transitions; here we are doing it explicitly.</li>
+      </ul>
+
+      <div class="callout warn">
+        <strong>⚠️ Common misconception</strong>
+        <p>
+          “Do we need React state to remove the deleted item from the list?”
+          <br />No. In Next.js Server Actions patterns, the usual approach is:
+          <strong>mutate data → revalidate cache → page re-renders with fresh data</strong>.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) When to use which loading hook?</h2>
+      <div class="grid">
+        <div class="callout">
+          <strong>🧾 Use <code>useFormStatus</code> when…</strong>
+          <ul>
+            <li>Server Action is connected to a <code>&lt;form action={...}&gt;</code></li>
+            <li>You want pending state for form submit (e.g., “Updating…”, disable button)</li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <strong>🧵 Use <code>useTransition</code> when…</strong>
+          <ul>
+            <li>Server Action is called from a button click / event handler (not a form submit)</li>
+            <li>You want UI to stay responsive + get <code>isPending</code> for a spinner/disabled state</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Quick checklist</h2>
+      <ul>
+        <li>✅ Component is a Client Component (<code>'use client'</code>)</li>
+        <li>✅ Import <code>useTransition</code> from <code>react</code></li>
+        <li>✅ Wrap the action call with <code>startTransition(() =&gt; ...)</code></li>
+        <li>✅ Use <code>isPending</code> to render spinner + disable button</li>
+        <li>✅ Server Action handles DB mutation + <code>revalidatePath</code> so UI updates correctly</li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>Mini practice (optional)</h2>
+      <ol>
+        <li>
+          Add a <strong>“Deleting…”</strong> label beside the spinner (only while <code>isPending</code> is true).
+        </li>
+        <li>
+          Add <strong>toast-style feedback</strong> (success/error) after the Server Action (later you can explore
+          optimistic UI or dedicated error boundaries).
+        </li>
+        <li>
+          Apply the same pattern to an <strong>“Update Reservation”</strong> button that triggers a Server Action from an event handler.
+        </li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Summary</h2>
+      <p>
+        When your Server Action is triggered by a form submission, <code>useFormStatus</code> is the clean solution for pending UI.
+        When the action is triggered by a button click (no form submit), use <code>useTransition</code>:
+        wrap the call with <code>startTransition</code> and use <code>isPending</code> for a spinner/disabled state.
+      </p>
+      <p class="sub">End of reviewer.</p>
+    </section>
+  </main>
+</body>
+</html>

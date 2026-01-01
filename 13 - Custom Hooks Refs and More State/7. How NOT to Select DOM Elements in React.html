@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — How NOT to Select DOM Elements (Why Refs Exist)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🧠 React Study Guide: How <em>NOT</em> to Select DOM Elements (and Why Refs Exist)</h1>
+      <p class="subtitle">In React, direct DOM selection like <code>document.querySelector</code> can work—but it’s usually not the “React way.” This lecture demonstrates the problem so refs make immediate sense.</p>
+      <div class="meta">
+        <span class="chip">🎯 Goal: auto-focus an input on mount</span>
+        <span class="chip">⚠️ Anti-pattern: <code>document.querySelector</code></span>
+        <span class="chip">➡️ Next: <strong>refs</strong> (declarative DOM access)</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 The experiment: Auto-focus the search input on mount</h2>
+      <p>We want this behavior:</p>
+      <ul>
+        <li>🟢 When the <strong>Search</strong> component mounts, the cursor should automatically be inside the input.</li>
+        <li>⌨️ The user can start typing immediately without clicking.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>In plain JavaScript:</strong> You would select the input and call <code>.focus()</code>.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 “Old-school” DOM selection inside <code>useEffect</code></h2>
+      <p>The lecture shows a typical DOM-manipulation approach:</p>
+
+      <pre><code>useEffect(() =&gt; {
+  const el = document.querySelector(".search");
+  console.log(el);
+  el.focus();
+}, []);</code></pre>
+
+      <p>✅ It works: on the initial page load, the input receives focus automatically.</p>
+    </section>
+
+    <section>
+      <h2>⚠️ Why this is not the React way (problems)</h2>
+      <p>React is <strong>declarative</strong>: you describe what the UI should be, and React handles the DOM updates for you. Manual DOM querying breaks that style.</p>
+
+      <div class="rule">
+        <h3>1) 🧱 You start relying on classes/IDs for selection</h3>
+        <p>If the element doesn’t already have a class or ID, you may feel forced to add one <em>only</em> to select it.</p>
+        <p class="muted">That couples your logic to CSS selectors and makes refactoring more fragile.</p>
+      </div>
+
+      <div class="rule">
+        <h3>2) 🧩 It doesn’t fit React’s component model</h3>
+        <p>In React, the component already “owns” its DOM. Using global document queries feels like stepping outside the component system.</p>
+      </div>
+
+      <div class="rule">
+        <h3>3) 🔁 You might re-select the element repeatedly</h3>
+        <p>If you add dependencies to the effect (e.g., rerun on query changes), you can end up selecting the same DOM node again and again.</p>
+        <p class="muted">Even if it’s not catastrophic, it’s not ideal and can become messy as the app grows.</p>
+      </div>
+
+      <div class="rule">
+        <h3>4) 🧯 It can be brittle in larger apps</h3>
+        <ul>
+          <li>Multiple elements might match the selector.</li>
+          <li>Markup changes can silently break the selector.</li>
+          <li>Code becomes harder to reason about when many components use global DOM queries.</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <strong>Bottom line:</strong> It’s not “wrong,” but it’s not aligned with React’s declarative philosophy.
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ What React wants instead: “Declarative” DOM access</h2>
+      <p>React provides a concept specifically for this use-case:</p>
+      <ul>
+        <li>🧷 <strong>Refs</strong> let you hold a stable reference to a DOM element.</li>
+        <li>🎯 You attach the ref directly in JSX (instead of querying the whole document).</li>
+        <li>🔒 You avoid adding classes/IDs purely for selection.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Next lecture:</strong> You’ll use <code>useRef</code> + <code>ref={...}</code> to focus the input in a more React-friendly way.
+      </div>
+    </section>
+
+    <section>
+      <h2>📝 Mini practice (quick check)</h2>
+      <ul>
+        <li>✅ Why does <code>useEffect(..., [])</code> run only once?</li>
+        <li>✅ What are two downsides of relying on <code>.search</code> selectors for behavior?</li>
+        <li>✅ What is the React feature designed for DOM access inside components?</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>✅ You <em>can</em> focus an input using <code>document.querySelector</code> + <code>.focus()</code>.</li>
+        <li>⚠️ But it’s not declarative and can become brittle or repetitive.</li>
+        <li>🧷 Refs exist to make DOM access fit naturally into React’s component model.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

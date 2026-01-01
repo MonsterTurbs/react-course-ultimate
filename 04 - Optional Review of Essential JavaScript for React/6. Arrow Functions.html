@@ -1,0 +1,454 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Arrow Functions (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 20px 44px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .muted { color: var(--muted); }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-right: 6px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th { background: var(--soft); }
+
+    /* Screen links are fine, but never print URLs */
+    a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      .toolbar { display: none !important; }
+
+      /* Don’t print any URL after links */
+      a[href]:after { content: "" !important; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🏹 Arrow Functions — Reviewer / Study Guide</h1>
+      <p class="subtitle">ES6 arrow functions are a short syntax for writing functions—especially useful for one-liners and callbacks. A4 print-ready.</p>
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Single-column, word-wrapped, designed for clean A4 printing (no URLs printed).</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Table of Contents</strong>
+        <ol>
+          <li><a href="#what">What are arrow functions?</a></li>
+          <li><a href="#syntax">Syntax basics</a></li>
+          <li><a href="#return">Implicit vs explicit return</a></li>
+          <li><a href="#params">Parameters: 0, 1, or many</a></li>
+          <li><a href="#getyear">Example: getYear(dateString)</a></li>
+          <li><a href="#callbacks">Why they shine: callbacks (map/filter/etc.)</a></li>
+          <li><a href="#gotchas">Common gotchas (objects, return, readability)</a></li>
+          <li><a href="#react">React notes: where you’ll see them</a></li>
+          <li><a href="#practice">Practice drills</a></li>
+          <li><a href="#self-check">Quick self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="what">
+      <h2>🧠 What are arrow functions?</h2>
+      <p>
+        <strong>Arrow functions</strong> (<code>() =&gt; {}</code>) are an ES6 way to write functions with shorter syntax.
+        They’re especially handy for:
+      </p>
+      <ul>
+        <li>⚡ Quick one-liner functions</li>
+        <li>🧩 Callback functions (e.g., array methods like <code>map</code>, <code>filter</code>, <code>reduce</code>)</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Style note (same as the lecture)</strong> ✅</p>
+        <p class="muted">Many devs use arrow functions everywhere, but it’s totally fine to prefer normal <code>function</code> syntax for longer functions.</p>
+      </div>
+    </section>
+
+    <section id="syntax">
+      <h2>⌨️ Syntax basics</h2>
+      <p>The “shape” looks like this:</p>
+      <pre><code>const fn = (param) =&gt; expression;</code></pre>
+
+      <h3>Traditional function (declaration) 🧱</h3>
+      <pre><code>function getYear(str) {
+  return str.split("-")[0];
+}</code></pre>
+
+      <h3>Arrow function (expression) 🏹</h3>
+      <pre><code>const getYear = (str) =&gt; str.split("-")[0];</code></pre>
+
+      <div class="callout">
+        <p><strong>Key idea</strong> 🧠</p>
+        <p class="muted">An arrow function is often stored in a variable. That’s why you’ll commonly see <code>const</code> + <code>=&gt;</code>.</p>
+      </div>
+    </section>
+
+    <section id="return">
+      <h2>↩️ Implicit vs explicit return</h2>
+
+      <h3>Implicit return (one-liner) ✅</h3>
+      <p class="muted">No curly braces. Whatever is on the right of <code>=&gt;</code> is returned automatically.</p>
+      <pre><code>const double = (x) =&gt; x * 2;
+// double(4) → 8</code></pre>
+
+      <h3>Explicit return (block body) 🧱</h3>
+      <p class="muted">If you use curly braces, you must write <code>return</code> yourself.</p>
+      <pre><code>const double = (x) =&gt; {
+  const result = x * 2;
+  return result;
+};</code></pre>
+
+      <div class="callout">
+        <p><strong>Common bug</strong> ⚠️</p>
+        <p class="muted">If you add braces and forget <code>return</code>, you’ll get <code>undefined</code>.</p>
+      </div>
+    </section>
+
+    <section id="params">
+      <h2>🧩 Parameters: 0, 1, or many</h2>
+
+      <h3>0 parameters</h3>
+      <pre><code>const sayHi = () =&gt; "Hi";</code></pre>
+
+      <h3>1 parameter</h3>
+      <p class="muted">Parentheses are optional with one parameter, but many teams keep them for consistency.</p>
+      <pre><code>const square1 = x =&gt; x * x;
+const square2 = (x) =&gt; x * x;</code></pre>
+
+      <h3>2+ parameters</h3>
+      <pre><code>const add = (a, b) =&gt; a + b;</code></pre>
+
+      <div class="callout">
+        <p><strong>Prettier behavior</strong> ✅</p>
+        <p class="muted">Prettier often adds parentheses automatically because it’s safer and avoids mistakes later.</p>
+      </div>
+    </section>
+
+    <section id="getyear">
+      <h2>🗓️ Example: <code>getYear(dateString)</code> (from the lecture)</h2>
+      <p>
+        Given a date string in this format: <span class="pill">YYYY-MM-DD</span>
+        we can extract the year by splitting on <code>"-"</code>.
+      </p>
+
+      <h3>Traditional version 🧱</h3>
+      <pre><code>function getYear(str) {
+  return str.split("-")[0];
+}
+
+getYear("1965-01-01"); // → "1965"</code></pre>
+
+      <h3>Arrow one-liner ✅</h3>
+      <pre><code>const getYear = (str) =&gt; str.split("-")[0];
+
+getYear("1965-01-01"); // → "1965"</code></pre>
+
+      <h3>Using it inside a template literal 🧾</h3>
+      <pre><code>const publicationDate = "1965-01-01";
+const summary = `Published in ${getYear(publicationDate)}.`;
+// → Published in 1965.</code></pre>
+
+      <div class="callout">
+        <p><strong>Why this is useful</strong> ✅</p>
+        <p class="muted">Instead of repeating <code>publicationDate.split("-")[0]</code> everywhere, you reuse one clean helper function.</p>
+      </div>
+    </section>
+
+    <section id="callbacks">
+      <h2>🧠 Why they shine: callbacks (map/filter/etc.)</h2>
+      <p>
+        Arrow functions become really powerful when you pass functions into other functions.
+        This happens constantly with array methods.
+      </p>
+
+      <h3>Example: map</h3>
+      <pre><code>const nums = [1, 2, 3];
+const doubled = nums.map((n) =&gt; n * 2);
+// → [2, 4, 6]</code></pre>
+
+      <h3>Example: filter</h3>
+      <pre><code>const nums = [10, 5, 20];
+const big = nums.filter((n) =&gt; n &gt; 10);
+// → [20]</code></pre>
+
+      <div class="callout">
+        <p><strong>React connection</strong> ⚛️</p>
+        <p class="muted">You’ll use <code>map</code> a lot to render lists: <code>items.map(item =&gt; &lt;Component /&gt;)</code></p>
+      </div>
+    </section>
+
+    <section id="gotchas">
+      <h2>🛠️ Common gotchas</h2>
+
+      <table aria-label="Arrow function gotchas">
+        <thead>
+          <tr>
+            <th>Gotcha</th>
+            <th>What happens</th>
+            <th>Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Using braces without <code>return</code></td>
+            <td>Returns <code>undefined</code></td>
+            <td>Add <code>return</code> or remove braces for one-liners</td>
+          </tr>
+          <tr>
+            <td>Returning an object literal on one line</td>
+            <td>JS thinks braces are a block, not an object</td>
+            <td>Wrap object in parentheses: <code>() =&gt; ({ a: 1 })</code></td>
+          </tr>
+          <tr>
+            <td>Overusing arrows for long logic</td>
+            <td>Hard to read/maintain</td>
+            <td>Use <code>function</code> or a block with clear steps</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Object return example (correct) ✅</h3>
+      <pre><code>const makeUser = (name) =&gt; ({ name, role: "student" });</code></pre>
+    </section>
+
+    <section id="react">
+      <h2>⚛️ React notes: where you’ll see arrows</h2>
+      <ul>
+        <li>🧩 Event handlers: <code>onClick={() =&gt; doSomething()}</code></li>
+        <li>🗂️ List rendering: <code>items.map(item =&gt; &lt;Item /&gt;)</code></li>
+        <li>🧪 Callbacks passed to hooks/utilities</li>
+      </ul>
+
+      <h3>Small JSX example ✅</h3>
+      <pre><code>function Button() {
+  return (
+    &lt;button onClick={() =&gt; console.log("Clicked!")}&gt;
+      Click me
+    &lt;/button&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Practical tip</strong> 💡</p>
+        <p class="muted">Keep arrow callbacks short; extract named functions when logic grows.</p>
+      </div>
+    </section>
+
+    <section id="practice">
+      <h2>🏋️ Practice drills</h2>
+      <ol>
+        <li>Write <code>getYear</code> as an arrow one-liner.</li>
+        <li>Write an arrow function <code>isLongBook(pages)</code> that returns true when pages &gt; 1000.</li>
+        <li>Use <code>map</code> + arrow to square: <code>[1,2,3]</code> ➜ <code>[1,4,9]</code>.</li>
+        <li>Use <code>filter</code> + arrow to keep only numbers &gt; 10.</li>
+        <li>Write an arrow that returns an object: <code>(name) =&gt; ({ name })</code>.</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>Tip</strong> 💡</p>
+        <p class="muted">Use Quokka to see results instantly while practicing (same workflow as earlier lectures).</p>
+      </div>
+    </section>
+
+    <section id="self-check">
+      <h2>📝 Quick self-check</h2>
+      <ol>
+        <li>When does an arrow function auto-return?</li>
+        <li>What happens if you add braces but forget <code>return</code>?</li>
+        <li>How do you return an object literal in a one-liner arrow?</li>
+        <li>Why are arrow functions common with <code>map</code> and <code>filter</code>?</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>✅ If you can answer these, you’re ready for arrow functions in React.</strong> 😄</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>
+        Reviewer generated from the provided transcript. Designed for clean A4 printing (single column, word-wrapped).
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

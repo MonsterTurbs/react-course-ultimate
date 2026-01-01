@@ -1,0 +1,444 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Router — Programmatic Navigation with useNavigate (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #0b1020;
+      --codefg: #e9eefc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.65rem;
+      line-height: 1.25;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 999px;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin: 22px 0 10px;
+      padding-top: 6px;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin: 16px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: #ffffff;
+      border-left: 6px solid #d2d2d2;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .list {
+      margin: 8px 0 0 0;
+      padding-left: 20px;
+    }
+
+    .list li { margin: 6px 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 12px 12px;
+    }
+
+    .card h3 { margin-top: 0; }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 10px;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .inline-code {
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .small { color: var(--muted); font-size: 0.95rem; }
+
+    /* Print styling */
+    @media print {
+      @page { size: A4; margin: 12mm; }
+      body { font-size: 11.2pt; line-height: 1.5; }
+      .page { max-width: none; padding: 0; }
+
+      /* Keep it clean */
+      header { margin-bottom: 10px; }
+      .chip { background: #fff; }
+      .card, .callout { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Do not print URL after links */
+      a[href]:after { content: "" !important; }
+
+      /* Avoid printing UI-only helpers */
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧭 React Router: Programmatic Navigation with <span class="inline-code">useNavigate</span></h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) — How to change routes without clicking a link.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: React Router v6</span>
+        <span class="chip">🧠 Skill: Navigation patterns</span>
+        <span class="chip">🧩 Hook: <span class="inline-code">useNavigate()</span></span>
+        <span class="chip">🧾 Use-case: click map ➜ open form</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) What is “programmatic navigation”?</h2>
+      <div class="callout">
+        <strong>✅ Definition</strong>
+        <p>
+          Programmatic navigation means **changing the URL (route)** using JavaScript code, **without the user clicking a <span class="inline-code">&lt;Link&gt;</span>**.
+          Think: “Navigate because an event happened.”
+        </p>
+      </div>
+
+      <h3>Common real-world examples</h3>
+      <ul class="list">
+        <li>📝 After submitting a form: <span class="inline-code">/login</span> ➜ <span class="inline-code">/app</span></li>
+        <li>🗺️ Clicking a map area to open a form screen</li>
+        <li>🔙 “Back” button that returns to previous screen (history navigation)</li>
+      </ul>
+
+      <div class="callout">
+        <strong>💡 Why you need it</strong>
+        <p>
+          Some UI interactions **can’t be represented as a normal link**, like clicking on a map canvas, submitting a form, or reacting to an effect.
+          That’s where <span class="inline-code">useNavigate</span> is the right tool.
+        </p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>2) The core API: <span class="inline-code">useNavigate()</span></h2>
+      <p>
+        React Router provides <span class="inline-code">useNavigate()</span>. It returns a function (commonly named <span class="inline-code">navigate</span>).
+        Calling it changes the current route.
+      </p>
+
+      <div class="card">
+        <h3>✅ Basic pattern</h3>
+        <pre><code>import { useNavigate } from "react-router-dom";
+
+function SomeComponent() {
+  const navigate = useNavigate();
+
+  function handleGoToForm() {
+    navigate("form"); // or navigate("/app/form") depending on your route setup
+  }
+
+  return (
+    &lt;button onClick={handleGoToForm}&gt;Go&lt;/button&gt;
+  );
+}</code></pre>
+        <p class="small">📝 Note: In nested routes, <span class="inline-code">navigate("form")</span> is often relative to the parent route (e.g., <span class="inline-code">/app</span>).</p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>3) Example: Click the map container ➜ navigate to the form</h2>
+      <p>
+        In the lecture, the goal is: when the user clicks inside the map area, the app should open the nested route
+        <span class="inline-code">/app/form</span>.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Step A — Ensure route points to your real Form component</h3>
+          <p>
+            Inside your nested routes under <span class="inline-code">/app</span>, render the real <span class="inline-code">Form</span> component.
+          </p>
+          <pre><code>// Example structure (simplified)
+&lt;Route path="app" element={&lt;AppLayout /&gt;}&gt;
+  &lt;Route index element={&lt;CityList /&gt;} /&gt;
+  &lt;Route path="cities" element={&lt;CityList /&gt;} /&gt;
+  &lt;Route path="countries" element={&lt;CountryList /&gt;} /&gt;
+  &lt;Route path="form" element={&lt;Form /&gt;} /&gt;
+&lt;/Route&gt;</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Step B — Map container click handler</h3>
+          <p>
+            Add an <span class="inline-code">onClick</span> to the map container and call <span class="inline-code">navigate("form")</span>.
+          </p>
+          <pre><code>import { useNavigate } from "react-router-dom";
+import styles from "./Map.module.css";
+
+function Map() {
+  const navigate = useNavigate();
+
+  function handleMapClick() {
+    navigate("form");
+  }
+
+  return (
+    &lt;div className={styles.mapContainer} onClick={handleMapClick}&gt;
+      {/* Map UI here */}
+    &lt;/div&gt;
+  );
+}</code></pre>
+          <p class="small">✅ Result: user clicks map ➜ URL updates ➜ <span class="inline-code">Form</span> is rendered via the nested route + <span class="inline-code">&lt;Outlet /&gt;</span>.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>4) Declarative vs Imperative navigation</h2>
+      <div class="card">
+        <h3>🧩 Declarative: <span class="inline-code">&lt;Link to="..." /&gt;</span></h3>
+        <ul class="list">
+          <li>“I declare a link in my UI.”</li>
+          <li>Best for menus, navbars, lists of pages.</li>
+        </ul>
+        <pre><code>import { Link } from "react-router-dom";
+
+&lt;Link to="cities/739"&gt;Open City&lt;/Link&gt;</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>⚙️ Imperative: <span class="inline-code">navigate("...")</span></h3>
+        <ul class="list">
+          <li>“I run code, then navigate.”</li>
+          <li>Best for form submit, map clicks, effects, or conditional redirects.</li>
+        </ul>
+        <pre><code>navigate("form");
+// or navigate("/app/form");</code></pre>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>5) Navigate in history: Back / Forward</h2>
+      <p>
+        Another powerful feature: navigating **through browser history**.
+        This is something you can’t reliably do with normal links.
+      </p>
+
+      <div class="card">
+        <h3>🔙 Go back one step</h3>
+        <pre><code>navigate(-1);</code></pre>
+        <h3>🔜 Go forward one step</h3>
+        <pre><code>navigate(1);</code></pre>
+        <h3>⏪ Go back two steps</h3>
+        <pre><code>navigate(-2);</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>⚠️ Common gotcha: Buttons inside a &lt;form&gt;</strong>
+        <p>
+          If your button is inside a form, clicking it may submit the form (causing a page reload).
+          You can prevent that.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>✅ Example: Back button inside a form</h3>
+        <pre><code>function Form() {
+  const navigate = useNavigate();
+
+  function handleBack(e) {
+    e.preventDefault();
+    navigate(-1);
+  }
+
+  return (
+    &lt;form&gt;
+      {/* form fields */}
+      &lt;button onClick={handleBack}&gt;Back&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+        <p class="small">Alternative: set the button’s <span class="inline-code">type="button"</span> so it does not submit the form.</p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>6) Mini-pattern: Reusable Button with “type” styling (CSS Modules)</h2>
+      <p>
+        The lecture also builds a reusable <span class="inline-code">Button</span> component that applies a base class plus a variant class
+        (e.g., <span class="inline-code">primary</span>, <span class="inline-code">back</span>, <span class="inline-code">position</span>).
+      </p>
+
+      <div class="card">
+        <h3>Button.jsx (CSS Modules variant selection)</h3>
+        <pre><code>import styles from "./Button.module.css";
+
+function Button({ children, onClick, type = "primary" }) {
+  return (
+    &lt;button
+      className={`${styles.btn} ${styles[type]}`}
+      onClick={onClick}
+      type="button"
+    &gt;
+      {children}
+    &lt;/button&gt;
+  );
+}
+
+export default Button;</code></pre>
+        <p class="small">🧠 Key idea: <span class="inline-code">styles[type]</span> lets you pick a CSS Module class dynamically.</p>
+      </div>
+
+      <div class="card">
+        <h3>Usage example</h3>
+        <pre><code>&lt;Button type="primary" onClick={() =&gt; navigate("form")}&gt;
+  Start
+&lt;/Button&gt;
+
+&lt;Button type="back" onClick={(e) =&gt; { e.preventDefault(); navigate(-1); }}&gt;
+  Back
+&lt;/Button&gt;</code></pre>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>7) Quick recap (memorize this)</h2>
+      <ul class="list">
+        <li>🧭 <span class="inline-code">useNavigate()</span> returns <span class="inline-code">navigate</span> (a function).</li>
+        <li>⚙️ Use <span class="inline-code">navigate("path")</span> when navigation is triggered by code (map click, submit, effect).</li>
+        <li>🔙 Use <span class="inline-code">navigate(-1)</span> to go back in history.</li>
+        <li>⚠️ Inside a form: prevent submit with <span class="inline-code">e.preventDefault()</span> or set <span class="inline-code">type="button"</span>.</li>
+        <li>🎨 CSS Modules variants: <span class="inline-code">${styles.btn} ${styles[type]}</span>.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>✅ Practice idea</strong>
+        <p>
+          Add a behavior: when the user submits the form, navigate back to <span class="inline-code">/app/cities</span> automatically.
+          That’s a very common real-world pattern.
+        </p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>Lecture Transcript (cleaned)</h2>
+      <p class="small">
+        This is the original lecture content, cleaned for readability and printing.
+      </p>
+      <div class="card">
+        <p>Next up, let's learn about programmatic navigation with the <span class="inline-code">useNavigate</span> custom hook.</p>
+        <p>Programmatic navigation means moving to a new URL without the user clicking a link. A common use case is after submitting a form, where we want to redirect the user automatically.</p>
+        <p>In this example, clicking somewhere in the map container should automatically navigate to the form component. This can’t be done with a regular link, so we use programmatic navigation.</p>
+        <p>We ensure the nested <span class="inline-code">form</span> route renders our real Form component. Then in the Map component, we attach an <span class="inline-code">onClick</span> handler and call <span class="inline-code">navigate("form")</span>.</p>
+        <p>This is an imperative navigation approach, compared to declarative navigation with <span class="inline-code">&lt;Link&gt;</span>.</p>
+        <p>We can also navigate back using browser history with <span class="inline-code">navigate(-1)</span>. On the form page, a Back button can do this — but because it’s inside a form, we must prevent the default submit behavior (or use <span class="inline-code">type="button"</span>).</p>
+        <p>Finally, we created a reusable Button component that accepts a variant type (primary/back/position) and applies the appropriate CSS module classes dynamically.</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

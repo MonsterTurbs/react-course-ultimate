@@ -1,0 +1,387 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eat-N-Split — Adding a New Friend (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --accent:#0b57d0;
+      --good:#0f7b0f;
+      --warn:#8a4b00;
+      --bad:#b00020;
+      --codebg:#fbfbfb;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column page container */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+
+    header{
+      padding: 14px 14px 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h1{
+      font-size: 1.35rem;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: .98rem;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      display:inline-block;
+      border:1px solid var(--border);
+      background: var(--soft);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: .86rem;
+      color: var(--muted);
+    }
+
+    main{ margin-top: 18px; }
+
+    h2{
+      font-size: 1.14rem;
+      margin: 20px 0 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3{
+      font-size: 1.02rem;
+      margin: 14px 0 8px;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; }
+    li{ margin: 4px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      border-left: 6px solid var(--accent);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+      margin: 12px 0;
+    }
+    .callout.good{ border-left-color: var(--good); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.bad{ border-left-color: var(--bad); }
+
+    .label{
+      display:block;
+      font-weight:700;
+      margin-bottom: 6px;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: .92em;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      padding: 1px 6px;
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    pre{
+      margin: 10px 0;
+      border:1px solid var(--border);
+      background: var(--codebg);
+      border-radius: 12px;
+      padding: 12px 12px;
+      overflow:auto;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: .92em;
+    }
+
+    .grid{
+      display:grid;
+      gap: 10px;
+      grid-template-columns: 1fr;
+    }
+
+    .two{
+      display:grid;
+      gap: 10px;
+      grid-template-columns: 1fr;
+    }
+
+    .rule{
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    /* Print styles */
+    @media print{
+      @page{ size: A4; margin: 14mm; }
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header, .callout, pre{ break-inside: avoid; page-break-inside: avoid; }
+      h2, h3{ break-after: avoid; page-break-after: avoid; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]::after{ content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>👥 Eat‑N‑Split — Adding a New Friend</h1>
+      <p class="subtitle">Reviewer / Study Guide — controlled inputs, form submit, lifting state, and child-to-parent communication.</p>
+      <div class="meta">
+        <span class="chip">React Fundamentals</span>
+        <span class="chip">State + Props</span>
+        <span class="chip">useState</span>
+        <span class="chip">Forms</span>
+      </div>
+    </header>
+
+    <main>
+      <div class="callout">
+        <span class="label">🎯 Goal</span>
+        <p>Implement the <b>first real feature</b> of the Eat‑N‑Split app: <b>add a new friend</b> so the friend appears immediately in the <b>FriendsList</b>.</p>
+      </div>
+
+      <h2>1) Make the inputs controlled (FormAddFriend)</h2>
+      <p>When a user types in an input, we want React state to be the <b>single source of truth</b>. That’s exactly what <b>controlled components</b> do.</p>
+
+      <div class="callout good">
+        <span class="label">✅ Controlled input recipe</span>
+        <ul>
+          <li>1) Create state: <code>const [value, setValue] = useState(...)</code></li>
+          <li>2) Bind state to input: <code>value={value}</code></li>
+          <li>3) Update state on change: <code>onChange={(e) =&gt; setValue(e.target.value)}</code></li>
+        </ul>
+      </div>
+
+      <h3>Example: name + image states</h3>
+      <pre><code>function FormAddFriend() {
+  const [name, setName] = useState("");
+  const [image, setImage] = useState("https://i.pravatar.cc/48");
+
+  return (
+    &lt;form className="form-add-friend"&gt;
+      &lt;label&gt;👭 Friend name&lt;/label&gt;
+      &lt;input
+        type="text"
+        value={name}
+        onChange={(e) =&gt; setName(e.target.value)}
+      /&gt;
+
+      &lt;label&gt;🖼️ Image URL&lt;/label&gt;
+      &lt;input
+        type="text"
+        value={image}
+        onChange={(e) =&gt; setImage(e.target.value)}
+      /&gt;
+
+      &lt;button className="button"&gt;Add&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+      <div class="callout warn">
+        <span class="label">🧠 Why default image URL?</span>
+        <p>So the user doesn’t need to type a URL every time. You can keep a default like <code>https://i.pravatar.cc/48</code> and later make it unique per friend.</p>
+      </div>
+
+      <h2>2) Handle form submit and create a “new friend” object</h2>
+      <p>Submitting a form triggers a browser page reload by default. In SPAs (React apps), we stop that using <code>e.preventDefault()</code>.</p>
+
+      <h3>Submit handler essentials</h3>
+      <pre><code>function handleSubmit(e) {
+  e.preventDefault();
+
+  // Guard clause 🚧
+  if (!name || !image) return;
+
+  const id = crypto.randomUUID();
+  const newFriend = {
+    id,
+    name,
+    image: `${image}?u=${id}`,
+    balance: 0,
+  };
+
+  console.log(newFriend);
+
+  // Reset fields ✨
+  setName("");
+  setImage("https://i.pravatar.cc/48");
+}</code></pre>
+
+      <div class="callout">
+        <span class="label">🔑 Notes</span>
+        <ul>
+          <li><b>Guard clause</b>: if there’s no name or image, exit early with <code>return</code>.</li>
+          <li><b>Unique IDs</b>: <code>crypto.randomUUID()</code> is a convenient browser API for generating IDs.</li>
+          <li><b>Stable avatar</b>: adding <code>?u=${id}</code> makes the avatar URL deterministic per friend.</li>
+        </ul>
+      </div>
+
+      <h2>3) The “hard part”: update FriendsList from FormAddFriend</h2>
+      <p>We want: submit form ➜ new friend appears in UI list. That means we need state, and we need it in the <b>right component</b>.</p>
+
+      <div class="callout bad">
+        <span class="label">🚫 Problem</span>
+        <p><b>FriendsList</b> displays the list, but <b>FormAddFriend</b> creates the new friend. These are <b>sibling components</b>, so we can’t pass data sideways with props.</p>
+      </div>
+
+      <div class="callout good">
+        <span class="label">✅ Solution: lift state up</span>
+        <p>Move <b>friends state</b> to the closest common parent (usually <b>App</b>) and then:</p>
+        <ul>
+          <li>Pass <code>friends</code> down to <b>FriendsList</b> (to render)</li>
+          <li>Pass a function down to <b>FormAddFriend</b> (to update)</li>
+        </ul>
+      </div>
+
+      <h3>App owns the friends state</h3>
+      <pre><code>function App() {
+  const [friends, setFriends] = useState(initialFriends);
+
+  function handleAddFriend(friend) {
+    setFriends((friends) =&gt; [...friends, friend]);
+  }
+
+  return (
+    &lt;&gt;
+      &lt;FriendsList friends={friends} /&gt;
+      &lt;FormAddFriend onAddFriend={handleAddFriend} /&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <span class="label">🧊 Immutability reminder</span>
+        <p>Do <b>not</b> mutate arrays (e.g., <code>friends.push(friend)</code>). Always create a new array:</p>
+        <pre><code>setFriends((friends) =&gt; [...friends, newFriend]);</code></pre>
+      </div>
+
+      <h3>FormAddFriend calls the parent handler (child → parent)</h3>
+      <pre><code>function FormAddFriend({ onAddFriend }) {
+  const [name, setName] = useState("");
+  const [image, setImage] = useState("https://i.pravatar.cc/48");
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!name || !image) return;
+
+    const id = crypto.randomUUID();
+    const newFriend = {
+      id,
+      name,
+      image: `${image}?u=${id}`,
+      balance: 0,
+    };
+
+    onAddFriend(newFriend);
+
+    setName("");
+    setImage("https://i.pravatar.cc/48");
+  }
+
+  return (
+    &lt;form className="form-add-friend" onSubmit={handleSubmit}&gt;
+      {/* inputs... */}
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+      <div class="callout warn">
+        <span class="label">🔁 What’s happening under the hood?</span>
+        <ul>
+          <li>Form creates <code>newFriend</code> ✅</li>
+          <li>Form calls <code>onAddFriend(newFriend)</code> ✅</li>
+          <li>App updates <code>friends</code> state ✅</li>
+          <li>App re-renders, passes updated friends to FriendsList ✅</li>
+          <li>FriendsList re-renders, showing the new friend ✅</li>
+        </ul>
+      </div>
+
+      <h2>4) Close the “Add Friend” form after submit</h2>
+      <p>The form’s visibility is controlled by <b>App</b> (e.g., <code>showAddFriend</code>). The form itself should not decide whether it renders.</p>
+
+      <h3>Update visibility inside App handler</h3>
+      <pre><code>function App() {
+  const [showAddFriend, setShowAddFriend] = useState(false);
+  const [friends, setFriends] = useState(initialFriends);
+
+  function handleAddFriend(friend) {
+    setFriends((friends) =&gt; [...friends, friend]);
+    setShowAddFriend(false); // ✅ close after adding
+  }
+
+  return (
+    &lt;&gt;
+      {showAddFriend &amp;&amp; &lt;FormAddFriend onAddFriend={handleAddFriend} /&gt;}
+    &lt;/&gt;
+  );
+}</code></pre>
+
+      <div class="callout good">
+        <span class="label">✅ Key takeaway</span>
+        <p><b>Whoever controls rendering should control the state that decides rendering.</b> Since App decides whether FormAddFriend exists in the tree, App should also decide when it hides.</p>
+      </div>
+
+      <div class="rule"></div>
+
+      <h2>Quick Self-Check (Practice)</h2>
+      <ul>
+        <li>✅ Can you explain why <code>friends</code> must live in <b>App</b> (not FriendsList or FormAddFriend)?</li>
+        <li>✅ Can you describe the three steps of controlled inputs?</li>
+        <li>✅ Can you explain why <code>setFriends((cur) =&gt; [...cur, newFriend])</code> is preferred?</li>
+        <li>✅ Can you explain “child-to-parent communication” using <code>onAddFriend</code>?</li>
+      </ul>
+
+      <div class="callout">
+        <span class="label">➡️ Next lesson preview</span>
+        <p>With adding friends done, the next step is making the main bill-splitting flow work (select a friend, show the split form, and update balances).</p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

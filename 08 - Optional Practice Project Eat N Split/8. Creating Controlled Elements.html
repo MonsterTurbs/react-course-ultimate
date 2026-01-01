@@ -1,0 +1,393 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eat-N-Split — Creating Controlled Elements (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #0b1020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 22px 18px 40px;
+    }
+
+    header {
+      padding: 14px 14px 10px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 20px;
+      letter-spacing: 0.2px;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    main { margin-top: 16px; }
+
+    h2 {
+      margin: 18px 0 8px;
+      font-size: 16px;
+    }
+
+    h3 {
+      margin: 14px 0 6px;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 10px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 12px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .callout {
+      border-left: 4px solid #111;
+      padding-left: 10px;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: #e7e7e7;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .kpi .row {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 10px;
+      align-items: start;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .kpi .label {
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .kpi .val { color: var(--muted); font-size: 13px; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; margin: 0; padding: 0; }
+      header, .box { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🎛️ Eat-N-Split — Creating Controlled Elements</h1>
+      <p class="sub">Reviewer / Study Guide • React Fundamentals (State, Props, Events, Derived State)</p>
+      <div class="meta">
+        <span class="chip">🧾 Controlled Inputs</span>
+        <span class="chip">🧠 Derived State</span>
+        <span class="chip">⚠️ Validation Guard</span>
+        <span class="chip">🔁 Re-render Mental Model</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="box">
+        <h2>Goal of this lecture ✅</h2>
+        <p>
+          Convert the bill-splitting form inputs into <strong>controlled elements</strong> — meaning React state is the
+          <strong>single source of truth</strong> for what the user sees inside the inputs.
+        </p>
+        <div class="kpi">
+          <div class="row">
+            <div class="label">Controlled element</div>
+            <div class="val">Input value comes from state (<code>value={state}</code>), and user changes update state (<code>onChange</code>).</div>
+          </div>
+          <div class="row">
+            <div class="label">Why it matters</div>
+            <div class="val">You can validate, compute derived values, and keep UI consistent with app logic.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="box">
+        <h2>1) Create state for each input 🧾</h2>
+        <p>
+          The form has three user-controlled inputs:
+        </p>
+        <ul>
+          <li>🧾 Bill value (text input)</li>
+          <li>👤 Your expense (text/number input)</li>
+          <li>💳 Who is paying (select)</li>
+        </ul>
+
+        <h3>Key idea</h3>
+        <p class="callout">
+          If an input is typed/changed by the user, you typically need state for it.
+          For text inputs, starting with <code>""</code> (empty string) is common.
+        </p>
+
+        <pre><code>// Inside &lt;FormSplitBill /&gt; (or wherever your form lives)
+const [bill, setBill] = useState("");
+const [paidByUser, setPaidByUser] = useState("");
+const [whoIsPaying, setWhoIsPaying] = useState("user"); // matches your option values</code></pre>
+
+        <p class="muted">
+          📝 Note: You could model paying as a boolean (<code>true/false</code>), but select values are strings. Using
+          <code>"user"</code> / <code>"friend"</code> is simple and practical.
+        </p>
+      </section>
+
+      <section class="box">
+        <h2>2) Wire them as controlled elements 🎛️</h2>
+        <p>
+          “Controlled” is always the same recipe:
+        </p>
+        <ol>
+          <li><strong>Define</strong> state (<code>useState</code>)</li>
+          <li><strong>Use</strong> it as the input value (<code>value={...}</code>)</li>
+          <li><strong>Update</strong> state on change (<code>onChange</code>)</li>
+        </ol>
+
+        <pre><code>// Bill input
+&lt;input
+  type="text"
+  value={bill}
+  onChange={(e) =&gt; setBill(e.target.value)}
+/&gt;
+
+// User expense input (convert to number if you want numeric math)
+&lt;input
+  type="text"
+  value={paidByUser}
+  onChange={(e) =&gt; setPaidByUser(Number(e.target.value))}
+/&gt;
+
+// Select who is paying
+&lt;select
+  value={whoIsPaying}
+  onChange={(e) =&gt; setWhoIsPaying(e.target.value)}
+&gt;
+  &lt;option value="user"&gt;You&lt;/option&gt;
+  &lt;option value="friend"&gt;Friend&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+
+        <div class="divider"></div>
+
+        <h3>Common gotcha ⚠️: strings vs numbers</h3>
+        <p>
+          Inputs return strings by default. If you plan to do math (like subtraction), convert:
+        </p>
+        <ul>
+          <li>✅ <code>Number(e.target.value)</code></li>
+          <li>✅ <code>+e.target.value</code> (shorthand)</li>
+        </ul>
+      </section>
+
+      <section class="box">
+        <h2>3) Use derived state for “paid by friend” 🧠</h2>
+        <p>
+          The friend’s expense field is <strong>disabled</strong> (user can’t type into it), so we don’t need state for it.
+          Instead, compute it from existing state:
+        </p>
+
+        <ul>
+          <li>🧠 <strong>Derived state</strong> = computed from other state/props.</li>
+          <li>✅ Avoids keeping multiple values “in sync” manually.</li>
+        </ul>
+
+        <pre><code>// Derived value (NOT useState)
+const paidByFriend = bill ? bill - paidByUser : "";
+
+// In JSX: value only, no onChange
+&lt;input type="text" disabled value={paidByFriend} /&gt;</code></pre>
+
+        <p class="muted">
+          Why the <code>bill ? ... : ""</code> check? Because early on <code>bill</code> might be an empty string, and some math
+          with empty strings can produce weird results.
+        </p>
+      </section>
+
+      <section class="box">
+        <h2>4) Prevent invalid values (user expense &gt; bill) 🚫</h2>
+        <p>
+          If user expense becomes greater than the bill, the friend’s expense would turn negative — not allowed.
+          The lecture’s approach: when the new typed value is invalid, keep the old state.
+        </p>
+
+        <pre><code>&lt;input
+  type="text"
+  value={paidByUser}
+  onChange={(e) =&gt; {
+    const next = Number(e.target.value);
+
+    // If next value is larger than bill, ignore it by keeping current state
+    if (next &gt; bill) return setPaidByUser(paidByUser);
+
+    setPaidByUser(next);
+  }}
+/&gt;</code></pre>
+
+        <p class="muted">
+          ✅ Practical takeaway: Controlled inputs let you enforce constraints immediately (at typing-time), not only at submit-time.
+        </p>
+      </section>
+
+      <section class="box">
+        <h2>5) Mental model: why derived values update automatically 🔁</h2>
+        <p>
+          When you type in an input:
+        </p>
+        <ol>
+          <li><code>onChange</code> fires</li>
+          <li>State updates (e.g., <code>setBill</code>)</li>
+          <li>React re-renders the component</li>
+          <li>Your component function runs again</li>
+          <li>Derived variables are re-calculated (e.g., <code>paidByFriend</code>)</li>
+        </ol>
+        <p class="callout">
+          🧠 This is why derived state is powerful: you don’t “update” derived values. They re-compute on render.
+        </p>
+      </section>
+
+      <section class="box">
+        <h2>6) Why state doesn’t reset when selecting another friend 🤔</h2>
+        <p>
+          You might notice: you select a different friend, but the form input state stays the same.
+          That happens because the form component is still mounted in the same place in the component tree — React keeps
+          the same component instance, so it keeps its state.
+        </p>
+
+        <ul>
+          <li>✅ If the component stays mounted, its state persists.</li>
+          <li>✅ If you unmount it (hide it) and mount again, state resets.</li>
+        </ul>
+
+        <p class="muted">
+          The lecture notes that you’ll fix this later with deeper React knowledge. For now, remember the rule:
+          <strong>state belongs to a component instance, and the instance survives as long as it stays mounted.</strong>
+        </p>
+      </section>
+
+      <section class="box">
+        <h2>Quick checks (self-test) 🧪</h2>
+        <ol>
+          <li>What are the 3 steps to make an input controlled?</li>
+          <li>Why do we prefer derived state for <code>paidByFriend</code> instead of <code>useState</code>?</li>
+          <li>What’s the bug if <code>paidByUser</code> &gt; <code>bill</code>?</li>
+          <li>Why does a component keep its state when switching selected friends?</li>
+        </ol>
+      </section>
+
+      <section class="box">
+        <h2>Cheat sheet 🧾</h2>
+        <ul>
+          <li>🎛️ Controlled input: <code>value</code> from state + <code>onChange</code> updates state.</li>
+          <li>🧠 Derived state: compute with normal variables from existing state/props.</li>
+          <li>⚠️ Convert strings to numbers for math: <code>Number(value)</code>.</li>
+          <li>🚫 Validate at input-time when needed (ignore invalid changes).</li>
+          <li>🔁 Re-render recalculates derived values automatically.</li>
+        </ul>
+      </section>
+
+      <p class="muted">End of notes — 8. Creating Controlled Elements</p>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,438 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redux Intro — Creating a Reducer (Bank Account) | Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --codebg:#0b0f1a;
+      --codetext:#e8eefc;
+      --accent:#0b57d0;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px 60px;
+    }
+
+    header{
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1{
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2{
+      margin: 22px 0 10px;
+      font-size: 18px;
+    }
+
+    h3{
+      margin: 16px 0 8px;
+      font-size: 15px;
+    }
+
+    p{ margin: 10px 0; }
+
+    .card{
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f3f7ff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .grid{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    ul{ margin: 8px 0 8px 22px; }
+    li{ margin: 6px 0; }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.10);
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .k{
+      display:inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eef2ff;
+      border: 1px solid #dbe3ff;
+      color: #243b85;
+      font-size: 12px;
+      margin-right: 6px;
+    }
+
+    .hr{
+      height:1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    /* Print (A4) */
+    @page{
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header{ margin-bottom: 10px; }
+      a, a:visited{ color: inherit; text-decoration: none; }
+      /* Don’t show URLs */
+      a[href]::after{ content: ""; }
+      pre{
+        white-space: pre-wrap;
+        word-break: break-word;
+        border: 1px solid #cfcfcf;
+        color: #111;
+        background: #fff;
+      }
+      .card, .callout{ break-inside: avoid; }
+      h2, h3{ break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🏦 Redux Intro (Isolation) — Creating a Reducer: Bank Account</h1>
+      <p class="subtitle">Reviewer / study guide based on the lecture transcript • Single-column • A4 print-ready</p>
+    </header>
+
+    <section>
+      <div class="callout">
+        <strong>🎯 Goal of this lecture:</strong> Start learning Redux <em>without React first</em> by building a pure reducer for a simple bank account model, inside a small React project (just to have a place to write code).
+      </div>
+
+      <h2>1) Why start Redux “in isolation”?</h2>
+      <p>
+        Redux is easier to learn when you separate the <strong>core idea</strong> (reducers + actions + store) from the React integration.
+        In this lecture, you focus on the reducer mechanics first—because they’re extremely similar to <code>useReducer</code>.
+      </p>
+
+      <div class="card">
+        <span class="k">🧠 Key idea</span>
+        <p style="margin:8px 0 0;">
+          If you already understand <code>useReducer</code>, Redux will feel familiar: <strong>state updates happen by dispatching actions</strong>, and a <strong>reducer</strong> computes the next state.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Project setup (quick recap)</h2>
+      <ul>
+        <li>✅ Create a new app (learning mode): <strong>Create React App</strong> (version 5), named something like <code>redux-intro</code>.</li>
+        <li>📁 Copy the provided starter files into the project and replace existing files.</li>
+        <li>🧹 Delete “junk” starter files you don’t need (extra CSS, etc.). Keep the provided <code>index.css</code> and test file.</li>
+        <li>➕ Create <code>src/store.js</code> — this is where you will write <strong>pure Redux code</strong> (no React yet).</li>
+      </ul>
+
+      <div class="card">
+        <strong>💡 Why create a React app if we’re not using React yet?</strong>
+        <p>
+          Convenience. You get a ready project structure, tooling, and a place to write and run code later when integrating Redux with React.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) The data model: “Bank Account” state</h2>
+      <p>
+        You’ll model a simplified bank account with:
+      </p>
+      <ul>
+        <li><strong>balance</strong> (number)</li>
+        <li><strong>loan</strong> (number)</li>
+        <li><strong>loanPurpose</strong> (string)</li>
+      </ul>
+
+      <h3>Initial state</h3>
+      <pre><code>// store.js
+
+const initialState = {
+  balance: 0,
+  loan: 0,
+  loanPurpose: "",
+};</code></pre>
+
+      <div class="callout">
+        <strong>✅ Beginner note:</strong> This is the same concept as <code>initialState</code> in <code>useReducer</code>. It’s simply your state “starting point.”
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Writing the reducer function</h2>
+      <p>
+        The reducer is a <strong>pure function</strong> that calculates the next state from the current state and an action.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <strong>🚫 Reducer rules (must remember)</strong>
+          <ul>
+            <li>No direct mutation of existing state (don’t change <code>state</code> in place).</li>
+            <li>No async logic (no <code>fetch</code>, timers, etc.).</li>
+            <li>No side effects (no DOM changes, no logging needed for correctness).</li>
+            <li>Given the same inputs, it should always return the same output.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <strong>🧩 Pattern you already know</strong>
+          <p>
+            <span class="k">state</span> + <span class="k">action</span> → <span class="k">newState</span>
+          </p>
+          <p style="margin-top:6px; color: var(--muted);">
+            This is exactly the mental model from <code>useReducer</code>.
+          </p>
+        </div>
+      </div>
+
+      <h3>Reducer skeleton (with default state)</h3>
+      <pre><code>function reducer(state = initialState, action) {
+  switch (action.type) {
+    // cases go here
+
+    default:
+      // Redux style: unknown actions should return the current state
+      return state;
+  }
+}</code></pre>
+
+      <div class="callout">
+        <strong>🔎 Why do we write <code>state = initialState</code>?</strong>
+        <p>
+          In Redux reducers, it’s common to provide a default state parameter so the reducer can initialize itself when the store is created.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Actions and naming conventions</h2>
+      <p>
+        Actions are objects that typically have:
+      </p>
+      <ul>
+        <li><strong>type</strong> → what happened / what should happen</li>
+        <li><strong>payload</strong> → extra data needed to update state</li>
+      </ul>
+
+      <div class="card">
+        <strong>📝 Naming (old vs modern)</strong>
+        <ul>
+          <li>Older Redux code often uses uppercase: <code>SET_BALANCE</code>, <code>DEPOSIT_ACCOUNT</code>.</li>
+          <li>Modern Redux guidance: use <strong>domain/event</strong> style like <code>account/deposit</code>, <code>account/withdraw</code>.</li>
+        </ul>
+      </div>
+
+      <p>
+        The “domain/event” style helps your code read like a timeline of events: “account deposit happened.”
+      </p>
+    </section>
+
+    <section>
+      <h2>6) Implementing reducer cases (deposit, withdraw, payLoan)</h2>
+
+      <h3>Deposit</h3>
+      <pre><code>case "account/deposit":
+  return {
+    ...state,
+    balance: state.balance + action.payload,
+  };</code></pre>
+
+      <h3>Withdraw</h3>
+      <pre><code>case "account/withdraw":
+  return {
+    ...state,
+    balance: state.balance - action.payload,
+  };</code></pre>
+
+      <div class="callout">
+        <strong>✅ Why spread (<code>...state</code>)?</strong>
+        <p>
+          It creates a <em>new object</em> instead of mutating the existing one. Redux expects immutable updates.
+        </p>
+      </div>
+
+      <h3>Pay loan back</h3>
+      <p>
+        This case resets the loan info and subtracts the loan amount from balance.
+      </p>
+      <pre><code>case "account/payLoan":
+  return {
+    ...state,
+    loan: 0,
+    loanPurpose: "",
+    balance: state.balance - state.loan,
+  };</code></pre>
+
+      <div class="card">
+        <strong>⚠️ Tiny gotcha</strong>
+        <p>
+          The expression <code>balance: state.balance - state.loan</code> uses the <em>current</em> state values. That’s okay here because the reducer computes the next state from the current state.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Requesting a loan (mentioned, but deferred)</h2>
+      <p>
+        The lecture introduces the idea for <strong>requesting a loan</strong>, with a rule:
+      </p>
+      <ul>
+        <li>✅ You can only request a loan if there is no existing loan (i.e., <code>state.loan === 0</code>).</li>
+        <li>🧾 When requesting, you store both the loan amount and the loan purpose.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>🧠 Why postpone this implementation?</strong>
+        <p>
+          Because it needs a more structured payload (like <code>{ amount, purpose }</code>) and it’s easier to understand once you start dispatching actions and observing state transitions.
+        </p>
+      </div>
+
+      <h3>How it will look conceptually</h3>
+      <pre><code>// Example action shape (later):
+{
+  type: "account/requestLoan",
+  payload: { amount: 5000, purpose: "Buy a laptop" }
+}
+
+// And reducer logic idea:
+if (state.loan &gt; 0) return state;
+return {
+  ...state,
+  loan: action.payload.amount,
+  loanPurpose: action.payload.purpose,
+};</code></pre>
+    </section>
+
+    <section>
+      <h2>8) Full reducer (as a clean reference)</h2>
+      <p>
+        Below is a clean version that matches what you’ve built so far (loan request intentionally omitted for now).
+      </p>
+      <pre><code>// store.js
+
+const initialState = {
+  balance: 0,
+  loan: 0,
+  loanPurpose: "",
+};
+
+function reducer(state = initialState, action) {
+  switch (action.type) {
+    case "account/deposit":
+      return {
+        ...state,
+        balance: state.balance + action.payload,
+      };
+
+    case "account/withdraw":
+      return {
+        ...state,
+        balance: state.balance - action.payload,
+      };
+
+    case "account/payLoan":
+      return {
+        ...state,
+        loan: 0,
+        loanPurpose: "",
+        balance: state.balance - state.loan,
+      };
+
+    default:
+      return state;
+  }
+}</code></pre>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>9) Quick checks (mini-quiz) ✅</h2>
+      <div class="card">
+        <ol style="margin: 8px 0 8px 22px;">
+          <li><strong>What are the 2 main action fields?</strong> (type + payload)</li>
+          <li><strong>Why must reducers be pure?</strong> (predictable state updates, easier debugging/testing)</li>
+          <li><strong>Why return <code>state</code> in the default case?</strong> (unknown actions shouldn’t break the app)</li>
+          <li><strong>Why not mutate <code>state.balance</code> directly?</strong> (Redux relies on immutable updates)</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>10) What’s next</h2>
+      <ul>
+        <li>🧱 Create the <strong>Redux store</strong> (next lecture).</li>
+        <li>🔁 Dispatch actions to test state transitions (deposit, withdraw, payLoan).</li>
+        <li>🧾 Implement <code>account/requestLoan</code> properly with an object payload.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>✅ Study tip:</strong> If Redux feels “big,” focus on this sequence: <strong>action → reducer → new state</strong>. The store simply coordinates that process.
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

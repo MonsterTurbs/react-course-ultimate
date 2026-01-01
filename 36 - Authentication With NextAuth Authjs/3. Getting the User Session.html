@@ -1,0 +1,507 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Auth.js (NextAuth) — Getting the User Session (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --soft2:#f5f7fb;
+      --accent:#0b57d0;
+      --ok:#0f7b3a;
+      --warn:#8a5a00;
+      --danger:#9a1b1b;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, sans-serif;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    .page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px 56px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--soft2), #fff);
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    nav{
+      margin-top: 14px;
+      border-top: 1px dashed var(--border);
+      padding-top: 12px;
+    }
+
+    .toc-title{
+      margin: 0 0 8px;
+      font-weight: 700;
+      font-size: 13.5px;
+    }
+
+    .toc{
+      margin:0;
+      padding-left: 18px;
+      color: var(--text);
+      font-size: 13.5px;
+    }
+
+    .toc li{ margin: 5px 0; }
+    .toc a{ color: var(--accent); text-decoration: none; }
+    .toc a:hover{ text-decoration: underline; }
+
+    section{
+      margin-top: 16px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background:#fff;
+      padding: 16px 16px 14px;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    h3{
+      margin: 14px 0 8px;
+      font-size: 14.5px;
+    }
+
+    p{ margin: 8px 0; }
+
+    ul{
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    li{ margin: 6px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-bottom: 4px; }
+
+    .ok{ border-color: rgba(15,123,58,.25); background: rgba(15,123,58,.06); }
+    .warn{ border-color: rgba(138,90,0,.25); background: rgba(138,90,0,.06); }
+    .danger{ border-color: rgba(154,27,27,.25); background: rgba(154,27,27,.06); }
+
+    .kbd{
+      font-family: var(--mono);
+      font-size: 12.5px;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background:#fff;
+      display:inline-block;
+      transform: translateY(-1px);
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      border:1px solid var(--border);
+      border-radius: 12px;
+      background: #0b0f19;
+      color: #f3f4f6;
+      overflow:auto;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.55;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    code{
+      font-family: var(--mono);
+      font-size: 0.95em;
+    }
+
+    .inline-code{
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1px 6px;
+    }
+
+    .hr{
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+      border:0;
+    }
+
+    .two-col{
+      display:block;
+    }
+
+    .mini{
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .checklist{
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .checklist li{
+      padding-left: 0;
+      margin: 7px 0;
+    }
+
+    .checklist li::before{
+      content: "✅ ";
+    }
+
+    .qa{
+      margin: 10px 0 0;
+      border-top: 1px dashed var(--border);
+      padding-top: 10px;
+    }
+
+    .qa .q{
+      margin: 10px 0 6px;
+      font-weight: 700;
+    }
+
+    .qa .a{
+      margin: 0 0 10px;
+    }
+
+    footer{
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12.5px;
+      text-align: center;
+    }
+
+    /* Print styles (A4) */
+    @page{ size: A4; margin: 12mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header, section{ border-color:#d9d9d9; box-shadow: none; }
+      a{ color: var(--text); text-decoration: none; }
+      a[href]::after{ content: ""; } /* hide URLs */
+      pre{ page-break-inside: avoid; }
+      section{ page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🔐 Next.js Auth.js (NextAuth) — Getting the User Session</h1>
+      <p class="subtitle">Reviewer / study guide based on the lecture transcript. Focus: reading the session on the server, rendering the user avatar, gating UI, and understanding auth vs authorization.</p>
+
+      <div class="meta">
+        <span class="chip">🧠 Level: Beginner → Intermediate</span>
+        <span class="chip">🧩 Topics: <span class="inline-code">auth()</span>, session, server components, client boundary</span>
+        <span class="chip">⚠️ Key concept: cookies/headers → dynamic routes</span>
+      </div>
+
+      <nav>
+        <p class="toc-title">📌 Table of Contents</p>
+        <ol class="toc">
+          <li><a href="#goal">Goal of the lecture</a></li>
+          <li><a href="#get-session">Getting the session in a Server Component</a></li>
+          <li><a href="#avatar">Show user avatar in navigation</a></li>
+          <li><a href="#dynamic">Important: auth() makes routes dynamic</a></li>
+          <li><a href="#gate-form">Gating the ReservationForm (server-side decision)</a></li>
+          <li><a href="#auth-vs-authz">Authentication vs Authorization</a></li>
+          <li><a href="#pitfalls">Common pitfalls and fixes</a></li>
+          <li><a href="#quick-recipe">Quick recipe (copy-paste mental model)</a></li>
+        </ol>
+      </nav>
+    </header>
+
+    <section id="goal">
+      <h2>🎯 Goal of the lecture</h2>
+      <ul>
+        <li>Show the **logged-in user’s avatar** in the navigation (a “you’re logged in” indicator).</li>
+        <li>Hide the reservation form for logged-out users (show a login prompt instead).</li>
+        <li>Understand why calling <span class="inline-code">auth()</span> can make routes **dynamic**.</li>
+        <li>Differentiate **authentication** (who are you?) vs **authorization** (are you allowed here?).</li>
+      </ul>
+
+      <div class="callout ok">
+        <strong>✅ Big idea:</strong>
+        <div>In this lecture, you primarily fetch session data on the <b>server</b>, then pass only what’s needed into client components.</div>
+      </div>
+    </section>
+
+    <section id="get-session">
+      <h2>🧾 Getting the session in a Server Component</h2>
+      <p>Auth.js (NextAuth v5) gives you an <span class="inline-code">auth()</span> helper (exported from your <span class="inline-code">_lib/auth.js</span> file). You can call it in <b>server components</b> to get the current session.</p>
+
+      <div class="callout">
+        <strong>🧠 What does the session look like?</strong>
+        <div>Typically:</div>
+        <ul>
+          <li><span class="inline-code">session.user.name</span></li>
+          <li><span class="inline-code">session.user.email</span></li>
+          <li><span class="inline-code">session.user.image</span> (avatar URL)</li>
+        </ul>
+      </div>
+
+      <h3>Example: reading session on the server</h3>
+      <pre><code>// In a Server Component (e.g., navigation component)
+import { auth } from "@/app/_lib/auth";
+
+export default async function Navigation() {
+  const session = await auth();
+
+  // session can be null when logged out
+  console.log(session);
+
+  return (
+    &lt;nav&gt;
+      {/* ... */}
+    &lt;/nav&gt;
+  );
+}</code></pre>
+
+      <div class="callout warn">
+        <strong>⚠️ Remember:</strong>
+        <div>When logged out, <span class="inline-code">session</span> is often <span class="inline-code">null</span>. Always guard with optional chaining or conditional checks.</div>
+      </div>
+    </section>
+
+    <section id="avatar">
+      <h2>🧑‍💻 Show user avatar in navigation</h2>
+      <p>We want to render an avatar near the guest area link so the user visually confirms they’re logged in.</p>
+
+      <h3>Conditional rendering pattern</h3>
+      <pre><code>return (
+  &lt;div className="flex items-center gap-4"&gt;
+    {session?.user?.image ? (
+      &lt;a href="/account"&gt;
+        &lt;span className="sr-only"&gt;{session.user.name}&lt;/span&gt;
+        &lt;img
+          src={session.user.image}
+          alt={session.user.name}
+          className="h-8 rounded-full"
+          referrerPolicy="no-referrer"
+        /&gt;
+      &lt;/a&gt;
+    ) : (
+      &lt;a href="/api/auth/signin"&gt;Sign in&lt;/a&gt;
+    )}
+  &lt;/div&gt;
+);</code></pre>
+
+      <div class="callout ok">
+        <strong>✅ Why <span class="inline-code">referrerPolicy="no-referrer"</span>?</strong>
+        <div>Some Google-hosted avatar URLs may fail to load in certain configurations unless you prevent sending referrer information.</div>
+      </div>
+
+      <div class="callout">
+        <strong>📝 Note about Next.js Image:</strong>
+        <div>Next.js may warn you to use the built-in <span class="inline-code">&lt;Image /&gt;</span> component. It’s optional for learning purposes, but for production you usually want <span class="inline-code">next/image</span> plus proper domain configuration.</div>
+      </div>
+    </section>
+
+    <section id="dynamic">
+      <h2>⚙️ Important: <span class="inline-code">auth()</span> can make routes dynamic</h2>
+      <p>Auth.js sessions rely on <b>cookies/headers</b>. When you call <span class="inline-code">auth()</span>, Next.js needs to read request headers/cookies at runtime.</p>
+
+      <div class="callout danger">
+        <strong>🚨 Consequence:</strong>
+        <div>
+          If you call <span class="inline-code">auth()</span> in a shared layout component (like navigation in the root layout), then <b>every route that uses that layout may become dynamic</b>.
+        </div>
+      </div>
+
+      <h3>Practical guidance</h3>
+      <ul>
+        <li>If you need full static pages, avoid calling session-reading helpers in global layouts.</li>
+        <li>Instead, render user-specific UI only in routes that truly require it (or use client-side session retrieval where appropriate).</li>
+        <li>Accept that “logged-in personalization” typically implies runtime behavior.</li>
+      </ul>
+    </section>
+
+    <section id="gate-form">
+      <h2>🧩 Gating the ReservationForm (server-side decision)</h2>
+      <p>The reservation page contains server components and client components. The recommended approach in the lecture: decide on the server whether to show the form or a login prompt.</p>
+
+      <h3>Pattern: session on server → conditional UI</h3>
+      <pre><code>// Reservation.js (Server Component)
+import { auth } from "@/app/_lib/auth";
+import ReservationForm from "./ReservationForm";
+import LoginMessage from "./LoginMessage";
+
+export default async function Reservation({ cabin, settings, bookedDates }) {
+  const session = await auth();
+
+  return (
+    &lt;div className="grid grid-cols-2"&gt;
+      {/* DateSelector (client) ... */}
+
+      {session?.user ? (
+        &lt;ReservationForm
+          cabin={cabin}
+          settings={settings}
+          bookedDates={bookedDates}
+          user={session.user}
+        /&gt;
+      ) : (
+        &lt;LoginMessage /&gt;
+      )}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout ok">
+        <strong>✅ Why do this on the server?</strong>
+        <div>
+          You keep auth logic centralized and predictable. Also, you avoid exposing unnecessary session logic to the browser and keep client components focused on interactivity.
+        </div>
+      </div>
+
+      <h3>Passing user data across the server→client boundary</h3>
+      <p class="mini">This is allowed: server component fetches session, then passes plain data to a client component via props.</p>
+      <pre><code>// ReservationForm.jsx (Client Component)
+"use client";
+
+export default function ReservationForm({ user, cabin }) {
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Signed in as: {user.name}&lt;/p&gt;
+      &lt;img src={user.image} alt={user.name} className="h-8 rounded-full" /&gt;
+      {/* form fields... */}
+    &lt;/div&gt;
+  );
+}</code></pre>
+    </section>
+
+    <section id="auth-vs-authz">
+      <h2>🛡️ Authentication vs Authorization</h2>
+
+      <div class="qa">
+        <div class="q">❓ Authentication: “Who are you?”</div>
+        <div class="a">You verify the user identity (e.g., login via Google). You then get a session with user info.</div>
+
+        <div class="q">❓ Authorization: “Are you allowed to access this?”</div>
+        <div class="a">You restrict certain routes/areas to authenticated users (e.g., “Guest Area” should be protected).</div>
+      </div>
+
+      <div class="callout warn">
+        <strong>⚠️ Key observation from the transcript:</strong>
+        <div>
+          Even if the app can detect logged out users and hide certain UI, a logged out user might still manually navigate to protected routes.
+          That’s why you also need route-level protection.
+        </div>
+      </div>
+
+      <p class="mini">Next topic mentioned: use <b>Next.js middleware</b> to protect routes (authorization).</p>
+    </section>
+
+    <section id="pitfalls">
+      <h2>🧯 Common pitfalls and fixes</h2>
+      <ul>
+        <li>
+          <b>Crash when logged out</b>: calling <span class="inline-code">session.user</span> when <span class="inline-code">session</span> is <span class="inline-code">null</span>.
+          <div class="callout danger"><strong>Fix:</strong> Use optional chaining: <span class="inline-code">session?.user</span> ✅</div>
+        </li>
+        <li>
+          <b>Unexpected dynamic rendering</b>: putting <span class="inline-code">auth()</span> in a global layout.
+          <div class="callout warn"><strong>Mitigation:</strong> Only call it where needed, or accept dynamic behavior for personalization.</div>
+        </li>
+        <li>
+          <b>Avatar not showing (Google)</b>: image loads inconsistently.
+          <div class="callout"><strong>Fix:</strong> Add <span class="inline-code">referrerPolicy="no-referrer"</span> to the <span class="inline-code">&lt;img&gt;</span>.</div>
+        </li>
+        <li>
+          <b>Route still accessible while logged out</b>:
+          <div class="callout warn"><strong>Fix:</strong> Add authorization using middleware (next lecture).</div>
+        </li>
+      </ul>
+    </section>
+
+    <section id="quick-recipe">
+      <h2>🧪 Quick recipe you can reuse</h2>
+      <ol>
+        <li>✅ In a <b>server component</b>, call <span class="inline-code">const session = await auth()</span>.</li>
+        <li>✅ Render avatar (if <span class="inline-code">session?.user?.image</span>) near navigation/guest area.</li>
+        <li>✅ Gate sensitive UI on the server:
+          <ul>
+            <li>Logged in → render form, pass <span class="inline-code">session.user</span> into client component.</li>
+            <li>Logged out → show <b>LoginMessage</b> component.</li>
+          </ul>
+        </li>
+        <li>✅ For route protection (authorization), use <b>middleware</b> (next lecture).</li>
+      </ol>
+
+      <div class="callout ok">
+        <strong>🏁 Final takeaway:</strong>
+        <div>
+          Use Auth.js to identify users (authentication), then enforce route access with middleware (authorization). Keep session reads on the server when possible.
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Printed-friendly reviewer • A4 single-column • URLs hidden on print
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js — Manual Cache Revalidation (revalidatePath) | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --chip:#f3f4f6;
+      --accent:#0b57d0;
+      --accent2:#137333;
+      --danger:#b3261e;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column, print-friendly layout */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px 48px;
+    }
+
+    header{
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 1.65rem;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+    .sub{
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    h2{
+      font-size: 1.18rem;
+      margin: 18px 0 10px;
+    }
+    h3{
+      font-size: 1.02rem;
+      margin: 14px 0 8px;
+    }
+
+    p{ margin: 10px 0; }
+    ul{ margin: 8px 0 12px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+    .callout strong{ color: var(--text); }
+
+    .warn{
+      border-left-color: var(--danger);
+    }
+
+    .ok{
+      border-left-color: var(--accent2);
+    }
+
+    .chips{ display:flex; flex-wrap:wrap; gap:8px; margin: 10px 0 0; }
+    .chip{
+      display:inline-block;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 0.9rem;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: #fbfbfb;
+      border-radius: 10px;
+      overflow:auto;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .hr{
+      height:1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .qa{
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted{ color: var(--muted); }
+
+    /* Print settings */
+    @page{
+      size: A4;
+      margin: 14mm 14mm 16mm 14mm;
+    }
+
+    @media print{
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; padding: 0; }
+      header{ margin-bottom: 12px; }
+      a{ color: inherit; text-decoration: none; }
+      /* Hide URL after links when printing */
+      a[href]::after{ content: "" !important; }
+      pre{ page-break-inside: avoid; }
+      .callout, .qa{ page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Manual Cache Revalidation in Next.js (revalidatePath)</h1>
+      <p class="sub">Reviewer / Study Guide — Fixing stale UI data after Server Actions (single-column, A4 print-ready)</p>
+      <div class="chips" aria-label="tags">
+        <span class="chip">🧠 Cache + Revalidation</span>
+        <span class="chip">🛠️ Server Actions</span>
+        <span class="chip">🚦 Router Cache (client)</span>
+        <span class="chip">✅ Fresh UI after mutations</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) What problem are we fixing? 😵‍💫</h2>
+      <p>
+        After updating a guest profile (e.g., changing nationality + national ID), the update <strong>does reach the database</strong>,
+        but the UI can still show <strong>old/stale values</strong> when you navigate away and come back.
+      </p>
+
+      <div class="callout">
+        <strong>Symptoms:</strong>
+        <ul>
+          <li>✅ You submit the form → update succeeds on Supabase.</li>
+          <li>❌ You navigate (Home → back to Profile) → UI still shows the previous country/ID.</li>
+          <li>⏱️ After ~30 seconds (typical dynamic route router-cache window), the UI “magically” becomes correct.</li>
+        </ul>
+      </div>
+
+      <p class="muted">
+        In short: <strong>the mutation happened</strong>, but the UI is still rendering data from a cached route snapshot.
+      </p>
+    </section>
+
+    <section>
+      <h2>2) Why does it happen? (Beginner-friendly explanation) 🧩</h2>
+      <p>
+        In the App Router, Next.js uses multiple caching layers. Even if a route is dynamic, the <strong>client-side router</strong>
+        can keep a snapshot of the route around for a short time to make navigation faster.
+      </p>
+
+      <div class="callout ok">
+        <strong>Key idea:</strong> A Server Action updates the database, but that <em>does not automatically force</em> your cached data
+        to refresh everywhere. If you want the UI to show the latest database state right away, you must
+        <strong>manually revalidate</strong>.
+      </div>
+
+      <p>
+        Think of it like this: your app has a “photo” of the page (cached data). You updated the real world (database),
+        but the app is still showing the old photo until it decides to take a new one.
+      </p>
+    </section>
+
+    <section>
+      <h2>3) The fix: Manual / On-demand Revalidation ✅</h2>
+      <p>
+        Next.js provides utilities to clear cache and refetch data when you know something changed.
+        For route-level freshness after a mutation, we commonly use:
+      </p>
+
+      <ul>
+        <li><strong><code>revalidatePath(path)</code></strong> — revalidates data for a specific route (and optionally a subtree)</li>
+        <li><strong><code>revalidateTag(tag)</code></strong> — revalidates data by cache tags (useful when you tag fetches)</li>
+      </ul>
+
+      <div class="callout">
+        <strong>We use here:</strong> <code>revalidatePath("/account/profile")</code>
+        <br />
+        <span class="muted">Because only the profile page needs to refresh — not all account routes.</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Where do we put <code>revalidatePath</code>? 🧠</h2>
+      <p>
+        Put it at the <strong>end of the Server Action</strong> that performs the mutation (after the database update succeeds).
+      </p>
+
+      <div class="callout warn">
+        <strong>Important:</strong> Don’t revalidate before the update finishes. Revalidate only when your mutation succeeded;
+        otherwise you risk refetching the old state again.
+      </div>
+
+      <h3>Minimal example (pattern)</h3>
+      <pre><code>// actions.js
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { auth } from "@/app/_lib/auth";
+import supabase from "@/app/_lib/supabase";
+
+export async function updateGuest(formData) {
+  const session = await auth();
+  if (!session) throw new Error("You must be logged in.");
+
+  // 1) Read + validate inputs
+  const nationalID = formData.get("nationalID");
+  const nationalAndFlag = formData.get("nationality");
+  const [nationality, countryFlag] = String(nationalAndFlag).split("%");
+
+  const isValid = /^[a-zA-Z0-9]{6,12}$/.test(String(nationalID));
+  if (!isValid) throw new Error("Please provide a valid national ID.");
+
+  // 2) Perform mutation
+  const updateData = { nationality, countryFlag, nationalID };
+  const guestID = session.user.guestID;
+
+  const { error } = await supabase
+    .from("guests")
+    .update(updateData)
+    .eq("id", guestID);
+
+  if (error) throw new Error("Guest could not be updated.");
+
+  // 3) Manual revalidation (refresh cached data)
+  revalidatePath("/account/profile");
+}
+</code></pre>
+
+      <p class="muted">
+        Tip: <code>revalidatePath</code> is a named export, so you must import it with curly braces:
+        <code>import { revalidatePath } from "next/cache";</code>
+      </p>
+    </section>
+
+    <section>
+      <h2>5) Choosing the correct path 🎯</h2>
+      <div class="grid">
+        <div class="qa">
+          <h3>Option A: Revalidate a whole section</h3>
+          <p><code>revalidatePath("/account")</code></p>
+          <p class="muted">✅ Refreshes profile + reservations + anything under <code>/account</code></p>
+          <p class="muted">❌ Overkill if only profile changed</p>
+        </div>
+        <div class="qa">
+          <h3>Option B: Revalidate only what changed (recommended here)</h3>
+          <p><code>revalidatePath("/account/profile")</code></p>
+          <p class="muted">✅ Refreshes only the guest profile route</p>
+          <p class="muted">✅ Faster, fewer unnecessary refetches</p>
+        </div>
+      </div>
+
+      <div class="callout ok">
+        <strong>Rule of thumb:</strong> Revalidate the smallest scope that contains the data affected by the mutation.
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Common mistakes (and quick fixes) 🧯</h2>
+      <ul>
+        <li>😬 <strong>Wrong import</strong> → Use: <code>import { revalidatePath } from "next/cache";</code></li>
+        <li>😬 <strong>Missing curly braces</strong> → <code>revalidatePath</code> is a named export.</li>
+        <li>😬 <strong>Revalidating too much</strong> → Prefer <code>"/account/profile"</code> over <code>"/account"</code> unless needed.</li>
+        <li>😬 <strong>Calling revalidate before update</strong> → Always call it after the DB update succeeds.</li>
+        <li>😬 <strong>Not seeing instant UI change</strong> → Ensure the page fetch uses the cache system (typical server fetches do).
+          If you hard-coded data or bypassed caching, revalidation won’t help much.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>7) Quick self-check quiz 📝</h2>
+      <div class="qa">
+        <ol>
+          <li>
+            Why does the UI sometimes show old data after a Server Action update?
+            <p class="muted">Answer idea: router/page snapshot cache; mutation doesn’t automatically refresh cached data everywhere.</p>
+          </li>
+          <li>
+            Where is the best place to call <code>revalidatePath</code>?
+            <p class="muted">Answer idea: at the end of the Server Action after successful mutation.</p>
+          </li>
+          <li>
+            Why do we prefer <code>revalidatePath("/account/profile")</code> instead of <code>revalidatePath("/account")</code>?
+            <p class="muted">Answer idea: avoid unnecessary refetches for unrelated routes like reservations.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>8) Mini practice (hands-on) 🧪</h2>
+      <ul>
+        <li>✅ Update profile country + ID → confirm UI updates immediately after submit.</li>
+        <li>✅ Navigate away (Home) → return to Profile → confirm it still shows fresh data.</li>
+        <li>🔁 Change the revalidation scope to <code>"/account"</code> → observe extra refetch behavior.</li>
+        <li>🧨 Remove <code>revalidatePath</code> → reproduce stale UI again.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Memory hook:</strong> “Mutation happened → I must decide how the UI becomes fresh.”
+        <br />
+        In App Router, that often means: <strong>revalidate on demand</strong>.
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <footer class="muted">
+      <p>
+        End of reviewer — Topic: Manual Cache Revalidation (Next.js App Router)
+        <br />
+        Print tip: Use your browser’s Print → Save as PDF. Keep “Headers and footers” off for cleaner output.
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Router — Dynamic Routes with URL Parameters (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --chip: #f1f3f5;
+      --accent: #0b57d0;
+      --good: #137333;
+      --warn: #b06000;
+      --bad: #b3261e;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    header {
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 6px;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 6px; }
+
+    .qa {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin: 10px 0;
+    }
+
+    ul { margin: 8px 0 8px 22px; }
+    li { margin: 6px 0; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    pre code {
+      display: block;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .good { color: var(--good); }
+    .warn { color: var(--warn); }
+    .bad { color: var(--bad); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 16mm 14mm;
+    }
+
+    @media print {
+      .page { max-width: none; padding: 0; }
+      a { color: inherit; text-decoration: none; }
+      a[href]:after { content: ""; } /* don't print URLs */
+      pre { break-inside: avoid; }
+      .callout, .qa { break-inside: avoid; }
+      h2, h3 { break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🏷️ React Router — Dynamic Routes with URL Parameters</h1>
+      <p class="subtitle">Study Guide / Reviewer (Beginner-Friendly) • Single-column • A4 print-ready</p>
+      <div class="chips" aria-label="topics">
+        <span class="chip">🧭 Dynamic routes</span>
+        <span class="chip">🏷️ Params</span>
+        <span class="chip">🔗 Link + relative paths</span>
+        <span class="chip">📥 useParams()</span>
+        <span class="chip">🧱 Nested routes</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>✅ Goal of this lesson</h2>
+      <p>
+        Use <strong>URL parameters</strong> (a.k.a. <strong>route params</strong>) to pass data between pages.
+        Example from the demo:
+      </p>
+      <pre><code>/app/cities/739
+/app/cities/4545</code></pre>
+      <p>
+        The last part (like <code>739</code>) is the <strong>city ID</strong>. We put it in the URL, then read it on the next page.
+      </p>
+
+      <div class="callout">
+        <strong>💡 Why this is useful</strong>
+        <ul>
+          <li>✅ No need to store the clicked ID in React state</li>
+          <li>✅ The page becomes shareable: sending the URL opens the same city</li>
+          <li>✅ The “City page” can fetch city data using the ID from the URL</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>🧩 The 3-Step Pattern</h2>
+      <p>
+        To use params in React Router, follow this simple workflow:
+      </p>
+      <ol>
+        <li><strong>Create a route</strong> with a param segment (colon syntax)</li>
+        <li><strong>Link to that route</strong> and include the param value (e.g., city id)</li>
+        <li><strong>Read the param</strong> in the destination component using <code>useParams()</code></li>
+      </ol>
+
+      <div class="qa">
+        <strong>🧠 Param syntax reminder:</strong>
+        <p>
+          A route param is written like <code>:id</code>.
+          Example: <code>cities/:id</code>
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>1) Create the dynamic route</h2>
+      <p>
+        In your route configuration (often inside <code>App.jsx</code>), add a new route for a single city.
+        In this project it’s a <em>nested route</em> under <code>/app</code>.
+      </p>
+
+      <pre><code>&lt;Route path="app" element={&lt;AppLayout /&gt;}&gt;
+  &lt;Route index element={&lt;CityList /&gt;} /&gt;
+  &lt;Route path="cities" element={&lt;CityList /&gt;} /&gt;
+
+  {/* ✅ NEW: dynamic route */}
+  &lt;Route path="cities/:id" element={&lt;City /&gt;} /&gt;
+
+  &lt;Route path="countries" element={&lt;CountryList /&gt;} /&gt;
+  &lt;Route path="form" element={&lt;Form /&gt;} /&gt;
+&lt;/Route&gt;</code></pre>
+
+      <div class="callout">
+        <strong>🔎 What this means</strong>
+        <ul>
+          <li><code>cities</code> shows the list page</li>
+          <li><code>cities/:id</code> shows the “City details” page for one specific city</li>
+          <li>The <code>:id</code> portion can be any value (e.g., <code>739</code>, <code>4545</code>)</li>
+        </ul>
+      </div>
+
+      <div class="qa">
+        <strong>✅ Naming tip:</strong>
+        <p>
+          The param name (<code>id</code>) is up to you. Whatever you name it is what you’ll read later:
+          <code>cities/:id</code> → <code>useParams().id</code>
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Link to the dynamic route from the list</h2>
+      <p>
+        In <code>CityItem</code>, wrap the item content with a React Router <code>&lt;Link /&gt;</code>.
+        The key detail is the <code>to</code> prop.
+      </p>
+
+      <pre><code>import { Link } from "react-router-dom";
+
+function CityItem({ city }) {
+  const { id, cityName, emoji, date } = city;
+
+  return (
+    &lt;li&gt;
+      {/* ✅ Relative link: appends to current URL (cities) */}
+      &lt;Link to={`${id}`} className={styles.cityItem}&gt;
+        &lt;span className={styles.emoji}&gt;{emoji}&lt;/span&gt;
+        &lt;h3 className={styles.name}&gt;{cityName}&lt;/h3&gt;
+        &lt;time&gt;{formatDate(date)}&lt;/time&gt;
+      &lt;/Link&gt;
+    &lt;/li&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <strong>🧭 Relative vs absolute paths (important!)</strong>
+        <ul>
+          <li>
+            ✅ <code>to={`${id}`}</code> is <strong>relative</strong> → if you are on <code>/app/cities</code>, it becomes <code>/app/cities/739</code>
+          </li>
+          <li>
+            ❌ <code>to={`/${id}`}</code> is <strong>absolute</strong> → it becomes <code>/${id}</code> (wrong in this case)
+          </li>
+        </ul>
+      </div>
+
+      <div class="qa">
+        <strong>⚠️ Common gotcha in nested routes</strong>
+        <p>
+          If you click city items while you’re <em>not</em> currently on <code>/app/cities</code>, your relative link might not behave as expected.
+          In the course, the quick workaround was: go to <strong>Cities</strong> first, then click an item.
+          Later you can make the link more explicit (e.g., <code>to={`/app/cities/${id}`}</code>) depending on your routing setup.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Read the param in the destination page</h2>
+      <p>
+        In the <code>City</code> component, read the URL param using React Router’s <code>useParams()</code> hook.
+      </p>
+
+      <pre><code>import { useParams } from "react-router-dom";
+
+function City() {
+  const { id } = useParams();
+
+  return &lt;h1&gt;🏙️ City ID: {id}&lt;/h1&gt;;
+}
+
+export default City;</code></pre>
+
+      <div class="callout">
+        <strong>📌 What happens here?</strong>
+        <ul>
+          <li>URL: <code>/app/cities/739</code></li>
+          <li>Route: <code>cities/:id</code></li>
+          <li><code>useParams()</code> returns: <code>{ id: "739" }</code></li>
+        </ul>
+      </div>
+
+      <div class="qa">
+        <strong>🧠 Next step (what you’ll do later)</strong>
+        <p>
+          Use <code>id</code> to fetch the full city details from the API: <span class="good">cityName, emoji, date, notes, etc.</span>
+        </p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>🧾 Quick recap</h2>
+      <div class="grid">
+        <div class="callout">
+          <strong>Step 1 — Route</strong>
+          <p><code>cities/:id</code> renders <code>&lt;City /&gt;</code></p>
+        </div>
+        <div class="callout">
+          <strong>Step 2 — Link</strong>
+          <p><code>&lt;Link to={`${id}`}&gt;</code> navigates to that city</p>
+        </div>
+        <div class="callout">
+          <strong>Step 3 — Read param</strong>
+          <p><code>const { id } = useParams()</code></p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Self-check questions</h2>
+      <ul>
+        <li>What does the colon (<code>:</code>) mean in <code>cities/:id</code>?</li>
+        <li>Why does <code>to={`${id}`}</code> work differently from <code>to={`/${id}`}</code>?</li>
+        <li>What object does <code>useParams()</code> return when the URL is <code>/app/cities/739</code>?</li>
+        <li>What will you typically do with the ID next (after reading it)?</li>
+      </ul>
+
+      <div class="callout">
+        <strong class="warn">🔐 Reminder:</strong>
+        <p>
+          Params are visible in the URL. Don’t put secrets or sensitive data there.
+        </p>
+      </div>
+    </section>
+
+    <footer class="subtitle" style="margin-top:18px; border-top:1px solid var(--border); padding-top:10px;">
+      End of reviewer — React Router (Dynamic Routes with URL Params)
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,473 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sharing State Between Client and Server — The URL (Next.js App Router)</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+
+      --warnbg:#fff7ed;
+      --warnborder:#fed7aa;
+
+      --goodbg:#f0fdf4;
+      --goodborder:#bbf7d0;
+
+      --tipbg:#eff6ff;
+      --tipborder:#bfdbfe;
+
+      --purplebg:#faf5ff;
+      --purpleborder:#ddd6fe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 26px 18px 64px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, var(--panel));
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+      margin-bottom: 14px;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color:#222;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    h2{ margin:0 0 10px 0; font-size: 16px; }
+    h3{ margin:14px 0 8px 0; font-size: 14px; }
+
+    p{ margin: 8px 0; }
+    ul, ol{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .key{ font-weight:700; }
+
+    .callout{
+      border-left: 4px solid #111;
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .good{
+      border: 1px solid var(--goodborder);
+      background: var(--goodbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .warn{
+      border: 1px solid var(--warnborder);
+      background: var(--warnbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .tip{
+      border: 1px solid var(--tipborder);
+      background: var(--tipbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .purple{
+      border: 1px solid var(--purpleborder);
+      background: var(--purplebg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px;
+      border-radius: 12px;
+      overflow:auto;
+      border:1px solid #1b2547;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .mini{ font-size: 13px; color: var(--muted); }
+
+    .table{
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .table th, .table td{
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+
+    .table th{ text-align:left; background: var(--panel); }
+
+    .hr{
+      height: 1px;
+      background: var(--border);
+      border: 0;
+      margin: 12px 0;
+    }
+
+    /* Print CSS */
+    @media print{
+      @page{ size: A4; margin: 14mm; }
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width:none; padding:0; }
+      header, section{ break-inside: avoid; page-break-inside: avoid; }
+      pre, table{ break-inside: avoid; page-break-inside: avoid; border: 1px solid #000; }
+      .chip, .table th, .table td{ border-color:#000; }
+      .callout{ border-left-color:#000; }
+      .good, .warn, .tip, .purple{ border-color:#000; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🔁 Sharing State Between Client and Server — Using the URL</h1>
+      <p class="sub">
+        Reviewer / study guide: the practical pattern for sending user-selected state from a <span class="key">Client Component</span> to a <span class="key">Server Component</span> by storing it in <span class="key">URL search params</span>.
+      </p>
+      <div class="meta">
+        <span class="chip">🌐 URL state</span>
+        <span class="chip">🔎 <code>searchParams</code> (Page prop)</span>
+        <span class="chip">🪝 <code>useSearchParams</code></span>
+        <span class="chip">🧭 <code>useRouter().replace</code></span>
+        <span class="chip">⏳ Suspense key</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>✅ The big question</h2>
+      <p>
+        We already know how to pass data <span class="key">from server → client</span> (props).
+        But how do we pass state <span class="key">from client → server</span>?
+      </p>
+      <div class="callout">
+        <p>🎯 Answer (best + simplest): store that state in the <span class="key">URL</span>.</p>
+      </div>
+      <p>
+        In this lecture you build a <span class="key">capacity filter</span> for cabins, where users can pick:
+        <span class="key">all / small / medium / large</span>.
+      </p>
+      <div class="tip">
+        <p>💡 Why URL is great: it makes the page shareable and bookmarkable (state is “saved” in the link).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>1) 🧱 Server-side: read filter from the URL using <code>searchParams</code></h2>
+      <p>
+        Next.js (App Router) gives every <span class="key">page</span> a <code>searchParams</code> prop.
+        Example URL:
+      </p>
+      <pre><code>/cabins?capacity=small
+</code></pre>
+
+      <p>
+        In <code>page.js</code>, read it like this:
+      </p>
+
+      <pre><code>// app/cabins/page.js
+export default async function Page({ searchParams }) {
+  const filter = searchParams?.capacity ?? 'all';
+
+  return (
+    &lt;&gt;
+      &lt;CabinFilter /&gt;
+      &lt;CabinList filter={filter} /&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+
+      <div class="warn">
+        <p>
+          ⚠️ Important limitation: <code>searchParams</code> is only available on <span class="key">pages</span> (e.g., <code>page.js</code>),
+          not on arbitrary Server Components.
+        </p>
+      </div>
+
+      <h3>Filtering the data</h3>
+      <p>
+        The lecture keeps the data fetching simple: fetch all cabins, then filter in memory.
+      </p>
+
+      <pre><code>// CabinList (server component)
+export default async function CabinList({ filter }) {
+  const cabins = await getCabins();
+
+  let displayedCabins = cabins;
+
+  if (filter === 'small')
+    displayedCabins = cabins.filter(c =&gt; c.maxCapacity &lt;= 3);
+
+  if (filter === 'medium')
+    displayedCabins = cabins.filter(
+      c =&gt; c.maxCapacity &gt;= 4 &amp;&amp; c.maxCapacity &lt;= 7
+    );
+
+  if (filter === 'large')
+    displayedCabins = cabins.filter(c =&gt; c.maxCapacity &gt;= 8);
+
+  return &lt;CabinsGrid cabins={displayedCabins} /&gt;;
+}
+</code></pre>
+
+      <div class="good">
+        <p>✅ Result: manually typing <code>?capacity=small</code> already changes which cabins render.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) 🔥 Key behavior change: using <code>searchParams</code> makes the page dynamic</h2>
+      <p>
+        Because <code>searchParams</code> depends on the incoming request, it cannot be known at build time.
+        Therefore, the page can no longer be fully statically generated.
+      </p>
+      <div class="warn">
+        <p>
+          ⚠️ Consequence: route-level <code>revalidate</code> for static generation becomes irrelevant for that page,
+          since the page is now dynamic anyway.
+        </p>
+      </div>
+      <div class="tip">
+        <p>🧠 Rule of thumb: request-dependent APIs (search params, cookies, headers) usually push a route toward dynamic rendering.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) 🧩 Client-side: write filter into the URL</h2>
+      <p>
+        Now you need a Client Component with buttons (All / Small / Medium / Large) that updates the URL.
+      </p>
+
+      <div class="callout">
+        <p>
+          🧠 You’ll use three key Next.js hooks (all from <code>next/navigation</code>):
+          <span class="key">useSearchParams</span>, <span class="key">usePathname</span>, <span class="key">useRouter</span>.
+        </p>
+      </div>
+
+      <pre><code>// CabinFilter.jsx
+'use client'
+
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+
+export default function CabinFilter() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  function handleFilter(filterTerm) {
+    // 1) Copy existing params
+    const params = new URLSearchParams(searchParams);
+
+    // 2) Set / update the relevant param
+    params.set('capacity', filterTerm);
+
+    // 3) Navigate (without full reload)
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }
+
+  return (
+    &lt;div className="flex justify-end mb-4"&gt;
+      &lt;div className="flex border border-primary-800"&gt;
+        &lt;button onClick={() =&gt; handleFilter('all')}&gt;All&lt;/button&gt;
+        &lt;button onClick={() =&gt; handleFilter('small')}&gt;1–3 guests&lt;/button&gt;
+        &lt;button onClick={() =&gt; handleFilter('medium')}&gt;4–7 guests&lt;/button&gt;
+        &lt;button onClick={() =&gt; handleFilter('large')}&gt;8+ guests&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <div class="tip">
+        <p>
+          🧪 <code>URLSearchParams</code> is a browser API that makes query parameter editing easier—especially when you have multiple params.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) 🌀 Why the server updates automatically when you click a filter</h2>
+      <p>
+        Clicking a filter triggers a navigation (URL change). In the RSC model:
+      </p>
+      <ul>
+        <li>URL changes → Next.js treats it as navigation</li>
+        <li>Navigation → the Server Component page re-runs on the server</li>
+        <li>New <code>searchParams</code> arrive → filter updates</li>
+        <li>Child Server Components re-run too (e.g., <code>CabinList</code>)</li>
+      </ul>
+
+      <div class="good">
+        <p>✅ This is the “bridge”: client updates URL → server re-renders based on URL.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) ⏳ “Why no spinner?” — Suspense + transitions</h2>
+      <p>
+        You might notice that when you click a filter, data takes time to update—but the loading spinner (Suspense fallback) doesn’t show.
+      </p>
+
+      <div class="warn">
+        <p>
+          ⚠️ Reason: Next.js wraps navigations in a React <span class="key">transition</span>.
+          During transitions, Suspense won’t hide already-rendered content; it keeps it until the new content arrives.
+        </p>
+      </div>
+
+      <h3>✅ Fix: give the Suspense boundary a unique <code>key</code></h3>
+      <p>
+        When the key changes (e.g., filter changes), the Suspense boundary remounts, and the fallback can show again.
+      </p>
+
+      <pre><code>// In the Cabins page (server component)
+&lt;Suspense fallback={&lt;Spinner /&gt;} key={filter}&gt;
+  &lt;CabinList filter={filter} /&gt;
+&lt;/Suspense&gt;
+</code></pre>
+
+      <div class="good">
+        <p>✅ Result: when data suspends after a filter click, users see a proper loading feedback again.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) 🎨 Highlight the active filter button</h2>
+      <p>
+        The UI should indicate which filter is currently active.
+        Read the current capacity from the URL via <code>useSearchParams()</code>:
+      </p>
+
+      <pre><code>const activeFilter = searchParams.get('capacity') ?? 'all';
+</code></pre>
+
+      <p>
+        Then conditionally apply styles. To avoid repetitive code, the lecture extracts a reusable Button component.
+      </p>
+
+      <pre><code>// Inside CabinFilter.jsx (still a client component)
+function FilterButton({ filter, activeFilter, onFilter, children }) {
+  const isActive = filter === activeFilter;
+
+  return (
+    &lt;button
+      onClick={() =&gt; onFilter(filter)}
+      className={`px-4 py-2 hover:bg-primary-700 ${isActive ? 'bg-primary-700 text-primary-50' : ''}`}
+    &gt;
+      {children}
+    &lt;/button&gt;
+  );
+}
+</code></pre>
+
+      <div class="tip">
+        <p>🧠 The key point: URL is the source of truth for which filter is active.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 Final recap (the “recipe” to memorize)</h2>
+      <ol>
+        <li>🔵 Client Component captures user intent (button click)</li>
+        <li>🌐 Write the chosen state into the URL (search params)</li>
+        <li>🟡 Page reads <code>searchParams</code> on the server</li>
+        <li>🧱 Pass the filter into server components via props</li>
+        <li>🌀 URL change triggers navigation → server re-renders</li>
+        <li>⏳ Add <code>key</code> to Suspense if you want fallback to show on filter changes</li>
+      </ol>
+
+      <div class="good">
+        <p>✅ This is one of the most common full-stack patterns in Next.js App Router.</p>
+      </div>
+    </section>
+
+    <p class="mini" style="margin-top:12px;">
+      Print tip: Use browser Print → A4. Margins, line height, and word-wrapping are configured to prevent cut-off.
+    </p>
+  </div>
+</body>
+</html>

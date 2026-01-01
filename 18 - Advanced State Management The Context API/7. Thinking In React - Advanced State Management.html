@@ -1,0 +1,498 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thinking in React — Advanced State Management (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --soft2: #fbfbfb;
+      --accent: #0b57d0;
+      --good: #0f766e;
+      --warn: #b45309;
+      --bad: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px 18px 56px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      padding: 16px 16px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 12.5px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    h2 {
+      margin: 18px 0 8px;
+      font-size: 17px;
+      line-height: 1.3;
+    }
+
+    h3 {
+      margin: 14px 0 6px;
+      font-size: 14.5px;
+      line-height: 1.35;
+    }
+
+    p { margin: 8px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 12px 12px 10px;
+      border-radius: 12px;
+      margin: 12px 0;
+    }
+
+    .callout strong { color: var(--text); }
+
+    .callout.good { border-left: 6px solid var(--good); }
+    .callout.warn { border-left: 6px solid var(--warn); }
+    .callout.bad  { border-left: 6px solid var(--bad); }
+
+    ul, ol {
+      margin: 8px 0 10px;
+      padding-left: 20px;
+    }
+    li { margin: 6px 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .label {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 12px;
+      font-size: 13px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      border: 1px solid var(--border);
+      padding: 8px;
+    }
+    th {
+      background: var(--soft2);
+      font-weight: 700;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      font-family: inherit;
+      font-size: 12px;
+    }
+
+    /* Print */
+    @page { size: A4; margin: 14mm; }
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, .callout, .card, pre, table {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧠 Thinking in React — Advanced State Management</h1>
+      <p class="subtitle">Reviewer / study guide (single-column • A4 print-ready). Topic: where state should live, UI vs remote state, and which tools to use.</p>
+      <div class="meta">
+        <span class="chip">📌 Core idea: “Give each piece of state the right home”</span>
+        <span class="chip">🏠 Local vs Global</span>
+        <span class="chip">🌐 UI vs Remote</span>
+        <span class="chip">🧰 Tools: useState • useReducer • Context • URL • React Query/Redux</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) The Big Picture</h2>
+        <p>
+          State management is mostly not about “more hooks” — it’s about making good placement decisions.
+          The same feature can feel simple or painful depending on where you store its state.
+        </p>
+        <div class="callout good">
+          <p><strong>✅ Definition (mental model):</strong> State management = choosing <em>where</em> each state value should live, so the right components can read/update it with minimal friction.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) Classifying State (Two Axes)</h2>
+        <p>We classify state in two ways:</p>
+        <ul>
+          <li><strong>Accessibility:</strong> local vs global (who needs it?)</li>
+          <li><strong>Domain:</strong> UI state vs remote state (what kind of data is it?)</li>
+        </ul>
+
+        <h3>2.1 Accessibility: Local vs Global</h3>
+        <div class="grid">
+          <div class="card">
+            <div class="label">🏠 Local state</div>
+            <ul>
+              <li>Needed by one component (or a small cluster).</li>
+              <li>Lives inside that component (and maybe used by its children via props).</li>
+              <li>Typical examples: input text, modal open/close, accordion open panel.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="label">🌍 Global state</div>
+            <ul>
+              <li>Needed by many components across different branches of the tree.</li>
+              <li>Should be accessible from “anywhere” (or at least from a broad subtree).</li>
+              <li>Typical examples: authenticated user, app theme, cart contents, global filters.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <p><strong>🧪 Quick test (very useful):</strong> If this component was rendered <em>twice</em>, should updating the state in one instance affect the other?</p>
+          <ul>
+            <li><strong>No</strong> → it’s <strong>local state</strong>.</li>
+            <li><strong>Yes</strong> → you likely found <strong>global state</strong>.</li>
+          </ul>
+        </div>
+
+        <h3>2.2 Domain: UI State vs Remote State</h3>
+        <div class="grid">
+          <div class="card">
+            <div class="label">🎛️ UI state</div>
+            <ul>
+              <li>Everything that is <strong>not</strong> core server data.</li>
+              <li>Usually synchronous; typically does not require server interaction.</li>
+              <li>Examples: theme, filters, sort order, active tab, form inputs, open panels.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="label">🌐 Remote state</div>
+            <ul>
+              <li>Application data loaded from a <strong>remote server</strong> (API).</li>
+              <li>Asynchronous, can fail, can be stale, may need re-fetching.</li>
+              <li>Often benefits from caching, revalidation, background updates.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout bad">
+          <p><strong>⚠️ Key warning:</strong> Remote state is fundamentally different from UI state. Treating remote data like “just another useState” can become painful in larger apps (stale data, duplicate fetching, loading/error duplication, no caching, etc.).</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) Where Can State Live? (6 Practical Locations)</h2>
+        <p>When you need new state, you typically have these placement options:</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Location</th>
+              <th>When it fits</th>
+              <th>Typical tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1) Local component</td>
+              <td>Only one component (or tight cluster) needs it</td>
+              <td><code>useState</code>, <code>useReducer</code>, <code>useRef</code></td>
+            </tr>
+            <tr>
+              <td>2) Parent component (lift state up)</td>
+              <td>Multiple related components need it</td>
+              <td>Lift + pass via props</td>
+            </tr>
+            <tr>
+              <td>3) Context Provider (global UI state)</td>
+              <td>Many components need it across the tree</td>
+              <td>Context + <code>useState</code>/<code>useReducer</code></td>
+            </tr>
+            <tr>
+              <td>4) External state library</td>
+              <td>Complex global state; performance; team conventions</td>
+              <td>Redux, Zustand, etc.</td>
+            </tr>
+            <tr>
+              <td>5) URL</td>
+              <td>Shareable/bookmarkable UI state or page-to-page data</td>
+              <td>React Router params / query string</td>
+            </tr>
+            <tr>
+              <td>6) Browser storage</td>
+              <td>Persist across reloads/sessions</td>
+              <td>localStorage / sessionStorage</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout warn">
+          <p><strong>📝 Note:</strong> Refs and browser storage can hold “state-like data”, but they don’t automatically re-render components. You usually pair them with UI state if you need the UI to update.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Choosing Tools by State Type (The 4 Combinations)</h2>
+        <p>Combine both axes (accessibility + domain) and you get four buckets:</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>State type</th>
+              <th>What it means</th>
+              <th>Typical approach</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Local UI state</strong></td>
+              <td>UI-only data needed in one area</td>
+              <td><code>useState</code> / <code>useReducer</code> (simple and direct)</td>
+            </tr>
+            <tr>
+              <td><strong>Global UI state</strong></td>
+              <td>UI-only data needed across the app</td>
+              <td>Context + <code>useState</code>/<code>useReducer</code>, or a UI-state library</td>
+            </tr>
+            <tr>
+              <td><strong>Local remote state</strong></td>
+              <td>Remote data used by one small feature</td>
+              <td><code>fetch</code> in <code>useEffect</code> + store in local state (OK for small apps)</td>
+            </tr>
+            <tr>
+              <td><strong>Global remote state</strong></td>
+              <td>Remote data reused across screens/features</td>
+              <td>Prefer remote-state tools (React Query / SWR / RTK Query). Context/Redux can work, but are not specialized.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout good">
+          <p><strong>✅ Practical rule:</strong> In larger apps, treat remote state as global and use a specialized remote-state library (caching + revalidation + refetching + deduping).</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Why Context Is Usually UI-State First</h2>
+        <p>
+          Context is excellent for making state accessible across the tree, but it is not a full remote-data solution by itself.
+          Context doesn’t automatically cache, refetch, dedupe requests, or handle stale data.
+        </p>
+
+        <div class="grid">
+          <div class="card">
+            <div class="label">✅ Context shines when…</div>
+            <ul>
+              <li>The data is UI state (theme, auth UI flags, global filters).</li>
+              <li>You need to avoid prop drilling.</li>
+              <li>You want a clear “provider boundary” for a subtree.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="label">⚠️ Context struggles when…</div>
+            <ul>
+              <li>The data is remote and needs caching/revalidation.</li>
+              <li>Multiple components fetch the same resources.</li>
+              <li>You need background refetching, stale-while-revalidate, etc.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>6) Tiny Examples (Beginner-Friendly)</h2>
+
+        <h3>6.1 Local UI state (modal open/close)</h3>
+        <pre><code>// Local UI state
+const [isOpen, setIsOpen] = useState(false);
+
+return (
+  &lt;&gt;
+    &lt;button onClick={() =&gt; setIsOpen(true)}&gt;Open&lt;/button&gt;
+    {isOpen &amp;&amp; &lt;Modal onClose={() =&gt; setIsOpen(false)} /&gt;}
+  &lt;/&gt;
+);
+</code></pre>
+
+        <h3>6.2 Lift state up (two siblings need the same filter)</h3>
+        <pre><code>// Parent owns shared state
+const [filter, setFilter] = useState("all");
+
+return (
+  &lt;&gt;
+    &lt;FilterControls filter={filter} onChange={setFilter} /&gt;
+    &lt;ResultsList filter={filter} /&gt;
+  &lt;/&gt;
+);
+</code></pre>
+
+        <h3>6.3 Global UI state with Context (theme)</h3>
+        <pre><code>// ThemeContext provides theme to many components
+&lt;ThemeProvider&gt;
+  &lt;App /&gt;
+&lt;/ThemeProvider&gt;
+</code></pre>
+
+        <h3>6.4 Global remote state with a specialized tool</h3>
+        <pre><code>// With React Query (conceptually):
+// - caches results
+// - dedupes requests
+// - refetches when needed
+const { data, isLoading, error } = useQuery({
+  queryKey: ["cities"],
+  queryFn: fetchCities,
+});
+</code></pre>
+
+        <p class="mini">(You will study React Query in depth later, so for now focus on the “why”.)</p>
+      </section>
+
+      <section>
+        <h2>7) Checklist: Picking the Right “Home” for New State ✅</h2>
+        <ol>
+          <li><strong>Is it UI state or remote state?</strong> 🎛️ vs 🌐</li>
+          <li><strong>Who needs it?</strong> local 🏠 or global 🌍</li>
+          <li><strong>Can I keep it local?</strong> (simpler is better)</li>
+          <li>If multiple related components need it → <strong>lift state up</strong>.</li>
+          <li>If many components across the tree need it → <strong>Context (UI)</strong> or <strong>library</strong>.</li>
+          <li>If it is remote data and reused → prefer <strong>React Query / SWR / RTK Query</strong>.</li>
+          <li>If it must be shareable/bookmarkable → consider the <strong>URL</strong>.</li>
+          <li>If it must persist across reload → consider <strong>browser storage</strong>.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>8) Quick Self-Test (No cheating) 😄</h2>
+        <div class="callout">
+          <ol>
+            <li>You have a sidebar “collapsed/expanded” toggle used on multiple pages. What type of state is this, and where might you store it?</li>
+            <li>You fetch “cities” and reuse the same list across multiple screens with filters. What class of state is this, and what tool is recommended in larger apps?</li>
+            <li>You want users to share a URL that opens the app with specific filters selected. Where should that state live?</li>
+          </ol>
+          <div class="divider"></div>
+          <p class="mini"><strong>Suggested answers:</strong> (1) Global UI → Context or UI library. (2) Global remote → React Query/SWR/RTK Query. (3) URL query string/params.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>9) What’s Next</h2>
+        <p>
+          This lecture’s goal is to help you make better state decisions. Next, you’ll return to the WorldWise project and keep building features,
+          now with a stronger mental model of when to use Context, the URL, or specialized remote-state tools.
+        </p>
+        <p class="mini">Tip: Re-read Sections 2–4 before you start a new feature. It saves hours later.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

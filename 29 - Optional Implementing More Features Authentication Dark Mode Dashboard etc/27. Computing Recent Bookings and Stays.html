@@ -1,0 +1,575 @@
+
+
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Hotel App — Dashboard Data: Recent Bookings vs Stays (Study Guide)</title>
+  <style>
+    /* =========================
+       Print-friendly, A4-ready
+       Single-column layout
+       ========================= */
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --soft2: #fbfbfb;
+      --accent: #0b57d0;
+      --ok: #0f766e;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      padding: 16px 16px 12px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      font-size: 12px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      color: var(--muted);
+    }
+
+    main {
+      margin-top: 16px;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 18px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 16px 0 8px;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+
+    ul,
+    ol {
+      margin: 8px 0 10px 20px;
+      padding: 0;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout .title {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .callout.ok {
+      border-color: #c7f0ea;
+      background: #ecfdfb;
+    }
+
+    .callout.warn {
+      border-color: #fde7c7;
+      background: #fffbeb;
+    }
+
+    .callout.danger {
+      border-color: #ffd0d0;
+      background: #fff1f2;
+    }
+
+    code,
+    pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      background: #0b1220;
+      color: #e5e7eb;
+      padding: 12px;
+      border-radius: 10px;
+      overflow: auto;
+      border: 1px solid #111827;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+
+    .table th,
+    .table td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .table th {
+      background: var(--soft2);
+      font-weight: 700;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      border: 0;
+      margin: 14px 0;
+    }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: #fff;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 12px;
+    }
+
+    .toc h2 {
+      border-bottom: 0;
+      margin: 0 0 8px;
+      padding: 0;
+      font-size: 14px;
+    }
+
+    /* =========================
+       Print rules
+       ========================= */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+      }
+
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+
+      header,
+      .callout,
+      .toc,
+      pre {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      h2,
+      h3 {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+
+      a,
+      a:visited {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      /* Do not print URL previews */
+      a[href]::after {
+        content: "";
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>📊 Dashboard Data — Computing Recent Bookings and Stays</h1>
+      <p class="subtitle">Reviewer / Study Guide (Supabase + React Query + date-fns) — beginner-friendly notes with examples</p>
+      <div class="meta">
+        <span class="chip">✅ Print-ready (A4)</span>
+        <span class="chip">🧾 Single column</span>
+        <span class="chip">🧠 Key idea: Booking ≠ Stay</span>
+        <span class="chip">⚙️ Tools: Supabase, React Query, date-fns</span>
+      </div>
+
+      <div class="toc" aria-label="Table of contents">
+        <h2>🧭 Contents</h2>
+        <ol>
+          <li>Core concept: Bookings vs Stays</li>
+          <li>Supabase service functions: <span class="kbd">getBookingsAfterDate</span> &amp; <span class="kbd">getStaysAfterDate</span></li>
+          <li>Dates done right: ISO strings + start/end of day</li>
+          <li>React Query hooks: <span class="kbd">useRecentBookings</span> &amp; <span class="kbd">useRecentStays</span></li>
+          <li>Confirmed stays filter (checked-in / checked-out)</li>
+          <li>Common mistakes + quick checklist</li>
+        </ol>
+      </div>
+    </header>
+
+    <main>
+      <h2>1) 🧠 Core concept: Bookings vs Stays</h2>
+      <div class="callout ok">
+        <div class="title">Big picture</div>
+        <p>
+          Before making <strong>statistics</strong> and <strong>charts</strong>, we must compute two different datasets from the <strong>same</strong> Supabase table:
+          <strong>recent bookings</strong> and <strong>recent stays</strong>.
+        </p>
+      </div>
+
+      <table class="table" aria-label="Bookings vs stays comparison">
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Meaning</th>
+            <th>Key date used</th>
+            <th>Why we need it</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🧾 <strong>Booking</strong></td>
+            <td>Actual <strong>sale</strong> (a reservation was created)</td>
+            <td><strong>created_at</strong> (when the booking was made)</td>
+            <td>Sales numbers, revenue charts, conversion-like stats</td>
+          </tr>
+          <tr>
+            <td>🛏️ <strong>Stay</strong></td>
+            <td>Guest actually <strong>arrived / stayed</strong> in the hotel</td>
+            <td><strong>startDate</strong> (when the stay begins) <em>plus</em> status</td>
+            <td>Stay-duration charts, occupancy-ish stats, daily activity</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <div class="title">Why they’re different (simple example) 😵‍💫➡️🙂</div>
+        <p>
+          In the last <strong>30 days</strong>, a hotel might sell <strong>50 bookings</strong> online.
+          But maybe only <strong>30 guests</strong> will arrive and check in during that period.
+        </p>
+        <ul>
+          <li>Bookings measure <strong>sales activity</strong> in the time window.</li>
+          <li>Stays measure <strong>real hotel activity</strong> (check-ins/outs) in the time window.</li>
+        </ul>
+      </div>
+
+      <h2>2) ⚙️ Supabase service functions: getBookingsAfterDate &amp; getStaysAfterDate</h2>
+      <p>
+        The lecture uses <strong>two service functions</strong> inside the bookings API.
+        Both read from the <strong>bookings</strong> table, but filter by a different date field:
+      </p>
+
+      <div class="grid2">
+        <div class="callout">
+          <div class="title">🧾 getBookingsAfterDate(date)</div>
+          <ul>
+            <li>Filters by <strong>created_at</strong>.</li>
+            <li>Returns bookings created <strong>between</strong> (date .. today).</li>
+            <li>Used for: sales counts, recent revenue, booking stats.</li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <div class="title">🛏️ getStaysAfterDate(date)</div>
+          <ul>
+            <li>Filters by <strong>startDate</strong>.</li>
+            <li>Returns stays starting <strong>between</strong> (date .. today).</li>
+            <li>Later we filter only confirmed stays (checked-in / checked-out).</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Example service call shape (concept)</h3>
+      <pre>// Conceptual example — details depend on your existing services/apiBookings.js
+
+export async function getBookingsAfterDate(dateISO) {
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("created_at, totalPrice, extrasPrice")
+    .gte("created_at", dateISO)
+    .lte("created_at", getToday({ end: true }))
+    .order("created_at");
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function getStaysAfterDate(dateISO) {
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("*, guests(fullName)")
+    .gte("startDate", dateISO)
+    .lte("startDate", getToday({ end: true }))
+    .order("startDate");
+
+  if (error) throw new Error(error.message);
+  return data;
+}</pre>
+
+      <h2>3) 🗓️ Dates done right: ISO strings + start/end of day</h2>
+      <div class="callout ok">
+        <div class="title">Key requirement ✅</div>
+        <p>
+          Supabase expects dates in <strong>ISO string</strong> format (e.g., <span class="kbd">2025-12-30T23:59:59.999Z</span>).
+        </p>
+      </div>
+
+      <h3>Why we “freeze” today’s date</h3>
+      <p>
+        If you use the <em>exact current time</em>, the value changes every second.
+        That can cause inconsistent filtering or repeated refetch behavior.
+        So we compute a stable “start of day” or “end of day”.
+      </p>
+
+      <pre>// Concept helper from the lecture
+// - getToday({ end: true }) => end of day (23:59:59.999)
+// - getToday() or getToday({ end: false }) => start of day (00:00:00.000)
+
+export function getToday(options = {}) {
+  const today = new Date();
+
+  if (options.end) {
+    // End of day
+    today.setUTCHours(23, 59, 59, 999);
+  } else {
+    // Start of day
+    today.setUTCHours(0, 0, 0, 0);
+  }
+
+  return today.toISOString();
+}</pre>
+
+      <div class="callout warn">
+        <div class="title">Common confusion 🤔</div>
+        <ul>
+          <li><strong>created_at</strong> is for bookings (sales).</li>
+          <li><strong>startDate</strong> is for stays (hotel activity).</li>
+          <li>Use end-of-day for the upper bound to include “today” without time jitter.</li>
+        </ul>
+      </div>
+
+      <h2>4) 🧩 React Query hooks: useRecentBookings &amp; useRecentStays</h2>
+      <p>
+        Next, we bring those service functions into React using React Query.
+        We want to support a dashboard filter of <strong>Last 7 / 30 / 90 days</strong>.
+      </p>
+
+      <h3>Step-by-step flow (what the hook does) 🧱</h3>
+      <ol>
+        <li>Read <span class="kbd">last</span> from URL search params (default to 7).</li>
+        <li>Compute a <strong>queryDate</strong> = today - N days (using <span class="kbd">subDays</span>).</li>
+        <li>Convert that date to ISO string (Supabase wants ISO).</li>
+        <li>Use React Query <span class="kbd">useQuery</span> to fetch and cache.</li>
+        <li>Include <span class="kbd">numDays</span> in the query key so React Query refetches when filter changes.</li>
+      </ol>
+
+      <pre>// Conceptual hook — your folder paths/names may differ
+import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
+import { subDays } from "date-fns";
+import { getBookingsAfterDate } from "../../services/apiBookings";
+
+export function useRecentBookings() {
+  const [searchParams] = useSearchParams();
+  const numDays = Number(searchParams.get("last")) || 7;
+
+  const queryDate = subDays(new Date(), numDays).toISOString();
+
+  const {
+    isLoading,
+    data: bookings,
+    error,
+  } = useQuery({
+    queryKey: ["bookings", `last-${numDays}`],
+    queryFn: () => getBookingsAfterDate(queryDate),
+  });
+
+  return { isLoading, bookings, error };
+}</pre>
+
+      <div class="callout">
+        <div class="title">Why the queryKey must change 🔁</div>
+        <p>
+          If you always use <span class="kbd">["bookings"]</span>, React Query can think it’s the same request.
+          Adding <span class="kbd">numDays</span> makes it clear: <em>new filter = new data</em>.
+        </p>
+      </div>
+
+      <h2>5) ✅ Confirmed stays filter (checked-in / checked-out)</h2>
+      <p>
+        Not all bookings become real stays.
+        Some may remain <strong>unconfirmed</strong> if the guest never shows up.
+        For many dashboard stats/charts, you only want <strong>confirmed stays</strong>.
+      </p>
+
+      <pre>// Conceptual: confirmed stays
+// Keep only stays where status is checked-in or checked-out
+
+const confirmedStays = stays?.filter(
+  (stay) => stay.status === "checked-in" || stay.status === "checked-out"
+);
+</pre>
+
+      <div class="callout ok">
+        <div class="title">Mental model 🧠</div>
+        <ul>
+          <li>Unconfirmed booking = may never happen (no real hotel activity).</li>
+          <li>Checked-in / Checked-out = real stay → safe for stay-duration and activity charts.</li>
+        </ul>
+      </div>
+
+      <h2>6) 🧪 Using the hooks in the Dashboard page</h2>
+      <p>
+        In the dashboard page, you typically:
+      </p>
+      <ul>
+        <li>Call <span class="kbd">useRecentBookings()</span> and <span class="kbd">useRecentStays()</span></li>
+        <li>Show a spinner while loading</li>
+        <li>Use the returned arrays to compute stats and charts</li>
+      </ul>
+
+      <pre>// Example usage (concept)
+
+function Dashboard() {
+  const { isLoading: isLoadingBookings, bookings } = useRecentBookings();
+  const { isLoading: isLoadingStays, stays, confirmedStays } = useRecentStays();
+
+  if (isLoadingBookings || isLoadingStays) return <Spinner />;
+
+  // Next lecture: compute stats + charts
+  // console.log(bookings, confirmedStays);
+
+  return (
+    <DashboardLayout>
+      {/* Statistics */}
+      {/* Today's Activity */}
+      {/* Stay Duration Chart */}
+      {/* Sales Chart */}
+    </DashboardLayout>
+  );
+}</pre>
+
+      <h2>7) 🧯 Common mistakes + quick checklist</h2>
+
+      <div class="callout danger">
+        <div class="title">Common mistakes (watch-outs) ⚠️</div>
+        <ul>
+          <li>Using <strong>created_at</strong> when you meant <strong>startDate</strong> (or vice versa).</li>
+          <li>Forgetting to convert to <strong>ISO string</strong> before sending to Supabase filters.</li>
+          <li>Query keys not changing → React Query shows stale data when filter changes.</li>
+          <li>Including <strong>unconfirmed</strong> stays in stay-based charts (wrong results).</li>
+          <li>Upper bound “today” changing every second (no start/end-of-day normalization).</li>
+        </ul>
+      </div>
+
+      <div class="callout ok">
+        <div class="title">Quick checklist ✅</div>
+        <ul>
+          <li>📌 Bookings chart/stats use: <strong>created_at</strong></li>
+          <li>📌 Stays chart/stats use: <strong>startDate</strong> + status</li>
+          <li>📌 Use: <span class="kbd">subDays(new Date(), numDays)</span> to compute the start date</li>
+          <li>📌 Convert dates to ISO: <span class="kbd">toISOString()</span></li>
+          <li>📌 Query key includes numDays: <span class="kbd">["bookings", `last-${numDays}`]</span></li>
+          <li>📌 Confirmed stays filter: checked-in OR checked-out</li>
+        </ul>
+      </div>
+
+      <hr class="hr" />
+
+      <p class="muted">
+        End of notes for this lecture. Next: use these datasets to compute dashboard statistics (recent bookings, recent stays, sales, and stay durations).
+      </p>
+    </main>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,430 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Understanding useMemo and useCallback — Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+      --accent:#1a73e8;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 1.55rem;
+      margin: 0 0 6px 0;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: .98rem;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      display:inline-block;
+      font-size:.84rem;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 999px;
+      color: var(--muted);
+    }
+
+    nav{
+      margin: 14px 0 18px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+    }
+    nav strong{ display:block; margin-bottom:8px; }
+    nav ul{ margin:0; padding-left: 18px; }
+    nav li{ margin: 4px 0; }
+
+    section{
+      margin: 16px 0 22px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed var(--border);
+    }
+    section:last-child{ border-bottom:none; }
+
+    h2{
+      font-size: 1.25rem;
+      margin: 0 0 10px;
+    }
+    h3{
+      font-size: 1.05rem;
+      margin: 14px 0 8px;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      background: #fff;
+      border-left: 5px solid var(--accent);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin: 10px 0;
+    }
+    .callout .title{
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .warn{
+      border-left-color: #d93025;
+      background: #fff;
+    }
+
+    .ok{
+      border-left-color: #188038;
+      background: #fff;
+    }
+
+    .mini{
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 10px;
+      overflow-x: auto;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    code, pre code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .92rem;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .two{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .hr{
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    a{ color: var(--accent); text-decoration: underline; }
+
+    /* Print */
+    @page{
+      size: A4;
+      margin: 14mm;
+    }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width:none; padding:0; }
+      nav{ break-inside: avoid; }
+      section, .callout, pre{ break-inside: avoid; }
+
+      /* Do not print URLs after links */
+      a[href]:after{ content: "" !important; }
+
+      /* Improve print typography */
+      h1{ font-size: 16pt; }
+      h2{ font-size: 13pt; }
+      h3{ font-size: 11pt; }
+      p, li{ font-size: 10.5pt; }
+      pre code{ font-size: 9.5pt; }
+
+      /* Save ink */
+      pre{ border: 1px solid #d8d8d8; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Understanding <code>useMemo</code> and <code>useCallback</code> (React)</h1>
+      <p class="subtitle">Print-friendly reviewer / study guide — why <code>memo</code> sometimes “fails” and how memoizing values fixes it.</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Memoization</span>
+        <span class="chip">⚙️ Tools: memo, useMemo, useCallback</span>
+        <span class="chip">🎯 Goal: Prevent wasted renders + avoid expensive re-work</span>
+      </div>
+    </header>
+
+    <nav>
+      <strong>📌 Quick Table of Contents</strong>
+      <ul>
+        <li><a href="#why-memo-breaks">Why <code>memo</code> breaks with object/function props</a></li>
+        <li><a href="#what-is-memoization">What memoization means in React</a></li>
+        <li><a href="#usememo">useMemo: memoize values (including objects)</a></li>
+        <li><a href="#usecallback">useCallback: memoize functions</a></li>
+        <li><a href="#use-cases">3 practical use cases (when to use these hooks)</a></li>
+        <li><a href="#pitfalls">Common pitfalls and rules of thumb</a></li>
+      </ul>
+    </nav>
+
+    <section id="why-memo-breaks">
+      <h2>1) Why <code>memo</code> “didn’t work” (objects & functions as props) 🔍</h2>
+
+      <p><strong>Key React rule:</strong> when a component re-renders, everything inside it is re-created — including <em>objects</em> and <em>functions</em> declared in that component.</p>
+
+      <p><strong>Key JavaScript rule:</strong> two objects/functions that “look the same” are still different references.</p>
+
+      <div class="callout warn">
+        <div class="title">⚠️ Reference identity matters</div>
+        <p class="mini">
+          <code>{}</code> is not equal to <code>{}</code> (different objects). Same idea for functions: <code>() =&gt; {}</code> is not equal to another <code>() =&gt; {}</code>.
+        </p>
+      </div>
+
+      <p>So if you pass an object/function prop like this:</p>
+
+      <pre><code>// Parent
+function App() {
+  const archiveOptions = { show: false, title: "Post archive" };
+
+  return &lt;Archive archiveOptions={archiveOptions} /&gt;;
+}
+
+// Child (memoized)
+const Archive = memo(function Archive({ archiveOptions }) {
+  // ...heavy render...
+  return &lt;div&gt;{archiveOptions.title}&lt;/div&gt;;
+});
+</code></pre>
+
+      <p>Even if the object content is the same, <strong>the reference is new on every render</strong>. That means the memoized child “sees” new props and re-renders anyway.</p>
+
+      <div class="callout ok">
+        <div class="title">✅ The fix</div>
+        <p class="mini">Make the object/function <strong>stable across renders</strong> by memoizing it with <code>useMemo</code> or <code>useCallback</code>.</p>
+      </div>
+    </section>
+
+    <section id="what-is-memoization">
+      <h2>2) Memoization in one sentence 🧠</h2>
+      <p>
+        Memoization means: <strong>compute once</strong>, store the result, and on the next render <strong>reuse the cached value</strong> as long as the inputs are the same.
+      </p>
+
+      <div class="callout">
+        <div class="title">🧩 Inputs vs outputs</div>
+        <ul>
+          <li>For <code>memo(Component)</code>: inputs = <strong>props</strong>, output = rendered result</li>
+          <li>For <code>useMemo</code>/<code>useCallback</code>: inputs = <strong>dependency array</strong>, output = memoized <strong>value/function</strong></li>
+        </ul>
+      </div>
+
+      <p class="mini">Important: if dependencies change, React discards the cached result and creates a new one.</p>
+    </section>
+
+    <section id="usememo">
+      <h2>3) <code>useMemo</code>: memoize values (especially objects) 🧱</h2>
+
+      <p><code>useMemo</code> lets you preserve a value across renders so it stays <strong>reference-stable</strong>.</p>
+
+      <h3>✅ Fixing “object prop breaks memo”</h3>
+      <pre><code>import { memo, useMemo } from "react";
+
+function App() {
+  const archiveOptions = useMemo(
+    () =&gt; ({ show: false, title: "Post archive" }),
+    []
+  );
+
+  return &lt;Archive archiveOptions={archiveOptions} /&gt;;
+}
+
+const Archive = memo(function Archive({ archiveOptions }) {
+  return &lt;div&gt;{archiveOptions.title}&lt;/div&gt;;
+});
+</code></pre>
+
+      <div class="callout">
+        <div class="title">🧠 What the dependency array means</div>
+        <p class="mini">
+          With <code>[]</code>, the object is created once and then reused forever (until the component unmounts). If the object depends on state/props, include those dependencies.
+        </p>
+      </div>
+
+      <h3>✅ Derived value memoization (avoid expensive recalculation)</h3>
+      <pre><code>import { useMemo } from "react";
+
+function Stats({ items }) {
+  const total = useMemo(() =&gt; {
+    // Imagine items has 100,000 entries
+    return items.reduce((sum, item) =&gt; sum + item.value, 0);
+  }, [items]);
+
+  return &lt;p&gt;Total: {total}&lt;/p&gt;;
+}
+</code></pre>
+
+      <p class="mini">If the component re-renders for other reasons, this prevents repeating the same heavy calculation when <code>items</code> hasn’t changed.</p>
+    </section>
+
+    <section id="usecallback">
+      <h2>4) <code>useCallback</code>: memoize functions 🧰</h2>
+
+      <p><code>useCallback(fn, deps)</code> is essentially <code>useMemo(() =&gt; fn, deps)</code>, but clearer for functions.</p>
+
+      <h3>✅ Fixing “function prop breaks memo”</h3>
+      <pre><code>import { memo, useCallback, useState } from "react";
+
+function App() {
+  const [count, setCount] = useState(0);
+
+  // Without useCallback, this function is new on every render
+  const handleToggle = useCallback(() =&gt; {
+    console.log("toggled");
+  }, []);
+
+  return (
+    &lt;&gt;
+      &lt;button onClick={() =&gt; setCount((c) =&gt; c + 1)}&gt;Inc&lt;/button&gt;
+      &lt;Child onToggle={handleToggle} /&gt;
+    &lt;/&gt;
+  );
+}
+
+const Child = memo(function Child({ onToggle }) {
+  return &lt;button onClick={onToggle}&gt;Toggle&lt;/button&gt;;
+});
+</code></pre>
+
+      <div class="callout warn">
+        <div class="title">⚠️ Dependencies still matter</div>
+        <p class="mini">
+          If your callback uses <code>count</code>, you must include <code>count</code> in the dependency array, otherwise the callback will “capture” an old value.
+        </p>
+      </div>
+
+      <pre><code>// Example: callback depends on count
+const handleLog = useCallback(() =&gt; {
+  console.log(count);
+}, [count]);
+</code></pre>
+    </section>
+
+    <section id="use-cases">
+      <h2>5) When do we actually need these hooks? 🎯</h2>
+
+      <p>From the lecture, there are <strong>three main use cases</strong>:</p>
+
+      <h3>1) Make object/function props stable (to prevent wasted renders)</h3>
+      <ul>
+        <li>Memoized child re-renders because prop reference changes</li>
+        <li>Fix: <code>useMemo</code> for objects/arrays, <code>useCallback</code> for functions</li>
+      </ul>
+
+      <h3>2) Avoid expensive recalculations on every render</h3>
+      <ul>
+        <li>Derived state from large arrays, heavy formatting, costly computations</li>
+        <li>Fix: compute once with <code>useMemo</code> and recompute only when inputs change</li>
+      </ul>
+
+      <h3>3) Stabilize dependencies of other hooks (avoid loops)</h3>
+      <p class="mini">A common scenario: a value in a dependency array changes every render because it’s newly created.</p>
+
+      <pre><code>// Problem: options is a new object on every render
+useEffect(() =&gt; {
+  // fetchSomething(options)
+}, [{ page: 1 }]); // ❌ new reference each render
+
+// Fix: stabilize the object
+const options = useMemo(() =&gt; ({ page: 1 }), []);
+useEffect(() =&gt; {
+  // fetchSomething(options)
+}, [options]);
+</code></pre>
+
+      <div class="callout">
+        <div class="title">🧠 Mental model</div>
+        <p class="mini">
+          If a dependency is an object/function created in render, it will usually be “new” every time — which can retrigger effects and re-renders.
+        </p>
+      </div>
+    </section>
+
+    <section id="pitfalls">
+      <h2>6) Pitfalls and rules of thumb ⚖️</h2>
+
+      <div class="callout warn">
+        <div class="title">⚠️ Don’t overuse</div>
+        <p class="mini">
+          <code>useMemo</code>/<code>useCallback</code> add complexity and have their own overhead. Use them when you have a real reason (heavy renders, frequent rerenders, or unstable props/deps).
+        </p>
+      </div>
+
+      <h3>Practical checklist ✅</h3>
+      <ul>
+        <li>Is a component <strong>slow</strong> and re-rendering frequently? Consider <code>memo</code>.</li>
+        <li>Is the memoized component still re-rendering because props are objects/functions? Use <code>useMemo</code>/<code>useCallback</code>.</li>
+        <li>Do you have an expensive derived calculation? Wrap it in <code>useMemo</code>.</li>
+        <li>Are you fighting a re-running <code>useEffect</code> because dependencies keep changing? Stabilize dependencies.</li>
+      </ul>
+
+      <div class="callout ok">
+        <div class="title">✨ Core takeaway</div>
+        <p class="mini">
+          Memoization is about <strong>stability</strong>: stable props, stable values, stable dependencies — so React can skip work that would not change the UI.
+        </p>
+      </div>
+
+      <div class="hr"></div>
+      <p class="mini"><strong>Next lesson expectation:</strong> You’ll apply <code>useMemo</code>/<code>useCallback</code> to fix the broken <code>memo</code> case (object prop) and confirm it using the React Profiler.</p>
+    </section>
+
+  </main>
+</body>
+</html>

@@ -1,0 +1,396 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — React Official Documentation (react.dev) (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 20px 44px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .muted { color: var(--muted); }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-right: 6px;
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+      margin: 8px 0 0;
+    }
+
+    .checklist li { margin: 8px 0; }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    /* Keep links readable on screen, but never print URLs */
+    a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      .toolbar { display: none !important; }
+
+      /* Don’t print any URL after links */
+      a[href]:after { content: "" !important; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>📚 A Quick Look at React’s Official Documentation (react.dev) — Reviewer</h1>
+      <p class="subtitle">How to use the official docs effectively while learning: Learn section vs Reference section, and when to read “Escape Hatches”. A4 print-ready.</p>
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: Single-column, word-wrapped, designed for clean A4 printing (no URLs printed).</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Table of Contents</strong>
+        <ol>
+          <li><a href="#where">Where the official docs are</a></li>
+          <li><a href="#structure">Main areas: Learn vs Reference</a></li>
+          <li><a href="#learn">Learn section: what to use (and what to skip for now)</a></li>
+          <li><a href="#escape">Escape Hatches: useful later (especially for effects)</a></li>
+          <li><a href="#reference">Reference section: your everyday toolbox</a></li>
+          <li><a href="#how-to-use">How to use docs like a developer</a></li>
+          <li><a href="#self-check">Quick self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="where">
+      <h2>🌐 Where the official docs are</h2>
+      <p>
+        The official React documentation is hosted at <strong>react.dev</strong>.
+      </p>
+      <div class="callout">
+        <p><strong>Beginner tip</strong> 🧠</p>
+        <p class="muted">
+          You can browse the landing page for a gentle introduction, but while taking a course, you’ll mostly rely on the
+          <strong>Learn</strong> and <strong>Reference</strong> sections.
+        </p>
+      </div>
+    </section>
+
+    <section id="structure">
+      <h2>🧭 Main areas: Learn vs Reference</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Learn 📘 <span class="pill">Concepts & fundamentals</span></h3>
+          <ul>
+            <li>Getting started guidance</li>
+            <li>Installation-related pages</li>
+            <li>Beginner-friendly explanations of core React concepts</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Reference 📗 <span class="pill">API lookup</span></h3>
+          <ul>
+            <li>Every hook and function (e.g., <code>useState</code>, <code>useEffect</code>)</li>
+            <li>Detailed usage notes and examples</li>
+            <li>Great for “I forgot how this works” moments</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Simple rule</strong> ✅</p>
+        <p class="muted">
+          Use <strong>Learn</strong> to understand concepts, and use <strong>Reference</strong> to look up exact APIs and examples.
+        </p>
+      </div>
+    </section>
+
+    <section id="learn">
+      <h2>📘 Learn section: what to use (and what to skip for now)</h2>
+      <p>
+        The Learn section has guides about getting started and installation, plus lessons that teach React fundamentals.
+      </p>
+
+      <div class="callout">
+        <p><strong>Course context</strong> 🎓</p>
+        <p class="muted">
+          Since you’re following a dedicated React course, you might not need to rely heavily on the Learn section right now.
+          The course will guide you through the fundamentals step-by-step.
+        </p>
+      </div>
+
+      <h3>Still useful: some pages later 📌</h3>
+      <p class="muted">
+        Some Learn pages can become very valuable once you reach more advanced topics.
+      </p>
+    </section>
+
+    <section id="escape">
+      <h2>🧯 Escape Hatches: useful later (especially for effects)</h2>
+      <p>
+        The lecture highlights the “Escape Hatches” area as something to read later.
+      </p>
+      <div class="callout">
+        <p><strong>When to read it?</strong> ⏳</p>
+        <p class="muted">
+          Not now. Read these pages once you’re already comfortable with the basics and you start going deep into effects.
+          They can clarify tricky real-world scenarios.
+        </p>
+      </div>
+
+      <ul>
+        <li>⚠️ Helpful when you start dealing with more complex <strong>useEffect</strong> behavior</li>
+        <li>🧠 Helps explain patterns that are easy to misunderstand early on</li>
+      </ul>
+    </section>
+
+    <section id="reference">
+      <h2>📗 Reference section: your everyday toolbox</h2>
+      <p>
+        The Reference section lists and explains every hook/function in React.
+      </p>
+
+      <h3>Example: useState 🔁</h3>
+      <p class="muted">
+        You will learn <code>useState</code> in depth in the course. But if you want extra examples or deeper detail,
+        you can look it up in the Reference.
+      </p>
+
+      <pre><code>// Typical mental model:
+// useState returns: [value, setValue]
+
+const [count, setCount] = useState(0);
+setCount(count + 1);</code></pre>
+
+      <h3>Example: “I mentioned a hook we won’t cover deeply” 🧩</h3>
+      <p class="muted">
+        Sometimes an instructor will mention something like <code>useLayoutEffect</code> without going deep.
+        That’s when the Reference is perfect: quick definition + behavior + examples.
+      </p>
+
+      <div class="callout">
+        <p><strong>Practical workflow</strong> ✅</p>
+        <p class="muted">
+          Course explains the main concepts. Reference helps you fill gaps and answer “how exactly does this API work?”
+          without leaving the official source of truth.
+        </p>
+      </div>
+    </section>
+
+    <section id="how-to-use">
+      <h2>🧭 How to use docs like a developer</h2>
+      <p>
+        A good developer doesn’t memorize everything — they memorize <strong>where to find</strong> what they need.
+      </p>
+
+      <ul>
+        <li>📌 Keep the docs open while studying and coding</li>
+        <li>🔎 Use the Reference when you need exact behavior, edge cases, or examples</li>
+        <li>🧠 Use Learn pages for deeper explanations when topics get tricky (later)</li>
+        <li>🛠️ Treat the docs as your “source of truth” when something feels unclear</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Retention trick</strong> 🧠</p>
+        <p class="muted">
+          When you use docs regularly, you build “documentation instincts”: you get faster at searching, filtering, and confirming correct usage.
+        </p>
+      </div>
+    </section>
+
+    <section id="self-check">
+      <h2>📝 Quick self-check</h2>
+      <ol>
+        <li>Where can you find the official React docs?</li>
+        <li>What’s the main difference between the Learn section and the Reference section?</li>
+        <li>When should you read “Escape Hatches” pages?</li>
+        <li>If you forget how <code>useState</code> works, where should you look?</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>✅ If you can answer these, you know how to use react.dev effectively.</strong> 😄</p>
+      </div>
+
+      <ul class="checklist">
+        <li>✅ I can navigate Learn vs Reference</li>
+        <li>✅ I know when to consult Escape Hatches</li>
+        <li>✅ I can use official docs while coding</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>
+        Reviewer generated from the provided transcript. Designed for clean A4 printing (single column, word-wrapped).
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,497 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WorldWise — Creating a New City (Reviewer / Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#5a5a5a;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --accent:#0b57d0;
+      --codebg:#0b1020;
+      --codefg:#e8eaf0;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header{
+      padding: 18px 16px;
+      border:1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .sub{
+      margin:0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .chips{
+      margin-top: 12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 8px;
+    }
+
+    .chip{
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background:#fff;
+      color:#222;
+      white-space: nowrap;
+    }
+
+    main{ margin-top: 16px; }
+
+    section{
+      margin: 14px 0;
+      padding: 14px 16px;
+      border:1px solid var(--border);
+      border-radius: 12px;
+      background:#fff;
+    }
+
+    h2{
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    h3{
+      margin: 14px 0 6px;
+      font-size: 15px;
+    }
+
+    p{ margin: 8px 0; }
+
+    ul{ margin: 8px 0 8px 18px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--accent);
+      background: #f3f7ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      color:#0b2457;
+    }
+
+    .warn{
+      border-left: 4px solid #b42318;
+      background: #fff5f5;
+      padding: 10px 12px;
+      border-radius: 10px;
+      color:#5a0b0b;
+    }
+
+    .ok{
+      border-left: 4px solid #067647;
+      background: #f3fff8;
+      padding: 10px 12px;
+      border-radius: 10px;
+      color:#083b26;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.08);
+      overflow:auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .kbd{
+      font-family: inherit;
+      padding: 1px 6px;
+      border:1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      font-size: 12px;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 880px){
+      .grid2{ grid-template-columns: 1fr 1fr; }
+    }
+
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    /* Print: A4, clean, no link clutter */
+    @page{ size: A4; margin: 14mm 14mm 16mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header, section{ break-inside: avoid; page-break-inside: avoid; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]::after{ content: ""; }
+      pre{ break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧭 WorldWise — Creating a New City</h1>
+      <p class="sub">Reviewer / study guide (beginner-friendly) — single-column, print-ready (A4)</p>
+      <div class="chips">
+        <span class="chip">🧩 React Router state in URL (lat/lng)</span>
+        <span class="chip">🧠 Context API + custom hooks</span>
+        <span class="chip">🛰️ Reverse geocoding</span>
+        <span class="chip">🗓️ Date picker (react-datepicker)</span>
+        <span class="chip">🚀 POST to fake API + UI sync</span>
+        <span class="chip">🧭 Programmatic navigation</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goal of this lecture</h2>
+        <p>
+          Build the “Add City” feature end-to-end:
+        </p>
+        <ul>
+          <li>Read <strong>lat/lng</strong> from the URL (Query string) 📍</li>
+          <li>Reverse-geocode that position into <strong>city + country</strong> 🛰️</li>
+          <li>Let the user pick a date using a <strong>date picker</strong> 🗓️</li>
+          <li>Create a <strong>newCity</strong> object and <strong>POST</strong> it to the fake API 📤</li>
+          <li>Keep <strong>UI state</strong> in sync with <strong>remote state</strong> 🔄</li>
+          <li>Navigate back to the Cities page after saving 🧭</li>
+        </ul>
+        <div class="callout">
+          ✅ Big idea: You update the server <em>and</em> you also update local UI state so the new city appears immediately (no manual refresh needed).
+        </div>
+      </section>
+
+      <section>
+        <h2>1) Guard rails: don’t run geocoding without lat/lng 🧱</h2>
+        <p>
+          Problem: If the user opens the form directly (no map click), there may be <code>no lat</code> and <code>no lng</code> in the URL.
+          In that case, reverse geocoding should <strong>not</strong> run.
+        </p>
+
+        <div class="grid2">
+          <div>
+            <h3>✅ Early-return inside the effect</h3>
+            <pre><code>// inside Form.jsx
+useEffect(() =&gt; {
+  if (!lat &amp;&amp; !lng) return; // 🚫 nothing to geocode
+
+  async function fetchCityData() {
+    // ... reverse geocoding logic
+  }
+
+  fetchCityData();
+}, [lat, lng]);</code></pre>
+          </div>
+          <div>
+            <h3>✅ Also hide the form (show a message)</h3>
+            <pre><code>// before rendering the real form UI
+if (!lat &amp;&amp; !lng)
+  return (
+    &lt;Message message="Start by clicking somewhere on the map 🙂" /&gt;
+  );</code></pre>
+            <div class="ok">
+              🙂 User experience improves: the UI explains what to do instead of silently failing.
+            </div>
+          </div>
+        </div>
+
+        <div class="warn">
+          ⚠️ Note: <code>lat</code> and <code>lng</code> coming from URL are typically strings. If you do numeric math later,
+          consider <code>parseFloat(lat)</code> / <code>parseFloat(lng)</code>.
+        </div>
+      </section>
+
+      <section>
+        <h2>2) Handle the form submit correctly 🧾</h2>
+        <p>
+          HTML forms refresh the page by default. In a SPA, you must prevent that.
+        </p>
+        <pre><code>function handleSubmit(e) {
+  e.preventDefault(); // ✅ stop full page reload
+
+  // later: validate + create new city
+}
+
+return (
+  &lt;form className={styles.form} onSubmit={handleSubmit}&gt;
+    {/* inputs */}
+  &lt;/form&gt;
+);</code></pre>
+
+        <div class="callout">
+          🧠 Why did we also use <code>e.preventDefault()</code> on the Back button earlier?
+          Because the Back button sits inside the form, and a plain &lt;button&gt; inside a form behaves like a submit button.
+        </div>
+      </section>
+
+      <section>
+        <h2>3) Add a date picker (react-datepicker) 🗓️</h2>
+        <p>
+          Instead of typing a date manually, use a date picker component.
+        </p>
+
+        <h3>Install</h3>
+        <pre><code>npm i react-datepicker</code></pre>
+
+        <h3>Use the component + import its CSS</h3>
+        <pre><code>import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";</code></pre>
+
+        <h3>Wire it like any controlled input</h3>
+        <pre><code>// state
+const [date, setDate] = useState(new Date());
+
+// JSX
+&lt;label htmlFor="date"&gt;When did you go? 📅&lt;/label&gt;
+&lt;DatePicker
+  id="date"
+  selected={date}
+  onChange={(selectedDate) =&gt; setDate(selectedDate)}
+  dateFormat="dd/MM/yyyy"
+/&gt;</code></pre>
+
+        <div class="ok">
+          ✅ DatePicker gives you the <strong>date value</strong> directly in <code>onChange</code> (not a DOM event).
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Build the newCity object 🏙️</h2>
+        <p>
+          After reverse geocoding filled city/country/emoji, you can build a new city payload.
+        </p>
+
+        <h3>Validation first</h3>
+        <pre><code>if (!cityName || !date) return; // 🚫 don’t submit incomplete data</code></pre>
+
+        <h3>Create the object</h3>
+        <pre><code>const newCity = {
+  cityName,
+  country,
+  emoji,
+  date,
+  notes,
+  position: {
+    lat, // consider parseFloat(lat)
+    lng,
+  },
+};</code></pre>
+
+        <div class="callout">
+          🧩 The server (JSON server) will generate the <code>id</code> automatically, so you don’t include it here.
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Create a createCity() API function in context 📦</h2>
+        <p>
+          Pattern: all city-related server operations live inside the Cities context provider.
+          So you put <code>createCity</code> there alongside <code>getCity</code>, and later <code>deleteCity</code>, etc.
+        </p>
+
+        <pre><code>// inside CitiesProvider
+async function createCity(newCity) {
+  setIsLoading(true);
+  try {
+    const res = await fetch(`${BASE_URL}/cities`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newCity),
+    });
+
+    const data = await res.json();
+
+    // ✅ keep UI state in sync with server state
+    setCities((cities) =&gt; [...cities, data]);
+
+    return data; // handy for navigation or other logic
+  } finally {
+    setIsLoading(false);
+  }
+}</code></pre>
+
+        <div class="warn">
+          ⚠️ In larger apps, syncing remote state manually is error-prone.
+          Tools like React Query can refetch / invalidate caches automatically.
+          But for this small app, manual sync is acceptable.
+        </div>
+      </section>
+
+      <section>
+        <h2>6) Submit: call createCity() then navigate 🧭</h2>
+        <p>
+          This is the classic use case for programmatic navigation:
+          after an async action (submit), redirect the user.
+        </p>
+
+        <pre><code>import { useNavigate } from "react-router-dom";
+import { useCities } from "../context/CitiesContext";
+
+function Form() {
+  const navigate = useNavigate();
+  const { createCity, isLoading } = useCities();
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    if (!cityName || !date) return;
+
+    const newCity = {
+      cityName,
+      country,
+      emoji,
+      date,
+      notes,
+      position: { lat, lng },
+    };
+
+    await createCity(newCity);
+
+    // after save ✅
+    navigate("/app/cities");
+  }
+
+  // ...
+}</code></pre>
+
+        <div class="callout">
+          ✅ Important: because <code>createCity</code> is async, you should <code>await</code> it.
+          Otherwise you might navigate away before the server write finishes.
+        </div>
+      </section>
+
+      <section>
+        <h2>7) UX polish: loading state + disabled form ⏳</h2>
+        <p>
+          While saving, make it visually obvious that the form is busy.
+        </p>
+
+        <pre><code>&lt;form
+  className={`${styles.form} ${isLoading ? styles.loading : ""}`}
+  onSubmit={handleSubmit}
+&gt;
+  {/* inputs */}
+
+  &lt;Button type="primary"&gt;
+    {isLoading ? "Adding…" : "Add"}
+  &lt;/Button&gt;
+&lt;/form&gt;</code></pre>
+
+        <div class="ok">
+          ✅ Small detail, big impact: users don’t double-submit if the UI clearly shows “Adding…”.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Mental model: what you just built</h2>
+        <ul>
+          <li>📍 Map click writes <code>lat/lng</code> to the URL (global, shareable state).</li>
+          <li>🛰️ Form reads <code>lat/lng</code> → reverse geocodes → fills city/country/emoji.</li>
+          <li>🗓️ Date is chosen through a reusable component (DatePicker).</li>
+          <li>📤 Submit builds <code>newCity</code> → context <code>createCity()</code> POSTs to server.</li>
+          <li>🔄 Context updates local <code>cities</code> so UI updates instantly.</li>
+          <li>🧭 Navigate back to the Cities view after success.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Quick self-check (mini exercises)</h2>
+        <ol>
+          <li>
+            ✅ Add numeric parsing:
+            <ul>
+              <li>Convert <code>lat</code>/<code>lng</code> to numbers when creating <code>position</code>.</li>
+              <li>Verify markers still render correctly.</li>
+            </ul>
+          </li>
+          <li>
+            🧯 Add error handling:
+            <ul>
+              <li>If POST fails, show a friendly message instead of silently failing.</li>
+            </ul>
+          </li>
+          <li>
+            🔁 Try removing <code>await</code> before <code>createCity</code>.
+            <ul>
+              <li>Observe the behavior, then put it back and explain why it matters.</li>
+            </ul>
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Common pitfalls (and fixes) 🧯</h2>
+        <ul>
+          <li>
+            😵 <strong>Form reloads the page</strong> → you forgot <code>e.preventDefault()</code>.
+          </li>
+          <li>
+            🧭 <strong>Navigates too early</strong> → you forgot to <code>await createCity(newCity)</code>.
+          </li>
+          <li>
+            🧩 <strong>New city doesn’t appear until refresh</strong> → you didn’t update UI state:
+            <code>setCities((c) =&gt; [...c, data])</code>.
+          </li>
+          <li>
+            📍 <strong>Geocoding runs with empty URL</strong> → you need a guard:
+            <code>if (!lat &amp;&amp; !lng) return;</code>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Recap in one sentence ✅</h2>
+        <p>
+          You used URL state + reverse geocoding + a date picker to construct a city payload, posted it via context,
+          synced the UI instantly, and navigated programmatically back to the cities list.
+        </p>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,396 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Server Actions — Updating the Profile (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #0f766e;
+      --warn: #b45309;
+      --bad: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column, print-friendly container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 44px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 18px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12.5px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin: 14px 0;
+      page-break-inside: avoid;
+    }
+
+    h2 {
+      font-size: 16.5px;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 14.5px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol { margin: 8px 0 8px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 5px solid var(--accent);
+      background: #f6f9ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.good {
+      border-left-color: var(--good);
+      background: #f0fdfa;
+    }
+
+    .callout.warn {
+      border-left-color: var(--warn);
+      background: #fffbeb;
+    }
+
+    .callout.bad {
+      border-left-color: var(--bad);
+      background: #fef2f2;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-bottom-width: 2px;
+      padding: 0 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: #0b1020;
+      color: #e6edf3;
+      border-radius: 10px;
+      overflow: auto;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 860px) {
+      .grid2 {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* PRINT SETTINGS */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body { background: #fff !important; }
+      .page { max-width: none; padding: 0; }
+      header, section { box-shadow: none !important; }
+      header, section { break-inside: avoid; }
+
+      /* Do not show URLs in print */
+      a[href]:after { content: "" !important; }
+      a { color: #000 !important; text-decoration: none !important; }
+
+      /* Ensure good readability */
+      h1 { font-size: 20px; }
+      h2 { font-size: 15px; }
+      pre { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Server Actions in Next.js — Updating the Profile</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) • Focus: using a Server Action to update a guest profile (Supabase) ✅</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Server Actions (mutations)</span>
+        <span class="chip">🧩 Forms + FormData</span>
+        <span class="chip">🔐 Auth + Authorization checks</span>
+        <span class="chip">🗄️ Supabase update</span>
+        <span class="chip">🧯 Errors via error boundary</span>
+        <span class="chip">🧰 Debugging: Network tab</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goal of this lecture</h2>
+        <p>Allow a logged-in <strong>guest</strong> to <strong>update their profile</strong> (nationality + national ID) using a <strong>Server Action</strong> in a Next.js app.</p>
+        <div class="callout good">
+          <p><strong>Key idea:</strong> A Server Action lets the browser submit a form, and Next.js runs an async function <em>on the server</em> to mutate data (like an API endpoint—without building one manually). ✨</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧱 Big picture (what you’re building)</h2>
+        <div class="grid2">
+          <div>
+            <h3>1) Data fetching (Server Component)</h3>
+            <ul>
+              <li>In <code>account/profile/page.js</code> (server component), call <code>auth()</code> to get the session.</li>
+              <li>Use <code>getGuest(session.user.email)</code> to fetch the guest row from Supabase.</li>
+              <li>Pass the <strong>guest</strong> object into the client form component.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>2) Data mutation (Server Action)</h3>
+            <ul>
+              <li>In <code>actions.js</code> (with <code>"use server"</code>), create <code>updateGuest(formData)</code>.</li>
+              <li>Validate inputs (treat them as unsafe).</li>
+              <li>Update Supabase <code>guests</code> table using <code>session.user.guestId</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Step-by-step flow (easy mental model)</h2>
+        <ol>
+          <li>Page loads → server component fetches <strong>guest</strong> data using session email.</li>
+          <li>Guest data is used to set <strong>defaultValue</strong> in form inputs (prefill fields).</li>
+          <li>User edits nationality + national ID and clicks “Update”.</li>
+          <li>Form submits → Next.js sends <strong>FormData</strong> to the Server Action endpoint (POST behind the scenes).</li>
+          <li>Server Action validates + updates Supabase.</li>
+          <li>UI should show updated data (but caching may show stale values until you revalidate—next lecture).</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🧠 Why the form component stays client-side</h2>
+        <p>The update profile form is a <strong>Client Component</strong>, but the data-fetching should remain on the server (better security + performance).</p>
+        <div class="callout">
+          <p><strong>Important technique:</strong> You can pass a <strong>Server Component (or server-fetched data)</strong> into a <strong>Client Component</strong> as a prop. This keeps fetching on the server while still rendering an interactive UI on the client.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 Form basics: names matter (FormData)</h2>
+        <p>To get values inside a Server Action via <code>formData.get()</code>, each form control needs a <strong>name</strong>.</p>
+        <ul>
+          <li><code>name="nationalID"</code> → sent in the payload</li>
+          <li><code>name="nationality"</code> → sent in the payload</li>
+          <li>Inputs that are <code>disabled</code> typically <strong>do not submit</strong> values (common HTML behavior).</li>
+        </ul>
+        <div class="callout warn">
+          <p><strong>Tip:</strong> If you need the value, prefer <code>readOnly</code> instead of <code>disabled</code> (so it still submits), or fetch it again server-side.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🌍 SelectCountry trick: encode 2 values in 1</h2>
+        <p>The country select uses a neat trick: it stores both <strong>country name</strong> and <strong>flag URL</strong> in a single string value.</p>
+        <pre><code>"Portugal%https://flagcdn.com/pt.svg"</code></pre>
+        <p>Then in the Server Action you decode it:</p>
+        <pre><code>const [nationality, countryFlag] = nationalityValue.split("%");</code></pre>
+        <p class="mini">This avoids having multiple form fields for closely-related values.</p>
+      </section>
+
+      <section>
+        <h2>🔐 Server Action: auth + authorization (must-have)</h2>
+        <p>On the server, assume the request could be malicious. So before any DB update:</p>
+        <ul>
+          <li>Get the session (authenticated user)</li>
+          <li>If no session → <strong>throw error</strong></li>
+        </ul>
+        <pre><code>const session = await auth();
+if (!session) throw new Error("You must be logged in.");</code></pre>
+        <div class="callout bad">
+          <p><strong>Why throw?</strong> In Server Actions, throwing is common. The closest Next.js error boundary (<code>error.js</code>) will catch it and show a friendly UI.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧼 Input validation: treat inputs as unsafe</h2>
+        <p>Example rule for national ID:</p>
+        <ul>
+          <li>Alphanumeric only</li>
+          <li>Length 6 to 12</li>
+        </ul>
+        <pre><code>const nationalID = formData.get("nationalID");
+
+const isValid = /^[a-zA-Z0-9]{6,12}$/.test(nationalID);
+if (!isValid) throw new Error("Please provide a valid national ID.");</code></pre>
+        <div class="callout">
+          <p><strong>Mindset:</strong> You are doing backend development here. Always validate and never trust the client.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🗄️ Updating Supabase (the actual mutation)</h2>
+        <p>Build a clean <code>updateData</code> object from validated values:</p>
+        <pre><code>const updateData = {
+  nationality,
+  countryFlag,
+  nationalID,
+};</code></pre>
+        <p>Then update the <code>guests</code> row using the authenticated guest ID from the session:</p>
+        <pre><code>await supabase
+  .from("guests")
+  .update(updateData)
+  .eq("id", session.user.guestId);
+</code></pre>
+        <div class="callout warn">
+          <p><strong>Why session.user.guestId?</strong> Because you previously attached it in the Auth.js <code>session</code> callback. That makes it available everywhere without refetching the guest again.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🕵️ Debugging: confirm the POST request</h2>
+        <p>You can observe Server Actions in the browser:</p>
+        <ol>
+          <li>Open DevTools → <strong>Network</strong></li>
+          <li>Submit the form</li>
+          <li>You’ll see a <strong>POST</strong> request with a payload including your field values + an internal action identifier.</li>
+        </ol>
+        <div class="callout">
+          <p><strong>Reminder:</strong> You typically don’t see a “nice” endpoint URL because Next.js abstracts it. But it’s still effectively an API call under the hood.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Common “why is it stale?” issue: Router Cache</h2>
+        <p>After updating Supabase, you may still see old values when navigating away and back.</p>
+        <ul>
+          <li>This can happen because of the <strong>browser/router cache</strong> for route data.</li>
+          <li>Hard reload fetches fresh data; soft navigation might reuse cached data for a short time.</li>
+        </ul>
+        <div class="callout warn">
+          <p><strong>Fix (next lecture):</strong> trigger revalidation (e.g., <code>revalidatePath</code>) so Next.js refreshes server-fetched data after the mutation.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>✅ Quick checklist (if yours doesn’t work)</h2>
+        <ul>
+          <li>Did you put <code>"use server"</code> at the top of <code>actions.js</code>?</li>
+          <li>Did your form use <code>action={updateGuest}</code> (imported from actions, not data service)?</li>
+          <li>Do your inputs/select have correct <strong>name</strong> attributes?</li>
+          <li>Are you checking session first (auth/authorization)?</li>
+          <li>Are you splitting the nationality value properly (<code>"Country%flagUrl"</code>)?</li>
+          <li>Did you update using the correct guest ID (<code>session.user.guestId</code>)?</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Mini practice questions</h2>
+        <ol>
+          <li>Why do disabled inputs usually not show up in <code>FormData</code>?</li>
+          <li>Why is it safer to fetch guest data in the page (server) instead of the client form component?</li>
+          <li>What does <code>"use server"</code> enable that normal server components don’t need?</li>
+          <li>What problem does Router Cache cause after updating data?</li>
+          <li>What tool in Next.js helps you refresh cached data after a mutation?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>📌 Key takeaways</h2>
+        <ul>
+          <li>Server Actions = mutations in RSC architecture (create/update/delete).</li>
+          <li>Forms + Server Actions are “magic”: Next.js sends FormData automatically.</li>
+          <li>Always: authorize user + validate inputs.</li>
+          <li>Supabase update should use authenticated user identity (guestId in session).</li>
+          <li>After mutation, handle cache revalidation so UI shows fresh data.</li>
+        </ul>
+      </section>
+
+      <p class="mini">End of reviewer — “Updating the Profile Using a Server Action”</p>
+    </main>
+  </div>
+</body>
+</html>

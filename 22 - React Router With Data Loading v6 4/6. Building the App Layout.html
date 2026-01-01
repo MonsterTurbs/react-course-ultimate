@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Building the App Layout — React Router Nested Routes (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #047857;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .soft { background: var(--soft); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #eef2ff;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7faff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #ecfdf5;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+    }
+
+    .danger {
+      border-left: 4px solid var(--danger);
+      background: #fef2f2;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+
+    .table th, .table td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    .table th {
+      background: var(--soft);
+      text-align: left;
+    }
+
+    /* Print styles (A4, clean margins, no URL after links) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Keep blocks from splitting awkwardly */
+      header, .card, pre, .note, .table { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Printer-friendly sizing */
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li, .table { font-size: 12.2px; }
+
+      /* Remove automatic URL printing */
+      a[href]::after { content: "" !important; }
+
+      /* Ensure code blocks print legibly */
+      pre {
+        color: #111 !important;
+        background: #f2f2f2 !important;
+        border: 1px solid #ddd;
+      }
+
+      .chip {
+        border-color: #ddd;
+        background: #f7f7f7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">🍕 Fast React Pizza — React Router Layout</p>
+      <h1>🧱 Building the App Layout (Layout Route + Outlet)</h1>
+      <p class="subtitle">
+        Build a global layout (Header + main content + persistent cart overview) and connect it to React Router using nested routes.
+      </p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">🧭 React Router v6.4+</span>
+        <span class="chip">🧱 Layout route</span>
+        <span class="chip">🪟 Outlet</span>
+        <span class="chip">🧩 Nested routes</span>
+        <span class="chip">🔗 Link</span>
+        <span class="chip">🛒 Cart overview</span>
+      </div>
+    </header>
+
+    <section class="card soft">
+      <h2>🎯 Goal of this lecture</h2>
+      <p>
+        Implement a <strong>global application layout</strong> that stays visible on every page:
+      </p>
+      <ul>
+        <li>⬆️ <strong>Header</strong> (company name + link to home + later user name)</li>
+        <li>⬜ <strong>Main content area</strong> (changes per route: menu, cart, order form, etc.)</li>
+        <li>⬇️ <strong>Cart overview</strong> (always visible; quick access to cart)</li>
+      </ul>
+      <div class="note">
+        ✅ Key idea: only the middle content changes; header + cart overview are shared across the app.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧠 Why use a layout route?</h2>
+      <p>
+        A layout route gives you one “shell” that wraps all pages. This is ideal when the overall page structure
+        (header/footer/cart summary) must stay consistent.
+      </p>
+      <ul>
+        <li>📱 Works for mobile and desktop layouts</li>
+        <li>🧭 Ensures navigation elements are always available</li>
+        <li>🧩 Makes route definitions cleaner (child routes live under one parent)</li>
+      </ul>
+    </section>
+
+    <section class="card soft">
+      <h2>1) 🧱 Create <code>AppLayout</code> (UI-level component)</h2>
+      <p>
+        The lecture creates a new file in the <code>ui</code> folder: <strong><code>AppLayout.jsx</code></strong>.
+        This is considered a UI component because it doesn’t belong to a single feature (menu/cart/order/user).
+      </p>
+      <h3>Layout structure (conceptual)</h3>
+      <pre>function AppLayout() {
+  return (
+    <>
+      <Header />
+      <main>
+        {/* Child route content goes here */}
+      </main>
+      <CartOverview />
+    </>
+  );
+}</pre>
+
+      <div class="note warn">
+        ⚠️ No styling is added yet because Tailwind CSS will be introduced later.
+        For now, the focus is structure and routing.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2) 🧢 Create <code>Header</code> with a Home link</h2>
+      <p>
+        The header contains a clickable “logo-like” title that navigates back to the home page.
+        In React Router, use <code>&lt;Link&gt;</code> instead of an <code>&lt;a&gt;</code> tag.
+      </p>
+
+      <h3>Header idea (conceptual)</h3>
+      <pre>import { Link } from "react-router-dom";
+
+function Header() {
+  return (
+    <header>
+      <Link to="/">Fast React Pizza Company</Link>
+      <span>Username (static for now)</span>
+    </header>
+  );
+}</pre>
+
+      <div class="note">
+        ✅ Why <code>Link</code>? It navigates client-side without a full page reload.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>3) 🛒 Add a persistent <code>CartOverview</code></h2>
+      <p>
+        The cart overview appears on every page so the cart is always accessible.
+        The starter file already contains this component.
+      </p>
+      <p>
+        The lecture also replaces the cart anchor link with React Router’s <code>Link</code>:
+      </p>
+      <pre>// inside CartOverview (conceptual)
+<Link to="/cart">Open cart</Link></pre>
+    </section>
+
+    <section class="card">
+      <h2>4) 🧩 Connect the layout to the router (nested routes)</h2>
+      <p>
+        In React Router’s data-router style, you create a “parent” route whose job is to provide layout.
+        Then all real pages become <strong>children</strong> of that route.
+      </p>
+
+      <div class="note">
+        ✅ Important naming: a route with no path used only for layout is often called a <strong>layout route</strong>.
+      </div>
+
+      <h3>Router shape (conceptual)</h3>
+      <pre>const router = createBrowserRouter([
+  {
+    element: <AppLayout />,
+    children: [
+      { path: "/", element: <Home /> },
+      { path: "/menu", element: <Menu /> },
+      { path: "/cart", element: <Cart /> },
+      { path: "/order/new", element: <CreateOrder /> },
+      { path: "/order/:orderId", element: <Order /> },
+    ],
+  },
+]);</pre>
+    </section>
+
+    <section class="card soft">
+      <h2>5) 🪟 Render child route content using <code>Outlet</code></h2>
+      <p>
+        After nesting routes, <code>AppLayout</code> must specify where the active child route should render.
+        That’s what <strong><code>&lt;Outlet /&gt;</code></strong> is for.
+      </p>
+
+      <pre>import { Outlet } from "react-router-dom";
+
+function AppLayout() {
+  return (
+    <>
+      <Header />
+      <main>
+        <Outlet />
+      </main>
+      <CartOverview />
+    </>
+  );
+}</pre>
+
+      <div class="note good">
+        ✅ Mental model: <code>Outlet</code> is the “slot” where the current nested route shows up.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>✅ Quick behavior check (what you should see)</h2>
+      <ul>
+        <li>🏠 Visiting <code>/</code> shows the Home content inside the layout.</li>
+        <li>📋 Visiting <code>/menu</code> shows the Menu inside the same layout.</li>
+        <li>🛒 Clicking the cart link goes to <code>/cart</code> while keeping header + cart overview visible.</li>
+      </ul>
+      <div class="note warn">
+        ⚠️ Without styling, it may look messy, but the routing structure is correct.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="card">
+      <h2>🧠 Mini self-check</h2>
+      <ol>
+        <li>❓ What stays the same across pages in this app layout?</li>
+        <li>❓ What changes when you navigate between routes?</li>
+        <li>❓ What is <code>Outlet</code> used for?</li>
+        <li>❓ Why use <code>Link</code> instead of <code>a</code> tags?</li>
+      </ol>
+    </section>
+
+    <section class="card soft">
+      <h2>➡️ What’s next</h2>
+      <p>
+        Now that the layout and nested routing are working, the course moves on to the main reason for React Router 6.4:
+        <strong>fetching and submitting data</strong> using route-level APIs.
+      </p>
+    </section>
+
+    <footer class="muted" style="margin-top:16px; font-size:12px;">
+      Print format: A4, single-column, word-wrapped, clean margins.
+    </footer>
+  </main>
+</body>
+</html>

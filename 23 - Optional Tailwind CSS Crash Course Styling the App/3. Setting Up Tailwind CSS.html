@@ -1,0 +1,394 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Setting Up Tailwind CSS (Vite + React) — Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #047857;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .soft { background: var(--soft); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #eef2ff;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7faff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #ecfdf5;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+    }
+
+    .danger {
+      border-left: 4px solid var(--danger);
+      background: #fef2f2;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      header, .card, pre, .note { break-inside: avoid; page-break-inside: avoid; }
+
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li { font-size: 12.2px; }
+
+      /* Do not print URLs after links */
+      a[href]::after { content: "" !important; }
+
+      pre {
+        color: #111 !important;
+        background: #f2f2f2 !important;
+        border: 1px solid #ddd;
+      }
+
+      .chip {
+        border-color: #ddd;
+        background: #f7f7f7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">🛠️ Tailwind CSS Crash Course — Setup</p>
+      <h1>🌬️ Setting Up Tailwind CSS (Vite + React)</h1>
+      <p class="subtitle">
+        This lecture walks through setting up Tailwind in a new project by following the <strong>official Tailwind documentation</strong>.
+        The course intentionally uses <strong>Tailwind v3</strong> to match the video.
+      </p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">📚 follow official docs</span>
+        <span class="chip">🌬️ Tailwind v3</span>
+        <span class="chip">⚡ Vite + React</span>
+        <span class="chip">🧾 tailwind.config</span>
+        <span class="chip">🧼 preflight reset</span>
+        <span class="chip">🧩 VS Code extension</span>
+        <span class="chip">✨ Prettier sorting</span>
+      </div>
+    </header>
+
+    <section class="card soft">
+      <h2>🎯 Goal</h2>
+      <p>
+        Install Tailwind and configure it so you can style React components using utility classes
+        (e.g., <code>text-xl</code>, <code>text-yellow-500</code>, <code>font-semibold</code>) inside <code>className</code>.
+      </p>
+      <div class="note warn">
+        ⚠️ Course tip: use <strong>Tailwind major version 3</strong> so your setup matches the lecture.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧭 Step 0: Use the official docs (recommended habit)</h2>
+      <ul>
+        <li>🔎 Open Tailwind docs → Installation</li>
+        <li>🧩 Choose <strong>Framework Guides</strong></li>
+        <li>⚡ Pick <strong>Vite</strong> guide</li>
+        <li>🧠 If the site changes, search: <em>Tailwind install Vite</em></li>
+      </ul>
+      <div class="note">
+        ✅ Professional habit: when using React ecosystem libraries, expect change over time—docs are your source of truth.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>1) 📦 Install Tailwind (v3) dependencies</h2>
+      <p>
+        Inside your project folder, install Tailwind + PostCSS + Autoprefixer.
+        (Your exact command may differ depending on the docs, but the idea is the same.)
+      </p>
+      <pre>npm install -D tailwindcss@^3 postcss autoprefixer</pre>
+      <p class="muted">Tip: Pinning v3 helps avoid “works different from the video” issues.</p>
+    </section>
+
+    <section class="card">
+      <h2>2) 🧾 Generate config files</h2>
+      <p>
+        Next, generate the Tailwind config and PostCSS config.
+      </p>
+      <pre>npx tailwindcss init -p</pre>
+      <p>
+        This typically creates:
+      </p>
+      <ul>
+        <li>📄 <code>tailwind.config.js</code></li>
+        <li>📄 <code>postcss.config.js</code></li>
+      </ul>
+    </section>
+
+    <section class="card soft">
+      <h2>3) 🗺️ Configure <code>content</code> paths</h2>
+      <p>
+        Tailwind needs to know where your HTML/JSX lives so it can scan your files and generate only the classes you use.
+      </p>
+      <div class="note">
+        🧠 Mental model: <strong>Tailwind scans your source files</strong> → finds class names → generates only what’s needed.
+      </div>
+      <p>
+        In <code>tailwind.config.js</code>, update <code>content</code> (common Vite setup):
+      </p>
+      <pre>/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    './index.html',
+    './src/**/*.{js,ts,jsx,tsx}',
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};</pre>
+      <div class="note warn">
+        ⚠️ ESLint might complain about this config syntax. That’s usually fine for config files.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>4) 🧩 Add Tailwind directives to your CSS</h2>
+      <p>
+        In your main stylesheet (commonly <code>src/index.css</code>), add these at the top:
+      </p>
+      <pre>@tailwind base;
+@tailwind components;
+@tailwind utilities;</pre>
+      <p>
+        In the lecture, older CSS is mostly removed or commented out because Tailwind will take over styling.
+      </p>
+      <div class="note">
+        🧼 After enabling Tailwind, your UI may suddenly look “unstyled”. That’s Tailwind’s <strong>Preflight</strong> (CSS reset)
+        applying base styles.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>5) ▶️ Start the dev server and verify Tailwind works</h2>
+      <p>Restart your dev server to ensure Tailwind is picked up:</p>
+      <pre>npm run dev</pre>
+      <p>
+        Quick test (example):
+      </p>
+      <pre>&lt;h1 className="text-xl text-yellow-500 font-semibold"&gt;
+  Hello Tailwind
+&lt;/h1&gt;</pre>
+      <p class="muted">
+        Expect: bigger text, yellow color, and semi-bold weight.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>6) 🧠 Install the Tailwind VS Code extension</h2>
+      <p>
+        Install the official Tailwind CSS VS Code extension.
+      </p>
+      <div class="note good">
+        ✅ Why it matters:
+        <ul>
+          <li>🔎 Hover to see the actual CSS behind a class (e.g., <code>text-xl</code> → font-size)</li>
+          <li>⌨️ Autocomplete for Tailwind utilities</li>
+          <li>🧭 Helps you learn utilities faster</li>
+        </ul>
+      </div>
+      <p>
+        Example: typing <code>text-center</code> becomes easy thanks to autocomplete.
+      </p>
+    </section>
+
+    <section class="card soft">
+      <h2>7) ✨ Prettier plugin for Tailwind class sorting</h2>
+      <p>
+        Tailwind recommends a consistent ordering for class names.
+        A Prettier plugin can auto-sort classes so long className strings are easier to scan.
+      </p>
+
+      <h3>Install the plugin</h3>
+      <pre>npm install -D prettier prettier-plugin-tailwindcss</pre>
+
+      <h3>Add a Prettier config</h3>
+      <p>
+        Create <code>prettier.config.cjs</code> (note: <strong>.cjs</strong>, not .js) and add:
+      </p>
+      <pre>/** @type {import('prettier').Config} */
+module.exports = {
+  plugins: ['prettier-plugin-tailwindcss'],
+  singleQuote: true,
+};</pre>
+
+      <div class="note danger">
+        🚨 Common pitfall: if you name it <code>prettier.config.js</code>, Prettier may complain.
+        The lecture fixes this by renaming the file to end in <code>.cjs</code>.
+      </div>
+
+      <div class="note">
+        ✅ Success signal: saving a file may reorder class names automatically, and Prettier output shows “formatting completed”.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="card">
+      <h2>🧾 Final recap (fast checklist)</h2>
+      <ol>
+        <li>📚 Follow official docs (Framework Guides → Vite)</li>
+        <li>📦 Install Tailwind v3 deps</li>
+        <li>🧾 Generate config files (<code>init -p</code>)</li>
+        <li>🗺️ Set <code>content</code> paths</li>
+        <li>🧩 Add Tailwind directives to <code>index.css</code></li>
+        <li>▶️ Restart dev server and test utilities</li>
+        <li>🧠 Install VS Code Tailwind extension</li>
+        <li>✨ Add Prettier Tailwind plugin + <code>prettier.config.cjs</code></li>
+      </ol>
+    </section>
+
+    <footer class="muted" style="margin-top:16px; font-size:12px;">
+      Print format: A4, single-column, word-wrapped, clean margins.
+    </footer>
+  </main>
+</body>
+</html>

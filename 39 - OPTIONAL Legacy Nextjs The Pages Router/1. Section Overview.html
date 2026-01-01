@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Legacy Next.js Pages Router — Section Overview (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --accent:#0b57d0;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+      hyphens:auto;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    header{
+      padding: 18px 18px 14px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height: 1.25;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .chip{
+      display: inline-block;
+      border: 1px solid var(--border);
+      background:#fff;
+      border-radius: 999px;
+      padding: 4px 10px;
+    }
+
+    main{
+      margin-top: 18px;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin: 18px 0 8px;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 14px 0 8px;
+    }
+
+    p{ margin: 10px 0; }
+
+    ul{
+      margin: 8px 0 12px;
+      padding-left: 20px;
+    }
+
+    li{ margin: 6px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--accent);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+      margin: 14px 0;
+    }
+
+    .callout .title{
+      margin: 0 0 6px;
+      font-weight: 700;
+    }
+
+    .grid{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    .card h3{ margin-top: 0; }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fcfcfd;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .muted{ color: var(--muted); }
+
+    .divider{
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    /* Links: keep readable on screen */
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    /* Print styles: A4, clean margins, avoid URL printing */
+    @page{
+      size: A4;
+      margin: 18mm;
+    }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header{ background:#fff; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]:after{ content: ""; } /* do not append URLs */
+      .chip, .callout, .card{ break-inside: avoid; page-break-inside: avoid; }
+      pre{ break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Legacy Next.js: Pages Router — Section Overview</h1>
+      <p class="subtitle">Print-friendly reviewer / study guide (single-column, A4-ready)</p>
+      <div class="meta">
+        <span class="chip">📌 Optional section (Part 5)</span>
+        <span class="chip">🧭 Goal: Understand older Next.js codebases</span>
+        <span class="chip">🔁 Theme: Pages Router vs App Router</span>
+      </div>
+    </header>
+
+    <main>
+      <div class="callout">
+        <p class="title">✅ What this lecture is saying (in plain words)</p>
+        <p>
+          This is the <strong>last</strong> and <strong>optional</strong> section of Part 5. You will take a quick look at the
+          <strong>legacy Next.js Pages Router</strong> so you can maintain older Next.js projects at work.
+          You are <strong>not</strong> expected to start new projects with it.
+        </p>
+      </div>
+
+      <h2>🎯 Main purpose of this section</h2>
+      <ul>
+        <li>🧰 Learn enough <strong>Pages Router</strong> to be productive in <strong>legacy Next.js</strong> repositories.</li>
+        <li>🔍 Compare Pages Router to the <strong>App Router</strong> you already learned earlier in the course.</li>
+        <li>🏗️ Build a <strong>simplified</strong> Wild Oasis website using <strong>more starter files</strong> (faster build, fewer decisions).</li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">⚠️ Prerequisite</p>
+        <p>
+          You should watch the <strong>App Router</strong> lectures first.
+          This section relies heavily on comparisons to concepts like server components, routing structure,
+          and data fetching patterns you already practiced.
+        </p>
+      </div>
+
+      <h2>🧠 Key idea: “Learn legacy to maintain, not to start new”</h2>
+      <p>
+        Think of this like learning an older code style:
+        you may not choose it for a new build, but you still want to understand it when you inherit an existing codebase.
+      </p>
+
+      <h2>🆚 Pages Router vs App Router (high-level)</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>📄 Pages Router (legacy)</h3>
+          <ul>
+            <li>Routes are based on files inside <code>pages/</code> (e.g., <code>pages/index.js</code>).</li>
+            <li>Historically used special data fetching functions (like SSR/SSG helpers).</li>
+            <li>Common in older projects and many existing production apps.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🧩 App Router (modern)</h3>
+          <ul>
+            <li>Routes are based on folders/files in <code>app/</code> (e.g., <code>app/page.js</code>).</li>
+            <li>Encourages patterns like server components and nested layouts.</li>
+            <li>Preferred for new projects (in most cases) because it aligns with current Next.js direction.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>🧪 What you will build</h2>
+      <p>
+        You will create a <strong>much simplified</strong> version of the Wild Oasis website.
+        The point is not the “feature completeness,” but to practice how routing and project structure works in the Pages Router.
+      </p>
+      <ul>
+        <li>🏁 Faster setup: more starter files are provided.</li>
+        <li>🧠 Focus stays on routing + legacy patterns, not on UI details.</li>
+      </ul>
+
+      <h2>🗂️ Mental model (simple)</h2>
+      <div class="card">
+        <h3>How to think about this section</h3>
+        <ul>
+          <li>🧭 “I already know App Router → now I learn Pages Router by comparison.”</li>
+          <li>🧩 “I want to recognize patterns quickly when I open an older repo.”</li>
+          <li>🛠️ “Goal is maintenance readiness: fix bugs, add small features, refactor safely.”</li>
+        </ul>
+      </div>
+
+      <h2>🧷 Mini examples (very quick)</h2>
+      <p class="muted">These are conceptual reminders to help you map ideas. Your project code may differ.</p>
+
+      <h3>1) Route mapping</h3>
+      <pre><code>// Pages Router
+// pages/about.js  ->  /about
+
+// App Router
+// app/about/page.js  ->  /about</code></pre>
+
+      <h3>2) What you should look for in older repos</h3>
+      <ul>
+        <li>📁 A <code>pages/</code> directory that defines the routes</li>
+        <li>🧩 A custom app wrapper (often in <code>pages/_app.js</code>)</li>
+        <li>🎨 Global styling patterns (often imported in the app wrapper)</li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">🧩 Quick self-check</p>
+        <ul>
+          <li>Can you explain (in one sentence) why this section is optional?</li>
+          <li>Can you describe the goal: “maintenance of legacy projects” vs “starting new projects”?</li>
+          <li>Can you name the two routers and which folder typically defines routes?</li>
+        </ul>
+      </div>
+
+      <h2>✅ Summary</h2>
+      <ul>
+        <li>📌 This section is a <strong>quick look</strong> at the legacy Pages Router.</li>
+        <li>🔁 You will compare it constantly with the App Router to solidify understanding.</li>
+        <li>🧠 The goal is to help you maintain older Next.js projects you might encounter at work.</li>
+      </ul>
+
+      <p class="muted">End of study guide for: <strong>“Section Overview”</strong></p>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tailwind + Redux Toolkit — Adding Menu Items to the Cart (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --codebg:#fbfbfb;
+      --accent:#0b57d0;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px;
+    }
+
+    header{
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .chiprow{margin-top:10px; display:flex; flex-wrap:wrap; gap:8px;}
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px;
+      margin: 12px 0;
+      background:#fff;
+      box-shadow: 0 1px 0 rgba(0,0,0,.03);
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16px;
+      margin: 0 0 10px;
+    }
+
+    h3{
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p{margin: 8px 0;}
+    ul{margin: 8px 0 8px 18px; padding:0;}
+    li{margin: 6px 0;}
+    .muted{color:var(--muted);}
+
+    .callout{
+      background: #fff;
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      margin-top: 10px;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    pre{
+      background: var(--codebg);
+      border:1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 10px 0;
+      overflow: hidden;
+      white-space: pre-wrap;
+      word-break: break-word;
+      tab-size: 2;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    .kbd{
+      display:inline-block;
+      padding: 1px 6px;
+      border:1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      font-size: 12px;
+      vertical-align: baseline;
+    }
+
+    .hr{
+      height:1px;
+      background:var(--border);
+      margin: 14px 0;
+    }
+
+    /* Print styles */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body{ background:#fff; }
+      .page{ max-width:none; padding:0; }
+      header{ margin-bottom: 12px; }
+      .card{ box-shadow:none; }
+      a{ color: inherit; text-decoration:none; }
+      .chiprow{ gap:6px; }
+      pre{ background:#fff; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🛒 Adding Menu Items to the Cart (Redux Toolkit) — Study Guide</h1>
+      <p class="subtitle">Focus: connect the <strong>MenuItem</strong> UI to your <strong>cartSlice</strong> by dispatching <code>addItem</code> when a user clicks “Add to cart”.</p>
+      <div class="chiprow">
+        <span class="chip">✅ Redux Toolkit</span>
+        <span class="chip">✅ react-redux</span>
+        <span class="chip">✅ UI event handlers</span>
+        <span class="chip">✅ Reusable Button component</span>
+        <span class="chip">✅ Redux DevTools</span>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>🎯 Goal of this Lecture</h2>
+      <ul>
+        <li>Show an <strong>“Add to cart”</strong> button on each pizza <em>(only if not sold out)</em>.</li>
+        <li>When clicked, build a <strong>new cart item object</strong> and <strong>dispatch</strong> it into Redux using <code>addItem(newItem)</code>.</li>
+        <li>Verify your update using <strong>Redux DevTools</strong> (even before the UI displays cart content).</li>
+      </ul>
+      <div class="callout">
+        <p>💡 Big idea: <strong>features intersect</strong>. “Cart” is a separate feature, but the action to add items is triggered inside the “Menu” UI.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧠 Key Concepts (Beginner-Friendly)</h2>
+
+      <h3>1) Where does “Add to cart” logic live? 🧩</h3>
+      <p>It lives inside the <strong>MenuItem</strong> component because that’s where the button exists and where you already have access to pizza data like <code>id</code>, <code>name</code>, and <code>unitPrice</code>.</p>
+
+      <h3>2) Redux update rule 🏛️</h3>
+      <p>You don’t “set state” directly. Instead, you:</p>
+      <ul>
+        <li>Create an action (using an <strong>action creator</strong>, like <code>addItem</code>)</li>
+        <li><strong>dispatch</strong> that action with a payload</li>
+        <li>The reducer updates the store</li>
+      </ul>
+
+      <h3>3) Cart item shape 📦</h3>
+      <p>The cart stores an array of items. Each item usually contains:</p>
+      <pre>
+{
+  pizzaId: 3,
+  name: "Pizza Romana",
+  quantity: 1,
+  unitPrice: 15,
+  totalPrice: 15
+}
+      </pre>
+      <p class="muted">📝 Note: <code>totalPrice</code> is technically derivable (<code>quantity * unitPrice</code>), but keeping it can be a practical optimization—just keep it in sync when quantity changes.</p>
+    </section>
+
+    <section class="card">
+      <h2>🛠️ Step-by-Step Implementation</h2>
+
+      <h3>Step A — Render button only when pizza is available ✅</h3>
+      <p>If a pizza is sold out, don’t show the “Add to cart” button.</p>
+      <pre>
+{!soldOut && (
+  <Button type="small" onClick={handleAddToCart}>
+    Add to cart
+  </Button>
+)}
+      </pre>
+
+      <h3>Step B — Your reusable &lt;Button /&gt; must accept <code>onClick</code> 🧱</h3>
+      <p>If your custom Button component doesn’t pass down <code>onClick</code>, clicking it won’t do anything.</p>
+      <p class="muted">In React, regular HTML buttons accept an <code>onClick</code> prop. Your custom component should forward it.</p>
+
+      <pre>
+// Button.jsx (idea)
+export default function Button({ children, disabled, to, onClick, type = "primary" }) {
+  // if it's a Link-button (to exists)
+  if (to) {
+    return (
+      <Link to={to} className={styles[type]}>
+        {children}
+      </Link>
+    );
+  }
+
+  // if it needs click behavior
+  if (onClick) {
+    return (
+      <button
+        disabled={disabled}
+        onClick={onClick}
+        className={styles[type]}
+      >
+        {children}
+      </button>
+    );
+  }
+
+  // regular button
+  return (
+    <button disabled={disabled} className={styles[type]}>
+      {children}
+    </button>
+  );
+}
+      </pre>
+
+      <div class="callout">
+        <p>⚠️ It’s okay to have a bit of duplication if it’s clear and small. You can refactor later once everything works.</p>
+      </div>
+
+      <h3>Step C — Create the click handler in MenuItem 🖱️</h3>
+      <p>Start simple: log the pizza ID to confirm the button wiring.</p>
+      <pre>
+function handleAddToCart() {
+  console.log(pizza.id);
+}
+      </pre>
+
+      <h3>Step D — Build the payload object (new cart item) 🧾</h3>
+      <p>This object must match what your reducer expects.</p>
+      <pre>
+function handleAddToCart() {
+  const newItem = {
+    pizzaId: pizza.id,
+    name: pizza.name,
+    quantity: 1,
+    unitPrice: pizza.unitPrice,
+    totalPrice: pizza.unitPrice * 1,
+  };
+
+  dispatch(addItem(newItem));
+}
+      </pre>
+
+      <h3>Step E — Dispatch using <code>useDispatch()</code> 📣</h3>
+      <pre>
+import { useDispatch } from "react-redux";
+import { addItem } from "../features/cart/cartSlice";
+
+const dispatch = useDispatch();
+      </pre>
+
+      <h3>Step F — Verify using Redux DevTools 🔍</h3>
+      <ul>
+        <li>Open DevTools → Redux tab</li>
+        <li>Look for the <code>cart/addItem</code> action</li>
+        <li>Inspect state: <code>state.cart.cart</code> should contain the new item</li>
+      </ul>
+      <div class="callout">
+        <p>✅ If there are no UI changes yet, that’s fine. The UI needs to be wired to cart state later. DevTools is how you confirm the data path is correct.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧯 Common Issues and Fixes</h2>
+      <ul>
+        <li><strong>Button clicks do nothing</strong> → Your custom <code>&lt;Button /&gt;</code> is not forwarding <code>onClick</code>.</li>
+        <li><strong>Action dispatches but state doesn’t change</strong> → Wrong reducer key in store, or wrong slice reducer imported.</li>
+        <li><strong>Item object missing fields</strong> → Ensure payload has <code>pizzaId</code>, <code>quantity</code>, <code>unitPrice</code>, <code>totalPrice</code>.</li>
+        <li><strong>Button shows even when sold out</strong> → Wrap it with <code>{!soldOut && ...}</code>.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>✅ Quick Recap</h2>
+      <ul>
+        <li>📌 Add-to-cart is triggered in the <strong>MenuItem</strong> UI.</li>
+        <li>🧾 Build a <strong>payload object</strong> that matches the cart item shape.</li>
+        <li>📣 Use <code>useDispatch</code> and call <code>dispatch(addItem(newItem))</code>.</li>
+        <li>🔍 Confirm in <strong>Redux DevTools</strong> before wiring cart UI.</li>
+      </ul>
+      <div class="hr"></div>
+      <p class="muted">➡️ Next: Use the cart data to update the <strong>CartOverview</strong> UI (replace fake/dummy cart data with real Redux state).</p>
+    </section>
+
+    <section class="card">
+      <h2>🧪 Mini Self-Test (for retention)</h2>
+      <ol>
+        <li>What two things must your custom Button support so you can reuse it as a link and as a clickable button?</li>
+        <li>What is the Redux workflow to update state (3 steps)?</li>
+        <li>Where do you verify your state change if the UI isn’t wired yet?</li>
+      </ol>
+      <p class="muted">Tip: Answer aloud. If you can explain it, you understand it.</p>
+    </section>
+
+  </div>
+</body>
+</html>

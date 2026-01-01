@@ -1,0 +1,400 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eat-N-Split — Displaying the New Friend Form (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codefg: #e7e7e7;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px 48px;
+    }
+
+    header {
+      padding: 18px 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--soft);
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12.5px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 16px 16px;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 10px;
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+    ul, ol { margin: 8px 0 8px 22px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid #d0d7ff;
+      background: #f7f8ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .warning {
+      border-left: 4px solid #ffd6a5;
+      background: #fff8ef;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .checklist {
+      border: 1px dashed var(--border);
+      background: #fcfcfc;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px 12px;
+      border-radius: 12px;
+      overflow: auto;
+      border: 1px solid #131b33;
+      margin: 10px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .twoCol {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 840px) {
+      .twoCol { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Print (A4) */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-color: #ddd; box-shadow: none; }
+      .chip { border-color: #ddd; }
+      pre { border-color: #333; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 Eat-N-Split: Conditionally Show/Hide the “Add Friend” Form</h1>
+      <p class="subtitle">
+        Reviewer / study guide on: <strong>state-driven UI</strong>, <strong>conditional rendering</strong>, and <strong>reusable components</strong>.
+      </p>
+      <div class="meta">
+        <span class="chip">⚛️ React</span>
+        <span class="chip">🧠 Thinking in React</span>
+        <span class="chip">🔁 Re-render</span>
+        <span class="chip">🧷 useState</span>
+        <span class="chip">👆 onClick</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goal</h2>
+        <p>
+          Build the behavior where clicking <strong>“Add Friend”</strong> shows the form and changes the button text to <strong>“Close”</strong>.
+          Clicking again hides the form (toggle behavior).
+        </p>
+        <div class="callout">
+          <p><strong>React clue:</strong> If the UI changes after an event (like a click), you almost always need <strong>state</strong> 🙂</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Key Idea: UI Changes → State</h2>
+        <p>
+          When the user clicks a button, React needs to <strong>re-render</strong> (update what’s displayed).
+          That happens when you update state.
+        </p>
+        <ul>
+          <li>✅ We need a boolean state like <code>showAddFriend</code> (true = show form, false = hide form).</li>
+          <li>✅ The state should live where the form is conditionally rendered (in <code>App</code>).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🏠 Where Should the State Live?</h2>
+        <p>
+          Ask: <em>“Where do we decide whether to render the form?”</em>
+          If the form is rendered inside <code>App</code>, then <code>App</code> should own the state.
+        </p>
+        <div class="twoCol">
+          <div class="callout">
+            <h3>✅ Good</h3>
+            <p>State in <code>App</code>, because <code>App</code> controls showing/hiding the form.</p>
+          </div>
+          <div class="warning">
+            <h3>⚠️ Common Mistake</h3>
+            <p>
+              Putting <code>showAddFriend</code> in the form component itself.
+              The form can’t hide itself if the parent decides whether it exists.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 The 3-Step Recipe for Controlled UI</h2>
+        <ol>
+          <li><strong>Create state</strong> with <code>useState</code></li>
+          <li><strong>Use state</strong> in JSX (conditional rendering)</li>
+          <li><strong>Update state</strong> via event handlers (e.g., <code>onClick</code>)</li>
+        </ol>
+
+        <h3>1) Create the state in <code>App</code> 🧷</h3>
+        <pre>// App.js
+import { useState } from "react";
+
+export default function App() {
+  const [showAddFriend, setShowAddFriend] = useState(false);
+
+  // ...
+}</pre>
+
+        <h3>2) Use the state: conditional rendering 👀</h3>
+        <pre>{showAddFriend && <FormAddFriend />}</pre>
+
+        <p class="callout">
+          <strong>Short-circuit rendering (&&):</strong>
+          If <code>showAddFriend</code> is true → render the component. If false → render nothing.
+        </p>
+
+        <h3>3) Update the state: toggle on click 👆</h3>
+        <pre>function handleShowAddFriend() {
+  setShowAddFriend((show) => !show);
+}</pre>
+
+        <div class="checklist">
+          <p><strong>Why callback form?</strong> ✅</p>
+          <ul>
+            <li>
+              You’re computing the new state from the current state → use:
+              <code>setState((cur) =&gt; ...)</code>
+            </li>
+            <li>Prevents stale state bugs when multiple updates happen quickly.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🔘 Reusable Button: Passing <code>onClick</code> Through</h2>
+        <p>
+          Your custom <code>&lt;Button&gt;</code> component is not the native HTML button, so it won’t automatically accept
+          <code>onClick</code> unless you forward it.
+        </p>
+
+        <h3>Button component (accept and forward props)</h3>
+        <pre>function Button({ children, onClick }) {
+  return (
+    <button className="button" onClick={onClick}>
+      {children}
+    </button>
+  );
+}</pre>
+
+        <h3>Use it in <code>App</code></h3>
+        <pre><Button onClick={handleShowAddFriend}>
+  {showAddFriend ? "Close" : "Add Friend"}
+</Button></pre>
+
+        <div class="callout">
+          <p>
+            <strong>Nice detail 🙂</strong> The button label is also state-driven: if the form is open, show “Close”.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Full Mini-Example (App Sidebar)</h2>
+        <p>This shows the whole idea together: state, conditional rendering, and the reusable button.</p>
+        <pre>// App.js (simplified)
+import { useState } from "react";
+
+export default function App() {
+  const [showAddFriend, setShowAddFriend] = useState(false);
+
+  function handleShowAddFriend() {
+    setShowAddFriend((show) => !show);
+  }
+
+  return (
+    <div className="app">
+      <div className="sidebar">
+        <FriendsList />
+
+        {showAddFriend && <FormAddFriend />}
+
+        <Button onClick={handleShowAddFriend}>
+          {showAddFriend ? "Close" : "Add Friend"}
+        </Button>
+      </div>
+
+      {/* main content on the right */}
+      <FormSplitBill />
+    </div>
+  );
+}
+
+function Button({ children, onClick }) {
+  return (
+    <button className="button" onClick={onClick}>
+      {children}
+    </button>
+  );
+}</pre>
+      </section>
+
+      <section>
+        <h2>✅ Quick Self-Check (Mini Quiz)</h2>
+        <ol>
+          <li>Why do we create <code>showAddFriend</code> state? 🤔</li>
+          <li>Why does the state belong in <code>App</code> and not in <code>FormAddFriend</code>?</li>
+          <li>What does <code>{showAddFriend && &lt;FormAddFriend /&gt;}</code> mean?</li>
+          <li>Why do we write <code>setShowAddFriend((show) =&gt; !show)</code> instead of <code>setShowAddFriend(!showAddFriend)</code>?</li>
+          <li>Why must a reusable <code>&lt;Button&gt;</code> accept and forward <code>onClick</code>?</li>
+        </ol>
+
+        <div class="callout">
+          <p>
+            If you can answer these confidently, you’re already using the React mindset: <strong>UI = f(state)</strong> 😄
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Cheat Sheet</h2>
+        <ul>
+          <li>🧷 UI changes after an event → you likely need <strong>state</strong>.</li>
+          <li>🏠 Put state in the component that decides what to render.</li>
+          <li>👀 Conditional render with: <code>condition && &lt;Component /&gt;</code></li>
+          <li>🔁 Toggle boolean state with: <code>setX((x) =&gt; !x)</code></li>
+          <li>🔘 Custom components must forward event handlers: <code>onClick={onClick}</code></li>
+          <li>🧒 Use <code>children</code> to customize a component’s content.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>➡️ Next Lesson Preview</h2>
+        <p>
+          You can now show/hide the form, but the form doesn’t add a friend yet.
+          Next, you’ll make the form functional by:
+        </p>
+        <ul>
+          <li>⌨️ making inputs controlled (state + onChange)</li>
+          <li>➕ pushing a new friend object into the friends list</li>
+          <li>🧼 clearing the form + closing it after submit</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

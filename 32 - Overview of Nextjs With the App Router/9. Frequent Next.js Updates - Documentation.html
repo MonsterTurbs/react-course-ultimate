@@ -1,0 +1,361 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Frequent Next.js Updates + Documentation — Reviewer</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --warnbg: #fff7ed;
+      --warnborder: #fdba74;
+      --goodbg: #f0fdf4;
+      --goodborder: #86efac;
+      --codebg: #0b0f14;
+      --codetext: #e8e8e8;
+      --link: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 20px 52px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.65rem;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.86rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 1.25rem;
+      border-left: 5px solid var(--border);
+      padding-left: 10px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { margin: 8px 0 10px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .box {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+    .box strong { display: inline-block; margin-bottom: 6px; }
+
+    .callout {
+      border-left: 5px solid var(--border);
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    .warn {
+      border-left: 6px solid var(--warnborder);
+      background: var(--warnbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #fed7aa;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 6px solid var(--goodborder);
+      background: var(--goodbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #bbf7d0;
+      margin: 12px 0;
+    }
+
+    .steps {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      margin: 12px 0;
+    }
+    .steps .row {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .steps .row:first-child { border-top: 0; }
+
+    .code {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0;
+      background: #fff;
+    }
+    .code .label {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    pre {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow: auto;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      white-space: pre;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .qa details {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+    .qa summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+    }
+    .qa summary::-webkit-details-marker { display: none; }
+    .qa .answer {
+      margin-top: 8px;
+      color: #222;
+    }
+
+    .footer {
+      margin-top: 26px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      .chip, .box, .callout, .warn, .good, .steps, .code, .qa details {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .box, .callout, .warn, .good, .steps, .code, .qa details { break-inside: avoid; }
+      a[href]::after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Frequent Next.js Updates + Documentation</h1>
+      <p class="subtitle">Reviewer / Study Guide • Single-column • Print-ready (A4) • Beginner-friendly</p>
+      <div class="meta">
+        <span class="chip">🔁 Frequent updates</span>
+        <span class="chip">📚 Documentation skill</span>
+        <span class="chip">🧰 Upgrade command</span>
+        <span class="chip">🧪 Course uses Next.js 14</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Key message of this lecture 🎯</h2>
+      <p>
+        Next.js changes quickly. This course was recorded using <strong>Next.js v14</strong>, but newer versions are released often.
+        So part of being a good web developer is learning how to keep your project updated and how to rely on documentation.
+      </p>
+
+      <div class="good">
+        <strong>Mindset:</strong>
+        <p>
+          Keeping up with framework updates is not optional—it’s a core professional skill. Treat it as a real-world challenge.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Why updates matter (beginner explanation) 🧠</h2>
+      <div class="box">
+        <strong>When Next.js releases a new version, it can include:</strong>
+        <ul>
+          <li>⚡ Performance improvements</li>
+          <li>🧩 New features (especially around routing / server features)</li>
+          <li>🐛 Bug fixes</li>
+          <li>🔒 Security patches</li>
+          <li>🧱 Breaking changes (sometimes) — so reading docs becomes important</li>
+        </ul>
+      </div>
+
+      <div class="warn">
+        <strong>⚠️ Reality check:</strong>
+        <p>
+          In real jobs, you will often inherit an app and be asked to update dependencies.
+          That’s why learning to read and follow docs is a must.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Documentation is your best friend 📚🤝</h2>
+      <p>
+        The lecture emphasizes that the Next.js documentation is your primary guide when versions change.
+        Being able to read documentation is a “professional developer” skill.
+      </p>
+
+      <div class="steps" role="region" aria-label="Doc-reading workflow">
+        <div class="row">1) 📌 Identify what changed (release notes / upgrade guide)</div>
+        <div class="row">2) ✅ Update packages</div>
+        <div class="row">3) 🔧 Fix breaking changes / warnings</div>
+        <div class="row">4) 🧪 Re-run the app + tests</div>
+        <div class="row">5) 🧹 Verify behavior (routing, caching, data fetching, build output)</div>
+      </div>
+
+      <div class="callout">
+        <strong>Tip:</strong>
+        <p>
+          When something breaks after an upgrade, search the docs for keywords like “migration”, “upgrade”,
+          “breaking changes”, “deprecations”, and “caching”.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) How to update to the latest Next.js version 🧰</h2>
+      <p>
+        Run this command inside your project folder to update Next.js and its core peer packages:
+      </p>
+
+      <div class="code">
+        <div class="label">Upgrade command</div>
+        <pre><code>npm install next@latest react@latest react-dom@latest eslint-config-next@latest</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>What this command does (simple breakdown):</strong>
+        <ul>
+          <li><code>next@latest</code> → updates the Next.js framework</li>
+          <li><code>react@latest</code> + <code>react-dom@latest</code> → updates React itself</li>
+          <li><code>eslint-config-next@latest</code> → updates Next.js ESLint rules</li>
+        </ul>
+      </div>
+
+      <div class="warn">
+        <strong>⚠️ After upgrading:</strong>
+        <ul>
+          <li>Run your dev server again (<code>npm run dev</code>)</li>
+          <li>Watch for console warnings or errors</li>
+          <li>If something breaks, check the Next.js upgrade docs/release notes</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Where to watch for new versions 📰</h2>
+      <div class="box">
+        <strong>Two recommended sources:</strong>
+        <ul>
+          <li>📚 Next.js Documentation (upgrade guides)</li>
+          <li>📝 Next.js Blog (version announcements)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="qa">
+      <h2>6) Mini Quiz (self-check) 🧪</h2>
+
+      <details>
+        <summary>Q1) What Next.js version was this course recorded with?</summary>
+        <div class="answer">Next.js version 14.</div>
+      </details>
+
+      <details>
+        <summary>Q2) What is the main professional skill highlighted here?</summary>
+        <div class="answer">
+          Keeping up with framework updates and knowing how to read and follow official documentation.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q3) What command updates Next.js + React to the latest versions?</summary>
+        <div class="answer">
+          <code>npm install next@latest react@latest react-dom@latest eslint-config-next@latest</code>
+        </div>
+      </details>
+    </section>
+
+    <p class="footer">
+      End of reviewer. Next step: continue learning Next.js features and conventions.
+    </p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,457 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced React Patterns — Detecting a Click Outside the Modal (Study Guide)</title>
+  <style>
+    /* =========================
+       Print-friendly, A4-ready
+       Single-column layout
+       ========================= */
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --chip: #f2f4f7;
+      --code-bg: #0b1020;
+      --code-text: #e8eefc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* Page container */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+    }
+
+    header {
+      padding: 18px 18px 14px;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+
+    .title {
+      margin: 0 0 6px;
+      font-size: 26px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 16px 18px;
+      margin: 14px 0;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol {
+      margin: 8px 0 10px 20px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .note {
+      border-left: 4px solid #c9d6ff;
+      background: var(--soft);
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .warn {
+      border-left: 4px solid #ffd2a8;
+      background: #fff7ef;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .ok {
+      border-left: 4px solid #bfecc8;
+      background: #f3fff6;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.12);
+      background: var(--code-bg);
+      color: var(--code-text);
+      overflow: visible; /* allow wrapping */
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      tab-size: 2;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* =========================
+       Print rules
+       ========================= */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      section, header {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      a, a:visited { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1 class="title">🧠 Detecting a Click Outside the Modal (React)</h1>
+      <p class="subtitle">Study Guide / Reviewer — Advanced React Patterns: improving a compound modal with outside-click detection + a reusable custom hook.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Modal UX</span>
+        <span class="chip">🪝 Hooks: useEffect, useRef</span>
+        <span class="chip">🧩 Pattern: Reusable custom hook</span>
+        <span class="chip">⚙️ Detail: Event capturing vs bubbling</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goal</h2>
+        <p>
+          Implement a common UI behavior: <strong>when the modal is open, clicking outside the modal window closes it</strong>.
+        </p>
+        <div class="ok">
+          <div class="callout-title">✅ Expected behavior</div>
+          <ul>
+            <li>Click inside the modal → modal stays open.</li>
+            <li>Click outside the modal (overlay/background) → modal closes.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Key Idea (Beginner-friendly)</h2>
+        <p>
+          We attach a <strong>document-level click listener</strong>. Then we ask:
+          “Did the click happen <em>inside</em> the modal element?”
+        </p>
+        <p>
+          To answer that reliably, we need a reference (ref) to the modal DOM element:
+        </p>
+        <ul>
+          <li>Use <code>useRef()</code> to get a container reference.</li>
+          <li>Attach it using <code>ref={ref}</code> on the modal wrapper.</li>
+          <li>In the click handler, test <code>ref.current.contains(e.target)</code>.</li>
+        </ul>
+
+        <div class="note">
+          <div class="callout-title">💡 Mental model</div>
+          <p>
+            <strong>contains()</strong> answers: “Is the clicked element somewhere inside the modal?”
+            If not, we call <code>close()</code>.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🛠 Step-by-step Implementation</h2>
+        <ol>
+          <li>Create a <strong>ref</strong> for the modal container.</li>
+          <li>Use <strong>useEffect</strong> to register a document click handler.</li>
+          <li>Inside the handler, close the modal if the click is outside.</li>
+          <li>Cleanup: remove the listener on unmount (important!).</li>
+        </ol>
+
+        <h3>1) Add the ref to the modal container</h3>
+        <pre>// inside your Window component (or where the modal DOM is)
+import { useEffect, useRef } from "react";
+
+function Window({ children /* ... */ }) {
+  const ref = useRef(null);
+
+  return (
+    <StyledModal ref={ref}>
+      {children}
+    </StyledModal>
+  );
+}</pre>
+
+        <h3>2) Add the document click listener</h3>
+        <pre>useEffect(() => {
+  function handleClick(e) {
+    // If ref exists AND the clicked target is NOT inside modal
+    if (ref.current && !ref.current.contains(e.target)) {
+      close();
+    }
+  }
+
+  document.addEventListener("click", handleClick, true);
+
+  return () => {
+    document.removeEventListener("click", handleClick, true);
+  };
+}, [close]);</pre>
+
+        <div class="warn">
+          <div class="callout-title">⚠️ Why the third argument <code>true</code>?</div>
+          <p>
+            <strong>Events bubble</strong>. Without capturing, a click on the “Open modal” button can:
+            open the modal and then immediately be detected as “outside the modal,” closing it again.
+          </p>
+          <p>
+            Using <code>true</code> makes the listener run in the <strong>capturing phase</strong> (as the event travels down),
+            preventing the “open then instantly close” problem.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🔍 Common Bugs & Fixes</h2>
+        <div class="two-col">
+          <div class="note">
+            <div class="callout-title">🐛 Bug: “contains is not a function”</div>
+            <p>
+              The correct method name is <strong>contains</strong> (with an <code>s</code>), not <code>contain</code>.
+            </p>
+            <pre>// ✅ correct
+ref.current.contains(e.target)
+
+// ❌ wrong
+ref.current.contain(e.target)</pre>
+          </div>
+
+          <div class="note">
+            <div class="callout-title">🐛 Bug: “React Hook useEffect is called conditionally”</div>
+            <p>
+              Hooks must run in the same order on every render.
+              Don’t place <code>useEffect</code> inside <code>if</code> blocks.
+            </p>
+            <pre>// ✅ OK
+useEffect(() => { /* ... */ }, []);
+
+// ❌ Not allowed
+if (isOpen) {
+  useEffect(() => { /* ... */ }, []);
+}</pre>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧰 Extract to a Reusable Custom Hook: <code>useOutsideClick</code></h2>
+        <p>
+          Once the logic works, extract it into a custom hook to make it reusable for:
+          <strong>modals, dropdowns, tooltips, context menus</strong>, etc.
+        </p>
+
+        <h3>✅ Hook API (simple)</h3>
+        <ul>
+          <li><strong>Input:</strong> a <code>handler()</code> function (what to do when outside click happens).</li>
+          <li><strong>Optional:</strong> <code>listenCapturing</code> boolean (defaults to <code>true</code>).</li>
+          <li><strong>Output:</strong> a <code>ref</code> to attach to the element you want to protect.</li>
+        </ul>
+
+        <h3>Full hook code</h3>
+        <pre>// /src/hooks/useOutsideClick.js
+import { useEffect, useRef } from "react";
+
+export function useOutsideClick(handler, listenCapturing = true) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (!ref.current) return;
+      if (ref.current.contains(e.target)) return;
+
+      handler?.(e);
+    }
+
+    document.addEventListener("click", handleClick, listenCapturing);
+
+    return () => {
+      document.removeEventListener("click", handleClick, listenCapturing);
+    };
+  }, [handler, listenCapturing]);
+
+  return ref;
+}</pre>
+
+        <h3>Using the hook inside your modal Window</h3>
+        <pre>// inside Window
+import { createPortal } from "react-dom";
+import { useOutsideClick } from "../hooks/useOutsideClick";
+
+function Window({ children, name }) {
+  const { openName, close } = useContext(ModalContext);
+
+  const ref = useOutsideClick(close, true);
+
+  if (name !== openName) return null;
+
+  return createPortal(
+    <Overlay>
+      <StyledModal ref={ref}>
+        <Button onClick={close} aria-label="Close modal">×</Button>
+        <div>{children}</div>
+      </StyledModal>
+    </Overlay>,
+    document.body
+  );
+}</pre>
+
+        <div class="ok">
+          <div class="callout-title">✅ Benefit</div>
+          <p>
+            The modal stays clean, while the outside-click logic becomes reusable across the app.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Quick Self-Check (Mini Quiz)</h2>
+        <ol>
+          <li>Why do we need a <code>ref</code> for the modal container?</li>
+          <li>What does <code>ref.current.contains(e.target)</code> check?</li>
+          <li>Why can a modal “open and instantly close” without capturing?</li>
+          <li>What does the third argument of <code>addEventListener</code> do?</li>
+          <li>What does a custom hook return in this case, and why?</li>
+        </ol>
+
+        <div class="note">
+          <div class="callout-title">✅ Answers (short)</div>
+          <ul>
+            <li>To know which DOM element is “inside” the modal.</li>
+            <li>If the click happened inside the modal tree.</li>
+            <li>Because events bubble and the open-click is also seen by the document handler.</li>
+            <li>Switches between bubbling (<code>false</code>) and capturing (<code>true</code>).</li>
+            <li>A <code>ref</code>, so the caller can attach it to the protected element.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>📌 Practical Tips</h2>
+        <ul>
+          <li>Always cleanup event listeners in <code>useEffect</code> to avoid memory leaks.</li>
+          <li>Prefer capturing for outside-click modals to avoid the “instant close” issue.</li>
+          <li>Keep your modal component focused on UI; extract generic behavior into hooks.</li>
+          <li>Consider also handling <strong>Escape key</strong> to close modals (common UX).</li>
+        </ul>
+      </section>
+
+      <footer>
+        <div class="divider"></div>
+        <p>
+          Print tip: Use your browser’s Print dialog and select A4 with default margins. This page is already optimized for clean printing.
+        </p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,431 @@
+
+
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WorldWise — Performance Check + Fixing Infinite useEffect Loops (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f6f8fa;
+      --callout: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      hyphens: auto;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
+
+    header {
+      padding: 18px 16px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    main { margin-top: 18px; }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+      border-left: 4px solid var(--callout);
+      padding-left: 10px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol {
+      margin: 10px 0;
+      padding-left: 22px;
+    }
+
+    li { margin: 6px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px;
+      background: #fff;
+      margin: 12px 0;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .callout {
+      border-left: 5px solid var(--callout);
+      background: #f3f7ff;
+      padding: 12px 12px;
+      border-radius: 10px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .warn {
+      border-left: 5px solid #b42318;
+      background: #fff3f2;
+      padding: 12px 12px;
+      border-radius: 10px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .good {
+      border-left: 5px solid #067647;
+      background: #ecfdf3;
+      padding: 12px 12px;
+      border-radius: 10px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.45;
+      overflow: hidden;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .kbd {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      vertical-align: baseline;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 860px) {
+      .grid2 { grid-template-columns: 1fr 1fr; }
+    }
+
+    footer {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 12px;
+      border-top: 1px dashed var(--border);
+      padding-top: 12px;
+    }
+
+    /* PRINT (A4) */
+    @page {
+      size: A4;
+      margin: 18mm;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      header, .card, .callout, .warn, .good, pre {
+        box-shadow: none !important;
+      }
+
+      /* Don't print link URLs */
+      a[href]:after { content: "" !important; }
+
+      /* Keep typography print-friendly */
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      pre { font-size: 11px; }
+
+      /* Avoid awkward breaks */
+      h1, h2, h3 { page-break-after: avoid; }
+      ul, ol, pre, .card, .callout, .warn, .good { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🗺️ WorldWise — Performance Check + Fixing Infinite <code>useEffect</code> Loops</h1>
+      <p class="subtitle">Reviewer / Study Guide (Print-friendly • A4 • Single Column)</p>
+      <div class="meta">
+        <span class="chip">🔍 Topic: Profiler + wasted renders</span>
+        <span class="chip">🧠 Topic: dependency arrays</span>
+        <span class="chip">🛠️ Tool: <code>useCallback</code></span>
+        <span class="chip">⚠️ Bug: infinite API requests</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>✅ What you will learn</h2>
+        <ul>
+          <li>How to use the <strong>React DevTools Profiler</strong> to scan an app for slow renders.</li>
+          <li>How to read <strong>Ranked</strong> and <strong>Flamegraph</strong> views and interpret “why it rendered”.</li>
+          <li>Why adding a function (like <code>getCity</code>) to a <code>useEffect</code> dependency array can trigger an <strong>infinite loop</strong>.</li>
+          <li>The practical fix: stabilize the function with <strong><code>useCallback</code></strong>.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>🧩 Quick refresher: what counts as a “performance issue”?</h2>
+        <div class="grid2">
+          <div class="callout">
+            <h3>🚦 Green flags (usually fine)</h3>
+            <ul>
+              <li>Most renders take <strong>&lt; 1–3ms</strong>.</li>
+              <li>No visible UI lag while typing, clicking, navigating.</li>
+              <li>Renders happen, but they do not block the UI.</li>
+            </ul>
+          </div>
+          <div class="warn">
+            <h3>🧯 Red flags (investigate)</h3>
+            <ul>
+              <li>Typing/clicking feels delayed (UI “stutters”).</li>
+              <li>Profiler shows commits like <strong>50–200ms+</strong> frequently.</li>
+              <li>Network tab shows repeated calls that you didn’t expect.</li>
+            </ul>
+          </div>
+        </div>
+        <p><strong>Key mindset:</strong> don’t optimize by default. Optimize when you can <em>feel</em> the problem or can measure it.</p>
+      </section>
+
+      <section class="card">
+        <h2>🔍 Step-by-step: profiling WorldWise</h2>
+        <ol>
+          <li>Start the fake API server and the React app.</li>
+          <li>Open React DevTools → <strong>Profiler</strong>.</li>
+          <li>Click <span class="kbd">Record</span> and do a normal user flow:
+            <ul>
+              <li>Navigate between pages</li>
+              <li>Log in</li>
+              <li>Click cities/countries</li>
+              <li>Log out</li>
+            </ul>
+          </li>
+          <li>Stop recording and inspect the results.</li>
+        </ol>
+
+        <div class="good">
+          <h3>✅ Expected result (as in the lecture)</h3>
+          <p>Many renders are recorded (e.g., ~20+), but the slowest components are still under a few milliseconds. That means the app is already fast and likely needs <strong>no performance optimization</strong>.</p>
+        </div>
+
+        <div class="callout">
+          <h3>🧠 How to scan quickly for bottlenecks</h3>
+          <ul>
+            <li>Go to <strong>Ranked</strong> view: it sorts components by render time.</li>
+            <li>If the top component is only ~1–3ms, you likely have no issue.</li>
+            <li>Only deep-dive Flamegraph when you see high times or visible lag.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🧭 Understanding “what caused this render?”</h2>
+        <p>When you click a commit (a render), DevTools can show what triggered it:</p>
+        <ul>
+          <li>🧷 Router update (navigation)</li>
+          <li>🔐 AuthProvider update (login/logout changes auth state)</li>
+          <li>🗺️ Map library internals (e.g., Leaflet positioning / internal updates)</li>
+        </ul>
+        <p><strong>Reminder:</strong> a lot of renders is not automatically bad. What matters is whether they are slow or user-visible.</p>
+      </section>
+
+      <section class="card">
+        <h2>⚠️ The real bug: infinite API requests after “fixing” ESLint</h2>
+        <p>In the City page, there’s a <code>useEffect</code> that calls <code>getCity(id)</code>. ESLint warns that <code>getCity</code> should be in the dependency array.</p>
+
+        <div class="warn">
+          <h3>💥 What happens if you add <code>getCity</code> to deps (naively)</h3>
+          <ul>
+            <li>Network tab explodes with repeated requests.</li>
+            <li>Profiler shows many commits in a few seconds (e.g., 60+).</li>
+            <li>The app keeps fetching even though the UI looks “stuck”.</li>
+          </ul>
+        </div>
+
+        <h3>🧠 Why the infinite loop happens</h3>
+        <p>This is the cycle:</p>
+        <ol>
+          <li><code>useEffect</code> runs → calls <code>getCity()</code>.</li>
+          <li><code>getCity()</code> updates state in the provider (e.g., <code>dispatch</code> / <code>setState</code>).</li>
+          <li>Provider re-renders → <code>getCity</code> function is recreated (new identity).</li>
+          <li>Dependency array sees a “new” <code>getCity</code> → effect runs again.</li>
+          <li>Repeat forever. 🔁</li>
+        </ol>
+
+        <div class="callout">
+          <h3>🔑 Core rule</h3>
+          <p>If a function is in a dependency array, it must have a <strong>stable identity</strong>—otherwise the effect can re-run on every render.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🛠️ The fix: stabilize <code>getCity</code> with <code>useCallback</code></h2>
+        <p>We want <code>getCity</code> to keep the same identity across renders (unless it truly needs to change). That’s what <code>useCallback</code> is for.</p>
+
+        <h3>✅ Example pattern (provider)</h3>
+        <pre><code>// CitiesContext / CitiesProvider
+import { useCallback } from "react";
+
+const getCity = useCallback(
+  async function getCity(id) {
+    // 1) Optional: bail out if already loaded
+    if (Number(id) === Number(currentCity.id)) return;
+
+    dispatch({ type: "loading" });
+
+    try {
+      const res = await fetch(`${BASE_URL}/cities/${id}`);
+      const data = await res.json();
+      dispatch({ type: "city/loaded", payload: data });
+    } catch {
+      dispatch({ type: "rejected", payload: "There was an error loading the city" });
+    }
+  },
+  // Dependencies: values used from outer scope
+  [currentCity.id]
+);
+</code></pre>
+
+        <div class="good">
+          <h3>✅ Result after the fix</h3>
+          <ul>
+            <li>Effect dependency array can safely include <code>getCity</code>.</li>
+            <li>No infinite loop.</li>
+            <li>Network tab returns to normal (one request per city click).</li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <h3>🧠 Why dependency choice matters</h3>
+          <p>If the callback uses <code>currentCity.id</code> for an early return, it must be in the dependencies; otherwise you can create stale logic. Prefer using primitives like <code>currentCity.id</code> rather than the full object.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🧪 Verify the fix (fast checklist)</h2>
+        <ol>
+          <li>Open DevTools → <strong>Network</strong> tab.</li>
+          <li>Click a city once → you should see <strong>one</strong> request.</li>
+          <li>Wait a few seconds → requests should <strong>not</strong> keep coming.</li>
+          <li>Optional: Profile the click → commits should be normal (not exploding).</li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <h2>🧠 Key takeaways to remember</h2>
+        <ul>
+          <li>🔍 Use the Profiler to <strong>measure</strong>, not to guess.</li>
+          <li>✅ If everything is fluid and render times are tiny, <strong>do nothing</strong>.</li>
+          <li>⚠️ ESLint dependency warnings are usually correct—don’t ignore them, but also don’t “fix” them blindly.</li>
+          <li>🛠️ When a function is a dependency and it changes every render, stabilize it with <code>useCallback</code>.</li>
+          <li>🧩 This is a real-world use case of <code>useCallback</code>: preventing infinite loops caused by unstable function identities.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>📝 Mini reviewer (quick Q&amp;A)</h2>
+        <ol>
+          <li><strong>Why did adding <code>getCity</code> to deps cause infinite requests?</strong>
+            <p>Because <code>getCity</code> was recreated after each state update in the provider, so the effect kept re-running.</p>
+          </li>
+          <li><strong>Why is removing <code>getCity</code> from deps not the best solution?</strong>
+            <p>It can hide real bugs (stale closures), and violates the mental model ESLint is enforcing for consistent effects.</p>
+          </li>
+          <li><strong>What does <code>useCallback</code> actually memoize?</strong>
+            <p>The <em>function identity</em> (reference), so React can treat it as “the same function” across renders (as long as deps don’t change).</p>
+          </li>
+        </ol>
+      </section>
+
+      <footer>
+        <p>Print tip: Use your browser’s Print → Save as PDF. This page is designed for A4 and avoids printing link URLs.</p>
+      </footer>
+    </main>
+  </div>
+</body>
+
+</html>

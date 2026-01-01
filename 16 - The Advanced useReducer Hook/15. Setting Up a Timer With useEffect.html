@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Quiz — Setting Up a Timer with useEffect (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+      --accent:#1a73e8;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page container */
+    .page{
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 18px 64px;
+    }
+
+    header{
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+    h1{
+      font-size: 24px;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 14px;
+    }
+
+    .pillrow{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .pill{
+      border:1px solid var(--border);
+      background:var(--soft);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    h2{
+      font-size: 18px;
+      margin: 22px 0 10px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+    h3{
+      font-size: 15px;
+      margin: 16px 0 8px;
+    }
+    p{ margin: 10px 0; }
+    ul{ margin: 8px 0 12px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background:var(--soft);
+      border-left: 4px solid var(--accent);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+    .callout .title{
+      font-weight:700;
+      margin:0 0 6px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 12px;
+      background: #fff;
+    }
+    .card h3{ margin-top: 0; }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px;
+      border-radius: 12px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      white-space: pre;
+    }
+    .note{
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mini{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .checklist li{
+      list-style: "✅ ";
+      margin-left: 6px;
+    }
+    .warn li{
+      list-style: "⚠️ ";
+      margin-left: 6px;
+    }
+
+    /* Print */
+    @page { size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width:none; padding:0; }
+      header{ border-bottom: 1px solid #000; }
+      .pill{ border-color:#000; background:#fff; }
+      .callout, .card{ break-inside: avoid; page-break-inside: avoid; }
+      pre{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color: inherit; text-decoration:none; }
+      a[href]:after{ content:""; } /* don't show URLs */
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>⏳ React Quiz — Setting Up a Timer with <code>useEffect</code></h1>
+      <p class="subtitle">
+        Reviewer / Study Guide (Beginner-friendly) — Integrate a countdown timer that finishes the quiz automatically when it hits zero.
+      </p>
+      <div class="pillrow" aria-label="Topics">
+        <span class="pill">useEffect + setInterval</span>
+        <span class="pill">Reducer “tick” action</span>
+        <span class="pill">Cleanup function</span>
+        <span class="pill">Derived time formatting</span>
+        <span class="pill">Status-driven UI</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Goal of the Lecture</h2>
+      <ul>
+        <li>Add a <strong>timer component</strong> that starts when the quiz starts.</li>
+        <li>Every second, <strong>dispatch a <code>tick</code> action</strong> to reduce remaining time.</li>
+        <li>When time reaches <strong>0</strong>, automatically set <code>status</code> to <code>"finished"</code>.</li>
+        <li>Ensure the timer <strong>stops cleanly</strong> when the component unmounts (avoid multiple timers running 🚫).</li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">🧠 Key idea</p>
+        <p>
+          The timer is a perfect match for <code>useReducer</code>: the Timer component is responsible for the side-effect
+          (<code>setInterval</code>), while the reducer is responsible for the state transition (<code>secondsRemaining--</code> and finishing the quiz).
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🏗️ UI Structure Update: Add a Footer</h2>
+      <p>
+        We want the <strong>Timer</strong> and the <strong>Next/Finish button</strong> to sit together at the bottom,
+        so we wrap them inside a <code>&lt;Footer&gt;</code> component using <strong>component composition</strong>.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>✅ Footer component (composition)</h3>
+          <p class="mini">The Footer just renders its <code>children</code>. No props drilling needed here.</p>
+<pre><code>// components/Footer.js
+export default function Footer({ children }) {
+  return &lt;footer className="footer"&gt;{children}&lt;/footer&gt;;
+}</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>✅ Using Footer in the active UI</h3>
+          <p class="mini">Timer mounts only when quiz is active, so it starts at the correct time.</p>
+<pre><code>// Inside App's "active" UI branch (example)
+&lt;Footer&gt;
+  &lt;Timer dispatch={dispatch} secondsRemaining={secondsRemaining} /&gt;
+  &lt;NextButton
+    dispatch={dispatch}
+    answer={answer}
+    index={index}
+    numQuestions={numQuestions}
+  /&gt;
+&lt;/Footer&gt;</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>⏱️ Timer Logic: <code>useEffect</code> + <code>setInterval</code></h2>
+
+      <h3>1) Add <code>secondsRemaining</code> to state</h3>
+      <p>
+        This value is state because it changes over time and must trigger re-renders. Start with <code>null</code> (we’ll compute it when the quiz starts).
+      </p>
+<pre><code>// initialState (example)
+const initialState = {
+  questions: [],
+  status: "loading",
+  index: 0,
+  answer: null,
+  points: 0,
+  highscore: 0,
+  secondsRemaining: null,
+};</code></pre>
+
+      <h3>2) Create a <code>tick</code> reducer action</h3>
+      <p>
+        Every second, we reduce <code>secondsRemaining</code> by 1. When it reaches 0, we transition to <code>"finished"</code>.
+      </p>
+<pre><code>// reducer (excerpt)
+function reducer(state, action) {
+  switch (action.type) {
+    case "tick": {
+      const nextSeconds = state.secondsRemaining - 1;
+
+      return {
+        ...state,
+        secondsRemaining: nextSeconds,
+        status: nextSeconds === 0 ? "finished" : state.status,
+      };
+    }
+
+    default:
+      throw new Error("Unknown action: " + action.type);
+  }
+}</code></pre>
+
+      <div class="callout">
+        <p class="title">✅ Why check status inside the reducer?</p>
+        <p>
+          Because the reducer is your “single source of truth” for state transitions. Timer triggers events; reducer decides what state becomes.
+        </p>
+      </div>
+
+      <h3>3) Dispatch <code>tick</code> every second from <code>Timer</code></h3>
+      <p>
+        The Timer component runs the side-effect and dispatches actions. This keeps your reducer pure.
+      </p>
+<pre><code>// components/Timer.js
+import { useEffect } from "react";
+
+export default function Timer({ dispatch, secondsRemaining }) {
+  useEffect(() =&gt; {
+    const id = setInterval(() =&gt; {
+      dispatch({ type: "tick" });
+    }, 1000);
+
+    // ✅ cleanup: stop timer when Timer unmounts
+    return () =&gt; clearInterval(id);
+  }, [dispatch]);
+
+  // Format mm:ss (derived values)
+  const mins = Math.floor(secondsRemaining / 60);
+  const secs = secondsRemaining % 60;
+
+  return (
+    &lt;div className="timer"&gt;
+      &lt;span&gt;⏳ {String(mins).padStart(2, "0")}:{String(secs).padStart(2, "0")}&lt;/span&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <p class="note">
+        🧪 Note: In React 18 dev mode, effects may run twice (Strict Mode), which can make timers “tick twice” unless cleanup is correct.
+        In production, this won’t double-run the same way, but your cleanup should be correct regardless.
+      </p>
+    </section>
+
+    <section>
+      <h2>▶️ Compute Initial Time When the Quiz Starts</h2>
+      <p>
+        We don’t know the number of questions until they load. So instead of hardcoding <code>secondsRemaining</code> in <code>initialState</code>,
+        we set it when the user clicks “Start”.
+      </p>
+
+      <div class="card">
+        <h3>✅ Use a constant: seconds per question</h3>
+<pre><code>const SECS_PER_QUESTION = 30;</code></pre>
+
+        <h3>✅ Set secondsRemaining in the "start" action</h3>
+<pre><code>// reducer (excerpt)
+case "start":
+  return {
+    ...state,
+    status: "active",
+    secondsRemaining: state.questions.length * SECS_PER_QUESTION,
+  };</code></pre>
+        <p class="mini">
+          This avoids magic numbers and ensures the timer scales with the quiz size.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧹 Critical Fix: Cleanup to Prevent “Fast Timer” Bug</h2>
+      <p>
+        If you restart the quiz and the timer keeps speeding up, it usually means you have
+        <strong>multiple intervals still running</strong>. That happens when you forget to clear the interval on unmount.
+      </p>
+
+      <ul class="warn">
+        <li><strong>Symptom:</strong> countdown becomes faster each restart</li>
+        <li><strong>Cause:</strong> old interval still dispatching <code>tick</code> even after Timer unmounted</li>
+        <li><strong>Fix:</strong> store interval id + <code>return () =&gt; clearInterval(id)</code></li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">💡 Mental model</p>
+        <p>
+          Every <code>setInterval</code> you create is like starting a “background worker.” If you don’t stop it,
+          it will keep firing forever—dispatching actions even when your UI has changed.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>📌 Performance Note (Don’t Panic)</h2>
+      <p>
+        Because <code>secondsRemaining</code> lives in <code>App</code>, the app re-renders once per second.
+        That means children re-render too. In this small app, that’s completely fine. 🙂
+      </p>
+      <p class="note">
+        In huge apps, you might avoid re-rendering the whole tree every second (memoization, moving state lower, etc.).
+        You’ll cover performance tools later (e.g., <code>useMemo</code>, <code>useCallback</code>, memoization).
+      </p>
+    </section>
+
+    <section>
+      <h2>✅ Quick Checklist</h2>
+      <ul class="checklist">
+        <li>Timer is rendered only when <code>status === "active"</code></li>
+        <li><code>Timer</code> uses <code>setInterval</code> inside <code>useEffect</code></li>
+        <li><code>Timer</code> dispatches <code>{ type: "tick" }</code> every 1000ms</li>
+        <li>Reducer handles <code>"tick"</code>: decrements seconds and finishes at 0</li>
+        <li>Cleanup clears the interval on unmount</li>
+        <li><code>secondsRemaining</code> is set when quiz starts (not hardcoded in <code>initialState</code>)</li>
+        <li>Display is formatted as <code>mm:ss</code> with leading zeros</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧪 Common Mistakes & Fixes</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>❌ Timer starts too early</h3>
+          <p class="mini"><strong>Cause:</strong> effect is in App (mounts immediately)</p>
+          <p class="mini"><strong>Fix:</strong> put effect in Timer component that mounts only when quiz starts</p>
+        </div>
+
+        <div class="card">
+          <h3>❌ Timer goes negative</h3>
+          <p class="mini"><strong>Cause:</strong> decrement continues past 0</p>
+          <p class="mini"><strong>Fix:</strong> switch to finished at 0 (or clamp at 0)</p>
+        </div>
+
+        <div class="card">
+          <h3>❌ Timer speeds up after restart</h3>
+          <p class="mini"><strong>Cause:</strong> missing cleanup function</p>
+          <p class="mini"><strong>Fix:</strong> <code>return () =&gt; clearInterval(id)</code></p>
+        </div>
+
+        <div class="card">
+          <h3>❌ ESLint complains about dependencies</h3>
+          <p class="mini"><strong>Cause:</strong> <code>dispatch</code> used in effect</p>
+          <p class="mini"><strong>Fix:</strong> include <code>[dispatch]</code> in dependency array</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🏁 Wrap-up</h2>
+      <p>
+        You now have a feature-complete quiz timer that:
+        <strong>starts with the quiz</strong>, <strong>ticks via dispatched actions</strong>,
+        and <strong>finishes the game automatically</strong> when time runs out. Great pattern for real apps. 🎉
+      </p>
+      <p class="note">
+        Next topics usually include: comparing <code>useReducer</code> vs <code>useState</code>,
+        and when reducers are worth the extra structure.
+      </p>
+    </section>
+  </div>
+</body>
+</html>

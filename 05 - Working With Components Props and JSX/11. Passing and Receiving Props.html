@@ -1,0 +1,524 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Passing and Receiving Props (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .term {
+      display: inline-block;
+      padding: 1px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      a[href]:after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>📦 Passing and Receiving Props — Reviewer</h1>
+      <p class="subtitle">How parent components pass data to children, how the child receives <code>props</code>, and how to pass non-strings (numbers/arrays/objects). Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print dialog, set Paper size = A4, Margins = Default.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#what-are-props">What are props?</a></li>
+          <li><a href="#why-needed">Why props are needed for reusability</a></li>
+          <li><a href="#two-steps">Two steps: pass then receive</a></li>
+          <li><a href="#passing">Step 1: passing props (like attributes)</a></li>
+          <li><a href="#receiving">Step 2: receiving props (props parameter)</a></li>
+          <li><a href="#using-props">Using props in JSX</a></li>
+          <li><a href="#multiple-pizzas">Reuse the component with different data</a></li>
+          <li><a href="#layout-improve">Improve markup + CSS class + layout</a></li>
+          <li><a href="#numbers">Important: strings vs numbers in props</a></li>
+          <li><a href="#anything">You can pass anything as a prop</a></li>
+          <li><a href="#practice">Practice & self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="what-are-props">
+      <h2>🧠 What are props?</h2>
+      <p>
+        <strong>Props</strong> (short for <strong>properties</strong>) are how we pass data between components —
+        specifically from a <strong>parent</strong> component to a <strong>child</strong> component.
+      </p>
+
+      <div class="callout">
+        <p><strong>Helpful mental model 📡</strong></p>
+        <p class="muted">Props are like a communication channel from parent → child.</p>
+      </div>
+    </section>
+
+    <section id="why-needed">
+      <h2>🍕 Why props are needed for reusability</h2>
+      <p>
+        You already reused the <code>Pizza</code> component multiple times, but all pizzas looked the same.
+        That’s because the component had <strong>hard-coded</strong> data.
+      </p>
+
+      <div class="card">
+        <h3>Before props ❌</h3>
+        <p class="muted">Reusing <code>&lt;Pizza /&gt;</code> creates copies of the same UI with the same data.</p>
+      </div>
+
+      <div class="card">
+        <h3>After props ✅</h3>
+        <p class="muted">Each <code>&lt;Pizza /&gt;</code> can receive different data and render unique content.</p>
+      </div>
+    </section>
+
+    <section id="two-steps">
+      <h2>✅ Two steps: pass then receive</h2>
+      <p>
+        To use props, you do it in two steps:
+      </p>
+      <ol>
+        <li><strong>Pass props</strong> into the component when you render it (in the parent).</li>
+        <li><strong>Receive props</strong> inside the child component using the <code>props</code> parameter.</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>Rule ✅</strong></p>
+        <p class="muted">If you pass props but don’t receive them, the child won’t know the values exist.</p>
+      </div>
+    </section>
+
+    <section id="passing">
+      <h2>📤 Step 1: passing props (like attributes)</h2>
+      <p>
+        In JSX, props look like HTML attributes.
+        The lecture passes <code>name</code>, <code>ingredients</code>, <code>photoName</code>, and <code>price</code>.
+      </p>
+
+      <pre><code>function Menu() {
+  return (
+    &lt;div&gt;
+      &lt;Pizza
+        name="Pizza Spinaci"
+        ingredients="Tomato, mozarella, spinach, and ricotta cheese"
+        photoName="pizzas/spinaci.jpg"
+        price={10}
+      /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="card">
+        <h3>Ordering note 🧾</h3>
+        <p class="muted">
+          The order of props in JSX does <strong>not</strong> matter. You can write <code>price</code> before <code>photoName</code>, etc.
+        </p>
+      </div>
+    </section>
+
+    <section id="receiving">
+      <h2>📥 Step 2: receiving props (props parameter)</h2>
+      <p>
+        The child component receives props by accepting a parameter (commonly named <code>props</code>).
+      </p>
+
+      <pre><code>function Pizza(props) {
+  console.log(props);
+
+  return (
+    &lt;div&gt;
+      &lt;h3&gt;Pizza&lt;/h3&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>What is <code>props</code> exactly? 🧠</strong></p>
+        <p class="muted">
+          Props is a single object built by React from the attributes you passed into <code>&lt;Pizza /&gt;</code>.
+          Example keys: <code>props.name</code>, <code>props.photoName</code>, <code>props.ingredients</code>, <code>props.price</code>.
+        </p>
+      </div>
+    </section>
+
+    <section id="using-props">
+      <h2>🧩 Using props in JSX</h2>
+      <p>
+        To use values from the props object, you must enter JavaScript mode in JSX using <code>{ }</code>.
+      </p>
+
+      <pre><code>function Pizza(props) {
+  return (
+    &lt;div&gt;
+      &lt;img src={props.photoName} alt={props.name} /&gt;
+      &lt;h3&gt;{props.name}&lt;/h3&gt;
+      &lt;p&gt;{props.ingredients}&lt;/p&gt;
+      &lt;span&gt;{props.price}&lt;/span&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Reminder ✅</strong></p>
+        <p class="muted">In JSX: strings can be written as <code>"text"</code>, but values like variables/expressions must be inside <code>{ }</code>.</p>
+      </div>
+    </section>
+
+    <section id="multiple-pizzas">
+      <h2>♻️ Reuse the component with different data</h2>
+      <p>
+        Now the same component can be reused and configured to show different pizzas.
+      </p>
+
+      <pre><code>function Menu() {
+  return (
+    &lt;div&gt;
+      &lt;Pizza
+        name="Pizza Spinaci"
+        ingredients="Tomato, mozarella, spinach, ricotta"
+        photoName="pizzas/spinaci.jpg"
+        price={10}
+      /&gt;
+
+      &lt;Pizza
+        ingredients="Tomato, mushrooms"
+        name="Pizza Funghi"
+        price={12}
+        photoName="pizzas/funghi.jpg"
+      /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Key takeaway 🔑</strong></p>
+        <p class="muted">
+          Props allow you to reuse a component while making each instance unique.
+        </p>
+      </div>
+    </section>
+
+    <section id="layout-improve">
+      <h2>✨ Improve markup + CSS class + layout</h2>
+      <p>
+        The lecture improves the <code>Pizza</code> component structure:
+      </p>
+      <ul>
+        <li>✅ Add a <code>className="pizza"</code> (matches CSS class in the stylesheet)</li>
+        <li>✅ Wrap text content in a nested <code>&lt;div&gt;</code> so text aligns next to the image</li>
+        <li>✅ Add the price as a <code>&lt;span&gt;</code></li>
+      </ul>
+
+      <pre><code>function Pizza(props) {
+  return (
+    &lt;div className="pizza"&gt;
+      &lt;img src={props.photoName} alt={props.name} /&gt;
+
+      &lt;div&gt;
+        &lt;h3&gt;{props.name}&lt;/h3&gt;
+        &lt;p&gt;{props.ingredients}&lt;/p&gt;
+        &lt;span&gt;{props.price}&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+    </section>
+
+    <section id="numbers">
+      <h2>🔢 Important: strings vs numbers in props</h2>
+      <p>
+        If you pass a number as a string (like <code>price="10"</code>), JavaScript treats it as text.
+        Then math becomes string concatenation.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Wrong for math ❌</h3>
+          <pre><code>// price is a STRING
+&lt;Pizza price="10" /&gt;
+
+// later
+{props.price + 3} // becomes "103"</code></pre>
+          <p class="muted">Because "10" + 3 → "103" (string concatenation).</p>
+        </div>
+
+        <div class="card">
+          <h3>Correct ✅</h3>
+          <pre><code>// price is a NUMBER
+&lt;Pizza price={10} /&gt;
+
+// later
+{props.price + 3} // becomes 13</code></pre>
+          <p class="muted">Because 10 + 3 → 13 (numeric addition).</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Rule of thumb ✅</strong></p>
+        <p class="muted">If the prop is not a plain string, wrap it in <code>{ }</code>.</p>
+      </div>
+    </section>
+
+    <section id="anything">
+      <h2>🧰 You can pass anything as a prop</h2>
+      <p>
+        Props are extremely flexible. You can pass:
+      </p>
+      <ul>
+        <li>🧾 Strings</li>
+        <li>🔢 Numbers</li>
+        <li>📚 Arrays</li>
+        <li>🧱 Objects</li>
+        <li>🧠 Functions (later: event handlers)</li>
+        <li>🧩 Even other components / JSX</li>
+      </ul>
+
+      <div class="card">
+        <h3>Mini examples ✅</h3>
+        <pre><code>&lt;Pizza price={12} tags={["veg", "popular"]} /&gt;
+&lt;Pizza onAddToCart={() =&gt; console.log("Added!")} /&gt;</code></pre>
+      </div>
+
+      <div class="callout">
+        <p><strong>Important ✅</strong></p>
+        <p class="muted">Props flow in one direction: parent → child. (This is called “one-way data flow”.)</p>
+      </div>
+    </section>
+
+    <section id="practice">
+      <h2>🧪 Practice & self-check</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Practice 1: Add a third pizza 🍕</h3>
+          <ul>
+            <li>Create <code>&lt;Pizza /&gt;</code> with a new <code>name</code>, <code>ingredients</code>, <code>photoName</code>, <code>price</code>.</li>
+            <li>Verify each pizza renders unique content.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Practice 2: Price calculation 🔢</h3>
+          <ul>
+            <li>Display <code>props.price + 3</code> in the UI.</li>
+            <li>Confirm it works only when <code>price</code> is passed as a number: <code>{10}</code>.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Self-check ✅</h3>
+          <ul>
+            <li>What does “props” stand for?</li>
+            <li>What are the two steps of using props?</li>
+            <li>What shape/type is <code>props</code> inside the child?</li>
+            <li>Why does <code>"10" + 3</code> become <code>"103"</code>?</li>
+            <li>Name 3 things you can pass as props besides strings.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Quick summary 🔑</strong></p>
+        <p class="muted">
+          Props are how React components receive input data from their parent. You pass props like attributes,
+          React bundles them into a <code>props</code> object, then you read them using <code>props.name</code>, etc.
+          Wrap non-strings (numbers, arrays, objects, functions) in <code>{ }</code> when passing.
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

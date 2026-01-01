@@ -1,0 +1,378 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eat-N-Split — Splitting a Bill (Reviewer / Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --soft2: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { padding-top: 16px; }
+
+    h2 {
+      margin: 18px 0 10px 0;
+      font-size: 16px;
+    }
+
+    h3 {
+      margin: 14px 0 8px 0;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol { margin: 8px 0 10px 22px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 6px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout .title {
+      margin: 0 0 6px 0;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .callout.note { border-left-color: #b6c2ff; background: #fbfbff; }
+    .callout.warn { border-left-color: #ffd089; background: #fffaf0; }
+    .callout.ok { border-left-color: #9be7b1; background: #f6fffa; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--soft);
+      padding: 12px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0b1020;
+      color: #eaf0ff;
+      overflow: auto;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .inline-code {
+      display: inline-block;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--soft2);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .checklist li { list-style: none; margin-left: -10px; }
+    .checklist li::before { content: "✅ "; }
+
+    .mini-quiz {
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .mini-quiz details { margin-top: 8px; }
+    .mini-quiz summary { cursor: pointer; font-weight: 700; }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: 100%; padding: 0; }
+      header, .card, .callout, pre, .mini-quiz { break-inside: avoid; page-break-inside: avoid; }
+      a[href]:after { content: ""; } /* do not print URLs */
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Eat-N-Split — Splitting a Bill</h1>
+      <p class="subtitle">Reviewer / Study Guide (React Fundamentals: state, props, events, immutability)</p>
+      <div class="meta">
+        <span class="chip">🧩 Topic: Form submit + updating friend balances</span>
+        <span class="chip">🎛️ Controlled inputs</span>
+        <span class="chip">🔁 Update object in array (map)</span>
+        <span class="chip">🧠 Derived logic (signs: who owes who)</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) Goal of this lecture</h2>
+        <p>Tapusin yung app by making the <strong>Split Bill</strong> form actually update each friend’s <span class="inline-code">balance</span>.</p>
+
+        <div class="callout ok">
+          <p class="title">✅ Key idea</p>
+          <p>We <strong>don’t need a new state</strong> for “balance changes” — we already have <span class="inline-code">friends</span> in state. We just <strong>update</strong> the existing friend’s <span class="inline-code">balance</span>.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) Form submit flow (same recipe as always)</h2>
+        <ol>
+          <li>Attach <span class="inline-code">onSubmit</span> to the form</li>
+          <li>Create <span class="inline-code">handleSubmit(e)</span></li>
+          <li>Call <span class="inline-code">e.preventDefault()</span></li>
+          <li>Add guard clauses (do nothing when inputs are missing)</li>
+          <li>Call <span class="inline-code">onSplitBill(value)</span> with the correct computed value</li>
+        </ol>
+
+        <pre><code>// inside &lt;form className="form-split-bill" onSubmit={handleSubmit}&gt;
+function handleSubmit(e) {
+  e.preventDefault();
+
+  // ✅ Guard clauses
+  if (!bill || !paidByUser) return;
+
+  // compute value to apply to friend's balance
+  const value = whoIsPaying === "user" ? paidByFriend : -paidByUser;
+
+  onSplitBill(value);
+}
+</code></pre>
+
+        <div class="callout warn">
+          <p class="title">⚠️ Why guard clauses?</p>
+          <p>Para hindi mag-submit kapag walang valid inputs. Prevents weird updates (e.g., NaN balances).</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) The most confusing part: sign convention (positive vs negative)</h2>
+        <p>Sa app na ito:</p>
+        <ul>
+          <li><strong>Positive balance</strong> ➜ your friend <strong>owes you</strong> money (green text in UI)</li>
+          <li><strong>Negative balance</strong> ➜ <strong>you owe</strong> your friend money (red text in UI)</li>
+        </ul>
+
+        <div class="card">
+          <h3>🧠 Compute the value to add</h3>
+          <p>We compute a single number called <span class="inline-code">value</span> which we will <strong>add</strong> to the selected friend’s balance.</p>
+          <ul>
+            <li>If <span class="inline-code">whoIsPaying === "user"</span>: friend owes you their part ➜ <strong>+paidByFriend</strong></li>
+            <li>Else (friend pays): you owe your part ➜ <strong>-paidByUser</strong></li>
+          </ul>
+        </div>
+
+        <pre><code>// value to apply to selected friend's balance
+const value = whoIsPaying === "user"
+  ? paidByFriend       // ✅ positive
+  : -paidByUser;       // ✅ negative
+</code></pre>
+
+        <div class="mini-quiz">
+          <div><strong>🧪 Quick check</strong></div>
+          <p>Bill: 200, You paid: 50, Friend paid: 150</p>
+          <ul>
+            <li>If <strong>you</strong> paid the bill ➜ what’s the value?</li>
+            <li>If <strong>friend</strong> paid the bill ➜ what’s the value?</li>
+          </ul>
+          <details>
+            <summary>Show answer</summary>
+            <p>✅ You paid ➜ <span class="inline-code">+150</span>. Friend owes you 150.</p>
+            <p>✅ Friend paid ➜ <span class="inline-code">-50</span>. You owe your friend 50.</p>
+          </details>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Where should the update happen?</h2>
+        <p>We update <span class="inline-code">friends</span> where it “lives” — typically in the parent (App). Then we pass down an event handler.</p>
+
+        <div class="callout note">
+          <p class="title">🧭 Data flow pattern</p>
+          <ul>
+            <li><strong>Child</strong> triggers event (submit form)</li>
+            <li>Child calls <span class="inline-code">onSplitBill(value)</span></li>
+            <li><strong>Parent</strong> updates <span class="inline-code">friends</span> state</li>
+            <li>Updated state flows down ➜ UI re-renders</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Updating an object in an array (immutability)</h2>
+        <p>React wants immutable updates. So we do:</p>
+        <ul class="checklist">
+          <li>Create a new array</li>
+          <li>Update only the matching friend</li>
+          <li>Return the others unchanged</li>
+        </ul>
+
+        <pre><code>function handleSplitBill(value) {
+  setFriends((friends) =>
+    friends.map((friend) =>
+      friend.id === selectedFriend.id
+        ? { ...friend, balance: friend.balance + value }
+        : friend
+    )
+  );
+}
+</code></pre>
+
+        <div class="callout warn">
+          <p class="title">⚠️ Common mistake</p>
+          <p>Don’t mutate like <span class="inline-code">friend.balance += value</span> directly inside state. Always create a new object using <span class="inline-code">{ ...friend, balance: ... }</span>.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>6) Reset/clear behavior after splitting</h2>
+        <p>May issue: minsan hindi “cleared” yung form inputs/state. A clean UX approach:</p>
+        <p><strong>After a successful split</strong>, close the form by setting the selected friend back to <span class="inline-code">null</span>.</p>
+
+        <pre><code>// after updating balances
+setSelectedFriend(null); // ✅ closes the split form
+</code></pre>
+
+        <div class="callout ok">
+          <p class="title">✅ Why this is nice</p>
+          <p>Instead of manually resetting multiple local states, you close the form by state control. Simple, predictable, and very “React”.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>7) Mental model recap</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>🎛️ Controlled elements</h3>
+            <ul>
+              <li>Input values come from state</li>
+              <li><span class="inline-code">value={state}</span></li>
+              <li><span class="inline-code">onChange={(e) =&gt; setState(+e.target.value)}</span></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>🔁 Re-render</h3>
+            <ul>
+              <li>Updating state triggers re-render</li>
+              <li>UI reflects latest state</li>
+              <li>Derived values re-compute naturally</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>🧠 “No new state” rule</h3>
+            <ul>
+              <li>If something can be computed from existing state/props, prefer derived logic</li>
+              <li>Less sync bugs, fewer unnecessary re-renders</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>8) Practice suggestions (after this project)</h2>
+        <p>To get better, build small apps without following a tutorial. Examples:</p>
+        <ul>
+          <li>🛒 Shopping list (add/delete/toggle/filters)</li>
+          <li>🎯 Goal tracker (CRUD + status)</li>
+          <li>🎤 Conference talk selector (select one, highlight selected, derived counts)</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <p><strong>Key takeaway:</strong> You just practiced real fundamentals: forms, state lifting, derived logic, and immutable updates.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

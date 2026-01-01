@@ -1,0 +1,432 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Conditional Rendering with AND (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --hint: #eef6ff;
+      --warn: #fff3cd;
+      --ok: #eaffea;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.hint { border-left-color: #90caf9; background: var(--hint); }
+    .callout.warn { border-left-color: #ffe08a; background: var(--warn); }
+    .callout.ok { border-left-color: #7ad27a; background: var(--ok); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .term {
+      display: inline-block;
+      padding: 1px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>✅ Conditional Rendering with <code>&&</code> — Reviewer</h1>
+      <p class="subtitle">Render JSX only when a condition is true using JavaScript short-circuiting. Includes common pitfall: rendering <code>0</code> by accident. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print dialog, set Paper size = A4, Margins = Default.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#meaning">What conditional rendering means</a></li>
+          <li><a href="#and">Using <code>&&</code> (short-circuiting)</a></li>
+          <li><a href="#react-bool">Why React doesn’t render booleans</a></li>
+          <li><a href="#footer">Real use case: show footer order box only when open</a></li>
+          <li><a href="#truthy">Truthy/falsey values (arrays and length)</a></li>
+          <li><a href="#zero">Common bug: why <code>0</code> appears in the UI</a></li>
+          <li><a href="#guidelines">Guidelines + when to prefer ternary</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="meaning">
+      <h2>🧠 What conditional rendering means</h2>
+      <p>
+        <strong>Conditional rendering</strong> means rendering a piece of UI (a JSX chunk or an entire component)
+        <strong>only when a condition is met</strong>.
+      </p>
+
+      <div class="callout">
+        <p><strong>In this lecture’s example 🍕</strong></p>
+        <p class="muted">Render an “Order” box in the footer only if the restaurant is currently open (<code>isOpen</code> is true).</p>
+      </div>
+    </section>
+
+    <section id="and">
+      <h2>🔀 Using <code>&&</code> with short-circuiting</h2>
+      <p>
+        The <span class="term">AND operator</span> (<code>&&</code>) can be used to conditionally render JSX because of
+        <strong>short-circuiting</strong>.
+      </p>
+
+      <div class="callout hint">
+        <p><strong>Short-circuit rule ✅</strong></p>
+        <p class="muted">If the left side is truthy, JavaScript returns the right side. If the left side is falsey, it returns the left side (and skips evaluating the right side).</p>
+      </div>
+
+      <h3>Small example (render text) 🧾</h3>
+      <pre><code>function Footer() {
+  const hour = new Date().getHours();
+  const openHour = 12;
+  const closeHour = 22;
+  const isOpen = hour &gt;= openHour &amp;&amp; hour &lt;= closeHour;
+
+  return (
+    &lt;footer&gt;
+      {isOpen &amp;&amp; "Open"}
+    &lt;/footer&gt;
+  );
+}</code></pre>
+
+      <div class="callout ok">
+        <p><strong>What happens ✅</strong></p>
+        <ul>
+          <li>If <code>isOpen</code> is <strong>true</strong> → React receives <code>"Open"</code> and renders it.</li>
+          <li>If <code>isOpen</code> is <strong>false</strong> → React receives <code>false</code> and renders nothing.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="react-bool">
+      <h2>🚫 Why React doesn’t render booleans</h2>
+      <p>
+        React will not render <code>true</code> or <code>false</code> into the DOM.
+        That’s why patterns like <code>{condition &amp;&amp; &lt;JSX /&gt;}</code> work nicely.
+      </p>
+
+      <pre><code>&lt;div&gt;{false}&lt;/div&gt;  // renders nothing
+&lt;div&gt;{true}&lt;/div&gt;   // renders nothing</code></pre>
+
+      <div class="callout hint">
+        <p><strong>Key idea ✅</strong></p>
+        <p class="muted">If the expression results in a boolean, React ignores it. If it results in JSX/text/number, React renders it.</p>
+      </div>
+    </section>
+
+    <section id="footer">
+      <h2>🧾 Real use case: show “Order” box only when open</h2>
+      <p>
+        Instead of just rendering the word “Open,” you can render a whole JSX block.
+        This follows the JSX rule you learned earlier: JSX is an expression, so it can appear inside <code>{ }</code>.
+      </p>
+
+      <pre><code>function Footer() {
+  const hour = new Date().getHours();
+  const openHour = 12;
+  const closeHour = 22;
+  const isOpen = hour &gt;= openHour &amp;&amp; hour &lt;= closeHour;
+
+  return (
+    &lt;footer className="footer"&gt;
+      {isOpen &amp;&amp; (
+        &lt;div className="order"&gt;
+          &lt;p&gt;
+            We&apos;re open until {closeHour}:00. Come visit us or order online.
+          &lt;/p&gt;
+          &lt;button className="btn"&gt;Order&lt;/button&gt;
+        &lt;/div&gt;
+      )}
+    &lt;/footer&gt;
+  );
+}</code></pre>
+
+      <div class="callout ok">
+        <p><strong>Result ✅</strong></p>
+        <p class="muted">If open → show message + button. If closed → show nothing (or you could render a closed message using a different technique).</p>
+      </div>
+    </section>
+
+    <section id="truthy">
+      <h2>🌗 Truthy/falsey values: arrays and <code>length</code></h2>
+      <p>
+        The <code>&&</code> pattern also works with truthy/falsey values (not just booleans).
+        But this is where beginners get surprised.
+      </p>
+
+      <h3>Problem: empty arrays are truthy 😅</h3>
+      <pre><code>const pizzas = []; // still truthy
+
+return (
+  &lt;ul&gt;
+    {pizzas &amp;&amp; pizzas.map(p =&gt; &lt;Pizza key={p.name} pizzaObj={p} /&gt;)}
+  &lt;/ul&gt;
+);
+
+// Result: the &lt;ul&gt; still renders (it&apos;s just empty).</code></pre>
+
+      <div class="callout hint">
+        <p><strong>Fix ✅</strong></p>
+        <p class="muted">Check the length instead: <code>pizzas.length &gt; 0</code></p>
+      </div>
+
+      <pre><code>const pizzas = []; // none
+
+return (
+  &lt;div&gt;
+    {pizzas.length &gt; 0 &amp;&amp; (
+      &lt;ul className="pizzas"&gt;
+        {pizzas.map(p =&gt; &lt;Pizza key={p.name} pizzaObj={p} /&gt;)}
+      &lt;/ul&gt;
+    )}
+  &lt;/div&gt;
+);
+
+// Now: if there are no pizzas, the UL isn&apos;t rendered at all.</code></pre>
+    </section>
+
+    <section id="zero">
+      <h2>0️⃣ Common bug: why <code>0</code> appears in the UI</h2>
+      <p>
+        A classic issue happens when you do this:
+      </p>
+      <pre><code>{pizzas.length &amp;&amp; &lt;PizzaList /&gt;}</code></pre>
+
+      <p>
+        When <code>pizzas.length</code> is <code>0</code>, the expression becomes:
+        <code>0 &amp;&amp; ...</code>.
+        JavaScript returns <strong>0</strong> (the left side), and React will actually render <strong>0</strong>.
+      </p>
+
+      <div class="callout warn">
+        <p><strong>Why it happens ⚠️</strong></p>
+        <p class="muted">React ignores booleans, but it will render numbers. So <code>0</code> shows up.</p>
+      </div>
+
+      <h3>Correct pattern ✅ (force a boolean condition)</h3>
+      <pre><code>{pizzas.length &gt; 0 &amp;&amp; &lt;PizzaList /&gt;}</code></pre>
+
+      <div class="callout ok">
+        <p><strong>Rule ✅</strong></p>
+        <p class="muted">Make the left side clearly boolean (<code>condition</code> or <code>length &gt; 0</code>), not a number.</p>
+      </div>
+    </section>
+
+    <section id="guidelines">
+      <h2>🧭 Guidelines + when to prefer ternary</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>When <code>&&</code> is great ✅</h3>
+          <ul>
+            <li>You only need to render something in the <strong>true</strong> case</li>
+            <li>You want a short, readable pattern</li>
+            <li>The left side is a clear boolean condition</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>When to avoid <code>&&</code> ⚠️</h3>
+          <ul>
+            <li>The left side might be <code>0</code> or another value that React will render</li>
+            <li>You want an <strong>else</strong> UI (true vs false UI)</li>
+            <li>The expression becomes hard to read (nested conditions)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout hint">
+        <p><strong>Next lecture preview 👀</strong></p>
+        <p class="muted">The course moves next to the ternary operator (<code>condition ? A : B</code>) for conditional rendering with an explicit else.</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

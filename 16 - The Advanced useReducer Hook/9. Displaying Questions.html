@@ -1,0 +1,400 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Quiz — Displaying Questions (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 60px;
+    }
+
+    header {
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15.5px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 2px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0 0;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: #222;
+    }
+
+    ul, ol { margin: 8px 0 10px 22px; }
+    li { margin: 6px 0; }
+
+    pre {
+      margin: 10px 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      padding: 0 6px;
+      display: inline-block;
+      line-height: 1.6;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print setup */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      .card, .callout, pre { break-inside: avoid; page-break-inside: avoid; }
+      a[href]::after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 React Quiz — Displaying Questions</h1>
+      <p class="subtitle">Intermediate → Advanced React • useReducer Project • Print-friendly reviewer / study guide</p>
+    </header>
+
+    <section class="callout">
+      <strong>🎯 Goal of this lecture</strong>
+      <div class="grid">
+        <div class="card">
+          <p><strong>Render only 1 question at a time</strong> (not all questions).</p>
+          <p>We keep track of the “current question” using an <code>index</code> stored in state.</p>
+          <div class="chips">
+            <span class="chip">state.index</span>
+            <span class="chip">questions[index]</span>
+            <span class="chip">&lt;Question /&gt;</span>
+            <span class="chip">&lt;Options /&gt;</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>1) Why do we need an <code>index</code> state?</h2>
+      <p>✅ Because when the user goes to the next question, we must <strong>re-render</strong> the UI. Any value that changes the UI must live in state.</p>
+
+      <div class="callout">
+        <strong>💡 Mental model</strong>
+        <ul>
+          <li><code>questions</code> is the full array (e.g., 15 questions).</li>
+          <li><code>index</code> is a pointer to the current question.</li>
+          <li>Question #1 is at <code>questions[0]</code> → so <code>index</code> starts at <code>0</code>.</li>
+          <li>Next question = increment <code>index</code> from <code>0</code> → <code>1</code> → <code>2</code>…</li>
+        </ul>
+      </div>
+
+      <h3>✅ Add it to <code>initialState</code></h3>
+      <pre><code>// reducer state (example)
+const initialState = {
+  questions: [],
+  status: "loading",
+  index: 0, // 👈 NEW: current question index
+};
+</code></pre>
+
+      <p class="callout"><strong>⚠️ Common pitfall:</strong> If you forget to destructure <code>index</code> from state, you’ll get “index is not defined” or you’ll render the wrong question.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>2) Send the current question to the <code>&lt;Question /&gt;</code> component</h2>
+      <p>We compute the “current question” using <code>questions[index]</code>, then pass it as a prop.</p>
+
+      <h3>✅ In <code>App.js</code> (active screen)</h3>
+      <pre><code>// Example shape in App component
+const [{ questions, status, index }, dispatch] = useReducer(reducer, initialState);
+
+// ...inside JSX
+{status === "active" &amp;&amp; (
+  &lt;Question question={questions[index]} /&gt;
+)}
+</code></pre>
+
+      <div class="callout">
+        <strong>🔍 Beginner note</strong>
+        <p><code>questions[index]</code> means: “give me the question object at position <code>index</code>.”</p>
+        <p>At the start of the quiz, <code>index = 0</code> → you show the first question.</p>
+      </div>
+
+      <h3>✅ Safety guard (optional but professional)</h3>
+      <p>If there is a chance <code>questions</code> is still empty (e.g., slow network), add a guard:</p>
+      <pre><code>{status === "active" &amp;&amp; questions.length &gt; 0 &amp;&amp; (
+  &lt;Question question={questions[index]} /&gt;
+)}
+</code></pre>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>3) Render the question text</h2>
+      <p>Inside <code>Question</code>, you receive a <code>question</code> prop. That prop is an object with a shape like:</p>
+      <pre><code>// question object example
+{
+  question: "React is a ...?",
+  options: ["Library", "Framework", "Database", "Compiler"],
+  correctOption: 0,
+  points: 10
+}
+</code></pre>
+
+      <h3>✅ In <code>Question.js</code></h3>
+      <pre><code>export default function Question({ question }) {
+  return (
+    &lt;div&gt;
+      &lt;h4&gt;{question.question}&lt;/h4&gt;
+      {/* options will be rendered next */}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout">
+        <strong>📝 Why <code>question.question</code> looks weird?</strong>
+        <p>The prop name is <code>question</code>, and inside it there’s a property also named <code>question</code> (the text). You could rename it while destructuring if you want:</p>
+        <pre><code>export default function Question({ question: currentQuestion }) {
+  return &lt;h4&gt;{currentQuestion.question}&lt;/h4&gt;;
+}
+</code></pre>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>4) Render options as buttons</h2>
+      <p>Instead of using a list (<code>&lt;ol&gt;</code>/<code>&lt;li&gt;</code>), we render <strong>buttons</strong> because each option is clickable.</p>
+
+      <h3>✅ Map over <code>question.options</code></h3>
+      <pre><code>&lt;div className="options"&gt;
+  {question.options.map((option) =&gt; (
+    &lt;button
+      key={option}
+      className="btn btn-option"
+      onClick={() =&gt; {/* handle answer later */}}
+    &gt;
+      {option}
+    &lt;/button&gt;
+  ))}
+&lt;/div&gt;
+</code></pre>
+
+      <div class="callout">
+        <strong>✅ Key rule</strong>
+        <p>Each mapped element needs a stable <code>key</code>. Here we use the option string because options are unique.</p>
+      </div>
+
+      <div class="callout">
+        <strong>⚠️ Common pitfall</strong>
+        <p>If two options could be identical, use the index instead:</p>
+        <pre><code>{question.options.map((option, i) =&gt; (
+  &lt;button key={i} ...&gt;{option}&lt;/button&gt;
+))}
+</code></pre>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>5) Split <code>Question</code> into smaller components</h2>
+      <p>🧩 A clean practice: when a component has a clear sub-part (like “options list”), extract it into its own component.</p>
+
+      <h3>✅ Create <code>Options.js</code></h3>
+      <pre><code>export default function Options({ question }) {
+  return (
+    &lt;div className="options"&gt;
+      {question.options.map((option) =&gt; (
+        &lt;button key={option} className="btn btn-option"&gt;
+          {option}
+        &lt;/button&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <h3>✅ Use it inside <code>Question.js</code></h3>
+      <pre><code>import Options from "./Options";
+
+export default function Question({ question }) {
+  return (
+    &lt;div&gt;
+      &lt;h4&gt;{question.question}&lt;/h4&gt;
+      &lt;Options question={question} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout">
+        <strong>🎯 Benefit</strong>
+        <p><code>Question</code> becomes easier to read: it shows the structure (“question text + options”), while the details live in <code>Options</code>.</p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>6) Move components into a <code>/components</code> folder</h2>
+      <p>📁 As the app grows, it’s common to create a <code>components</code> folder and move component files there.</p>
+
+      <h3>✅ What changes when you move files?</h3>
+      <ul>
+        <li><strong>App import in <code>index.js</code> must be updated</strong> because App’s path changed.</li>
+        <li>Imports inside <code>App.js</code> usually still work if they’re in the same folder as the components they import (or you update them accordingly).</li>
+      </ul>
+
+      <h3>Example: Update <code>index.js</code></h3>
+      <pre><code>// before
+import App from "./App";
+
+// after (if App is moved into /components)
+import App from "./components/App";
+</code></pre>
+
+      <div class="callout">
+        <strong>🧠 Quick check</strong>
+        <p>If the screen goes blank after moving files, it’s usually an import path issue.</p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>Recap — What you achieved</h2>
+      <ul>
+        <li>✅ Added <code>index</code> to state to track the current question.</li>
+        <li>✅ Rendered one question at a time using <code>questions[index]</code>.</li>
+        <li>✅ Displayed the question text in <code>&lt;Question /&gt;</code>.</li>
+        <li>✅ Rendered options with <code>.map()</code> as clickable buttons.</li>
+        <li>✅ Extracted options into an <code>&lt;Options /&gt;</code> component for cleaner code.</li>
+        <li>✅ Organized files into a <code>/components</code> folder and updated imports.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>✅ Mini-checklist before moving on</strong>
+        <ul>
+          <li>When status is <code>"active"</code>, you see the first question + 4 options.</li>
+          <li>No console error about <code>index</code> or missing <code>key</code>.</li>
+          <li>If you move files, <code>index.js</code> imports <code>App</code> from the correct path.</li>
+        </ul>
+      </div>
+
+      <p><strong>➡️ Next lecture:</strong> clicking an option should dispatch an action (so answers can be checked, points added, and the “Next” button appears).</p>
+    </section>
+  </main>
+</body>
+</html>

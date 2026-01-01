@@ -1,0 +1,394 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Setting Up the Project — The Wild Oasis (Vite + ESLint) | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f7f7f9;
+      --info: #0b57d0;
+      --ok: #0b7a2a;
+      --warn: #8a4b00;
+      --danger: #b00020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column, print-safe container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout.info { border-left-color: var(--info); }
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.danger { border-left-color: var(--danger); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .checklist {
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checklist li {
+      margin: 8px 0;
+      padding-left: 0;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 900px) {
+      .two { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Print rules */
+    @page { size: A4; margin: 18mm; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      pre { overflow: visible; white-space: pre-wrap; word-break: break-word; }
+      .chip { border-color: #dcdcdc; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧰 Setting Up the Project — The Wild Oasis (Vite + ESLint)</h1>
+      <p class="subtitle">
+        Reviewer / study guide based on the transcript: create a new Vite React project, configure ESLint, bring in starter files,
+        and understand the folder structure.
+      </p>
+      <div class="meta">
+        <span class="chip">⚡ Build tool: Vite (v4)</span>
+        <span class="chip">⚛️ Framework: React (JS)</span>
+        <span class="chip">🧹 Linting: ESLint</span>
+        <span class="chip">📁 Starter structure included</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goal of this lecture</h2>
+        <ul>
+          <li>✅ Create a brand new React project using <strong>Vite</strong></li>
+          <li>✅ Install dependencies</li>
+          <li>✅ Configure <strong>ESLint</strong> (React rules + Vite ESLint plugin)</li>
+          <li>✅ Clean default starter code (keep only <code>main.jsx</code> and <code>App.jsx</code>)</li>
+          <li>✅ Copy the course starter folders into <code>src/</code></li>
+          <li>✅ Understand the folder responsibilities (features, pages, ui, etc.)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>⚡ Step-by-step setup (as described in the transcript)</h2>
+
+        <h3>1) Create the Vite app (use Vite v4)</h3>
+        <div class="callout warn">
+          <strong>Note:</strong> The transcript requests using <strong>Vite version 4</strong> (not the latest) for this project.
+        </div>
+        <pre><code>npm create vite@4
+# Project name: the-wild-oasis (or “The Wild Oasis”)
+# Select: React
+# Select: JavaScript (vanilla JS, not TypeScript)
+</code></pre>
+
+        <h3>2) Open in VS Code + install packages</h3>
+        <pre><code>npm install
+</code></pre>
+
+        <h3>3) Configure ESLint (React rules)</h3>
+        <p>
+          ESLint helps catch errors and enforce best practices (e.g., dependency arrays in <code>useEffect</code>).
+          In the transcript, you install 3 dev dependencies for React linting rules, then create an ESLint config file.
+        </p>
+        <pre><code># Install React-related ESLint packages (dev dependencies)
+npm i -D eslint-plugin-react eslint-plugin-react-hooks eslint-plugin-react-refresh
+</code></pre>
+
+        <p>Create an ESLint config file:</p>
+        <pre><code>// .eslintrc.json (conceptual)
+// Extend with React rules so ESLint understands React-specific patterns.
+</code></pre>
+
+        <h3>4) Add the Vite ESLint plugin</h3>
+        <p>
+          This integrates ESLint into the Vite dev workflow.
+        </p>
+        <pre><code>npm i -D vite-plugin-eslint
+
+// vite.config.js (conceptual)
+// import eslint from 'vite-plugin-eslint'
+// plugins: [react(), eslint()]
+</code></pre>
+
+        <h3>5) Clean the default Vite scaffold</h3>
+        <p>
+          Keep the project minimal so you start from a clean baseline.
+        </p>
+        <ul class="checklist">
+          <li>🧹 Delete most starter assets/components</li>
+          <li>✅ Keep only: <code>src/main.jsx</code> and <code>src/App.jsx</code></li>
+          <li>👋 Replace UI with a simple <strong>Hello World</strong> to verify the app runs</li>
+        </ul>
+
+        <pre><code>// App.jsx (conceptual)
+export default function App() {
+  return &lt;h1&gt;Hello World&lt;/h1&gt;;
+}
+</code></pre>
+
+        <h3>6) Run the dev server</h3>
+        <pre><code>npm run dev
+</code></pre>
+        <div class="callout info">
+          <strong>Expected result:</strong> Vite prints a local URL in the terminal. Open it in the browser to see “Hello World”.
+        </div>
+      </section>
+
+      <section>
+        <h2>📦 Bring in the course “Starter” files</h2>
+        <p>
+          The course provides a <strong>Starter</strong> folder containing the initial project structure.
+          The transcript’s flow is:
+        </p>
+        <ol>
+          <li>📁 Copy the entire <strong>Starter</strong> folder into your project</li>
+          <li>➡️ Move all folders from <strong>Starter</strong> into <code>src/</code></li>
+          <li>🗑️ Delete the empty Starter wrapper folder</li>
+        </ol>
+
+        <div class="callout ok">
+          <strong>Outcome:</strong> You start with a professional folder layout instead of creating it manually.
+        </div>
+      </section>
+
+      <section>
+        <h2>🗂️ Folder structure (quick guide)</h2>
+        <p>
+          The project ships with a structure similar to the Fast React Pizza app, plus a dedicated <code>pages/</code> folder.
+        </p>
+
+        <div class="two">
+          <div>
+            <h3>🧩 <code>features/</code></h3>
+            <p>
+              Feature-based folders (co-location): each feature contains its components, hooks, and logic.
+            </p>
+            <ul>
+              <li>🔐 authentication</li>
+              <li>📆 bookings</li>
+              <li>🏡 cabins</li>
+              <li>🧳 check-in / check-out</li>
+              <li>📊 dashboard</li>
+              <li>🧑‍🤝‍🧑 guests</li>
+              <li>⚙️ settings</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3>📄 <code>pages/</code></h3>
+            <p>
+              One component per route. Convention from the transcript:
+            </p>
+            <ul>
+              <li>🧠 Pages should have <strong>no side effects</strong> (as a rule of thumb).</li>
+              <li>🧩 Pages delegate work to feature components.</li>
+              <li>✅ Create once, wire routes, then rarely touch.</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>♻️ Other shared folders</h3>
+        <ul>
+          <li>🪝 <code>hooks/</code> — truly reusable custom hooks used across multiple features</li>
+          <li>🌐 <code>services/</code> — API interaction code (fetch/mutations, clients)</li>
+          <li>🎨 <code>styles/</code> — global styles/theme/style helpers</li>
+          <li>🧱 <code>ui/</code> — reusable UI primitives (buttons, inputs, tables, etc.)</li>
+          <li>🧰 <code>utils/</code> — helpers (e.g., <code>helpers.js</code>)</li>
+          <li>🗃️ <code>data/</code> — any provided seed/mock/static data (as needed)</li>
+        </ul>
+
+        <div class="callout info">
+          <strong>Why this matters:</strong> A predictable structure keeps a big project maintainable.
+          When the app grows, you can find code quickly and avoid messy “misc” folders.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Beginner notes (common “why” questions)</h2>
+
+        <h3>🤔 Why Vite?</h3>
+        <ul>
+          <li>⚡ Faster dev server than older tooling</li>
+          <li>📦 Modern default configuration</li>
+          <li>✅ Great for SPA projects like this internal hotel app</li>
+        </ul>
+
+        <h3>🤔 Why ESLint now?</h3>
+        <ul>
+          <li>🧹 Catch issues early (before runtime)</li>
+          <li>🧠 Enforces best practices (React hooks rules)</li>
+          <li>👥 Keeps code consistent when the project grows / multiple devs contribute</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>✅ Checklist (quick verification)</h2>
+        <ul class="checklist">
+          <li>✅ Vite v4 React project created</li>
+          <li>✅ <code>npm install</code> completed with no errors</li>
+          <li>✅ ESLint configured (React rules + Vite plugin)</li>
+          <li>✅ <code>npm run dev</code> runs and shows “Hello World”</li>
+          <li>✅ Starter folders moved into <code>src/</code></li>
+          <li>✅ You understand the purpose of <code>features/</code>, <code>pages/</code>, <code>ui/</code>, <code>services/</code></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>📝 Mini-quiz</h2>
+        <ol>
+          <li>Why did the course choose a SPA (client-side rendering) for this project?</li>
+          <li>What is the purpose of ESLint’s React Hooks rules?</li>
+          <li>Where should a shared Button component live: <code>ui/</code> or <code>features/</code>?</li>
+          <li>Why does the project include a <code>pages/</code> folder in addition to <code>features/</code>?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🧾 One-paragraph recap</h2>
+        <p>
+          You set up The Wild Oasis project from scratch using a Vite React app (v4), installed dependencies, and configured ESLint
+          (React rules + Vite ESLint plugin) to keep code quality high. Next, you cleaned the default Vite scaffold and verified the app
+          runs with <code>npm run dev</code>. Finally, you copied the course Starter files into <code>src/</code>, giving you a professional folder
+          structure (features, pages, hooks, services, styles, ui, utils) so the bigger application stays organized.
+        </p>
+      </section>
+
+      <section>
+        <h2>➡️ What’s next</h2>
+        <div class="callout ok">
+          Next lecture: start learning <strong>styled-components</strong> and apply it to this project.
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

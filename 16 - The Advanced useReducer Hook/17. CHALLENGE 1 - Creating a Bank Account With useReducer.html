@@ -1,0 +1,421 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React useReducer Challenge — Bank Account (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f6f8fa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .chip-row {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { display: block; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px;
+      margin: 12px 0;
+      background: #fff;
+      page-break-inside: avoid;
+    }
+
+    h2 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+    }
+
+    h3 {
+      margin: 12px 0 8px 0;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 8px 18px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-left: 5px solid #c9c9c9;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kv {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    .kv .k {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 0 0 6px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .kv .v {
+      margin: 0;
+      font-size: 13px;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .checklist li { list-style: "✅ "; }
+    .warnlist li { list-style: "⚠️ "; }
+    .bulb li { list-style: "💡 "; }
+
+    footer {
+      margin-top: 14px;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* Print styles */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; max-width: none; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Don’t print URL after links */
+      a[href]:after { content: "" !important; }
+
+      /* Remove any accidental UI-only decorations */
+      .chip { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🏦 useReducer Challenge: Bank Account (Reviewer / Study Guide)</h1>
+      <p class="subtitle">
+        Goal: practice <strong>useReducer</strong> by modeling a simplified bank account with rules, actions, and guard clauses.
+      </p>
+      <div class="chip-row">
+        <span class="chip">Single-column</span>
+        <span class="chip">Print-friendly (A4)</span>
+        <span class="chip">Beginner-friendly</span>
+        <span class="chip">Reducer = “bank employee”</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🧠 What you’re building</h2>
+        <p>
+          A small UI that behaves like a simplified bank account. The UI has buttons like:
+          <em>Open account</em>, <em>Deposit</em>, <em>Withdraw</em>, <em>Request loan</em>, <em>Pay loan</em>, and <em>Close account</em>.
+        </p>
+        <div class="callout">
+          <strong>Core idea</strong><br />
+          Each click dispatches an <strong>action</strong>. The <strong>reducer</strong> is the single source of truth that decides the next state.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 State shape (initialState)</h2>
+        <div class="two-col">
+          <div class="kv">
+            <p class="k">balance</p>
+            <p class="v">number — money in account (starts at <strong>0</strong>)</p>
+          </div>
+          <div class="kv">
+            <p class="k">loan</p>
+            <p class="v">number — active loan amount (starts at <strong>0</strong>)</p>
+          </div>
+          <div class="kv">
+            <p class="k">isActive</p>
+            <p class="v">boolean — account opened? (starts at <strong>false</strong>)</p>
+          </div>
+        </div>
+        <pre><code>const initialState = {
+  balance: 0,
+  loan: 0,
+  isActive: false,
+};</code></pre>
+        <p class="mini">💡 Tip: Keep state minimal. Compute derived values in the component when possible.</p>
+      </section>
+
+      <section>
+        <h2>🧷 Actions you will dispatch</h2>
+        <ul class="checklist">
+          <li><strong>openAccount</strong> — activates account and sets starting balance to 500</li>
+          <li><strong>deposit</strong> — increases balance by <code>payload</code> (e.g., 150)</li>
+          <li><strong>withdraw</strong> — decreases balance by <code>payload</code> (e.g., 50)</li>
+          <li><strong>requestLoan</strong> — sets loan to <code>payload</code> and adds it to balance (only if no loan yet)</li>
+          <li><strong>payLoan</strong> — pays loan in full: loan → 0 and balance decreases by old loan</li>
+          <li><strong>closeAccount</strong> — resets to initialState (only if loan is 0 and balance is 0)</li>
+        </ul>
+        <div class="callout">
+          <strong>Convention</strong><br />
+          Use an action object: <code>{ type: 'deposit', payload: 150 }</code>. Payload is optional.
+        </div>
+      </section>
+
+      <section>
+        <h2>🛡️ Guard clauses (important “real-world” detail)</h2>
+        <p>
+          Do not rely only on disabling buttons in the UI. Your reducer must also block invalid transitions.
+          Otherwise, future code (effects, other components) could dispatch invalid actions.
+        </p>
+        <ul class="warnlist">
+          <li>If account is <strong>not active</strong>, ignore everything except <strong>openAccount</strong>.</li>
+          <li>Only allow <strong>requestLoan</strong> when <code>loan === 0</code>.</li>
+          <li>Only allow <strong>closeAccount</strong> when <code>loan === 0</code> <strong>and</strong> <code>balance === 0</code>.</li>
+        </ul>
+        <div class="callout">
+          <strong>Rule of thumb</strong><br />
+          If an action is not allowed, return <code>state</code> unchanged.
+        </div>
+      </section>
+
+      <section>
+        <h2>⚙️ Reducer “recipe” (with all cases)</h2>
+        <p>
+          A reducer must be a <strong>pure function</strong>: no mutations, no side effects, always returns a state.
+        </p>
+        <pre><code>function reducer(state, action) {
+  // ✅ Global guard: block actions when inactive (except openAccount)
+  if (!state.isActive &amp;&amp; action.type !== "openAccount") return state;
+
+  switch (action.type) {
+    case "openAccount":
+      return { ...state, balance: 500, isActive: true };
+
+    case "deposit":
+      return { ...state, balance: state.balance + action.payload };
+
+    case "withdraw":
+      return { ...state, balance: state.balance - action.payload };
+
+    case "requestLoan":
+      // ✅ one loan at a time
+      if (state.loan &gt; 0) return state;
+      return {
+        ...state,
+        loan: action.payload,
+        balance: state.balance + action.payload,
+      };
+
+    case "payLoan":
+      return {
+        ...state,
+        balance: state.balance - state.loan,
+        loan: 0,
+      };
+
+    case "closeAccount":
+      // ✅ only close when clean
+      if (state.loan &gt; 0 || state.balance !== 0) return state;
+      return initialState;
+
+    default:
+      throw new Error("Unknown action: " + action.type);
+  }
+}</code></pre>
+        <p class="mini">💡 Notice how multiple related state fields update together (balance + loan + isActive). This is where useReducer shines.</p>
+      </section>
+
+      <section>
+        <h2>🧱 Hook setup in the component</h2>
+        <pre><code>import { useReducer } from "react";
+
+export default function App() {
+  const [{ balance, loan, isActive }, dispatch] = useReducer(
+    reducer,
+    initialState
+  );
+
+  // JSX uses balance/loan/isActive and dispatches actions
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Balance: {balance}&lt;/p&gt;
+      &lt;p&gt;Loan: {loan}&lt;/p&gt;
+
+      &lt;button onClick={() =&gt; dispatch({ type: "openAccount" })}&gt;
+        Open account
+      &lt;/button&gt;
+
+      &lt;button
+        disabled={!isActive}
+        onClick={() =&gt; dispatch({ type: "deposit", payload: 150 })}
+      &gt;
+        Deposit 150
+      &lt;/button&gt;
+
+      &lt;button
+        disabled={!isActive}
+        onClick={() =&gt; dispatch({ type: "withdraw", payload: 50 })}
+      &gt;
+        Withdraw 50
+      &lt;/button&gt;
+
+      &lt;button
+        disabled={!isActive}
+        onClick={() =&gt; dispatch({ type: "requestLoan", payload: 5000 })}
+      &gt;
+        Request loan
+      &lt;/button&gt;
+
+      &lt;button
+        disabled={!isActive}
+        onClick={() =&gt; dispatch({ type: "payLoan" })}
+      &gt;
+        Pay loan
+      &lt;/button&gt;
+
+      &lt;button
+        disabled={!isActive}
+        onClick={() =&gt; dispatch({ type: "closeAccount" })}
+      &gt;
+        Close account
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+        <div class="callout">
+          <strong>UI vs Reducer validation</strong><br />
+          UI disables buttons for a nicer experience, but reducer guard clauses enforce the real business rules.
+        </div>
+      </section>
+
+      <section>
+        <h2>🔍 Quick mental model (bank analogy)</h2>
+        <ul class="bulb">
+          <li><strong>State</strong> = bank vault data (balance/loan/isActive)</li>
+          <li><strong>Dispatch</strong> = customer request</li>
+          <li><strong>Action</strong> = the request form (type + payload)</li>
+          <li><strong>Reducer</strong> = bank employee that applies rules and updates the vault</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>✅ Self-check (before you consider it “done”)</h2>
+        <ul class="checklist">
+          <li>Before opening: only <em>Open account</em> works; others do nothing (UI disabled + reducer guard)</li>
+          <li>Opening sets balance to <strong>500</strong> and isActive to <strong>true</strong></li>
+          <li>Deposit/Withdraw change balance correctly using payload</li>
+          <li>Loan can be requested only once; second request does nothing</li>
+          <li>Pay loan sets loan to 0 and subtracts from balance</li>
+          <li>Close account works only when <code>loan === 0</code> and <code>balance === 0</code></li>
+          <li>Reducer always returns a valid state (never <code>null</code> / <code>undefined</code>)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🚀 Optional upgrades (if you want to go beyond the challenge)</h2>
+        <ul class="bulb">
+          <li>Add an input field so deposit/withdraw amounts are user-defined</li>
+          <li>Prevent negative balances (real-world banking rule) and show a message</li>
+          <li>Track transactions in an array (history log)</li>
+          <li>Add account numbers and multiple accounts (advanced reducer state)</li>
+        </ul>
+      </section>
+
+      <footer>
+        Prepared as a print-friendly reviewer. When printing to PDF: choose A4, margins default, and ensure “Background graphics” is enabled if you want borders to show.
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

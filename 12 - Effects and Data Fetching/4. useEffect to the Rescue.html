@@ -1,0 +1,376 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — useEffect to the Rescue (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codefg: #e8ecff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: linear-gradient(#fff, #fff) padding-box,
+                  linear-gradient(180deg, #f2f2f2, #ffffff) border-box;
+      border-radius: 12px;
+      padding: 18px 18px 14px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    section {
+      margin-top: 16px;
+      padding: 16px 16px 14px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0;
+      padding-left: 18px;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-left: 5px solid #c9c9c9;
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .ok { border-left-color: #2e7d32; }
+    .warn { border-left-color: #c62828; }
+    .tip { border-left-color: #1565c0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 12px;
+      padding: 12px 12px;
+      overflow: hidden;
+      white-space: pre-wrap;      /* wrap to avoid cut-off */
+      overflow-wrap: anywhere;
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .inline-code {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section {
+        background: #fff !important;
+        border-color: #d9d9d9;
+        box-shadow: none !important;
+      }
+      .chip { background: #fff; }
+      pre {
+        background: #fff;
+        color: #000;
+        border: 1px solid #d9d9d9;
+      }
+      a { color: inherit; text-decoration: none; }
+      /* If any links exist, do not print URLs */
+      a[href]::after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>useEffect to the Rescue (React)</h1>
+      <p class="subtitle">Print-friendly reviewer / study guide — Effects & Data Fetching (usePopcorn)</p>
+      <div class="meta">
+        <span class="chip">🪝 Hook: <strong>useEffect</strong></span>
+        <span class="chip">🎯 Goal: run side effects <strong>after render</strong></span>
+        <span class="chip">🧯 Fix: stop <strong>infinite re-render</strong> loops</span>
+        <span class="chip">📄 Format: A4 • single column</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Big Idea (in plain English) 🧠</h2>
+      <p>
+        <strong><span class="inline-code">useEffect</span></strong> is React’s “safe place” to run <strong>side effects</strong>
+        (like fetching data) <em>after</em> React has finished rendering the UI.
+      </p>
+
+      <div class="callout ok">
+        <strong>✅ Why we need it</strong>
+        <p>
+          If you fetch data (or update state) directly in <strong>render logic</strong>, you can create an infinite loop:
+          render → fetch → <span class="inline-code">setState</span> → render → fetch → …
+        </p>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 Key rule</strong>
+        <p>
+          Put “do something with the outside world” code inside <span class="inline-code">useEffect(() =&gt; { ... }, deps)</span>,
+          not at the top level of your component.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) The Core Pattern for Data Fetching on Mount 🍿</h2>
+      <p>
+        To fetch once when the component first appears (mounts), use an <strong>empty dependency array</strong>.
+      </p>
+
+      <pre>// 1) Import the hook
+import { useEffect, useState } from "react";
+
+const KEY = "YOUR_OMDB_KEY";
+
+export default function App() {
+  const [movies, setMovies] = useState([]);
+
+  // 2) Register an effect
+  useEffect(function () {
+    async function fetchMovies() {
+      const res = await fetch(
+        `https://www.omdbapi.com/?apikey=${KEY}&s=interstellar`
+      );
+      const data = await res.json();
+
+      // 3) Update state safely (NOT in render logic)
+      setMovies(data.Search ?? []);
+    }
+
+    fetchMovies();
+  }, []); // ✅ empty deps = run once on mount
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Movies&lt;/h1&gt;
+      {movies.map((m) =&gt; (
+        &lt;div key={m.imdbID}&gt;{m.Title}&lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</pre>
+
+      <div class="callout tip">
+        <strong>📌 What “register” means</strong>
+        <p>
+          You are telling React: “Run this function <strong>after</strong> rendering, based on these dependencies.”
+          The UI renders first; then the effect runs.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Dependency Array (the confusing part) 🧩</h2>
+      <p class="small">
+        You’ll study this deeply in the next lectures. For now, know these essentials.
+      </p>
+
+      <div class="two-col">
+        <div class="callout ok">
+          <strong>✅ <span class="inline-code">[]</span> (empty array)</strong>
+          <p>Run the effect only once: after the initial render (mount).</p>
+        </div>
+
+        <div class="callout warn">
+          <strong>⚠️ No dependency array</strong>
+          <p>
+            Runs after <strong>every render</strong>. This is a common way to accidentally create loops,
+            especially if the effect sets state.
+          </p>
+        </div>
+
+        <div class="callout tip">
+          <strong>🔁 With dependencies: <span class="inline-code">[query]</span></strong>
+          <p>Run on mount and whenever <span class="inline-code">query</span> changes.</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3>Quick mental model</h3>
+      <ul>
+        <li>React renders UI first.</li>
+        <li>Then React checks dependencies.</li>
+        <li>If dependencies say “run”, React executes your effect.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>4) Why useEffect Fixes the Infinite Loop 🔁🧯</h2>
+      <p>
+        In the previous lecture, fetching inside render logic caused infinite requests because:
+      </p>
+      <ul>
+        <li>You fetched during render.</li>
+        <li>You called <span class="inline-code">setMovies(...)</span> right there.</li>
+        <li><span class="inline-code">setMovies</span> triggers a re-render.</li>
+        <li>Re-render re-runs the fetch again → loop.</li>
+      </ul>
+
+      <div class="callout ok">
+        <strong>✅ With useEffect</strong>
+        <p>
+          The fetch runs <strong>after</strong> the component is painted, and with <span class="inline-code">[]</span>
+          it runs only once. So there is no re-render → fetch → re-render → fetch cycle.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Practical Checklist ✅</h2>
+      <ul>
+        <li>🪝 Import <span class="inline-code">useEffect</span> from React.</li>
+        <li>📌 Put side effects inside the effect function.</li>
+        <li>🧩 Decide dependencies (for now: use <span class="inline-code">[]</span> to fetch on mount).</li>
+        <li>🧯 If your UI is spamming requests, check for: effect without deps, or state updates in render logic.</li>
+      </ul>
+
+      <div class="callout warn">
+        <strong>⚠️ Common beginner mistake</strong>
+        <p>
+          Placing <span class="inline-code">fetch(...)</span> at the top of a component and then calling
+          <span class="inline-code">setState</span> in the promise chain. It “seems” to work, but it can explode into loops.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Mini-Review Questions (for retention) 📝</h2>
+      <ol>
+        <li>What is a “side effect” in React? Give 2 examples.</li>
+        <li>Why does setting state in render logic lead to infinite loops?</li>
+        <li>What does <span class="inline-code">useEffect(fn, [])</span> do, exactly?</li>
+        <li>What happens if you omit the dependency array?</li>
+      </ol>
+
+      <p class="small">
+        Tip: Try answering out loud. If you can explain it, you understand it.
+      </p>
+    </section>
+
+    <section>
+      <h2>7) Quick Recap (1 minute) ⏱️</h2>
+      <ul>
+        <li>React components must stay pure in render logic (no real side effects there).</li>
+        <li><span class="inline-code">useEffect</span> is the safe place for side effects.</li>
+        <li>Effects run <strong>after</strong> render; with <span class="inline-code">[]</span> they run once on mount.</li>
+        <li>This prevents the fetch → setState → render → fetch loop.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

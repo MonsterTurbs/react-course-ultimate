@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Suspense — Reviewer / Study Guide (Print-Friendly)</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#5a5a5a;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --good:#0f7b3f;
+      --warn:#9a6a00;
+      --danger:#b3261e;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+
+    header{
+      padding: 16px 16px 14px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--soft2), var(--bg));
+      border-radius: 14px;
+    }
+    h1{
+      margin:0 0 6px;
+      font-size: 1.75rem;
+      letter-spacing: -0.02em;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      border:1px solid var(--border);
+      background: var(--soft);
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main{ margin-top: 16px; }
+
+    section{
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    h2{
+      margin: 0 0 10px;
+      font-size: 1.25rem;
+      letter-spacing: -0.01em;
+    }
+    h3{
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 18px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 10px 0;
+    }
+    .callout.good{ border-left: 5px solid var(--good); }
+    .callout.warn{ border-left: 5px solid var(--warn); }
+    .callout.danger{ border-left: 5px solid var(--danger); }
+
+    .kvs{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      margin-top: 10px;
+    }
+    .kv{
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+    .kv .k{
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .kv .v{
+      color: var(--muted);
+      margin: 0;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b0b0b;
+      color: #f1f1f1;
+      border-radius: 12px;
+      overflow:auto;
+      font-family: var(--mono);
+      font-size: 0.92rem;
+      line-height: 1.45;
+      border: 1px solid #1c1c1c;
+    }
+    code{
+      font-family: var(--mono);
+      font-size: 0.95em;
+    }
+    .inline-code{
+      font-family: var(--mono);
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 8px;
+    }
+
+    .diagram{
+      border: 1px dashed var(--border);
+      background: var(--soft2);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+      font-family: var(--mono);
+      font-size: 0.92rem;
+      color: #2c2c2c;
+      white-space: pre-wrap;
+    }
+
+    .muted{ color: var(--muted); }
+
+    /* Links: nice on screen, clean on print */
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    /* Print */
+    @page { size: A4; margin: 18mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header, section{ border-color:#d9d9d9; box-shadow:none; }
+      .chip{ background:#fff; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]::after{ content: ""; } /* don't print URLs */
+      pre{ border-color:#ddd; }
+      section, header, .kv, .callout { break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧠 React Suspense — Reviewer / Study Guide</h1>
+      <p class="subtitle">
+        Beginner-friendly notes on what Suspense is, why it exists, and how it behaves (including key Next.js implications).
+      </p>
+      <div class="meta">
+        <span class="chip">🧩 Topic: React Suspense</span>
+        <span class="chip">⚙️ Focus: async rendering + fallbacks</span>
+        <span class="chip">🧭 Context: works great with Next.js / React Query / React.lazy</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) Big idea: What is Suspense? ⏳</h2>
+        <p>
+          <strong>Suspense</strong> is a <strong>built-in React component</strong> that lets React temporarily show a
+          <em>fallback UI</em> (usually a spinner) when a component (or an entire subtree) is <strong>not ready to render</strong>
+          because it’s doing <strong>asynchronous work</strong>.
+        </p>
+
+        <div class="callout good">
+          <p><strong>✅ Mental model:</strong> Suspense is like a <strong>try/catch</strong> — but instead of catching errors,
+            it “catches” components that are <strong>“suspending”</strong> (not ready yet).</p>
+        </div>
+
+        <div class="kvs">
+          <div class="kv">
+            <div class="k">✨ “Suspending” means…</div>
+            <p class="v">A component can’t finish rendering right now because it’s waiting for something async (data/code).</p>
+          </div>
+          <div class="kv">
+            <div class="k">🧱 “Suspense boundary” means…</div>
+            <p class="v">The nearest <span class="inline-code">&lt;Suspense&gt;</span> wrapper that isolates the suspending subtree and shows the fallback.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) What causes a component to suspend? 🤔</h2>
+        <p>In practice, two common async tasks can trigger Suspense behavior:</p>
+        <ul>
+          <li>📡 <strong>Data fetching</strong> using a library/framework that supports Suspense (e.g., <strong>React Query</strong>, <strong>Next.js</strong>)</li>
+          <li>📦 <strong>Code loading</strong> using <strong>React.lazy</strong> (lazy-loaded components)</li>
+        </ul>
+
+        <div class="callout warn">
+          <p><strong>⚠️ Important:</strong> Components do <em>not</em> automatically suspend just because you do something async inside them.
+            A typical <span class="inline-code">fetch</span> inside <span class="inline-code">useEffect</span> in a normal React app
+            will <strong>not</strong> automatically trigger Suspense. Suspense needs integration from a library/framework.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) How Suspense looks in code ✅</h2>
+        <p>
+          You wrap the part of the UI that might suspend inside a Suspense boundary, and you provide a <strong>fallback</strong>.
+        </p>
+
+        <pre><code>import { Suspense } from "react";
+
+function Page() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Shop&lt;/h1&gt;
+
+      &lt;Suspense fallback={&lt;p&gt;Loading products... ⏳&lt;/p&gt;}&gt;
+        &lt;Filter /&gt;
+        &lt;Products /&gt; {/* suspends while data/code loads */}
+      &lt;/Suspense&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+
+        <div class="callout good">
+          <p><strong>✅ Benefit:</strong> You avoid messy <span class="inline-code">isLoading</span> state + ternaries everywhere.
+            The loading UI becomes <strong>declarative</strong>: “if this subtree isn’t ready, show this fallback.”</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) What actually happens at runtime? 🔁</h2>
+        <p>When React renders and hits a suspending component:</p>
+        <ol>
+          <li>🧭 React “walks up” to the nearest Suspense boundary.</li>
+          <li>🧹 Any partially rendered work under that boundary is discarded for now.</li>
+          <li>🧩 React renders the <strong>fallback</strong> while the async task continues.</li>
+          <li>✅ When the async task completes, React tries rendering the subtree again (now it’s ready).</li>
+        </ol>
+
+        <div class="diagram" aria-label="Suspense boundary flow">
+Component tree (conceptual)
+
+Page
+ ├─ Header
+ └─ Suspense boundary
+     ├─ Filter
+     └─ Products  ← suspends (waiting for async)
+
+If Products suspends:
+→ React shows fallback (e.g., spinner) for the whole boundary
+→ When ready: React renders Filter + Products normally
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Behind the scenes (short, but useful) 🧬</h2>
+        <p class="muted">
+          This explains why state can be preserved even when the fallback shows again.
+        </p>
+
+        <h3>🧠 Fiber tree vs component tree</h3>
+        <ul>
+          <li><strong>Component tree / Virtual DOM</strong>: what you conceptually think about; frequently rebuilt.</li>
+          <li><strong>Fiber tree</strong>: React’s internal mutable structure that persists; stores state/hooks and enables “concurrent” features.</li>
+        </ul>
+
+        <h3>🕳️ “Activity” component (internal)</h3>
+        <p>
+          Internally, React can move the Suspense children under a built-in wrapper (often described as <strong>Activity</strong>),
+          and place the fallback nearby in the fiber structure.
+        </p>
+
+        <div class="callout good">
+          <p><strong>✅ Key implication:</strong> The subtree is often <strong>hidden, not destroyed</strong> in the fiber tree.
+            That means <strong>state is preserved</strong> while toggling between fallback and content.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>6) Next.js “gotcha”: transitions may hide fallbacks 🧭</h2>
+        <p>
+          There is an important exception: if the Suspense-triggering work happens inside a
+          <strong>transition</strong> (e.g., React’s <span class="inline-code">startTransition</span>),
+          React may decide to <strong>not show the fallback again</strong>.
+        </p>
+
+        <div class="callout warn">
+          <p><strong>⚠️ Why you care:</strong> In Next.js, <strong>page navigations are wrapped in transitions</strong>.
+            So during navigations/refetches, the fallback might not appear as you expect.</p>
+        </div>
+
+        <h3>🔑 Common fix: reset the boundary with a unique <span class="inline-code">key</span></h3>
+        <p>
+          Passing a changing <span class="inline-code">key</span> can force the Suspense boundary to reset and show fallback again
+          when appropriate (you’ll typically tie the key to the route/params).
+        </p>
+
+        <pre><code>&lt;Suspense key={someUniqueValue} fallback={&lt;Spinner /&gt;}&gt;
+  &lt;Products /&gt;
+&lt;/Suspense&gt;</code></pre>
+      </section>
+
+      <section>
+        <h2>7) The “magic”: how does Suspense know a child is suspending? 🎯</h2>
+        <p>
+          Under the hood, a suspending component (via an integrated library/framework) effectively
+          <strong>throws a Promise</strong>. That Promise is caught by the nearest Suspense boundary, which then renders the fallback.
+        </p>
+
+        <div class="callout danger">
+          <p><strong>🧯 Note:</strong> “Throwing promises” is not something you normally implement yourself.
+            It’s complex and is typically handled by frameworks/libraries like <strong>Next.js</strong> or <strong>React Query</strong>.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>8) Quick memory checklist ✅</h2>
+        <ul>
+          <li>🧩 Suspense = boundary that can show <strong>fallback UI</strong> while async work completes</li>
+          <li>📡 Common causes: <strong>data fetching</strong> (with Suspense-aware tools) and <strong>React.lazy</strong></li>
+          <li>🚫 Normal <span class="inline-code">fetch</span> in <span class="inline-code">useEffect</span> doesn’t automatically trigger Suspense</li>
+          <li>🧱 Boundary isolates a subtree; fallback can replace the subtree temporarily</li>
+          <li>🧬 Fiber tree helps preserve state while subtree is hidden</li>
+          <li>🧭 In Next.js transitions, fallbacks may not re-appear unless you handle/reset boundaries (e.g., <span class="inline-code">key</span>)</li>
+          <li>🎯 Mechanism: suspending components “throw” a Promise that Suspense can catch</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>9) Mini practice prompts 🏋️</h2>
+        <ul>
+          <li>🧪 Wrap a data-fetching component in <span class="inline-code">&lt;Suspense fallback={...}&gt;</span> and observe the fallback.</li>
+          <li>🔍 Identify which parts of your page can render immediately vs which depend on data (granular loading).</li>
+          <li>🧭 In Next.js, test navigation: does your fallback show on route changes? If not, consider a boundary <span class="inline-code">key</span>.</li>
+        </ul>
+      </section>
+
+      <p class="muted" style="margin-top:12px;">
+        End of reviewer. Print tip: Use your browser’s Print dialog and choose “Save as PDF” for clean A4 output.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

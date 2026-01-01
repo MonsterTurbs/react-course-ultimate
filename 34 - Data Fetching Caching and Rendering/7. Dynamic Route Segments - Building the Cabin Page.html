@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Reviewer — Dynamic Route Segments (Cabin Details Page)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f8;
+      --chip: #f1f3f5;
+      --accent: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 60px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.25;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+    }
+
+    main { padding-top: 6px; }
+
+    h2 {
+      font-size: 18px;
+      margin: 22px 0 10px;
+      letter-spacing: -0.1px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 16px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+    ul { margin: 8px 0 10px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .callout .kicker {
+      font-weight: 700;
+      margin: 0 0 6px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    .card h3 { margin-top: 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 10px 12px;
+      background: #0b1020;
+      color: #e7e7e7;
+      border-radius: 10px;
+      overflow-x: auto;
+      border: 1px solid #1b2240;
+      white-space: pre-wrap;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .checklist li { list-style: "☑  "; }
+    .dont li { list-style: "✗  "; }
+    .do li { list-style: "✓  "; }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Print styles (A4) */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; max-width: none; }
+      header { border-bottom: 1px solid #000; }
+      .chip { background: #fff; }
+      .callout, .card { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Do not print link URLs or link styling */
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Dynamic Route Segments in Next.js (Cabin Details Page)</h1>
+      <p class="subtitle">Reviewer / Study Guide — building <strong>/cabins/[cabinId]</strong> pages and fetching cabin data in a Server Component.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Next.js App Router</span>
+        <span class="chip">🧠 Focus: Dynamic segments + params</span>
+        <span class="chip">⚡ Data: Server Components + async/await</span>
+        <span class="chip">⏳ UX: loading.js inheritance</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) The problem we are solving</h2>
+        <p>
+          You have a list of cabins. When a user clicks a cabin card, the URL becomes something like:
+          <code>/cabins/91</code>, <code>/cabins/89</code>, <code>/cabins/90</code>.
+        </p>
+        <div class="callout">
+          <p class="kicker">🧩 Key idea</p>
+          <p>
+            You cannot create a folder for every possible cabin ID ahead of time. The ID part is unknown in advance,
+            so we need a <strong>dynamic route segment</strong>.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) What is a “dynamic route segment”?</h2>
+        <p>
+          In the Next.js App Router, routes come from folders. A <strong>dynamic segment</strong> is a folder whose name is wrapped in
+          <strong>square brackets</strong>. Example: <code>[cabinId]</code>.
+        </p>
+        <div class="card">
+          <h3>✅ Folder convention</h3>
+          <pre><code>app/
+  cabins/
+    page.js                 // /cabins
+    loading.js              // loading UI for /cabins and its children
+    [cabinId]/
+      page.js               // /cabins/:cabinId (dynamic)
+</code></pre>
+          <p class="muted">
+            The name inside the brackets becomes the property name in <code>params</code>.
+            If the folder is <code>[cabinId]</code>, then you read <code>params.cabinId</code>.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) Reading the dynamic value with <code>params</code></h2>
+        <p>
+          Any <strong>page</strong> (and also a <strong>layout</strong>) that belongs to a dynamic segment receives a <code>params</code> object.
+          Think of it as “Next.js gives you what was in the URL.”
+        </p>
+
+        <div class="grid">
+          <div class="card">
+            <h3>🧪 Quick debug (optional)</h3>
+            <p class="muted">You can temporarily log the params to verify the segment name.</p>
+            <pre><code>export default function Page({ params }) {
+  console.log(params);
+  return &lt;div&gt;Cabin page&lt;/div&gt;;
+}
+
+// Visiting /cabins/91 prints something like:
+// { cabinId: '91' }
+</code></pre>
+          </div>
+
+          <div class="card">
+            <h3>🧠 Beginner-friendly mental model</h3>
+            <ul>
+              <li>Folder name is <code>[cabinId]</code></li>
+              <li>URL is <code>/cabins/91</code></li>
+              <li>Next.js maps it to <code>{ cabinId: "91" }</code></li>
+              <li>You use that value to fetch the right data</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Fetching the cabin data in a Server Component</h2>
+        <p>
+          Because App Router pages are Server Components by default, you can use <strong>async/await</strong> directly
+          inside the page component to fetch data.
+        </p>
+
+        <div class="callout">
+          <p class="kicker">⚡ Why this is nice</p>
+          <ul class="do">
+            <li>No <code>useEffect</code> needed</li>
+            <li>No “isLoading” state needed</li>
+            <li>The server renders the HTML with data already included</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Example: <code>app/cabins/[cabinId]/page.js</code></h3>
+          <pre><code>import { getCabin } from "@/app/_lib/data-service";
+
+export default async function Page({ params }) {
+  const cabin = await getCabin(params.cabinId);
+
+  return (
+    &lt;section&gt;
+      &lt;h1&gt;{cabin.name}&lt;/h1&gt;
+      &lt;p&gt;Max guests: {cabin.maxCapacity}&lt;/p&gt;
+    &lt;/section&gt;
+  );
+}
+</code></pre>
+          <p class="muted">
+            The key step is passing the route param (<code>params.cabinId</code>) into your data function.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Why you see “Loading cabin data…” again</h2>
+        <p>
+          If you already created a route-level loader at <code>app/cabins/loading.js</code>, it applies to:
+        </p>
+        <ul>
+          <li><code>/cabins</code></li>
+          <li><code>/cabins/[cabinId]</code> (and other nested routes under <code>cabins</code>)</li>
+        </ul>
+
+        <div class="callout">
+          <p class="kicker">⏳ Loader inheritance rule</p>
+          <p>
+            A <code>loading.js</code> file applies to its route segment <strong>and all child segments</strong>
+            unless a child segment defines its own <code>loading.js</code>.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Practical implication</h3>
+          <ul class="checklist">
+            <li>If <code>app/cabins/loading.js</code> exists, it will also show while loading <code>/cabins/91</code>.</li>
+            <li>If you add <code>app/cabins/[cabinId]/loading.js</code>, that one takes over for cabin detail pages.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>6) Fixing the cabin image with <code>next/image</code></h2>
+        <p>
+          Next.js wants you to use <code>Image</code> from <code>next/image</code> because it can optimize images
+          (responsive sizes, lazy loading, preventing layout shifts, modern formats).
+        </p>
+
+        <div class="card">
+          <h3>Common pattern: <code>fill</code> + relative parent + <code>object-cover</code></h3>
+          <pre><code>import Image from "next/image";
+
+export default function CabinHero({ imageUrl, name }) {
+  return (
+    &lt;div className="relative aspect-[16/10]"&gt;
+      &lt;Image
+        src={imageUrl}
+        alt={name}
+        fill
+        className="object-cover"
+      /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+          <ul>
+            <li><strong>Parent is <code>relative</code></strong> so <code>fill</code> knows what box to fill.</li>
+            <li><strong>Parent has a size</strong> (here via <code>aspect-[16/10]</code>) so height isn’t zero.</li>
+            <li><strong><code>object-cover</code></strong> prevents distortion while filling the box.</li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <p class="kicker">🧠 Remember</p>
+          <p>
+            If the image is hosted on another domain (e.g., Supabase Storage), you must allow it in
+            <code>next.config.js</code> under <code>images.remotePatterns</code> or related config.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>7) Common mistakes (and quick fixes)</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>😵 “Page not found” (404)</h3>
+            <ul>
+              <li>You created the folder but forgot <code>page.js</code>.</li>
+              <li>Or the folder name isn’t bracketed correctly (must be <code>[cabinId]</code>).</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>😵 Image fills the entire viewport</h3>
+            <ul>
+              <li>Your parent container is missing <code>relative</code>.</li>
+              <li>Your parent has no height (fix with an aspect ratio or explicit height).</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>😵 “Missing required width/height”</h3>
+            <ul>
+              <li>When using <code>src</code> as a string, Next.js often requires dimensions.</li>
+              <li>Use <code>fill</code> + a sized parent OR statically import images.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>😵 Wrong params key</h3>
+            <ul>
+              <li>If your folder is <code>[id]</code>, then read <code>params.id</code>.</li>
+              <li>If your folder is <code>[cabinId]</code>, then read <code>params.cabinId</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>8) Mini practice (quick exercises)</h2>
+        <div class="card">
+          <h3>🏋️ Exercise A — Rename the segment</h3>
+          <p class="muted">Change <code>[cabinId]</code> to <code>[id]</code>. What else must change?</p>
+          <ul class="checklist">
+            <li>Update code from <code>params.cabinId</code> → <code>params.id</code>.</li>
+            <li>Everything else should still work as long as your links point to the same URL structure.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🏋️ Exercise B — Add a detail loader</h3>
+          <p class="muted">Create <code>app/cabins/[cabinId]/loading.js</code> and display: “Loading cabin details…”</p>
+          <pre><code>import Spinner from "@/app/_components/Spinner";
+
+export default function Loading() {
+  return (
+    &lt;div className="grid justify-center gap-3 py-10"&gt;
+      &lt;Spinner /&gt;
+      &lt;p className="text-primary-200 text-lg"&gt;Loading cabin details…&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section>
+        <h2>One-page recap</h2>
+        <ul class="do">
+          <li>Dynamic segments use <strong>square bracket folders</strong>: <code>[cabinId]</code>.</li>
+          <li>The bracket name becomes the key in <code>params</code>: <code>params.cabinId</code>.</li>
+          <li>Server Components can fetch with <code>async/await</code> directly in the page.</li>
+          <li><code>loading.js</code> applies to a route segment and its child segments unless overridden.</li>
+          <li><code>next/image</code> + <code>fill</code> requires a <code>relative</code> parent with a defined size.</li>
+        </ul>
+
+        <div class="callout">
+          <p class="kicker">✅ If you can explain this, you’re in good shape</p>
+          <p>
+            “The folder name defines the route; bracket folders make it dynamic; Next.js injects the URL value into
+            <code>params</code>; we use it to fetch cabin data on the server and render the detail page.”
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

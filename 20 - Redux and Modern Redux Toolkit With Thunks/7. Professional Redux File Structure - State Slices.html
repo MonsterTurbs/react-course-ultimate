@@ -1,0 +1,516 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redux — Professional File Structure (State Slices) | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #0b1020;
+      --codefg: #e8eefc;
+      --accent: #1a73e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 20px 56px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--soft), #fff);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 14.5px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #f6f9ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .note {
+      border-left: 4px solid #0f766e;
+      background: #f1fffd;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .warn {
+      border-left: 4px solid #b45309;
+      background: #fff7ed;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 820px) {
+      .grid2 { grid-template-columns: 1fr 1fr; }
+    }
+
+    pre {
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      overflow: auto;
+      white-space: pre;
+      margin: 10px 0;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.8px;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12.5px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* Print styles (A4, clean, single column) */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-color: #ddd; box-shadow: none !important; }
+
+      /* Keep blocks together where possible */
+      header, section, pre, .callout, .note, .warn { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Improve print readability */
+      h1 { font-size: 18px; }
+      h2 { font-size: 14.5px; }
+      h3 { font-size: 13px; }
+      p, li { font-size: 11.5pt; }
+      .chip { font-size: 10.5pt; }
+      pre code { font-size: 10pt; }
+
+      /* Ensure colors print well */
+      pre {
+        background: #f6f6f6;
+        color: #111;
+        border: 1px solid #ddd;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Redux — Professional File Structure (State Slices)</h1>
+      <p class="subtitle">Study guide / reviewer: how to move from “everything in one file” to feature-based slices (account + customer) 🧩</p>
+      <div class="meta">
+        <span class="chip">🎯 Goal: organize Redux code cleanly</span>
+        <span class="chip">🧱 Concept: “state slices”</span>
+        <span class="chip">📦 Store: combine reducers + createStore</span>
+        <span class="chip">🧠 Mindset: co-locate by feature</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) Why we refactor: “one file Redux” doesn’t scale 🚧</h2>
+        <p>
+          When a project starts, it’s common to place <b>initial state</b>, <b>reducers</b>, and <b>action creators</b>
+          in a single file. It works… until the code grows.
+        </p>
+        <ul>
+          <li>✅ With 2 reducers, it’s manageable.</li>
+          <li>❌ With 10 reducers, it becomes confusing and error-prone.</li>
+          <li>❌ Hard to find logic: you scroll forever and mix unrelated domains.</li>
+        </ul>
+
+        <div class="warn">
+          <b>Key message ⚠️</b><br />
+          Older Redux codebases often split by technical type (separate <i>reducers/</i> and <i>actions/</i> folders),
+          but that can cause lots of jumping between files and slow development.
+        </div>
+      </section>
+
+      <section>
+        <h2>2) Modern approach: organize by feature (not by file type) 🗂️</h2>
+        <p>
+          A more modern and productive approach is <b>feature-based organization</b>:
+          group files by what they belong to (e.g., <b>account</b>, <b>customers</b>), not by what they are.
+        </p>
+
+        <div class="grid2">
+          <div class="callout">
+            <b>Feature examples ✅</b>
+            <ul>
+              <li>🏦 <b>Account</b>: balance display, deposit/withdraw UI, account reducer + actions</li>
+              <li>🧑‍💼 <b>Customers</b>: create customer form, customer name UI, customer reducer + actions</li>
+            </ul>
+          </div>
+          <div class="note">
+            <b>Why it’s better 💡</b>
+            <ul>
+              <li>Less “tab switching” between unrelated files</li>
+              <li>Everything related to a domain is nearby</li>
+              <li>Easier to maintain and extend (add new features cleanly)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) What is a “state slice”? 🧩</h2>
+        <p>
+          Your entire Redux state lives in the <b>store</b>. A <b>slice</b> is one “piece” of that total state.
+          Each slice typically contains:
+        </p>
+        <ul>
+          <li>🧾 <b>Initial state</b> for that domain</li>
+          <li>🧮 <b>Reducer</b> that handles updates for that domain</li>
+          <li>🧰 <b>Action creators</b> for that domain</li>
+        </ul>
+
+        <div class="callout">
+          <b>In this lesson 🎓</b><br />
+          You create two slices: <b>accountSlice</b> and <b>customerSlice</b>.
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Target folder structure 📁</h2>
+        <p class="mini">(Exact names can vary, but the idea is the same.)</p>
+        <pre><code>src/
+  features/
+    account/
+      BalanceDisplay.js
+      AccountOperations.js
+      accountSlice.js
+    customers/
+      CreateCustomer.js
+      Customer.js
+      customerSlice.js
+  store.js
+  index.js
+  App.js
+</code></pre>
+
+        <div class="note">
+          <b>Reminder 💡</b><br />
+          When you move components into new folders, update imports in <span class="kbd">App.js</span>.
+          Some editors do this automatically, but not always.
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Building slices: what goes into <code>accountSlice.js</code> 🏦</h2>
+        <p>
+          The “slice file” should co-locate all Redux logic for that feature:
+          initial state + reducer + action creators.
+        </p>
+
+        <h3>Example: <code>src/features/account/accountSlice.js</code></h3>
+        <pre><code>// accountSlice.js (classic Redux style)
+
+// 1) Initial state (this slice only)
+const initialStateAccount = {
+  balance: 0,
+  loan: 0,
+  loanPurpose: "",
+};
+
+// 2) Reducer (default export is a common convention)
+export default function accountReducer(state = initialStateAccount, action) {
+  switch (action.type) {
+    case "account/deposit":
+      return { ...state, balance: state.balance + action.payload };
+
+    case "account/withdraw":
+      return { ...state, balance: state.balance - action.payload };
+
+    case "account/requestLoan":
+      if (state.loan &gt; 0) return state;
+      return {
+        ...state,
+        loan: action.payload.amount,
+        loanPurpose: action.payload.purpose,
+        balance: state.balance + action.payload.amount,
+      };
+
+    case "account/payLoan":
+      return {
+        ...state,
+        loan: 0,
+        loanPurpose: "",
+        balance: state.balance - state.loan,
+      };
+
+    default:
+      return state;
+  }
+}
+
+// 3) Action creators (named exports)
+export function deposit(amount) {
+  return { type: "account/deposit", payload: amount };
+}
+
+export function withdraw(amount) {
+  return { type: "account/withdraw", payload: amount };
+}
+
+export function requestLoan(amount, purpose) {
+  return {
+    type: "account/requestLoan",
+    payload: { amount, purpose },
+  };
+}
+
+export function payLoan() {
+  return { type: "account/payLoan" };
+}
+</code></pre>
+
+        <div class="callout">
+          <b>Why default export for reducer? ✅</b><br />
+          It keeps imports clean in <code>store.js</code>, e.g.:
+          <code>import accountReducer from "./features/account/accountSlice"</code>.
+        </div>
+      </section>
+
+      <section>
+        <h2>6) Customer slice: initial state + reducer + actions 🧑‍💼</h2>
+        <h3>Example: <code>src/features/customers/customerSlice.js</code></h3>
+        <pre><code>// customerSlice.js (classic Redux style)
+
+const initialStateCustomer = {
+  fullName: "",
+  nationalID: "",
+  createdAt: "",
+};
+
+export default function customerReducer(state = initialStateCustomer, action) {
+  switch (action.type) {
+    case "customer/createCustomer":
+      return {
+        ...state,
+        fullName: action.payload.fullName,
+        nationalID: action.payload.nationalID,
+        createdAt: action.payload.createdAt,
+      };
+
+    case "customer/updateName":
+      return { ...state, fullName: action.payload };
+
+    default:
+      return state;
+  }
+}
+
+export function createCustomer(fullName, nationalID) {
+  // Side-effect-ish work like timestamps belongs here (NOT in reducer)
+  const createdAt = new Date().toISOString();
+
+  return {
+    type: "customer/createCustomer",
+    payload: { fullName, nationalID, createdAt },
+  };
+}
+
+export function updateName(fullName) {
+  return { type: "customer/updateName", payload: fullName };
+}
+</code></pre>
+
+        <div class="warn">
+          <b>Important ⚠️ Reducers must stay pure</b><br />
+          Avoid putting “get current date”, API calls, or random IDs inside reducers.
+          Put those in action creators (or later: thunks / middleware).
+        </div>
+      </section>
+
+      <section>
+        <h2>7) Store setup: combine slices into one store 🧠</h2>
+        <p>
+          The <b>only place</b> that should directly use Redux primitives (like <code>createStore</code>,
+          <code>combineReducers</code>) is typically <code>store.js</code>.
+        </p>
+
+        <h3>Example: <code>src/store.js</code></h3>
+        <pre><code>import { createStore, combineReducers } from "redux";
+
+import accountReducer from "./features/account/accountSlice";
+import customerReducer from "./features/customers/customerSlice";
+
+const rootReducer = combineReducers({
+  account: accountReducer,
+  customer: customerReducer,
+});
+
+const store = createStore(rootReducer);
+
+export default store;
+</code></pre>
+
+        <div class="callout">
+          <b>State shape 🧱</b><br />
+          Your final state will look like:
+          <pre><code>{
+  account: { balance, loan, loanPurpose },
+  customer: { fullName, nationalID, createdAt }
+}
+</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <h2>8) Quick testing (optional, learning only) 🧪</h2>
+        <p>
+          In the lecture, the store is temporarily imported in <code>index.js</code> to test dispatching.
+          This is fine for learning.
+        </p>
+
+        <pre><code>// index.js (temporary test — for learning)
+import store from "./store";
+
+store.dispatch({ type: "account/deposit", payload: 250 });
+console.log(store.getState());
+</code></pre>
+
+        <div class="note">
+          <b>Next step 🔜</b><br />
+          The real integration is to inject the store into React using <code>react-redux</code>
+          (Provider + useSelector/useDispatch). That happens in the next lecture.
+        </div>
+      </section>
+
+      <section>
+        <h2>9) Common pitfalls + best practices ✅</h2>
+        <ul>
+          <li>✅ Prefer <b>feature folders</b> over “actions/” + “reducers/” folders (modern convention).</li>
+          <li>✅ Keep each slice file focused: initial state + reducer + action creators.</li>
+          <li>✅ Export reducer as <b>default</b>, action creators as <b>named exports</b> (clean imports).</li>
+          <li>✅ Keep reducers <b>pure</b> (no dates, API calls, random values).</li>
+          <li>⚠️ Don’t forget to update component imports after moving files.</li>
+          <li>⚠️ Keep naming consistent: <code>account/... </code> and <code>customer/...</code> (helps readability).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>10) Mini-checkpoint (self-test) 📝</h2>
+        <ol>
+          <li>Why is “actions folder + reducers folder” considered less ideal today?</li>
+          <li>What three things usually live inside a slice file?</li>
+          <li>Why should “createdAt = new Date()” NOT happen inside the reducer?</li>
+          <li>What does <code>combineReducers({ account, customer })</code> change in state shape?</li>
+        </ol>
+        <div class="divider"></div>
+        <p class="mini">
+          If you can answer these confidently, you understood the lecture. ✅
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,382 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — The Key Prop (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codetext: #e8eefc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      hyphens: auto;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .chiprow {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    .panel {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .panel strong { font-weight: 700; }
+
+    ul {
+      margin: 8px 0 8px 18px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid #111;
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout .title {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      background: var(--codebg);
+      color: var(--codetext);
+      padding: 12px 12px;
+      border-radius: 12px;
+      overflow: auto;
+      border: 1px solid #111827;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      font-size: 12px;
+      font-family: inherit;
+    }
+
+    .toc {
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .toc li {
+      margin: 6px 0;
+      padding-left: 0;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; max-width: none; }
+      header { border-bottom: 1px solid #000; }
+      .panel, .callout { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; } /* prevent printing URLs */
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🔑 React — The <code>key</code> Prop</h1>
+      <p class="subtitle">Reviewer / study guide (beginner-friendly) — stable keys for lists, changing keys to reset state, and how it connects to diffing.</p>
+      <div class="chiprow">
+        <span class="chip">React Internals (Diffing)</span>
+        <span class="chip">Lists & Performance</span>
+        <span class="chip">State Preservation</span>
+        <span class="chip">Practical Patterns</span>
+      </div>
+    </header>
+
+    <section class="panel">
+      <strong>Big idea 🧠</strong>
+      <p>
+        The <code>key</code> prop is React’s way to uniquely identify elements across renders.
+        It helps React decide whether to <strong>keep</strong>, <strong>move</strong>, <strong>update</strong>, or <strong>recreate</strong> elements and component instances.
+      </p>
+    </section>
+
+    <section>
+      <h2>🧭 Table of Contents</h2>
+      <ol class="toc">
+        <li>1) What <code>key</code> is (and why React needs it)</li>
+        <li>2) Use case #1: Stable keys in lists (performance + correct behavior)</li>
+        <li>3) Use case #2: Changing keys to reset state</li>
+        <li>4) Key rules of thumb (do’s and don’ts)</li>
+      </ol>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>1) What is the <code>key</code> prop? 🔑</h2>
+      <p>
+        <code>key</code> is a <strong>special prop</strong> that React uses during reconciliation (diffing).
+        It tells React: “This element is uniquely this one—track it reliably across renders.”
+      </p>
+
+      <div class="callout">
+        <div class="title">📌 Why keys exist</div>
+        <ul>
+          <li>Without keys, React primarily compares children by their <strong>position</strong> in the UI tree.</li>
+          <li>With keys, React can compare children by <strong>identity</strong> (who they are), not only by position.</li>
+        </ul>
+      </div>
+
+      <p>
+        This connects directly to one of the diffing assumptions:
+        <strong>elements with a stable key stay the same across renders</strong>.
+      </p>
+    </section>
+
+    <section>
+      <h2>2) Use case #1 — Stable keys in lists ✅</h2>
+      <p>
+        When rendering a list (many siblings of the same type), React needs a reliable way to match items between renders.
+        A stable <code>key</code> prevents unnecessary DOM removals/re-creations and helps preserve the right state on the right item.
+      </p>
+
+      <div class="panel">
+        <strong>Imagine this 🧩</strong>
+        <p>
+          You have 2 items, then you insert a new one at the top.
+          If React matches by position only, it might think the old item #1 became item #2, and so on.
+          That can cause extra work and even confusing state behavior.
+        </p>
+      </div>
+
+      <h3>Example: Rendering a list</h3>
+      <pre>// ✅ Good: stable, unique key (usually from database ID)
+function Questions({ questions }) {
+  return (
+    &lt;ul&gt;
+      {questions.map((q) =&gt; (
+        &lt;QuestionItem key={q.id} question={q} /&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</pre>
+
+      <div class="callout">
+        <div class="title">⚠️ What happens if you don’t use keys?</div>
+        <ul>
+          <li>React may remove and recreate DOM nodes when items move, even if they are “the same items.”</li>
+          <li>This is wasted work (performance hit) and can break expected UI state in list items.</li>
+        </ul>
+      </div>
+
+      <h3>Beginner-friendly explanation</h3>
+      <p>
+        Think of <code>key</code> like a <strong>name tag</strong> on each list item.
+        If items change order, React looks at the name tags and says:
+        “Ah, this is still <em>the same person</em>, just standing in a different spot.”
+      </p>
+    </section>
+
+    <section>
+      <h2>3) Use case #2 — Changing keys to reset state 🔄</h2>
+      <p>
+        Sometimes you want React to treat the “same component in the same position” as a <strong>new instance</strong>.
+        When the <code>key</code> changes, React will destroy the old instance and create a new one — which effectively <strong>resets state</strong>.
+      </p>
+
+      <div class="callout">
+        <div class="title">📌 Why would you want to reset state?</div>
+        <p>
+          Because the old state may no longer match the new props.
+          Example: showing “Answer A” from the previous question even after the question changes.
+        </p>
+      </div>
+
+      <h3>Example: A question viewer that must reset when the question changes</h3>
+      <pre>// QuestionBox renders ONE Question at a time
+function QuestionBox({ question }) {
+  // ✅ If question changes, change the key => new instance => state resets
+  return &lt;Question key={question.id} question={question} /&gt;;
+}
+
+function Question({ question }) {
+  const [answer, setAnswer] = React.useState("");
+
+  return (
+    &lt;div&gt;
+      &lt;h3&gt;{question.text}&lt;/h3&gt;
+      &lt;input
+        value={answer}
+        onChange={(e) =&gt; setAnswer(e.target.value)}
+        placeholder="Type your answer..."
+      /&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+
+      <div class="panel">
+        <strong>What this achieves 🎯</strong>
+        <ul>
+          <li>When the question changes from <code>id=23</code> to <code>id=24</code>, the <code>key</code> changes.</li>
+          <li>React treats it as a different component instance → old state is discarded → new state starts fresh.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Key rules of thumb (practical) 🧰</h2>
+
+      <div class="callout">
+        <div class="title">✅ Do</div>
+        <ul>
+          <li>Use a <strong>stable unique ID</strong> from your data: <code>id</code>, <code>uuid</code>, etc.</li>
+          <li>Use keys whenever you render <strong>multiple siblings of the same type</strong> (lists, grids, repeated components).</li>
+          <li>Use a <strong>changing key</strong> when you intentionally want to reset internal state.</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <div class="title">🚫 Avoid</div>
+        <ul>
+          <li>
+            Using array index as key when the list can change order / insert / delete:
+            it can cause state to “stick” to the wrong item.
+          </li>
+          <li>Generating random keys on every render (e.g., <code>Math.random()</code>): this forces React to recreate everything (bad).</li>
+        </ul>
+      </div>
+
+      <h3>Quick check: when is <code>index</code> OK?</h3>
+      <p>
+        Using <code>index</code> as key can be acceptable only when the list is <strong>static</strong>:
+        no reordering, no insertions/deletions, and items never change positions.
+      </p>
+
+      <div class="panel">
+        <strong>Mini summary 🧠</strong>
+        <ul>
+          <li><strong>Stable key</strong> → keep element/component identity across renders (even if position changes).</li>
+          <li><strong>Changing key</strong> → force a new identity → reset state.</li>
+        </ul>
+      </div>
+
+      <p>
+        If you remember just one line: <strong>Keys tell React “who is who”</strong> so diffing is fast and state behaves logically.
+      </p>
+    </section>
+
+    <footer class="panel" style="margin-top: 18px;">
+      <strong>Practice idea 🧪</strong>
+      <p>
+        Try this in your demo project: keep a state in a child component (like a text input).
+        Switch items/tabs and observe whether state is preserved.
+        Then add a <code>key</code> that changes and observe the reset.
+      </p>
+      <p style="margin-bottom:0; color: var(--muted);">
+        Tip: In VS Code, use <span class="kbd">Ctrl</span> (Windows) / <span class="kbd">Cmd</span> (Mac) + click on a component name to jump to its definition.
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

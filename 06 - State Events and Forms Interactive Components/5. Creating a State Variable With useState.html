@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Reviewer — Creating a State Variable with useState</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #5b21b6;
+      --accent2: #0b57d0;
+      --ok: #0f766e;
+      --warn: #b45309;
+      --danger: #b91c1c;
+
+      --font: Arial, Helvetica, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      --page-w: 210mm;
+      --page-h: 297mm;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      hyphens: auto;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 42px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    nav.toc {
+      margin: 16px 0 18px;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+    }
+
+    nav.toc h2 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    nav.toc ol {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    nav.toc li {
+      margin: 6px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    nav.toc a {
+      color: var(--accent2);
+      text-decoration: none;
+    }
+
+    nav.toc a:hover { text-decoration: underline; }
+
+    section {
+      margin: 18px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    section h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    section h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol { margin: 8px 0; padding-left: 18px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: var(--soft);
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.danger { border-left-color: var(--danger); }
+
+    .kbd {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      overflow: auto;
+    }
+
+    code {
+      font-family: var(--mono);
+      font-size: 12.5px;
+    }
+
+    .inline-code {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 6px;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .no-print { display: inline; }
+
+    /* Print: A4, clean margins, no URL printing */
+    @page {
+      size: A4;
+      margin: 18mm 16mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      nav.toc a { color: #000; text-decoration: none; }
+
+      /* Avoid ugly page breaks */
+      section, pre, .callout { break-inside: avoid; page-break-inside: avoid; }
+      h1, h2, h3 { break-after: avoid-page; page-break-after: avoid; }
+
+      /* Keep print fully readable */
+      a, a:visited { color: #000; text-decoration: none; }
+      a[href]::after { content: ""; } /* do NOT print URLs */
+
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 React Reviewer: Creating a State Variable with <span class="inline-code">useState</span></h1>
+      <p class="subtitle">From static UI → interactive component (Steps project). Focus: creating state, using it in JSX, and updating it via event handlers.</p>
+      <div class="meta">
+        <span class="chip">📄 A4 print-ready</span>
+        <span class="chip">🧩 Topic: State + Event Handlers</span>
+        <span class="chip">⚙️ Hook: useState</span>
+        <span class="chip">✅ Beginner-friendly</span>
+      </div>
+    </header>
+
+    <nav class="toc" aria-label="Table of contents">
+      <h2>📌 Table of Contents</h2>
+      <ol>
+        <li><a href="#goal">Goal of the component</a></li>
+        <li><a href="#useState-steps">The 3-step workflow of state</a></li>
+        <li><a href="#create-state">Step 1: Create state with useState</a></li>
+        <li><a href="#use-state">Step 2: Use state in JSX</a></li>
+        <li><a href="#update-state">Step 3: Update state in event handlers</a></li>
+        <li><a href="#guardrails">Preventing bugs (bounds/guards)</a></li>
+        <li><a href="#hook-rules">Rules of hooks (top-level only)</a></li>
+        <li><a href="#best-practices">Best practices + common mistakes</a></li>
+        <li><a href="#quick-check">Quick check + mini exercises</a></li>
+      </ol>
+      <p class="mini no-print">Tip: Use your browser’s Print → “Save as PDF” for a clean reviewer.</p>
+    </nav>
+
+    <section id="goal">
+      <h2>🎯 Goal of the Component</h2>
+      <p>We have a <strong>Steps</strong> UI with buttons <em>Previous</em> and <em>Next</em>. The UI shows:</p>
+      <ul>
+        <li>Which step is active (1, 2, 3)</li>
+        <li>A message that changes per step</li>
+      </ul>
+      <p><strong>Target behavior:</strong> clicking <em>Next</em> increments the step, clicking <em>Previous</em> decrements the step. No manual editing of a variable.</p>
+      <div class="callout ok">
+        <p><strong>Key idea:</strong> to make the UI update automatically, we need <strong>state</strong> (component memory). 🧠</p>
+      </div>
+    </section>
+
+    <section id="useState-steps">
+      <h2>🧩 The 3-Step Workflow of State in React</h2>
+      <ol>
+        <li><strong>Create</strong> a state variable (using <span class="inline-code">useState</span>)</li>
+        <li><strong>Use</strong> that state in your code/JSX (render UI based on it)</li>
+        <li><strong>Update</strong> state inside an event handler (so the UI changes when the user interacts)</li>
+      </ol>
+      <div class="callout">
+        <p>✅ If you can do these 3 steps, you can build interactive React components.</p>
+      </div>
+    </section>
+
+    <section id="create-state">
+      <h2>1️⃣ Step 1: Create State with <span class="inline-code">useState</span></h2>
+      <p><span class="inline-code">useState</span> is a <strong>React hook</strong> that returns an array with two items:</p>
+      <ul>
+        <li><strong>Current state value</strong> (example: <span class="inline-code">step</span>)</li>
+        <li><strong>Setter function</strong> to update it (example: <span class="inline-code">setStep</span>)</li>
+      </ul>
+
+      <h3>✅ Typical pattern (destructuring)</h3>
+      <pre><code>import { useState } from "react";
+
+function App() {
+  const [step, setStep] = useState(1);
+
+  return &lt;div&gt;Step: {step}&lt;/div&gt;;
+}</code></pre>
+
+      <div class="callout warn">
+        <p><strong>Beginner note:</strong> The argument to <span class="inline-code">useState(1)</span> is the <strong>default/initial value</strong>. Here, the step starts at <strong>1</strong>.</p>
+      </div>
+
+      <h3>🔍 What <span class="inline-code">useState</span> returns (conceptually)</h3>
+      <pre><code>// Conceptual output
+const result = useState(1);
+// result is like: [1, function setState() { ... }]</code></pre>
+      <p class="mini">You usually do not store this as <span class="inline-code">result</span>; you destructure immediately.</p>
+    </section>
+
+    <section id="use-state">
+      <h2>2️⃣ Step 2: Use State in JSX</h2>
+      <p>Once you have <span class="inline-code">step</span>, you can render UI based on it:</p>
+      <ul>
+        <li>Display the number</li>
+        <li>Pick a message from an array</li>
+        <li>Conditionally apply classes (e.g., active step)</li>
+      </ul>
+
+      <h3>Example: render message based on step</h3>
+      <pre><code>const messages = [
+  "Learn React ⚛️",
+  "Apply to jobs 💼",
+  "Invest your new income 📈"
+];
+
+function App() {
+  const [step, setStep] = useState(1);
+
+  return (
+    &lt;p className="message"&gt;
+      Step {step}: {messages[step - 1]}
+    &lt;/p&gt;
+  );
+}</code></pre>
+
+      <div class="callout ok">
+        <p><strong>Why <span class="inline-code">step - 1</span>?</strong> Arrays are zero-based (index starts at 0). Step 1 maps to index 0.</p>
+      </div>
+    </section>
+
+    <section id="update-state">
+      <h2>3️⃣ Step 3: Update State in Event Handlers</h2>
+      <p>To update state, call the setter function (here: <span class="inline-code">setStep</span>) inside an event handler like <span class="inline-code">onClick</span>.</p>
+
+      <h3>Next button</h3>
+      <pre><code>function handleNext() {
+  setStep(step + 1);
+}
+
+&lt;button onClick={handleNext}&gt;Next&lt;/button&gt;</code></pre>
+
+      <h3>Previous button</h3>
+      <pre><code>function handlePrevious() {
+  setStep(step - 1);
+}
+
+&lt;button onClick={handlePrevious}&gt;Previous&lt;/button&gt;</code></pre>
+
+      <div class="callout ok">
+        <p><strong>Magic moment:</strong> Updating state triggers React to <strong>re-render</strong> the component, showing a new view automatically. ✨</p>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Important:</strong> In JSX event props like <span class="inline-code">onClick</span>, pass a <em>function</em>, not a function call. ✅ <span class="inline-code">onClick={handleNext}</span> ❌ <span class="inline-code">onClick={handleNext()}</span></p>
+      </div>
+    </section>
+
+    <section id="guardrails">
+      <h2>🛡️ Preventing Bugs: Bounds/Guards</h2>
+      <p>Without checks, you can go to step 0, -1, or beyond the messages array.</p>
+
+      <h3>Simple guard clauses</h3>
+      <pre><code>function handleNext() {
+  if (step &lt; 3) setStep(step + 1);
+}
+
+function handlePrevious() {
+  if (step &gt; 1) setStep(step - 1);
+}</code></pre>
+
+      <div class="callout">
+        <p>✅ This keeps <span class="inline-code">step</span> within <strong>1..3</strong> so the UI always makes sense.</p>
+      </div>
+
+      <h3>Optional improvement (derive max from data)</h3>
+      <pre><code>const maxStep = messages.length;
+
+function handleNext() {
+  if (step &lt; maxStep) setStep(step + 1);
+}</code></pre>
+      <p class="mini">This avoids hard-coding 3, making the component easier to reuse later.</p>
+    </section>
+
+    <section id="hook-rules">
+      <h2>🪝 Rules of Hooks (useState included)</h2>
+      <p><strong>Hooks must be called at the top level</strong> of a React component function.</p>
+
+      <div class="callout danger">
+        <p><strong>Not allowed:</strong> calling <span class="inline-code">useState</span> inside <span class="inline-code">if</span>, loops, or nested functions. React (and ESLint) will warn/error. 🚫</p>
+      </div>
+
+      <h3>❌ Wrong</h3>
+      <pre><code>function App() {
+  if (true) {
+    const [step, setStep] = useState(1); // ❌ don't do this
+  }
+  return null;
+}</code></pre>
+
+      <h3>✅ Correct</h3>
+      <pre><code>function App() {
+  const [step, setStep] = useState(1); // ✅ top level
+  return &lt;div&gt;Step: {step}&lt;/div&gt;;
+}</code></pre>
+
+      <p class="mini">Rule of thumb: declare hooks near the top of the component, before handlers and JSX.</p>
+    </section>
+
+    <section id="best-practices">
+      <h2>✅ Best Practices + Common Mistakes</h2>
+
+      <h3>✅ Update state using the setter only</h3>
+      <div class="callout ok">
+        <p>Use <span class="inline-code">setStep(...)</span>. Avoid trying to modify the state variable directly.</p>
+      </div>
+      <pre><code>// ✅ correct
+setStep(step + 1);
+
+// ❌ wrong (doesn't update UI properly)
+step = step + 1;</code></pre>
+
+      <h3>⚠️ When you see a value update but UI doesn’t…</h3>
+      <ul>
+        <li>Check if you updated state with the setter.</li>
+        <li>Check if your handler is being called (temporary <span class="inline-code">console.log</span> helps).</li>
+        <li>Check bounds (<span class="inline-code">messages[step - 1]</span> can go undefined if step is out of range).</li>
+      </ul>
+
+      <h3>🧠 Mental model</h3>
+      <ul>
+        <li><strong>State</strong> = component memory over time</li>
+        <li><strong>Setter</strong> = request a new render with updated data</li>
+        <li><strong>JSX</strong> = “UI is a function of state”</li>
+      </ul>
+
+      <div class="callout">
+        <p>🙂 React lets you avoid manual DOM manipulation. You change state; React updates the UI.</p>
+      </div>
+    </section>
+
+    <section id="quick-check">
+      <h2>🧪 Quick Check + Mini Exercises</h2>
+
+      <h3>Quick check (answer in your head)</h3>
+      <ol>
+        <li>What two values does <span class="inline-code">useState</span> return?</li>
+        <li>Why does updating state change the UI?</li>
+        <li>Why is <span class="inline-code">useState</span> not allowed inside an <span class="inline-code">if</span>?</li>
+      </ol>
+
+      <div class="hr"></div>
+
+      <h3>Mini exercise 1: Disable buttons at edges</h3>
+      <p>Add <span class="inline-code">disabled</span> to the buttons:</p>
+      <pre><code>&lt;button disabled={step === 1} onClick={handlePrevious}&gt;Previous&lt;/button&gt;
+&lt;button disabled={step === messages.length} onClick={handleNext}&gt;Next&lt;/button&gt;</code></pre>
+      <p class="mini">Bonus: style disabled buttons in CSS so they look inactive.</p>
+
+      <h3>Mini exercise 2: Add a “Reset” button</h3>
+      <pre><code>function handleReset() {
+  setStep(1);
+}
+
+&lt;button onClick={handleReset}&gt;Reset&lt;/button&gt;</code></pre>
+
+      <div class="callout ok">
+        <p>✅ If you can implement these, you fully understand the practical workflow of state for interactive UI.</p>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top: 14px; color: var(--muted);">
+      <div class="hr"></div>
+      <p>End of reviewer — <strong>Creating a State Variable with useState</strong>. Print-friendly, single-column A4.</p>
+    </footer>
+  </main>
+</body>
+
+</html>

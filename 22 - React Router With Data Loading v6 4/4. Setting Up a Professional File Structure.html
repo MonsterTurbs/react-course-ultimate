@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Professional File Structure — Fast React Pizza (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #047857;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .soft { background: var(--soft); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #eef2ff;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7faff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #ecfdf5;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+    }
+
+    .danger {
+      border-left: 4px solid var(--danger);
+      background: #fef2f2;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .tree {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .tree pre {
+      margin: 0;
+      background: transparent;
+      color: var(--text);
+      padding: 0;
+      border-radius: 0;
+      overflow: visible;
+      white-space: pre;
+      font-size: 12.5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    /* Print styles (A4, clean margins, no URL after links) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Keep blocks from splitting awkwardly */
+      header, .card, pre, .note, .tree { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Printer-friendly sizing */
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li { font-size: 12.2px; }
+
+      /* Remove automatic URL printing */
+      a[href]::after { content: "" !important; }
+
+      /* Ensure code blocks print legibly */
+      pre {
+        color: #111 !important;
+        background: #f2f2f2 !important;
+        border: 1px solid #ddd;
+      }
+
+      .tree pre {
+        background: transparent !important;
+        border: 0;
+      }
+
+      .chip {
+        border-color: #ddd;
+        background: #f7f7f7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">📘 Fast React Pizza — Professional Setup</p>
+      <h1>🗂️ Setting Up a Professional File Structure</h1>
+      <p class="subtitle">
+        A feature-based folder structure that scales well for bigger React projects, plus how to place starter files correctly.
+      </p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">🧩 Feature-based structure</span>
+        <span class="chip">📁 src/features</span>
+        <span class="chip">🧱 Co-location</span>
+        <span class="chip">🎨 src/ui</span>
+        <span class="chip">🔌 src/services</span>
+        <span class="chip">🧰 src/utils</span>
+      </div>
+    </header>
+
+    <section class="card soft">
+      <h2>🎯 Goal of this lecture</h2>
+      <p>
+        Set up a <strong>professional, scalable</strong> file structure and move the provided starter files into the right places.
+        The structure used here is <strong>feature-based</strong> (instead of “everything in one components folder”).
+      </p>
+      <div class="note">
+        ✅ Big idea: keep related files together (components + hooks + logic) so you don’t jump around the project.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧠 Why a feature-based structure?</h2>
+      <p>
+        There are many valid ways to structure a React app. In this course section, the instructor prefers a
+        <strong>feature-based structure</strong> because it works very well as apps grow.
+      </p>
+      <ul>
+        <li>🧩 Organizes code by <strong>what the app does</strong> (features), not by file type.</li>
+        <li>🧱 Encourages <strong>co-location</strong>: feature components, hooks, and logic live together.</li>
+        <li>🔎 Makes it easier to find code: “Where is cart logic?” ➜ <code>features/cart</code>.</li>
+      </ul>
+      <div class="note warn">
+        ⚠️ Different developers prefer different structures. The important part is consistency and clarity.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>📁 The recommended folder structure (inside <code>src</code>)</h2>
+      <p class="muted">This is the structure created in the lecture:</p>
+
+      <div class="tree" aria-label="Project folder tree">
+        <pre>src/
+  features/
+    user/
+    menu/
+    cart/
+    order/
+  ui/
+  services/
+  utils/
+  index.css</pre>
+      </div>
+
+      <h3>What each folder is for</h3>
+      <ul>
+        <li>🧩 <code>features/</code> — one folder per feature category (User, Menu, Cart, Order)</li>
+        <li>🎨 <code>ui/</code> — reusable presentational UI components (buttons, inputs, layouts, etc.)</li>
+        <li>🔌 <code>services/</code> — reusable code for interacting with APIs (fetch functions, endpoints)</li>
+        <li>🧰 <code>utils/</code> — stateless helper functions (formatting, calculations, date/number helpers)</li>
+      </ul>
+
+      <div class="note">
+        ✅ Notice: there is no separate <code>pages/</code> folder here.
+        Pages are placed inside their feature folder to reduce “folder jumping”.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>📦 Moving the starter files into the structure</h2>
+      <p>
+        The instructor drags the provided starter folder into <code>src/</code>, then sorts each file into the correct place.
+      </p>
+
+      <h3>🔌 Services (API interaction)</h3>
+      <ul>
+        <li>👉 <code>apiGeocoding.js</code> → <code>src/services/</code></li>
+        <li>👉 <code>apiRestaurant.js</code> → <code>src/services/</code></li>
+      </ul>
+      <div class="note">
+        ✅ These files contain reusable API helper code (for the pizza API and related services).
+      </div>
+
+      <h3>🧰 Utilities (pure helpers)</h3>
+      <p class="muted">Examples mentioned: number/currency formatting, date formatting, small calculations.</p>
+      <ul>
+        <li>👉 helper utilities file(s) → <code>src/utils/</code></li>
+      </ul>
+
+      <h3>🎨 Global styles</h3>
+      <ul>
+        <li>👉 <code>index.css</code> → <code>src/</code></li>
+      </ul>
+      <div class="note warn">
+        ⚠️ If you move <code>index.css</code>, make sure it is imported in your entry file (usually <code>main.jsx</code>).
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🧩 Feature folders: what goes where</h2>
+      <p>
+        Each feature folder contains <strong>everything needed for that feature</strong>:
+        components, hooks, and feature-specific logic.
+      </p>
+
+      <h3>🛒 Cart</h3>
+      <ul>
+        <li>👉 <code>Cart.jsx</code></li>
+        <li>👉 <code>CartItem.jsx</code></li>
+        <li>👉 <code>CartOverview.jsx</code></li>
+        <li>👉 other cart-related files (e.g., actions/helpers for cart)</li>
+      </ul>
+
+      <h3>📋 Menu</h3>
+      <ul>
+        <li>👉 <code>Menu.jsx</code></li>
+        <li>👉 <code>MenuItem.jsx</code></li>
+      </ul>
+
+      <h3>🧾 Order</h3>
+      <ul>
+        <li>👉 <code>CreateOrder.jsx</code></li>
+        <li>👉 <code>Order.jsx</code></li>
+        <li>👉 <code>OrderItem.jsx</code></li>
+      </ul>
+
+      <h3>👤 User</h3>
+      <ul>
+        <li>👉 user-related feature files</li>
+        <li>👉 <code>userSlice.js</code> (important extra file from the GitHub starter)</li>
+      </ul>
+
+      <div class="note danger">
+        ❗ The lecture notes an extra starter file (from GitHub) not shown in the video:
+        <strong><code>userSlice.js</code></strong>. Drag it into <code>src/features/user/</code>.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🏠 Non-feature pages: where to place them</h2>
+      <p>
+        Some files don’t clearly belong to one feature category. In the lecture, these go into the reusable UI folder.
+      </p>
+      <ul>
+        <li>👉 <code>Home.jsx</code> → <code>src/ui/</code></li>
+        <li>👉 <code>Error.jsx</code> (Error Page) → <code>src/ui/</code></li>
+      </ul>
+      <div class="note">
+        ✅ These are “app-level” screens rather than feature-owned screens.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🧯 Fixing import errors after moving files</h2>
+      <p>
+        After reorganizing files, VS Code and the build tool may show errors because old import paths no longer match.
+        The lecture uses a quick VS Code trick:
+      </p>
+      <ul>
+        <li>✂️ Partially delete an import path</li>
+        <li>💡 Let VS Code auto-suggest the correct new path</li>
+        <li>✅ Select the suggested path to fix the import</li>
+      </ul>
+      <div class="note good">
+        ✅ After updating imports (e.g., for helper functions like formatting), the errors disappear.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>✅ Key takeaways</h2>
+      <ul>
+        <li>🧩 Use <strong>feature folders</strong> to keep related code together (co-location).</li>
+        <li>🎨 Keep reusable presentational components in <code>ui/</code>.</li>
+        <li>🔌 Put API interaction code in <code>services/</code>.</li>
+        <li>🧰 Put stateless helper functions in <code>utils/</code>.</li>
+        <li>🧯 After moving files, fix imports (VS Code suggestions help a lot).</li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="card">
+      <h2>➡️ What’s next</h2>
+      <p>
+        With the professional structure in place and starter files organized, you’re ready to start implementing the app
+        feature by feature in the next lecture.
+      </p>
+    </section>
+
+    <footer class="muted" style="margin-top:16px; font-size:12px;">
+      Print format: A4, single-column, word-wrapped, clean margins.
+    </footer>
+  </main>
+</body>
+</html>

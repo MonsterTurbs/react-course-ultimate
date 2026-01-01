@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wild Oasis — Deploying to Vercel (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --soft:#f6f7f8;
+      --code:#0b1020;
+      --codeText:#e6edf3;
+      --accent:#0b57d0;
+      --ok:#0f7b3a;
+      --warn:#8a5b00;
+      --bad:#b42318;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px 56px;
+    }
+
+    header{
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 26px;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:var(--soft);
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    h2{
+      font-size:18px;
+      margin: 20px 0 10px;
+    }
+
+    h3{
+      font-size:15px;
+      margin: 14px 0 8px;
+    }
+
+    p{margin: 10px 0;}
+    ul,ol{margin: 8px 0 10px 20px; padding:0;}
+    li{margin:6px 0;}
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout strong{font-weight:700;}
+
+    .callout.ok{border-left:6px solid var(--ok);}
+    .callout.warn{border-left:6px solid var(--warn);}
+    .callout.bad{border-left:6px solid var(--bad);}
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      border-radius: 10px;
+      padding: 12px 12px;
+      overflow:auto;
+      border: 1px solid rgba(255,255,255,.08);
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .inline-code{
+      background: #f0f3f6;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 0.95em;
+    }
+
+    a{color: var(--accent); text-decoration: underline;}
+
+    .checklist li{list-style: none; margin-left: -10px;}
+    .checklist li::before{content:"☐ "; color: var(--muted);}
+
+    .two-col{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow:hidden;
+      margin: 10px 0;
+    }
+    .table th, .table td{
+      border-bottom: 1px solid var(--border);
+      padding: 10px 10px;
+      vertical-align: top;
+      text-align:left;
+      font-size: 13px;
+    }
+    .table th{
+      background: var(--panel);
+      font-weight:700;
+    }
+    .table tr:last-child td{border-bottom:none;}
+
+    /* Print styles */
+    @page { size: A4; margin: 14mm; }
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ padding: 0; }
+      a{ color: var(--text); text-decoration: none; }
+      /* Do NOT print URLs */
+      a[href]::after{ content: "" !important; }
+      pre{ page-break-inside: avoid; }
+      .callout, .table{ page-break-inside: avoid; }
+      h2, h3{ page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🚀 Deploying The Wild Oasis Website to Vercel — Reviewer</h1>
+      <p class="subtitle">Goal: deploy your Next.js app from GitHub to a live URL on <span class="inline-code">.vercel.app</span>, then validate that pages + auth work correctly.</p>
+      <div class="meta">
+        <span class="chip">Topic: Next.js Deployment</span>
+        <span class="chip">Platform: Vercel</span>
+        <span class="chip">Key concept: Environment Variables</span>
+        <span class="chip">Common issue: OAuth redirect to localhost</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Big picture (what you’re doing)</h2>
+      <p>In this lecture, you take the GitHub repository you just created and connect it to <strong>Vercel</strong> (the company behind Next.js). Vercel will:</p>
+      <ul>
+        <li>📦 Pull your code from GitHub</li>
+        <li>🏗️ Build it (typically <span class="inline-code">npm run build</span>)</li>
+        <li>🌍 Deploy it to a public URL (e.g., <span class="inline-code">your-project.vercel.app</span>)</li>
+        <li>⚡ Optimize Next.js features like image optimization and caching</li>
+      </ul>
+
+      <div class="callout ok">
+        <strong>Key mindset:</strong> Deployment is not “just upload the code.” You must also deploy the <em>configuration</em> (environment variables, auth redirect URLs, credentials).
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Why Vercel (and alternatives)</h2>
+      <p>Vercel is the default choice for Next.js hosting because it’s built by the same team and supports Next.js features out-of-the-box (image optimization, caching behavior, etc.).</p>
+
+      <div class="callout warn">
+        <strong>Cost note 💸</strong> The free tier is generous. Costs can increase with more features/traffic (often cited as around ~$20 per user/month depending on plan).
+      </div>
+
+      <h3>Alternatives (when you want more control or lower cost)</h3>
+      <ul>
+        <li>☁️ Cloudflare</li>
+        <li>🧩 Netlify</li>
+        <li>🧰 OpenNext (helps host Next.js outside Vercel): <span class="inline-code">opennext.js.org</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>3) Step-by-step: Deploy on Vercel</h2>
+
+      <h3>Step A — Log in / Sign up</h3>
+      <ul>
+        <li>Go to <span class="inline-code">vercel.com</span></li>
+        <li>Log in (or sign up for a free account)</li>
+      </ul>
+
+      <h3>Step B — Create a new project</h3>
+      <ol>
+        <li>Click <strong>“Add New Project”</strong></li>
+        <li>Select <strong>Import Git Repository</strong></li>
+        <li>Choose your GitHub repo (the one you pushed in the previous lecture)</li>
+      </ol>
+
+      <h3>Step C — Configure the project (Next.js auto-detected)</h3>
+      <p>Vercel usually detects <strong>Next.js</strong> automatically. Common defaults are fine:</p>
+      <ul>
+        <li>Framework preset: <strong>Next.js</strong></li>
+        <li>Root directory: <strong>./</strong> (project root)</li>
+      </ul>
+
+      <h3>Step D — Add environment variables (critical)</h3>
+      <p>Before deploying, import the environment variables (from your local <span class="inline-code">.env</span> or your notes). Vercel provides a helpful UI to paste many variables at once.</p>
+
+      <div class="callout warn">
+        <strong>Why this matters ⚠️</strong> Without env vars, your app may deploy but fail at runtime (auth, database calls, API keys, etc.).
+      </div>
+
+      <p><strong>Fast input tip ✨</strong> In Vercel’s Environment Variables screen:</p>
+      <ol>
+        <li>Copy all variables (key=value lines)</li>
+        <li>Click the first variable row</li>
+        <li>Paste — Vercel will auto-populate multiple entries</li>
+      </ol>
+
+      <h3>Step E — Deploy</h3>
+      <p>Click <strong>Deploy</strong>. Vercel will build and deploy. You can open the build logs to watch output (including warnings).</p>
+
+      <pre>Build command (typical):
+
+npm run build
+      </pre>
+
+      <div class="callout ok">
+        <strong>Success signal ✅</strong> You’ll get a deployment success screen + a live URL like:
+        <ul>
+          <li><span class="inline-code">https://your-project-name.vercel.app</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) After deploy: verify the website</h2>
+      <p>Open the Vercel URL and navigate the site:</p>
+      <ul>
+        <li>🏠 Home</li>
+        <li>ℹ️ About</li>
+        <li>🏕️ Cabins</li>
+        <li>👤 Guest area</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Expected behavior:</strong> Next.js images may show a blur-up effect while loading (image optimization). You may also see spinners while data streams in.
+      </div>
+
+      <h3>Why some pages feel “instant”</h3>
+      <ul>
+        <li>⚡ Prefetching: Next.js preloads routes in the background</li>
+        <li>🧠 Caching: router cache can make navigation snappy</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>5) Common deployment problem: Login redirects to localhost</h2>
+      <p>After deploying, you might click <strong>Login</strong> and get redirected to a URL like:</p>
+      <ul>
+        <li><span class="inline-code">http://localhost:3000</span></li>
+      </ul>
+
+      <div class="callout bad">
+        <strong>Why this is bad ❌</strong> Your live website should never send users back to localhost. It only “works” on your machine because you still have localhost running.
+      </div>
+
+      <h3>Typical root causes</h3>
+      <table class="table" aria-label="Root causes for localhost redirect">
+        <thead>
+          <tr>
+            <th>Cause</th>
+            <th>What it looks like</th>
+            <th>Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🔧 Wrong environment variables on Vercel</td>
+            <td>App uses old <span class="inline-code">NEXTAUTH_URL</span> or similar pointing to localhost</td>
+            <td>Update env vars in Vercel → redeploy</td>
+          </tr>
+          <tr>
+            <td>🔐 OAuth redirect URLs not updated</td>
+            <td>Google (or provider) sends you back to localhost after login</td>
+            <td>Update Authorized redirect URIs in Google Cloud console</td>
+          </tr>
+          <tr>
+            <td>🌍 Mismatch between prod URL and provider settings</td>
+            <td>Works locally, fails in prod</td>
+            <td>Use the deployed domain (vercel.app or custom domain) everywhere</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <strong>Next lecture preview 📌</strong> You will fix production auth by (1) correcting Vercel environment variables and (2) updating URLs in the Google Developer Console.
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Mini-checklist (use this before saying “done”)</h2>
+      <ul class="checklist">
+        <li>Repo is connected to Vercel and latest commit is deployed</li>
+        <li>Environment variables are set in Vercel (Production)</li>
+        <li>Build finishes without fatal errors (warnings are okay, but review them)</li>
+        <li>Public URL loads (home/about/cabins) ✅</li>
+        <li>Auth flow stays on the production domain (no localhost redirects)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>7) Quick glossary</h2>
+      <ul>
+        <li>🌐 <strong>Deployment</strong> — making your app available on the internet</li>
+        <li>🔑 <strong>Environment variables</strong> — secrets/config values your app needs (API keys, URLs)</li>
+        <li>🔁 <strong>Redirect URI</strong> — allowed callback URL for OAuth providers (e.g., Google)</li>
+        <li>🖼️ <strong>Image optimization</strong> — Next.js feature that improves loading/performance</li>
+      </ul>
+
+      <div class="callout ok">
+        <strong>Result ✅</strong> You now have a live site you can share publicly. Next step is to make sure the authentication flow is correctly configured for production.
+      </div>
+    </section>
+  </main>
+</body>
+</html>

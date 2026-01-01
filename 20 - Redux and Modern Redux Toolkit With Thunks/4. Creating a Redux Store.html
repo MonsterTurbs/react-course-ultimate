@@ -1,0 +1,364 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redux (Classic) — Creating a Store — Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #0b1020;
+      --codefg: #e7e7e7;
+      --accent: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column, print-friendly container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px 40px;
+    }
+
+    header {
+      padding: 14px 14px 10px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    main { margin-top: 16px; }
+
+    h2 {
+      margin: 18px 0 8px;
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    h3 {
+      margin: 14px 0 6px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    p { margin: 8px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 12px 10px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    .callout {
+      border-left: 5px solid var(--accent);
+      background: #f5f9ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .warn {
+      border-left-color: #b45309;
+      background: #fff7ed;
+    }
+
+    .ok {
+      border-left-color: #15803d;
+      background: #f0fdf4;
+    }
+
+    ul { margin: 8px 0 8px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      overflow-x: auto;
+      white-space: pre;
+      border: 1px solid rgba(0,0,0,0.12);
+    }
+
+    .k {
+      display: inline-block;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 12px;
+      color: var(--muted);
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .small { font-size: 13px; color: var(--muted); }
+
+    hr {
+      border: 0;
+      border-top: 1px solid var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print settings */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, .card, .callout { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧠 Redux (Classic) — Creating a Store</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) — from transcript</p>
+      <div class="meta">
+        <div><span class="k">Goal</span>Create a Redux store using <code>createStore</code>, dispatch actions, and inspect state.</div>
+        <div><span class="k">Prereq</span>You already wrote <code>initialState</code> + a pure <code>reducer(state, action)</code>.</div>
+        <div><span class="k">Key idea</span>Store = single source of truth; updates happen by dispatching actions.</div>
+      </div>
+    </header>
+
+    <main>
+      <div class="callout warn">
+        <strong>⚠️ Note on <code>createStore</code>:</strong>
+        <div class="small">
+          In modern Redux, <code>createStore</code> is considered legacy (Redux Toolkit is recommended). But it is still excellent for learning the core mechanics. It is not going to be removed for learning purposes.
+        </div>
+      </div>
+
+      <section class="card">
+        <h2>🎯 What you accomplish in this lecture</h2>
+        <ul>
+          <li>Install Redux: <code>npm install redux</code></li>
+          <li>Create a store using your reducer: <code>const store = createStore(reducer)</code></li>
+          <li>Dispatch actions: <code>store.dispatch({ type, payload })</code></li>
+          <li>Read current state: <code>store.getState()</code></li>
+          <li>Model a “loan request” action with an object payload (amount + purpose)</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>1) Install Redux</h2>
+        <p>📦 Redux is a third-party library. For this lecture, you install the core package only:</p>
+        <pre><code>npm install redux</code></pre>
+      </section>
+
+      <section class="card">
+        <h2>2) Import <code>createStore</code> and create the store</h2>
+        <p>⚙️ In <code>store.js</code>, import <code>createStore</code> and create a store using your reducer.</p>
+
+        <pre><code>import { createStore } from "redux";
+
+// reducer(state = initialState, action) { ... }
+
+const store = createStore(reducer);
+</code></pre>
+
+        <div class="callout">
+          <strong>💡 Mental model:</strong> The store holds the current state. Your reducer is the “state transition machine” the store calls whenever you dispatch an action.
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>3) Dispatch actions and inspect the state</h2>
+        <p>🔁 Dispatching is conceptually identical to <code>dispatch</code> from <code>useReducer</code>, except now you dispatch to the <strong>store</strong>.</p>
+
+        <pre><code>store.dispatch({ type: "account/deposit", payload: 500 });
+console.log(store.getState());
+
+store.dispatch({ type: "account/withdraw", payload: 200 });
+console.log(store.getState());
+</code></pre>
+
+        <div class="callout ok">
+          <strong>✅ Expected result:</strong> Balance goes from <code>0 → 500 → 300</code>.
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>4) “How do we run store.js?” (Learning trick)</h2>
+        <p>🧪 For learning, you can import <code>store.js</code> inside <code>index.js</code> just to execute its top-level code.</p>
+        <pre><code>// index.js
+import "./store"; // runs the code in store.js (learning only)
+</code></pre>
+        <p class="small">
+          This is not the final architecture. Later, you will integrate Redux properly with React (via <code>react-redux</code>), but this is a fast way to test logic right now.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>5) Add “request loan” with an object payload</h2>
+        <p>🧾 Some actions need multiple data fields. Redux actions can use an object payload.</p>
+
+        <h3>Action example</h3>
+        <pre><code>store.dispatch({
+  type: "account/requestLoan",
+  payload: { amount: 1000, purpose: "to buy a car" },
+});
+
+console.log(store.getState());
+</code></pre>
+
+        <h3>Reducer case example</h3>
+        <p>🧠 In your reducer, read <code>action.payload.amount</code> and <code>action.payload.purpose</code>.</p>
+        <pre><code>case "account/requestLoan":
+  // optional rule: only allow one loan at a time
+  if (state.loan &gt; 0) return state;
+
+  return {
+    ...state,
+    loan: action.payload.amount,
+    loanPurpose: action.payload.purpose,
+    balance: state.balance + action.payload.amount,
+  };
+</code></pre>
+
+        <div class="callout">
+          <strong>🔎 Why add to balance?</strong>
+          When the bank gives you a loan, your cash (balance) increases by the loan amount.
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>6) Pay the loan back (no payload)</h2>
+        <p>✅ Some actions need no extra information. The type alone is enough.</p>
+
+        <pre><code>store.dispatch({ type: "account/payLoan" });
+console.log(store.getState());
+</code></pre>
+
+        <h3>Reducer example</h3>
+        <pre><code>case "account/payLoan":
+  return {
+    ...state,
+    balance: state.balance - state.loan,
+    loan: 0,
+    loanPurpose: "",
+  };
+</code></pre>
+
+        <div class="callout ok">
+          <strong>✅ Expected result:</strong>
+          Loan becomes <code>0</code>, loan purpose clears, and balance decreases by the previous loan amount.
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🧩 Key takeaways</h2>
+        <div class="grid">
+          <div>
+            <h3>1) Store + Reducer</h3>
+            <ul>
+              <li>Store holds the state</li>
+              <li>Reducer computes the next state (pure function)</li>
+              <li>Dispatch sends an action into the store</li>
+            </ul>
+          </div>
+          <div>
+            <h3>2) Actions</h3>
+            <ul>
+              <li><code>{ type, payload }</code> is the common shape</li>
+              <li>Payload can be a number, string, or an object (for multiple fields)</li>
+              <li>Some actions have no payload</li>
+            </ul>
+          </div>
+          <div>
+            <h3>3) Why this “classic” approach?</h3>
+            <ul>
+              <li>It removes the “magic” and teaches core Redux mechanics</li>
+              <li>After this foundation, Redux Toolkit becomes easier to understand</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>⚠️ Common pitfalls</h2>
+        <ul>
+          <li><strong>Forgetting to log after each dispatch:</strong> <code>console.log(store.getState())</code> only shows the current state at that moment.</li>
+          <li><strong>Mutating state inside the reducer:</strong> reducers must return new objects (use spreading).</li>
+          <li><strong>Typos in action types:</strong> this is why the next lecture introduces <em>action creators</em>.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>📝 Quick self-check (mini quiz)</h2>
+        <ol>
+          <li>What does the store do that <code>useReducer</code> doesn’t?</li>
+          <li>Why can an effect like “requestLoan” use an object payload?</li>
+          <li>Why do we avoid throwing errors in the default reducer case in classic Redux examples?</li>
+        </ol>
+        <p class="small">
+          If you can answer these confidently, you are ready for the next step: <strong>action creators</strong>.
+        </p>
+      </section>
+
+      <hr />
+
+      <section class="card">
+        <h2>Next lecture preview: Action Creators</h2>
+        <p>➡️ Instead of manually writing <code>type</code> strings everywhere, you will create functions that build actions consistently (fewer bugs, cleaner code).</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

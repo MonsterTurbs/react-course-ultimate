@@ -1,0 +1,397 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Pages Router — Creating a Layout with a Custom _App (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codefg: #e7eaf0;
+      --accent: #1a73e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 18px;
+    }
+    h1 {
+      font-size: 24px;
+      margin: 0 0 8px;
+      letter-spacing: .2px;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 22px 0 10px;
+    }
+    h3 {
+      font-size: 15px;
+      margin: 16px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 2px; }
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #1f2937;
+      white-space: nowrap;
+    }
+
+    ul { margin: 8px 0 8px 22px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7fbff;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px 12px;
+      border-radius: 12px;
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,.08);
+      margin: 10px 0 14px;
+      font-size: 12.5px;
+      line-height: 1.55;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .kbd {
+      font-family: inherit;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      background: #fff;
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-size: 12px;
+      color: #111;
+      white-space: nowrap;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Print styles (A4, clean, no URL clutter) */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+
+      /* Prevent awkward splits */
+      h1, h2, h3 { page-break-after: avoid; }
+      pre, .panel, .callout { break-inside: avoid; page-break-inside: avoid; }
+      li { break-inside: avoid; }
+
+      /* Print as plain text: remove clickable look */
+      a { color: inherit; text-decoration: none; }
+      a[href]:after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 Creating a Layout with a Custom <code>_app.js</code> (Pages Router)</h1>
+      <p class="subtitle">Study guide: rebuilding the same global layout you had in the App Router, but using the legacy Pages Router approach.</p>
+      <div class="chips">
+        <span class="chip">Next.js Pages Router</span>
+        <span class="chip">Custom App (<code>_app.js</code>)</span>
+        <span class="chip">Custom Document (<code>_document.js</code>)</span>
+        <span class="chip">Global Layout</span>
+        <span class="chip">SSR + Hydration</span>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2>🎯 Goal of this lesson</h2>
+      <ul>
+        <li>Bring back a <strong>global layout</strong> (Header + Navigation + main content) in the <strong>Pages Router</strong>.</li>
+        <li>Understand what <code>_app.js</code> and <code>_document.js</code> do, and why <code>_app.js</code> is the key file for layouts.</li>
+        <li>Compare Pages Router layout mechanics to App Router’s <code>layout.js</code> and <code>{'{children}'}</code>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧠 Big idea: Pages Router does not have App Router “convention files”</h2>
+      <p>
+        In the <strong>App Router</strong>, you had built-in convention files like <code>layout.js</code>, <code>page.js</code>, <code>loading.js</code>, <code>error.js</code>, etc.
+        In the <strong>Pages Router</strong>, those files do <em>not</em> exist.
+      </p>
+      <p>
+        Instead, Next.js gives you two optional “override” files:
+      </p>
+      <ul>
+        <li><strong><code>pages/_app.js</code></strong> → global app wrapper (best place for layouts, providers, fonts, global CSS)</li>
+        <li><strong><code>pages/_document.js</code></strong> → HTML document skeleton (rarely needed)</li>
+      </ul>
+      <div class="callout">
+        <p><strong>✅ Key takeaway:</strong> If you want a global layout in the Pages Router, you almost always use <code>_app.js</code>.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>📄 Custom <code>_document.js</code> vs Custom <code>_app.js</code></h2>
+
+      <h3>1) <code>_document.js</code> (rarely touched) 🏗️</h3>
+      <p>
+        Think of <code>_document.js</code> as the place to control the overall HTML structure:
+        <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code>, <code>&lt;body&gt;</code>.
+      </p>
+      <ul>
+        <li>Uses Next.js special components like <code>&lt;Html /&gt;</code>, <code>&lt;Head /&gt;</code>, <code>&lt;Main /&gt;</code>, <code>&lt;NextScript /&gt;</code>.</li>
+        <li>Most apps <strong>never</strong> need a custom document.</li>
+        <li>If you delete it, Next.js will use its internal default document automatically.</li>
+      </ul>
+
+      <h3>2) <code>_app.js</code> (the important one) 🧩</h3>
+      <p>
+        <code>_app.js</code> is like the <strong>root layout</strong> of the Pages Router.
+        It wraps every page, so it’s the perfect place for:
+      </p>
+      <ul>
+        <li>Global layout (Header, Navigation, Footer, etc.)</li>
+        <li>Global providers (Context, Theme providers, Query clients, etc.)</li>
+        <li>Global CSS imports</li>
+        <li>Fonts (Next.js font utilities)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🔁 The “Component + pageProps” pattern (Pages Router equivalent of <code>{'{children}'}</code>)</h2>
+      <p>
+        In the Pages Router, <code>_app.js</code> receives two important props:
+      </p>
+      <ul>
+        <li><code>Component</code> → the current page component being rendered</li>
+        <li><code>pageProps</code> → props that Next.js passes to that page</li>
+      </ul>
+      <p>
+        You must render the page somewhere in your layout using:
+        <span class="kbd">&lt;Component {...pageProps} /&gt;</span>
+      </p>
+
+      <div class="callout">
+        <p><strong>🧠 Mental model:</strong> <code>Component</code> in Pages Router ≈ <code>{'{children}'}</code> in App Router.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Example: global layout in <code>pages/_app.js</code></h2>
+      <p>
+        Below is a clean template that matches what the lecture describes:
+        import global CSS, add your Header + Navigation, then place the page content.
+      </p>
+
+      <pre><code>// pages/_app.js
+import "@/styles/globals.css"; // or "../styles/globals.css" depending on your setup
+
+// Layout UI (from your components folder)
+import Header from "@/components/Header";
+import Navigation from "@/components/Navigation";
+
+// Optional: Next.js font optimization (works in Pages Router too)
+import { Josefin_Sans } from "next/font/google";
+
+const josefin = Josefin_Sans({
+  subsets: ["latin"],
+  display: "swap",
+});
+
+export default function App({ Component, pageProps }) {
+  return (
+    &lt;div className={josefin.className}&gt;
+      &lt;Header /&gt;
+
+      &lt;div className="mx-auto max-w-7xl px-6 py-8"&gt;
+        &lt;Navigation /&gt;
+
+        &lt;main className="mt-8"&gt;
+          {/* ✅ Pages Router equivalent of {children} */}
+          &lt;Component {...pageProps} /&gt;
+        &lt;/main&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <div class="panel">
+        <h3>Why the page content disappeared in the lecture (and how it was fixed)</h3>
+        <p>
+          If you forget to include <code>&lt;Component {...pageProps} /&gt;</code>, you will still see the Header/Navigation,
+          but <strong>none of the page content</strong> will render.
+        </p>
+        <p>
+          Adding it back is the fix. ✅
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>⚠️ Important difference: no “nested layouts” by default</h2>
+      <p>
+        In the App Router you could create nested <code>layout.js</code> files (e.g., for a guest area sidebar).
+        In the Pages Router, there is <strong>no built-in nested layout system</strong>.
+      </p>
+      <p>
+        If you need nested layouts, you use normal React composition patterns.
+        Two common approaches:
+      </p>
+
+      <h3>Approach A: Per-page layout wrapper component</h3>
+      <pre><code>// components/GuestLayout.jsx
+export default function GuestLayout({ children }) {
+  return (
+    &lt;div className="grid grid-cols-[280px_1fr] gap-6"&gt;
+      &lt;aside className="border rounded-lg p-4"&gt;Sidebar&lt;/aside&gt;
+      &lt;section&gt;{children}&lt;/section&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <pre><code>// pages/account/reservations.js
+import GuestLayout from "@/components/GuestLayout";
+
+export default function ReservationsPage() {
+  return &lt;div&gt;Reservations list…&lt;/div&gt;;
+}
+
+ReservationsPage.getLayout = function getLayout(page) {
+  return &lt;GuestLayout&gt;{page}&lt;/GuestLayout&gt;;
+};
+</code></pre>
+
+      <pre><code>// pages/_app.js
+import "@/styles/globals.css";
+
+export default function App({ Component, pageProps }) {
+  const getLayout = Component.getLayout ?? ((page) =&gt; page);
+  return getLayout(&lt;Component {...pageProps} /&gt;);
+}
+</code></pre>
+
+      <h3>Approach B: Compose layouts inside the page directly</h3>
+      <p>
+        Simpler, but less reusable: import the layout component and wrap the JSX right in the page.
+      </p>
+
+      <div class="callout">
+        <p><strong>✅ Practical takeaway:</strong> In Pages Router, nested layouts are a “pattern,” not a framework feature.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Quick comparison: App Router vs Pages Router layout</h2>
+      <div class="panel">
+        <ul>
+          <li><strong>App Router:</strong> <code>app/layout.js</code> + <code>{'{children}'}</code> + nested layouts supported natively.</li>
+          <li><strong>Pages Router:</strong> <code>pages/_app.js</code> + <code>&lt;Component {...pageProps} /&gt;</code> + nested layouts require composition patterns.</li>
+          <li><strong>Document skeleton:</strong> <code>_document.js</code> exists only in Pages Router (App Router uses different mechanisms).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Common mistakes and fixes</h2>
+      <ul>
+        <li><strong>❌ Layout shows, but pages are blank:</strong> you forgot <code>&lt;Component {...pageProps} /&gt;</code>.</li>
+        <li><strong>❌ Tailwind styles missing:</strong> global CSS not imported in <code>_app.js</code> (or wrong path).</li>
+        <li><strong>❌ Trying to create a nested <code>layout.js</code> in <code>pages/</code>:</strong> won’t work — use composition patterns instead.</li>
+        <li><strong>❌ Confusing router imports:</strong> Pages Router uses <code>next/router</code>; App Router uses <code>next/navigation</code>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📝 Mini-checklist for your project</h2>
+      <div class="panel">
+        <ul>
+          <li>✅ <code>pages/_app.js</code> exists and imports your global CSS.</li>
+          <li>✅ Header + Navigation render once and persist across navigation.</li>
+          <li>✅ <code>&lt;Component {...pageProps} /&gt;</code> is rendered where the page content should go.</li>
+          <li>✅ If you need a “guest area layout,” you implement it with React composition (e.g., <code>getLayout</code> pattern).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Recap</h2>
+      <ul>
+        <li>Pages Router has no <code>layout.js</code>; you create global layout in <code>pages/_app.js</code>.</li>
+        <li><code>_document.js</code> controls the HTML skeleton, but you usually don’t need it.</li>
+        <li>Render the current page using <code>&lt;Component {...pageProps} /&gt;</code> (Pages Router version of <code>{'{children}'}</code>).</li>
+        <li>Nested layouts are done with composition patterns, not built-in routing conventions.</li>
+      </ul>
+      <p class="subtitle">Next: fill out the remaining pages (cabins, about, contact) using this global layout foundation.</p>
+    </section>
+
+  </main>
+</body>
+</html>

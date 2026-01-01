@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tailwind CSS Crash Course — Styling Text (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f6f7f8;
+      --chip: #f2f3f5;
+      --codebg: #0f172a;
+      --codefg: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 16px 16px 12px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+    }
+
+    main {
+      margin-top: 14px;
+    }
+
+    section {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 14px 16px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    p {
+      margin: 8px 0;
+    }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-top: 10px;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 10px;
+      overflow-x: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .tw {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12.5px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini {
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print styles (A4, single column, clean margins) */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body {
+        background: #fff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .page {
+        max-width: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      header, section {
+        border-color: #d9d9d9;
+        box-shadow: none;
+      }
+
+      pre {
+        page-break-inside: avoid;
+      }
+
+      /* Don't print URL hints for links */
+      a[href]::after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>📝 Tailwind CSS — Styling Text (Reviewer / Study Guide)</h1>
+      <p class="subtitle">Focus: applying Tailwind typography utilities (text size, weight, transform, tracking) + using Tailwind classes in <strong>HTML</strong> and <strong>JSX</strong>.</p>
+      <div class="meta">
+        <span class="chip">📄 Single-column</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+        <span class="chip">✅ Beginner-friendly</span>
+        <span class="chip">⚙️ Practical examples</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 What you should learn in this lecture</h2>
+        <ul>
+          <li>How Tailwind classes can be used in <strong>JSX</strong> (<span class="tw">className</span>) and in plain <strong>HTML</strong> (<span class="tw">class</span>).</li>
+          <li>How to set <strong>default page styles</strong> on <span class="tw">&lt;body&gt;</span> (background + text color) so elements inherit them.</li>
+          <li>The most common text utilities: alignment, size, weight, uppercase, and letter spacing (tracking).</li>
+          <li>How to use <strong>arbitrary values</strong> (square brackets) as an “escape hatch” when Tailwind presets are not enough.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>💡 Assumption</strong>
+          <div class="mini">Tailwind becomes much easier if you already know CSS fundamentals (font-size, font-weight, line-height, letter-spacing, color inheritance).</div>
+        </div>
+      </section>
+
+      <section>
+        <h2>1) 🧩 Tailwind classes in HTML vs JSX</h2>
+        <div class="grid">
+          <div>
+            <h3>✅ JSX (React)</h3>
+            <ul>
+              <li>Use <span class="tw">className</span> (React prop name).</li>
+              <li>Example: <span class="tw">&lt;h1 className="text-xl font-semibold"&gt;...&lt;/h1&gt;</span></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3>✅ Plain HTML</h3>
+            <ul>
+              <li>Use <span class="tw">class</span> (standard HTML attribute).</li>
+              <li>Example: <span class="tw">&lt;body class="bg-stone-100 text-stone-700"&gt;</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>🧠 Why set styles on &lt;body&gt;?</strong>
+          <div class="mini">Text color commonly <em>inherits</em>. If the body has <span class="tw">text-stone-700</span>, most text automatically uses that color unless overridden. This reduces repeated classes.</div>
+        </div>
+
+        <pre><code>&lt;!-- HTML example (global defaults) --&gt;
+&lt;body class="bg-stone-100 text-stone-700"&gt;
+  ...
+&lt;/body&gt;
+
+// JSX example
+export default function Home() {
+  return &lt;h1 className="text-xl font-semibold"&gt;Hello&lt;/h1&gt;;
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>2) ✍️ Common Tailwind text utilities</h2>
+
+        <h3>2.1 📍 Text alignment</h3>
+        <ul>
+          <li>Center text: <span class="tw">text-center</span></li>
+          <li>Right align: <span class="tw">text-right</span></li>
+          <li>Left align: default (or use <span class="tw">text-left</span>)</li>
+        </ul>
+
+        <h3>2.2 🔠 Font size</h3>
+        <p class="mini">In Tailwind, font size uses the <span class="tw">text-*</span> prefix (even though the CSS property is <em>font-size</em>).</p>
+        <ul>
+          <li>Small: <span class="tw">text-sm</span></li>
+          <li>Base: <span class="tw">text-base</span></li>
+          <li>Large: <span class="tw">text-lg</span></li>
+          <li>Extra large: <span class="tw">text-xl</span>, <span class="tw">text-2xl</span> … <span class="tw">text-9xl</span></li>
+        </ul>
+
+        <div class="callout">
+          <strong>✅ Nice detail</strong>
+          <div class="mini">Tailwind sizes often come with sensible default line-heights, which can make text look better immediately without extra work.</div>
+        </div>
+
+        <h3>2.3 🏋️ Font weight</h3>
+        <p class="mini">Instead of remembering numeric font weights (400/600/700), Tailwind provides names.</p>
+        <ul>
+          <li>Regular: <span class="tw">font-normal</span></li>
+          <li>Medium: <span class="tw">font-medium</span></li>
+          <li>Semi-bold: <span class="tw">font-semibold</span></li>
+          <li>Bold: <span class="tw">font-bold</span></li>
+        </ul>
+
+        <h3>2.4 🔡 Text transform (uppercase)</h3>
+        <ul>
+          <li>Uppercase all letters: <span class="tw">uppercase</span></li>
+          <li>Also useful: <span class="tw">lowercase</span>, <span class="tw">capitalize</span>, <span class="tw">normal-case</span></li>
+        </ul>
+
+        <h3>2.5 ↔️ Letter spacing (tracking)</h3>
+        <p class="mini">In Tailwind, letter spacing uses <span class="tw">tracking-*</span> (CSS property: <em>letter-spacing</em>).</p>
+        <ul>
+          <li>Widest example used in lecture: <span class="tw">tracking-widest</span></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>3) 🧯 Arbitrary values (square brackets)</h2>
+        <p>
+          Sometimes you need a value Tailwind doesn’t provide. Tailwind lets you “escape” the preset scale using square brackets.
+          This is powerful, but should be used sparingly.
+        </p>
+
+        <div class="callout">
+          <strong>✅ Rule of thumb</strong>
+          <div class="mini">Use Tailwind presets for ~99% of cases. Use arbitrary values only when you truly need an exact custom number.</div>
+        </div>
+
+        <h3>Examples</h3>
+        <ul>
+          <li>Custom letter spacing: <span class="tw">tracking-[5px]</span> or <span class="tw">tracking-[2rem]</span></li>
+          <li>Custom font size: <span class="tw">text-[100px]</span> (or any value you need)</li>
+        </ul>
+
+        <pre><code>// Letter spacing “escape hatch”
+&lt;a className="tracking-[5px] uppercase"&gt;Fast React Pizza&lt;/a&gt;
+
+// Custom font size (rarely needed)
+&lt;h1 className="text-[100px]"&gt;Big Title&lt;/h1&gt;</code></pre>
+      </section>
+
+      <section>
+        <h2>4) 🧪 Practical mini-recipes from the lecture</h2>
+
+        <h3>4.1 Set global defaults on the body</h3>
+        <ul>
+          <li>Background: <span class="tw">bg-stone-100</span></li>
+          <li>Default text color: <span class="tw">text-stone-700</span></li>
+        </ul>
+
+        <h3>4.2 CartOverview text tweaks</h3>
+        <ul>
+          <li>Make text semi-bold: <span class="tw">font-semibold</span></li>
+          <li>Make everything uppercase: <span class="tw">uppercase</span> on the parent element</li>
+        </ul>
+
+        <h3>4.3 Header branding style</h3>
+        <ul>
+          <li>Uppercase brand text: <span class="tw">uppercase</span></li>
+          <li>Wider letter spacing: <span class="tw">tracking-widest</span> (or custom with brackets)</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <h3>4.4 Create a Username component</h3>
+        <p class="mini">For now, hard-code a name; later it comes from Redux in this project.</p>
+        <pre><code>// features/user/Username.jsx
+export default function Username() {
+  return (
+    &lt;div className="text-sm font-semibold"&gt;
+      Reymond
+    &lt;/div&gt;
+  );
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>5) ✅ Quick self-check (1 minute)</h2>
+        <ul>
+          <li>🧠 What attribute do you use in HTML vs JSX for Tailwind classes?</li>
+          <li>🧠 Which Tailwind class sets font size? (Hint: uses <span class="tw">text-</span>)</li>
+          <li>🧠 Which Tailwind class sets font weight? (Hint: uses <span class="tw">font-</span>)</li>
+          <li>🧠 What’s the Tailwind name for letter spacing? (Hint: <span class="tw">tracking-</span>)</li>
+          <li>🧠 When should you use <span class="tw">[arbitrary-values]</span>?</li>
+        </ul>
+
+        <div class="callout">
+          <strong>⭐ Practical tip</strong>
+          <div class="mini">Keep Tailwind docs open and use search (often <span class="kbd">Ctrl</span> / <span class="kbd">Cmd</span> + <span class="kbd">K</span>) to find the exact utility quickly.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

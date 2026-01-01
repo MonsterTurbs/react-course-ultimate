@@ -1,0 +1,408 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React useEffect — Cleaning Up Data Fetching (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #1a73e8;
+      --ok: #0b8043;
+      --warn: #b06000;
+      --bad: #b00020;
+      --codebg: #0b1020;
+      --codetext: #eaf2ff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      margin: 0 0 8px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 4px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin: 18px 0 8px;
+      letter-spacing: -0.1px;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin: 14px 0 6px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 10px 18px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-left: 5px solid var(--accent);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.bad { border-left-color: var(--bad); }
+
+    .callout .title {
+      margin: 0 0 6px;
+      font-weight: 700;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92em;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.94em;
+    }
+
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .qa {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    .qa .q {
+      margin: 0 0 6px;
+      font-weight: 700;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* Print */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 12px; }
+      pre { page-break-inside: avoid; }
+      .callout, .qa { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧹 useEffect Cleanup for Data Fetching (AbortController)</h1>
+      <p class="subtitle">Reviewer / study guide: cancel outdated requests, avoid race conditions, and keep UI consistent.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Effects + Data Fetching</span>
+        <span class="chip">🧠 Level: Beginner-friendly</span>
+        <span class="chip">🖨️ Print: A4, single-column</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) The problem: too many requests per keystroke 😵</h2>
+      <p>
+        In search UIs, it’s common to fetch data every time the user types. If your effect runs on every query change,
+        you can accidentally fire <strong>one HTTP request per keystroke</strong>.
+      </p>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Why this is a problem</p>
+        <ul>
+          <li><strong>Performance hit:</strong> many simultaneous requests can slow each other down.</li>
+          <li><strong>Wasted bandwidth:</strong> you download results you no longer care about.</li>
+          <li><strong>Race condition risk:</strong> an older request might finish last and overwrite newer results.</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <p class="title">🏁 What is a “race condition” in this context?</p>
+        <p>
+          Multiple requests are “racing” to finish. If request <em>A</em> (older query) finishes after request <em>B</em>
+          (newer query), then <em>A</em> might update state last — showing the wrong movies.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) The fix: cancel the previous fetch in the cleanup function 🛑</h2>
+      <p>
+        The cleanup function in <span class="inline-code">useEffect</span> runs:
+      </p>
+      <ul>
+        <li>🔁 <strong>Before</strong> the effect runs again (on re-render caused by dependency changes)</li>
+        <li>💀 <strong>When</strong> the component unmounts</li>
+      </ul>
+      <p>
+        That timing is perfect for canceling the previous request when a new query arrives.
+      </p>
+
+      <div class="callout ok">
+        <p class="title">✅ Tool: AbortController (native browser API)</p>
+        <p>
+          You create a controller, pass its <span class="inline-code">signal</span> into <span class="inline-code">fetch</span>,
+          and call <span class="inline-code">controller.abort()</span> inside cleanup.
+        </p>
+      </div>
+
+      <h3>Recipe (step-by-step) 🍳</h3>
+      <ol>
+        <li>Create a new controller <em>inside</em> the effect (so each effect run gets its own controller).</li>
+        <li>Attach it to <span class="inline-code">fetch</span> via the <span class="inline-code">signal</span> option.</li>
+        <li>Return a cleanup function that aborts the controller.</li>
+      </ol>
+
+      <pre><code>// ✅ Cleaned-up data fetching pattern
+useEffect(function () {
+  // 1) Create controller for THIS effect run
+  const controller = new AbortController();
+
+  async function fetchMovies() {
+    try {
+      setIsLoading(true);
+      setError("");
+
+      const res = await fetch(
+        `https://www.omdbapi.com/?apikey=${KEY}&amp;s=${query}`,
+        { signal: controller.signal } // 2) connect controller to fetch
+      );
+
+      if (!res.ok) throw new Error("Something went wrong");
+
+      const data = await res.json();
+      if (data.Response === "False") throw new Error("Movie not found");
+
+      setMovies(data.Search);
+      setError(""); // optional: clear errors after success
+    } catch (err) {
+      // 3) Ignore abort errors (they are expected)
+      if (err.name !== "AbortError") setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // Optional guard: don’t fetch for short/empty queries
+  if (query.length &lt; 3) {
+    setMovies([]);
+    setError("");
+    return;
+  }
+
+  fetchMovies();
+
+  // ✅ Cleanup: cancel previous request on re-render/unmount
+  return function () {
+    controller.abort();
+  };
+}, [query]);</code></pre>
+
+      <div class="callout">
+        <p class="title">🧠 Why does this cancel “old” requests?</p>
+        <p>
+          When <span class="inline-code">query</span> changes, the component re-renders. Before the next effect runs,
+          React calls the previous cleanup — which aborts the previous request.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Important detail: aborting looks like an error (but it’s not) 🙃</h2>
+      <p>
+        When a fetch is aborted, the promise rejects and ends up in your <span class="inline-code">catch</span> block.
+        If you treat that like a “real” error, your UI will show an error message while the user is simply typing.
+      </p>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Fix: ignore AbortError</p>
+        <p>
+          Aborted requests have <span class="inline-code">err.name === "AbortError"</span>. Only set error state for
+          other errors.
+        </p>
+      </div>
+
+      <pre><code>catch (err) {
+  if (err.name !== "AbortError") {
+    setError(err.message);
+  }
+}</code></pre>
+    </section>
+
+    <section>
+      <h2>4) Practical takeaways you should remember ✅</h2>
+      <ul>
+        <li>🧩 <strong>Effects are for synchronization</strong> (UI ↔ external systems like APIs).</li>
+        <li>🔁 <strong>Cleanup runs between renders</strong> and on unmount — ideal for canceling work.</li>
+        <li>🛑 <strong>Use AbortController</strong> to cancel outdated fetch requests.</li>
+        <li>🏎️ <strong>Race conditions happen</strong> when multiple requests compete to update state.</li>
+        <li>🧯 <strong>Ignore AbortError</strong> so aborted requests don’t show as failures.</li>
+      </ul>
+
+      <div class="callout ok">
+        <p class="title">✅ Rule of thumb</p>
+        <p>
+          If your UI can trigger many requests rapidly (search-as-you-type, filters, typeahead), add cleanup.
+          If requests are infrequent (e.g., clicking a movie once), cleanup is usually optional.
+        </p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>5) Quick self-check (mini quiz) 🧪</h2>
+
+      <div class="qa">
+        <p class="q">Q1: Why can an older request overwrite newer UI results?</p>
+        <p class="a small">Because network timing is unpredictable. A slower older request can finish last and call <span class="inline-code">setMovies</span> after a newer request.</p>
+      </div>
+
+      <div class="qa">
+        <p class="q">Q2: When exactly does the cleanup function run?</p>
+        <p class="a small">Before the next effect execution (after a dependency-triggered re-render) and when the component unmounts.</p>
+      </div>
+
+      <div class="qa">
+        <p class="q">Q3: Why must you ignore AbortError?</p>
+        <p class="a small">Aborting a request rejects the fetch promise; it’s expected behavior, not a real failure the user should see.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Common pitfalls (and fixes) 🧰</h2>
+      <ul>
+        <li>
+          ❌ <strong>Putting an async function directly as the effect callback</strong>
+          <div class="small">Fix: define an inner async function and call it inside the effect.</div>
+        </li>
+        <li>
+          ❌ <strong>Forgetting dependencies</strong>
+          <div class="small">Fix: include every state/prop used in the effect (e.g., <span class="inline-code">query</span>).</div>
+        </li>
+        <li>
+          ❌ <strong>Showing errors while typing</strong>
+          <div class="small">Fix: ignore <span class="inline-code">AbortError</span>.</div>
+        </li>
+        <li>
+          ❌ <strong>Fetching on empty/short queries</strong>
+          <div class="small">Fix: add guard logic (e.g., only fetch when <span class="inline-code">query.length &gt;= 3</span>).</div>
+        </li>
+      </ul>
+    </section>
+
+    <footer class="small" style="margin-top:18px; border-top:1px solid var(--border); padding-top:10px;">
+      <p><strong>End of notes.</strong> Suggested practice: implement a search box that fetches on query change, cancels old requests, and displays loading + error states correctly.</p>
+    </footer>
+  </main>
+</body>
+</html>

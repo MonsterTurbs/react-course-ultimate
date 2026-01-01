@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wild Oasis — Building the App Layout (Study Guide)</title>
+  <style>
+    :root{
+      --paper:#ffffff;
+      --ink:#111111;
+      --muted:#4b5563;
+      --soft:#f6f7f9;
+      --border:#e5e7eb;
+      --accent:#1f4bd8;
+      --accent2:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+
+      --font: Arial, Helvetica, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      /* Print tuning */
+      --print-font: 11.5pt;
+      --print-line: 1.45;
+      --print-margin: 14mm;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--paper);
+      color:var(--ink);
+      font-family:var(--font);
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page container */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px;
+    }
+
+    header.hero{
+      background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding: 18px 16px;
+    }
+
+    .kicker{
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .2px;
+      margin: 0 0 6px;
+    }
+
+    h1{
+      font-size: 24px;
+      line-height: 1.2;
+      margin: 0 0 10px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border:1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius:999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main{ margin-top: 18px; }
+
+    h2{
+      font-size: 18px;
+      margin: 22px 0 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3{
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p{ margin: 10px 0; }
+
+    .note{
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .tip{
+      border-left: 4px solid var(--accent2);
+      background: #f3fffd;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .warn{
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .danger{
+      border-left: 4px solid var(--danger);
+      background: #fff1f2;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    ul,ol{ margin: 8px 0 8px 22px; }
+    li{ margin: 6px 0; }
+
+    .divider{ height:1px; background: var(--border); margin: 18px 0; }
+
+    pre{
+      background: var(--soft);
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+      margin: 10px 0;
+    }
+
+    code{
+      font-family: var(--mono);
+      font-size: 12.5px;
+    }
+
+    .kbd{
+      font-family: var(--mono);
+      font-size: 12px;
+      border:1px solid var(--border);
+      background:#fff;
+      padding: 1px 6px;
+      border-radius:6px;
+    }
+
+    .checklist{
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background:#fff;
+    }
+
+    .checklist h3{ margin-top: 0; }
+
+    .qa{
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background:#fff;
+    }
+
+    .qa details{
+      border-top: 1px dashed var(--border);
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+
+    .qa details:first-child{ border-top:0; padding-top:0; margin-top:0; }
+
+    .qa summary{
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .small{ font-size: 13px; color: var(--muted); }
+
+    /* Print rules: A4, single column, no link URLs */
+    @page{ size: A4; margin: var(--print-margin); }
+
+    @media print{
+      body{ font-size: var(--print-font); line-height: var(--print-line); }
+      .page{ max-width: none; padding: 0; }
+      header.hero{ border-radius: 0; border-left: 0; border-right: 0; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]::after{ content: "" !important; } /* don’t print URLs */
+      pre{ white-space: pre-wrap; } /* avoid cutting long lines */
+      .chip{ border-color:#d1d5db; }
+      .note,.tip,.warn,.danger{ break-inside: avoid; }
+      h2,h3,pre{ break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="kicker">📘 The Ultimate React Course — Wild Oasis Project</p>
+      <h1>🧱 Building the App Layout (Sidebar + Header + Main) — Study Guide</h1>
+      <p class="subtitle">
+        Goal: create a reusable <strong>layout route</strong> that wraps most pages, then build a classic admin-style layout using
+        <strong>styled-components</strong> + <strong>CSS Grid</strong>.
+      </p>
+      <div class="meta">
+        <span class="chip">🧭 React Router: Layout Routes + Outlet</span>
+        <span class="chip">🎨 styled-components: StyledAppLayout / StyledSidebar / StyledHeader / Main</span>
+        <span class="chip">🧩 Consistent page styling via &lt;main&gt;</span>
+        <span class="chip">📄 A4 Print-ready</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>1) What you are building</h2>
+      <p>
+        You are creating an application “shell” (layout) that stays on screen while the content changes.
+        Think of it as a frame:
+      </p>
+      <ul>
+        <li>📌 <strong>Sidebar (left)</strong> — navigation links (Dashboard, Bookings, Cabins, etc.)</li>
+        <li>📌 <strong>Header (top)</strong> — user menu, actions, maybe dark mode toggle later</li>
+        <li>📌 <strong>Main content</strong> — this is where each page is rendered (Dashboard/Bookings/etc.)</li>
+      </ul>
+
+      <div class="note">
+        <strong>Key idea:</strong> The layout should NOT live inside any feature folder because it is shared across features.
+        It belongs in a common place like <strong>UI/</strong>.
+      </div>
+
+      <h2>2) React Router layout routes</h2>
+      <h3>2.1 Create the layout component</h3>
+      <p>
+        Create <strong>UI/AppLayout.jsx</strong>. Initially you can render a placeholder text to confirm routing works.
+      </p>
+
+      <h3>2.2 Put routes inside the layout route</h3>
+      <p>
+        A <strong>layout route</strong> wraps other routes. It usually has <em>no</em> <code>path</code>.
+        You nest the routes that should render inside the layout.
+      </p>
+
+      <pre><code>// App.jsx (example idea)
+&lt;Routes&gt;
+  &lt;Route element={&lt;AppLayout /&gt;}&gt;
+    &lt;Route index element={&lt;Dashboard /&gt;} /&gt;
+    &lt;Route path="bookings" element={&lt;Bookings /&gt;} /&gt;
+    &lt;Route path="cabins" element={&lt;Cabins /&gt;} /&gt;
+    &lt;Route path="account" element={&lt;Account /&gt;} /&gt;
+    &lt;Route path="settings" element={&lt;Settings /&gt;} /&gt;
+    &lt;Route path="users" element={&lt;Users /&gt;} /&gt;
+  &lt;/Route&gt;
+
+  {/* Routes NOT inside layout */}
+  &lt;Route path="login" element={&lt;Login /&gt;} /&gt;
+  &lt;Route path="*" element={&lt;PageNotFound /&gt;} /&gt;
+&lt;/Routes&gt;</code></pre>
+
+      <div class="tip">
+        ✅ <strong>Why keep Login outside?</strong> Login is a different “shell” (usually centered form, no sidebar).
+        Same logic for <strong>404</strong>.
+      </div>
+
+      <h3>2.3 Render child routes using &lt;Outlet /&gt;</h3>
+      <p>
+        Nested routes won’t show up automatically. You must place an <strong>&lt;Outlet /&gt;</strong> in the layout.
+        Outlet is the “slot” where the active child route renders.
+      </p>
+
+      <pre><code>import { Outlet } from "react-router-dom";
+
+function AppLayout() {
+  return (
+    &lt;div&gt;
+      APP LAYOUT
+      &lt;Outlet /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="warn">
+        ⚠️ <strong>Common mistake:</strong> Forgetting <code>&lt;Outlet /&gt;</code> → you only see the layout, never the pages.
+      </div>
+
+      <h2>3) HTML structure of the layout</h2>
+      <p>
+        Once routing is confirmed, build the semantic structure:
+      </p>
+      <ul>
+        <li><code>&lt;aside&gt;</code> → Sidebar</li>
+        <li><code>&lt;header&gt;</code> → Top bar</li>
+        <li><code>&lt;main&gt;</code> → Page content (Outlet)</li>
+      </ul>
+
+      <pre><code>function AppLayout() {
+  return (
+    &lt;StyledAppLayout&gt;
+      &lt;StyledSidebar&gt;SIDEBAR&lt;/StyledSidebar&gt;
+      &lt;StyledHeader&gt;HEADER&lt;/StyledHeader&gt;
+      &lt;Main&gt;
+        &lt;Outlet /&gt;
+      &lt;/Main&gt;
+    &lt;/StyledAppLayout&gt;
+  );
+}</code></pre>
+
+      <div class="note">
+        🧠 <strong>Why wrap Outlet in &lt;main&gt;?</strong>
+        So every page automatically gets the same padding/background/layout rules without repeating CSS in each page.
+      </div>
+
+      <h3>3.1 The “fragment not div” convention</h3>
+      <p>
+        Pages should often return a <strong>Fragment</strong> (<code>&lt;&gt;...&lt;/&gt;</code>) instead of adding an extra wrapper div.
+        Extra wrappers can break layout styling if your CSS expects direct children inside <code>&lt;main&gt;</code>.
+      </p>
+
+      <div class="tip">
+        ✅ Practical rule of thumb: If a wrapper <code>&lt;div&gt;</code> has no meaning (no styling, no semantics), consider using a Fragment.
+      </div>
+
+      <h2>4) Styling the layout with styled-components + CSS Grid</h2>
+      <h3>4.1 Create styled layout primitives</h3>
+      <p>
+        You typically create:
+      </p>
+      <ul>
+        <li>🧱 <strong>StyledAppLayout</strong> → grid container</li>
+        <li>📌 <strong>StyledSidebar</strong> → fixed-width column</li>
+        <li>🧾 <strong>StyledHeader</strong> → top row, border bottom</li>
+        <li>🧩 <strong>Main</strong> → padded content area</li>
+      </ul>
+
+      <pre><code>import styled from "styled-components";
+
+const StyledAppLayout = styled.div`
+  display: grid;
+  grid-template-columns: 26rem 1fr;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+`;
+
+const StyledSidebar = styled.aside`
+  background-color: var(--color-grey-0);
+  padding: 3.2rem 2.4rem;
+  border-right: 1px solid var(--color-grey-100);
+  grid-row: 1 / -1; /* span both rows */
+`;
+
+const StyledHeader = styled.header`
+  background-color: var(--color-grey-0);
+  padding: 1.2rem 4.8rem;
+  border-bottom: 1px solid var(--color-grey-100);
+`;
+
+const Main = styled.main`
+  background-color: var(--color-grey-50);
+  padding: 4rem 4.8rem 6.4rem;
+`;</code></pre>
+
+      <div class="note">
+        🧱 <strong>Grid mental model:</strong>
+        <ul>
+          <li>Column 1: sidebar (fixed 26rem)</li>
+          <li>Column 2: content (flexible 1fr)</li>
+          <li>Row 1: header (auto height)</li>
+          <li>Row 2: main content (fills remaining space)</li>
+        </ul>
+      </div>
+
+      <h3>4.2 Sidebar spanning rows</h3>
+      <p>
+        By default, the sidebar would occupy only one row. We want it to stretch full height.
+        That’s why we use:
+      </p>
+      <pre><code>grid-row: 1 / -1;</code></pre>
+      <p class="small">
+        “<code>-1</code>” means “the last grid line”. So this spans from the first row line to the last.
+      </p>
+
+      <h3>4.3 Background colors and borders (light mode now, dark mode later)</h3>
+      <p>
+        The lecture emphasizes giving every major region a background color. This matters later when you implement dark mode.
+      </p>
+      <ul>
+        <li>Sidebar + Header: <code>var(--color-grey-0)</code> (white in light mode)</li>
+        <li>Main: <code>var(--color-grey-50)</code> (subtle gray for modern UI feel)</li>
+        <li>Borders: <code>var(--color-grey-100)</code> (very subtle separators)</li>
+      </ul>
+
+      <div class="warn">
+        ⚠️ If you skip background colors, your dark mode may look broken because some areas will stay light/transparent.
+      </div>
+
+      <h2>5) Quick “why this matters” recap</h2>
+      <ul>
+        <li>🧭 Layout routes keep shared UI consistent across pages.</li>
+        <li>🧩 Outlet is the injection point for child routes.</li>
+        <li>🧱 Grid makes a stable admin layout: fixed sidebar + flexible content.</li>
+        <li>🎨 styled-components keeps styles scoped and colocated with components.</li>
+      </ul>
+
+      <div class="checklist">
+        <h3>✅ Build Checklist</h3>
+        <ul>
+          <li>Created <strong>UI/AppLayout.jsx</strong>.</li>
+          <li>Nested routes under <code>&lt;Route element={&lt;AppLayout /&gt;}&gt;</code>.</li>
+          <li>Kept <strong>Login</strong> and <strong>PageNotFound</strong> outside layout.</li>
+          <li>Added <code>&lt;Outlet /&gt;</code> inside <code>&lt;main&gt;</code>.</li>
+          <li>Styled layout using <strong>CSS Grid</strong>.</li>
+          <li>Sidebar spans full height using <code>grid-row: 1 / -1</code>.</li>
+        </ul>
+      </div>
+
+      <h2>6) Common bugs and fixes</h2>
+      <div class="qa">
+        <details open>
+          <summary>❓ “My pages don’t appear, only the layout shows.”</summary>
+          <p>✅ Ensure <code>&lt;Outlet /&gt;</code> is rendered in AppLayout.</p>
+        </details>
+        <details>
+          <summary>❓ “Login page shows sidebar/header too.”</summary>
+          <p>✅ Keep <code>login</code> route outside the layout route (not nested).</p>
+        </details>
+        <details>
+          <summary>❓ “Layout looks stacked vertically, not like a dashboard.”</summary>
+          <p>✅ Confirm <code>StyledAppLayout</code> has <code>display: grid</code> and the correct <code>grid-template-columns</code>.</p>
+        </details>
+        <details>
+          <summary>❓ “Weird spacing inside main.”</summary>
+          <p>✅ Avoid extra wrapper divs in pages. Prefer Fragments so content sits directly in <code>&lt;main&gt;</code>.</p>
+        </details>
+      </div>
+
+      <h2>7) Mini-Quiz (for retention)</h2>
+      <ol>
+        <li>🧩 What does <code>&lt;Outlet /&gt;</code> do in a layout route?</li>
+        <li>🧭 Why should <code>login</code> not be nested under AppLayout?</li>
+        <li>🧱 In the grid, what does <code>grid-template-columns: 26rem 1fr</code> mean?</li>
+        <li>📌 What does <code>grid-row: 1 / -1</code> do for the sidebar?</li>
+      </ol>
+
+      <div class="divider"></div>
+
+      <p class="small">
+        Next lesson: build the sidebar navigation links (MainNav) so you can move between pages from the sidebar.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

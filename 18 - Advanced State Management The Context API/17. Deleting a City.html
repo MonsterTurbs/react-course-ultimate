@@ -1,0 +1,351 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WorldWise — Deleting a City (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #0b1020;
+      --codefg: #e8eefc;
+      --callout: #f3f7ff;
+      --warn: #fff6e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      word-wrap: break-word;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px 18px 56px;
+    }
+
+    header {
+      padding: 18px 16px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    main { margin-top: 18px; }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    .card h2 {
+      font-size: 1.15rem;
+      margin: 0 0 8px;
+    }
+
+    .card h3 {
+      font-size: 1.02rem;
+      margin: 12px 0 6px;
+    }
+
+    p { margin: 8px 0; }
+    ul { margin: 8px 0 8px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      background: var(--callout);
+      border: 1px solid var(--border);
+      padding: 12px 12px;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+
+    .warning {
+      background: var(--warn);
+      border: 1px solid var(--border);
+      padding: 12px 12px;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+
+    .k { color: var(--muted); font-weight: 700; }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow: auto;
+      white-space: pre;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92em;
+    }
+
+    .inline-code {
+      background: #f4f4f4;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 780px) {
+      .grid2 { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Print styles: A4, clean margins, no cut-off */
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, .card, .callout, .warning { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🗑️ WorldWise: Deleting a City — Reviewer / Study Guide</h1>
+      <p class="subtitle">Goal: implement “Delete City” by deleting from the API <span class="k">and</span> updating React state so the UI updates immediately.</p>
+      <div class="meta">
+        <span class="chip">📌 React Router + Links</span>
+        <span class="chip">🧠 Context API (Cities Provider)</span>
+        <span class="chip">🌐 Fetch: HTTP DELETE</span>
+        <span class="chip">✅ State sync (remote + UI)</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>1) Feature Overview (What we’re building) 🧩</h2>
+        <ul>
+          <li>Each city item has a delete button (trash icon).</li>
+          <li>When the button is clicked, we should <span class="k">not</span> navigate to the city details page.</li>
+          <li>We delete the city in two places:
+            <ul>
+              <li>🌐 <span class="k">API</span>: send an HTTP <span class="inline-code">DELETE</span> request to <span class="inline-code">/cities/:id</span></li>
+              <li>🧠 <span class="k">UI state</span>: remove the city from the <span class="inline-code">cities</span> array in context (so list updates instantly)</li>
+            </ul>
+          </li>
+        </ul>
+
+        <div class="callout">
+          <p><span class="k">Why this is “fast”:</span> deleting is usually just “call API + filter state”.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2) Problem: Clicking the delete button also clicks the Link 😵</h2>
+        <p>In <span class="inline-code">CityItem</span>, the whole item is typically a <span class="inline-code">&lt;Link&gt;</span>. If your delete button is inside that link, clicking the button triggers:</p>
+        <ul>
+          <li>✅ the button click</li>
+          <li>❌ the link navigation (because the click bubbles / default behavior happens)</li>
+        </ul>
+
+        <h3>Fix: prevent the link navigation ✅</h3>
+        <p>Create a handler for the delete button and call <span class="inline-code">e.preventDefault()</span> (and optionally <span class="inline-code">e.stopPropagation()</span>).</p>
+
+        <pre><code>// CityItem.jsx (concept)
+function handleClick(e) {
+  e.preventDefault();
+  // optional but often helpful:
+  // e.stopPropagation();
+
+  console.log("Deleting...");
+}</code></pre>
+
+        <div class="warning">
+          <p><span class="k">Common confusion:</span> <span class="inline-code">preventDefault()</span> stops the default navigation behavior of the link. If your Link uses click handlers, <span class="inline-code">stopPropagation()</span> can help avoid triggering parent handlers.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>3) Add the deleteCity function in Cities Context 🏗️</h2>
+        <p>Because this is “cities data,” we implement deletion inside the Cities Context Provider (same place you created <span class="inline-code">getCity</span> and <span class="inline-code">createCity</span>).</p>
+
+        <h3>What deleteCity needs to do</h3>
+        <ol>
+          <li>Send <span class="inline-code">DELETE</span> request to the API: <span class="inline-code">${BASE_URL}/cities/${id}</span></li>
+          <li>Update UI state: remove that city from <span class="inline-code">cities</span></li>
+        </ol>
+
+        <pre><code>// CitiesContext.jsx (concept)
+async function deleteCity(id) {
+  try {
+    setIsLoading(true);
+
+    await fetch(`${BASE_URL}/cities/${id}`, {
+      method: "DELETE",
+    });
+
+    // UI state update: deleting = filtering
+    setCities((cities) =&gt; cities.filter((city) =&gt; city.id !== id));
+  } catch (err) {
+    console.error("There was an error deleting city", err);
+  } finally {
+    setIsLoading(false);
+  }
+}</code></pre>
+
+        <div class="callout">
+          <p><span class="k">Mental model:</span> <span class="inline-code">DELETE</span> mutates remote state; <span class="inline-code">filter</span> mutates UI state (immutably) so React re-renders immediately.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>4) Expose deleteCity via context + use it in CityItem 🔌</h2>
+        <p>Make sure <span class="inline-code">deleteCity</span> is included in the provider’s value.</p>
+
+        <pre><code>// CitiesContext.jsx (concept)
+const value = {
+  cities,
+  isLoading,
+  currentCity,
+  getCity,
+  createCity,
+  deleteCity,
+};
+
+return (
+  &lt;CitiesContext.Provider value={value}&gt;
+    {children}
+  &lt;/CitiesContext.Provider&gt;
+);</code></pre>
+
+        <p>Then in <span class="inline-code">CityItem</span> (or wherever the delete button lives), read it from your custom hook:</p>
+
+        <pre><code>// CityItem.jsx (concept)
+import { useCities } from "../context/CitiesContext";
+
+function CityItem({ city }) {
+  const { deleteCity, currentCity } = useCities();
+
+  function handleClick(e) {
+    e.preventDefault();
+    deleteCity(city.id);
+  }
+
+  return (
+    &lt;Link to={`${city.id}?lat=${city.position.lat}&lng=${city.position.lng}`}&gt;
+      &lt;button onClick={handleClick} title="Delete"&gt;🗑️&lt;/button&gt;
+      &lt;span&gt;{city.emoji} {city.cityName}&lt;/span&gt;
+    &lt;/Link&gt;
+  );
+}</code></pre>
+
+        <div class="warning">
+          <p><span class="k">UX note:</span> The global <span class="inline-code">isLoading</span> may gray out the entire list while deleting. That’s acceptable for a small app, but in bigger apps you may want per-item loading (e.g., <span class="inline-code">deletingId</span>).</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>5) Quick Debug Checklist 🧪</h2>
+        <div class="grid2">
+          <div class="callout">
+            <h3>✅ If delete navigates to city page</h3>
+            <ul>
+              <li>Confirm button uses <span class="inline-code">onClick={handleClick}</span></li>
+              <li>Confirm <span class="inline-code">handleClick</span> calls <span class="inline-code">e.preventDefault()</span></li>
+              <li>If still flaky, add <span class="inline-code">e.stopPropagation()</span></li>
+            </ul>
+          </div>
+          <div class="callout">
+            <h3>✅ If city disappears only after refresh</h3>
+            <ul>
+              <li>You deleted from API but forgot to update state</li>
+              <li>Add <span class="inline-code">setCities(cities =&gt; cities.filter(...))</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>6) Mini Reviewer (Remember These) 🧠</h2>
+        <ul>
+          <li>🗑️ Deleting = API request + state update</li>
+          <li>🧷 Buttons inside Links can trigger navigation → use <span class="inline-code">preventDefault</span></li>
+          <li>📉 Remove item from array using <span class="inline-code">filter</span> (immutably)</li>
+          <li>🔁 Context makes functions like <span class="inline-code">deleteCity</span> available everywhere without prop drilling</li>
+        </ul>
+
+        <div class="callout">
+          <p><span class="k">Next topic preview:</span> Refactor context state management to <span class="inline-code">useReducer</span> (common pattern with Context API).</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Practice Tasks ✍️</h2>
+        <ol>
+          <li>Add a confirmation prompt before delete (e.g., <span class="inline-code">window.confirm</span>).</li>
+          <li>Implement per-item loading: disable only the button being deleted.</li>
+          <li>Handle API failure: if delete fails, show a message and do not remove from UI.</li>
+        </ol>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

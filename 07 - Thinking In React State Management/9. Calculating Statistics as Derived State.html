@@ -1,0 +1,372 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculating Statistics as Derived State | React Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background: #fef2f2; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 900px){
+      .grid2{ grid-template-columns: 1fr 1fr; }
+    }
+
+    .label{
+      display:inline-block;
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      background:#ffffff;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, pre{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn, .callout.danger{ background:#ffffff; }
+      .card, pre, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Calculating Statistics as Derived State 📊🧠</h1>
+      <p class="subtitle">
+        In the Far Away app, the <strong>Stats</strong> footer shows: total items, packed items, and packed percentage.
+        These are perfect examples of <strong>derived state</strong> (computed from <code>items</code>).
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">🧮 items.length</span>
+        <span class="chip">✅ filter + length</span>
+        <span class="chip">% Math.round</span>
+        <span class="chip">🎯 100% message</span>
+        <span class="chip">↩️ Early return</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) What We’re Building (Stats Footer)</h2>
+      <div class="card">
+        <p>
+          We want the footer to update automatically whenever <code>items</code> changes:
+        </p>
+        <ul>
+          <li>🧳 <strong>Total items</strong> on the list</li>
+          <li>✅ <strong>Packed items</strong></li>
+          <li>📈 <strong>Percentage packed</strong></li>
+        </ul>
+        <p class="mini">
+          Important: these numbers can be computed from the <code>items</code> array (so we don’t store them in state).
+        </p>
+      </div>
+
+      <div class="callout ok">
+        <p>
+          Derived state = compute values from existing state/props. Here, <code>items</code> is the single source of truth.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) The Wrong Way (Don’t Create Extra State) 🚫</h2>
+      <div class="grid2">
+        <div class="card">
+          <div class="label">❌ What NOT to do</div>
+          <p class="mini">
+            If you store <code>numItems</code> separately, you must keep it in sync every time you add/delete/toggle items.
+          </p>
+          <pre><code>// Avoid this pattern:
+const [items, setItems] = useState([]);
+const [numItems, setNumItems] = useState(0);
+
+function handleAddItem(newItem) {
+  setItems((items) =&gt; [...items, newItem]);
+  setNumItems((n) =&gt; n + 1); // now you must remember this too 😬
+}
+</code></pre>
+        </div>
+
+        <div class="card">
+          <div class="label">Why it’s bad</div>
+          <ul>
+            <li>🧩 <strong>Sync risk:</strong> Forget one update → UI becomes wrong.</li>
+            <li>🧠 <strong>More complexity:</strong> More places to change code.</li>
+            <li>⚡ <strong>Extra work:</strong> More updates than necessary (React 18 batches many updates, but it’s still needless).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <p>
+          Rule: <strong>Don’t store what you can calculate.</strong> Don’t create 2–3 state variables if one is enough.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) The Right Way (Derive Stats from <code>items</code>) ✅</h2>
+
+      <div class="card">
+        <div class="label">✅ Derived state variables</div>
+        <p>
+          We compute everything from <code>items</code> inside the <strong>Stats</strong> component.
+          We still pass <code>items</code> as a prop into <code>&lt;Stats /&gt;</code> because Stats needs it.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>App → pass items into Stats</h3>
+        <pre><code>// App.jsx
+function App() {
+  const [items, setItems] = useState([]);
+
+  return (
+    &lt;div className="app"&gt;
+      {/* ...Logo, Form, PackingList... */}
+      &lt;Stats items={items} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Stats → compute derived values</h3>
+        <pre><code>// Stats.jsx
+function Stats({ items }) {
+  const numItems = items.length;
+  const numPacked = items.filter((item) =&gt; item.packed).length;
+  const percentage = numItems === 0
+    ? 0
+    : Math.round((numPacked / numItems) * 100);
+
+  return (
+    &lt;footer className="stats"&gt;
+      &lt;em&gt;
+        You have {numItems} items on your list, and you already packed {numPacked}
+        ({percentage}%).
+      &lt;/em&gt;
+    &lt;/footer&gt;
+  );
+}
+</code></pre>
+        <p class="mini">
+          Notice: <code>numItems</code>, <code>numPacked</code>, and <code>percentage</code> are just <strong>const variables</strong>, not state.
+        </p>
+      </div>
+
+      <div class="callout">
+        <p>
+          Why does this update automatically? When <code>items</code> changes, React re-renders. On each render, the component
+          function runs again → derived variables are recalculated.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Special Messages (100% Packed) ✈️</h2>
+      <div class="card">
+        <p>
+          When <code>percentage === 100</code>, we show a different message:
+        </p>
+        <pre><code>&lt;em&gt;
+  {percentage === 100
+    ? "You got everything! Ready to go. ✈️"
+    : `You have ${numItems} items on your list, and you already packed ${numPacked} (${percentage}%).`}
+&lt;/em&gt;
+</code></pre>
+        <p class="mini">
+          This is conditional rendering inside JSX. You could also render two separate <code>&lt;em&gt;</code> blocks if you prefer.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Early Return When There Are No Items 🚀</h2>
+      <div class="card">
+        <p>
+          If there are no items, it often reads cleaner to return early and skip the rest of the calculations.
+        </p>
+        <pre><code>function Stats({ items }) {
+  if (!items.length)
+    return (
+      &lt;footer className="stats"&gt;
+        &lt;em&gt;Start adding some items to your packing list 🚀&lt;/em&gt;
+      &lt;/footer&gt;
+    );
+
+  // ...otherwise compute derived stats...
+}
+</code></pre>
+      </div>
+
+      <div class="callout ok">
+        <p>
+          Early return is a nice pattern because it makes “empty state UI” obvious at the top of the component.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Common Pitfalls (Avoid These) ⚠️</h2>
+      <div class="card">
+        <ul>
+          <li><strong>Duplicate state:</strong> storing <code>numItems</code> separately from <code>items</code>.</li>
+          <li><strong>Division by zero:</strong> compute <code>percentage</code> safely when <code>numItems === 0</code>.</li>
+          <li><strong>Wrong responsibility:</strong> computing stats in App and passing 3 props (works, but Stats is the natural “home”).</li>
+          <li><strong>Mutations:</strong> don’t mutate <code>items</code> when toggling; always return a new array/object.</li>
+        </ul>
+      </div>
+
+      <div class="callout warn">
+        <p>
+          “Home of the logic” tip: If only the Stats UI needs these values, compute them in Stats.
+          If multiple components need them, compute in a common parent.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Quick Self‑Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>Why is <code>numItems</code> not stored in state?</li>
+          <li>How do we compute packed items?</li>
+          <li>What’s a clean way to handle the “no items” UI?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li>Because it can be derived from <code>items.length</code> (no need for duplicate state).</li>
+          <li><code>items.filter((item) =&gt; item.packed).length</code></li>
+          <li>Use an early return: <code>if (!items.length) return ...</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <footer class="mini">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Code blocks wrap to avoid cut-off when printing.
+    </footer>
+  </main>
+</body>
+</html>

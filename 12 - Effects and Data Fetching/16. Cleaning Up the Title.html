@@ -1,0 +1,392 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React useEffect Cleanup — Cleaning Up the Title (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --soft2: #f6f7f9;
+      --codebg: #0b1020;
+      --codefg: #e8eaf0;
+      --accent: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 16px 16px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    h2 {
+      margin: 18px 0 8px;
+      font-size: 16px;
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+    }
+
+    h3 {
+      margin: 14px 0 6px;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+    ul { margin: 8px 0 8px 18px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .kpi .row {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .label {
+      font-weight: 700;
+      margin-right: 6px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      overflow-x: auto;
+      border: 1px solid #10183a;
+    }
+
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .note {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .quiz {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .quiz ol { margin: 8px 0 0 18px; }
+
+    /* Print styles (A4) */
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, .callout, .box, .quiz, pre { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      /* Do NOT print URLs after links */
+      a[href]::after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧹 React useEffect Cleanup — Cleaning Up the Page Title</h1>
+      <p class="subtitle">Study guide for: fixing a “stale” <code>document.title</code> using a cleanup function, plus why closures make it work.</p>
+      <div class="meta">
+        <span class="chip">📄 Single-column</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+        <span class="chip">⚛️ useEffect + cleanup</span>
+        <span class="chip">🧠 Closures</span>
+      </div>
+    </header>
+
+    <main>
+      <div class="callout">
+        <strong>🎯 Goal (what we’re solving)</strong>
+        <p>
+          When you open a movie, you set the browser tab title to that movie (e.g., “Inception”).
+          But when you close MovieDetails (component unmounts), the title stays stuck on the old movie.
+        </p>
+        <p class="note">That “stuck title” is a side effect that keeps living after the component is gone.</p>
+      </div>
+
+      <h2>✅ Key takeaway</h2>
+      <div class="kpi">
+        <div class="row">
+          <span class="label">Rule:</span>
+          Use a <strong>cleanup function</strong> whenever your side effect must be reset or stopped when the component re-renders or unmounts.
+        </div>
+        <div class="row">
+          <span class="label">In this lesson:</span>
+          Cleanup resets <code>document.title</code> back to <strong>usePopcorn</strong>.
+        </div>
+      </div>
+
+      <h2>🧩 What you implement</h2>
+      <p>
+        Inside <strong>MovieDetails</strong>, you already have an effect that sets the title.
+        Now you add a <strong>cleanup</strong> that runs when:
+      </p>
+      <ul>
+        <li>🔁 before the effect runs again (dependency changed)</li>
+        <li>💀 when the component unmounts</li>
+      </ul>
+
+      <div class="box">
+        <h3>1) Effect that sets the title (with dependency)</h3>
+        <pre><code>useEffect(() =&gt; {
+  if (!title) return; // 🚫 avoid “undefined” in the tab
+
+  document.title = `Movie | ${title}`;
+}, [title]);</code></pre>
+        <p class="note">Including <code>[title]</code> means the effect re-runs when the movie title changes.</p>
+      </div>
+
+      <div class="box">
+        <h3>2) Add a cleanup that resets the title</h3>
+        <pre><code>useEffect(() =&gt; {
+  if (!title) return;
+
+  document.title = `Movie | ${title}`;
+
+  // 🧹 cleanup: runs before the next effect + on unmount
+  return () =&gt; {
+    document.title = "usePopcorn";
+  };
+}, [title]);</code></pre>
+        <p class="note">Now when you “go back” (MovieDetails unmounts), the tab title returns to <code>usePopcorn</code>.</p>
+      </div>
+
+      <h2>🧪 Mini experiment: log cleanup behavior</h2>
+      <p>
+        Add a log inside cleanup to prove when it runs.
+      </p>
+      <pre><code>useEffect(() =&gt; {
+  if (!title) return;
+
+  document.title = `Movie | ${title}`;
+
+  return () =&gt; {
+    console.log(`🧹 cleanup effect for movie: ${title}`);
+    document.title = "usePopcorn";
+  };
+}, [title]);</code></pre>
+
+      <div class="callout">
+        <strong>🔍 What you will observe</strong>
+        <ul>
+          <li>When you close MovieDetails → cleanup logs the movie title you were viewing.</li>
+          <li>When you switch from Movie A to Movie B → cleanup runs for Movie A <em>before</em> the effect runs for Movie B.</li>
+        </ul>
+      </div>
+
+      <h2>🧠 Why does cleanup “remember” the title?</h2>
+      <p>
+        This can feel weird: cleanup runs <em>after</em> unmount, so shouldn’t the state be gone?
+        The reason it still prints the correct title is a JavaScript concept called a <strong>closure</strong>.
+      </p>
+
+      <div class="box">
+        <h3>Closure (beginner-friendly definition)</h3>
+        <p>
+          A function “remembers” the variables that existed at the time it was created.
+          So the cleanup function “closes over” <code>title</code>.
+        </p>
+        <ul>
+          <li>✅ Cleanup was created while <code>title</code> was “Inception”</li>
+          <li>✅ Even later (on unmount), it still has access to that “Inception” value</li>
+        </ul>
+      </div>
+
+      <h2>🔁 Cleanup runs between re-renders</h2>
+      <p>
+        Cleanup doesn’t only run on unmount.
+        It also runs right before the effect runs again (because a dependency changed).
+      </p>
+
+      <div class="grid">
+        <div class="box">
+          <h3>Timeline when switching movies</h3>
+          <ul>
+            <li>1) You click Movie A → effect runs → title becomes “Movie | A”</li>
+            <li>2) You click Movie B → <strong>cleanup runs for A</strong> → then effect runs for B → title becomes “Movie | B”</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>Why React does this</h3>
+          <p>
+            React gives you a chance to “undo” the previous effect before applying a new one.
+            This prevents effects from stacking up or conflicting.
+          </p>
+        </div>
+      </div>
+
+      <h2>🧷 Practical rules you should remember</h2>
+      <ul>
+        <li>✅ If an effect creates something that should stop/reset later, add cleanup.</li>
+        <li>✅ If an effect depends on a variable, include it in the dependency array.</li>
+        <li>✅ Prefer multiple effects with one responsibility each (easier to reason about + clean up).</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>🧰 Common cleanup scenarios (quick reference)</h2>
+      <div class="box">
+        <h3>⏱️ Timers</h3>
+        <pre><code>useEffect(() =&gt; {
+  const id = setInterval(() =&gt; {
+    console.log("tick");
+  }, 1000);
+
+  return () =&gt; clearInterval(id);
+}, []);</code></pre>
+
+        <h3>🎧 Event listeners</h3>
+        <pre><code>useEffect(() =&gt; {
+  function onKeyDown(e) {
+    if (e.key === "Escape") onCloseMovie();
+  }
+
+  document.addEventListener("keydown", onKeyDown);
+  return () =&gt; document.removeEventListener("keydown", onKeyDown);
+}, [onCloseMovie]);</code></pre>
+
+        <h3>🌐 Fetch cancellation (avoids race conditions)</h3>
+        <pre><code>useEffect(() =&gt; {
+  const controller = new AbortController();
+
+  async function fetchMovie() {
+    try {
+      const res = await fetch(url, { signal: controller.signal });
+      const data = await res.json();
+      setMovie(data);
+    } catch (err) {
+      if (err.name !== "AbortError") console.error(err);
+    }
+  }
+
+  fetchMovie();
+
+  return () =&gt; controller.abort();
+}, [url]);</code></pre>
+      </div>
+
+      <h2>📝 Quick self-check</h2>
+      <div class="quiz">
+        <ol>
+          <li>When does cleanup run? (Name the two times.)</li>
+          <li>Why does cleanup still know the old <code>title</code> after unmount?</li>
+          <li>What bug can happen if you fire multiple fetch requests without cancellation?</li>
+        </ol>
+        <p class="note">If you can answer these, you understand the core of cleanup.</p>
+      </div>
+
+      <div class="callout">
+        <strong>🏁 Bottom line</strong>
+        <p>
+          Cleanup makes your effects “well-behaved”: they don’t leave leftovers after re-renders or unmount.
+          In usePopcorn, that means your tab title always matches what the user currently sees.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

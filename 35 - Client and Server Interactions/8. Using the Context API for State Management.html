@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js + React Context API — State Management (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f6f8fa;
+      --accent: #0b57d0;
+      --good: #0f7b3e;
+      --warn: #8a4b00;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 18px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 6px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    h2 {
+      margin: 18px 0 8px;
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    h3 {
+      margin: 14px 0 6px;
+      font-size: 15px;
+    }
+
+    p { margin: 10px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--accent);
+      background: #fff;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.good { border-left-color: var(--good); }
+    .callout.warn { border-left-color: var(--warn); }
+
+    .callout .title {
+      margin: 0 0 6px;
+      font-weight: 700;
+    }
+
+    ul, ol { margin: 8px 0 8px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    /* Print */
+    @page { size: A4; margin: 14mm; }
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header { break-inside: avoid; }
+      pre, .callout, .box { break-inside: avoid; }
+      a[href]:after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Next.js + React Context API — State Management</h1>
+      <p class="subtitle">Reviewer / study guide based on the lecture transcript (single-column, A4 print-ready).</p>
+      <div class="meta">
+        <span class="chip">📚 Topic: Client ↔ Client State Sharing</span>
+        <span class="chip">⚙️ Tools: Context API + custom hook</span>
+        <span class="chip">🧠 Goal: Share selected date range across components</span>
+        <span class="chip">🖨️ Print: White background, clean spacing</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) What you’re building</h2>
+        <p>
+          You have a cabin page with a <strong>DatePicker</strong> (left) and a <strong>ReservationForm</strong> (right).
+          The user selects a date range in the picker, and that same range must be available in the form so it can be submitted.
+        </p>
+        <div class="callout">
+          <p class="title">🎯 Core problem</p>
+          <p>
+            <strong>How do we share state between two client components</strong> (DateSelector and ReservationForm) without forcing a server re-render?
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) First step: Make the Day Picker store a range</h2>
+        <p>
+          The day picker supports range selection. To make selection “stick”, you need state:
+          <code>{ from, to }</code>.
+        </p>
+
+        <div class="box">
+          <h3>✅ Basic pattern (local state)</h3>
+          <pre>// Inside DateSelector (client component)
+const initialState = { from: undefined, to: undefined };
+const [range, setRange] = useState(initialState);
+
+return (
+  <DayPicker
+    mode="range"
+    selected={range}
+    onSelect={setRange}
+    // ...other config (min/max nights, fromMonth, toMonth, numberOfMonths)
+  />
+);</pre>
+          <p class="mini">📝 <strong>selected</strong> shows current state; <strong>onSelect</strong> updates it.</p>
+        </div>
+
+        <div class="callout warn">
+          <p class="title">⚠️ Why local state is not enough</p>
+          <p>
+            The reservation form also needs the same <code>range</code>. Local state lives only in DateSelector,
+            so ReservationForm can’t access it directly.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) Options to share state (and why URL is a bad fit here)</h2>
+        <div class="two-col">
+          <div class="box">
+            <h3>Option A: Store in the URL (search params)</h3>
+            <ul>
+              <li>✅ Shareable / bookmarkable</li>
+              <li>✅ Works for client ↔ server state sharing</li>
+              <li>❌ Each update changes URL → navigation → server page re-render</li>
+              <li>❌ Can re-fetch server data and cause delays</li>
+            </ul>
+            <p class="mini">🙅 Not good for “date clicking” because it triggers navigation repeatedly.</p>
+          </div>
+
+          <div class="box">
+            <h3>Option B: Lift state up to a parent client component</h3>
+            <ul>
+              <li>✅ Simple, standard React approach</li>
+              <li>✅ No URL navigation</li>
+              <li>❌ Becomes awkward if multiple pages/components need the data</li>
+            </ul>
+          </div>
+
+          <div class="box">
+            <h3>Option C: React Context API</h3>
+            <ul>
+              <li>✅ Great for sharing state across multiple components</li>
+              <li>✅ Avoids URL navigation</li>
+              <li>✅ Keeps data alive across route changes (within client tree)</li>
+              <li>⚠️ Client components only (needs hooks)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout good">
+          <p class="title">✅ Best choice for this lecture</p>
+          <p>
+            Use <strong>Context API</strong> so DateSelector and ReservationForm (and other client components)
+            can read/write the same date range without navigating.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Context API recipe (Next.js-friendly)</h2>
+        <p>
+          In Next.js App Router, context is a <strong>client feature</strong>. That means your provider component must be a
+          <strong>Client Component</strong> (it uses hooks).
+        </p>
+
+        <div class="box">
+          <h3>🧩 reservation-context.js</h3>
+          <pre>"use client";
+
+import { createContext, useContext, useState } from "react";
+
+const ReservationContext = createContext(undefined);
+
+const initialState = { from: undefined, to: undefined };
+
+export function ReservationProvider({ children }) {
+  const [range, setRange] = useState(initialState);
+
+  const resetRange = () => setRange(initialState);
+
+  const value = { range, setRange, resetRange };
+
+  return (
+    &lt;ReservationContext.Provider value={value}&gt;
+      {children}
+    &lt;/ReservationContext.Provider&gt;
+  );
+}
+
+export function useReservation() {
+  const ctx = useContext(ReservationContext);
+  if (!ctx) throw new Error("useReservation must be used within ReservationProvider");
+  return ctx;
+}</pre>
+          <p class="mini">✅ This creates a shared store: <code>range</code>, <code>setRange</code>, <code>resetRange</code>.</p>
+        </div>
+
+        <div class="callout">
+          <p class="title">🧠 Key concept</p>
+          <p>
+            Context sharing here is for <strong>client ↔ client</strong>. If you need <strong>client ↔ server</strong>,
+            you typically use the <strong>URL</strong> (search params), like you did in the filter example.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Where to place the Provider in Next.js</h2>
+        <p>
+          Best practice: place providers as <strong>low</strong> as possible to minimize unnecessary re-renders.
+          But if you want the selected dates to persist across pages (and be accessible in more places), place it higher.
+        </p>
+
+        <div class="box">
+          <h3>✅ Common placement: root layout (inside &lt;main&gt;)</h3>
+          <pre>// app/layout.js (server component)
+import { ReservationProvider } from "@/components/reservation-context";
+
+export default function RootLayout({ children }) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body&gt;
+        &lt;main&gt;
+          &lt;ReservationProvider&gt;
+            {children}
+          &lt;/ReservationProvider&gt;
+        &lt;/main&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</pre>
+          <p class="mini">
+            🧩 This is allowed even though <code>children</code> contains server-rendered content:
+            server components are rendered first, then their React elements are passed into the client provider.
+          </p>
+        </div>
+
+        <div class="callout warn">
+          <p class="title">⚠️ Important constraint</p>
+          <p>
+            You <strong>cannot</strong> call <code>createContext</code> + hooks directly in a server component layout.
+            Instead, you wrap <code>children</code> with a dedicated <strong>client provider component</strong>.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>6) Consuming the context in DateSelector</h2>
+        <p>
+          Replace local state with the shared state from context.
+        </p>
+
+        <div class="box">
+          <h3>📅 DateSelector (client)</h3>
+          <pre>"use client";
+
+import { useReservation } from "@/components/reservation-context";
+
+export default function DateSelector(/* props */) {
+  const { range, setRange, resetRange } = useReservation();
+
+  return (
+    &lt;div&gt;
+      &lt;DayPicker
+        mode="range"
+        selected={range}
+        onSelect={setRange}
+      /&gt;
+
+      {/* Example: clear button */}
+      &lt;button type="button" onClick={resetRange}&gt;Clear&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+        </div>
+
+        <div class="callout good">
+          <p class="title">✅ Result</p>
+          <p>
+            Selecting dates updates the context store, so any other client component can instantly read the same range.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>7) Consuming the context in ReservationForm</h2>
+        <p>
+          ReservationForm can read <code>range</code> to display selected dates, calculate nights, validate booking length,
+          and submit the final reservation.
+        </p>
+
+        <div class="box">
+          <h3>🧾 ReservationForm (client)</h3>
+          <pre>"use client";
+
+import { useReservation } from "@/components/reservation-context";
+
+export default function ReservationForm(/* props */) {
+  const { range } = useReservation();
+
+  // Example usage (temporary debug):
+  // const from = range?.from?.toString() ?? "";
+  // const to = range?.to?.toString() ?? "";
+
+  return (
+    &lt;form&gt;
+      {/* Use range.from / range.to as needed */}
+      &lt;div&gt;Selected: {String(range?.from)} → {String(range?.to)}&lt;/div&gt;
+      {/* ...rest of the form... */}
+    &lt;/form&gt;
+  );
+}</pre>
+          <p class="mini">🧪 In the lecture, the dates are temporarily rendered for debugging then removed later.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>8) Bonus UX: Reminder component (persist across navigation)</h2>
+        <p>
+          Because the provider is high in the tree, a user can pick dates in one cabin, navigate back to the cabins list,
+          and still see a reminder that dates are selected.
+        </p>
+
+        <div class="box">
+          <h3>🔔 ReservationReminder (client)</h3>
+          <pre>"use client";
+
+import { useReservation } from "@/components/reservation-context";
+
+export default function ReservationReminder() {
+  const { range, resetRange } = useReservation();
+
+  if (!range?.from || !range?.to) return null;
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Don’t forget to reserve your dates: {String(range.from)} → {String(range.to)}&lt;/p&gt;
+      &lt;button type="button" onClick={resetRange}&gt;Clear&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+        </div>
+
+        <div class="callout">
+          <p class="title">🧠 Why this works</p>
+          <p>
+            The state is stored in a provider that stays mounted while you navigate within the app.
+            So client-side navigations do not reset the date selection.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>9) Mental model: What re-renders when state changes?</h2>
+        <div class="callout">
+          <p class="title">🧩 Think in two trees</p>
+          <ul>
+            <li>🌐 <strong>Server component tree</strong>: rendered on the server during requests/navigation (depending on what changes).</li>
+            <li>🖥️ <strong>Client component tree</strong>: hydrated and updated in the browser; context/state changes re-render client components.</li>
+          </ul>
+          <p>
+            When you call <code>resetRange()</code> or <code>setRange()</code>, the provider updates state →
+            the client subtree re-renders → reminder/date/form update immediately.
+          </p>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section>
+        <h2>10) Quick review checklist</h2>
+        <ul>
+          <li>✅ DayPicker needs <code>selected</code> + <code>onSelect</code> to track and store the date range.</li>
+          <li>✅ URL search params are great for client ↔ server, but not for frequent date clicks (causes navigation).</li>
+          <li>✅ Context API is ideal for client ↔ client state sharing across multiple components.</li>
+          <li>✅ In Next.js App Router, providers must be client components (<code>"use client"</code>).</li>
+          <li>✅ Place providers as low as possible unless you explicitly want global persistence.</li>
+          <li>✅ Use a custom hook (<code>useReservation</code>) to consume context safely.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>11) Mini practice</h2>
+        <div class="box">
+          <ol>
+            <li>🧪 Add validation: disable submit if <code>range.from</code> or <code>range.to</code> is missing.</li>
+            <li>🧮 Compute number of nights in ReservationForm based on selected dates.</li>
+            <li>🧹 Ensure <code>resetRange()</code> clears both the reminder and the date picker selection.</li>
+          </ol>
+        </div>
+      </section>
+
+      <p class="mini">End of reviewer.</p>
+    </main>
+  </div>
+</body>
+</html>

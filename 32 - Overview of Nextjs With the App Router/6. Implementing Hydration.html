@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Implementing Hydration — Manual SSR Experiment (Client + Server)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b0f14;
+      --codetext: #e8e8e8;
+      --warnbg: #fff7ed;
+      --warnborder: #fdba74;
+      --goodbg: #f0fdf4;
+      --goodborder: #86efac;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 20px 52px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.6rem;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.86rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 1.25rem;
+      border-left: 5px solid var(--border);
+      padding-left: 10px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { margin: 8px 0 10px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .box {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .box strong { display: inline-block; margin-bottom: 6px; }
+
+    .callout {
+      border-left: 5px solid var(--border);
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    .warn {
+      border-left: 6px solid var(--warnborder);
+      background: var(--warnbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #fed7aa;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 6px solid var(--goodborder);
+      background: var(--goodbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #bbf7d0;
+      margin: 12px 0;
+    }
+
+    .steps {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .steps .row {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .steps .row:first-child { border-top: 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .code {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    .code .label {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    pre {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow: auto;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      white-space: pre;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .qa details {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .qa summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+    }
+
+    .qa summary::-webkit-details-marker { display: none; }
+
+    .qa .answer {
+      margin-top: 8px;
+      color: #222;
+    }
+
+    .footer {
+      margin-top: 26px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      .chip, .box, .callout, .warn, .good, .steps, .code, .qa details {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .box, .callout, .warn, .good, .steps, .code, .qa details { break-inside: avoid; }
+      a[href]::after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Implementing Hydration — Manual SSR Experiment</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) • Single-column • Print-ready (A4)</p>
+      <div class="meta">
+        <span class="chip">🧪 Experiment: SSR + Hydration (manual)</span>
+        <span class="chip">🖥️ Server: renderToString</span>
+        <span class="chip">💧 Client: hydrateRoot</span>
+        <span class="chip">📦 Deliverable: interactive UI</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Recap: Why we need hydration 🧊➡️✨</h2>
+      <p>
+        After server-side rendering (SSR), the page looks correct because it already contains HTML.
+        But it still does <strong>not respond to clicks</strong> (no event handlers yet). Hydration fixes that.
+      </p>
+
+      <div class="box">
+        <strong>Goal of this lecture:</strong>
+        <ul>
+          <li>Build a <strong>client bundle</strong> (a <code>client.js</code> file) that runs in the browser 🧾</li>
+          <li>Serve that file from the Node server 📡</li>
+          <li>Use <code>ReactDOM.hydrateRoot</code> to attach React behavior to the existing HTML 💧</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <strong>Important note:</strong>
+        <p>
+          This is intentionally “manual” and simplified. Real frameworks (Next.js) do bundling, optimization, and streaming for you.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Big picture mental model 🧠</h2>
+      <div class="steps" role="region" aria-label="Big picture">
+        <div class="row">1) 🖥️ Server: React components → <strong>HTML string</strong> via <code>renderToString</code></div>
+        <div class="row">2) 🌐 Browser receives HTML → user sees content early (fast paint)</div>
+        <div class="row">3) 📦 Browser downloads <code>client.js</code> (React + your app code)</div>
+        <div class="row">4) 💧 Client: <code>hydrateRoot</code> attaches handlers/state → UI becomes interactive</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Step 1 — Create <code>client.js</code> (the “client bundle”) 🧩</h2>
+      <p>
+        Create a file named <code>client.js</code>. Start with a simple test to confirm it runs in the browser.
+      </p>
+
+      <div class="code">
+        <div class="label">client.js (quick test)</div>
+        <pre><code>console.log("Hey");</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>✅ What you expect:</strong>
+        <p>
+          When the page loads, DevTools Console should show “Hey”. If it doesn’t, the script is not loading.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Step 2 — Add the script tag to <code>index.html</code> 📄</h2>
+      <p>
+        Add a script tag so the browser requests <code>client.js</code>.
+      </p>
+
+      <div class="code">
+        <div class="label">index.html (concept)</div>
+        <pre><code>&lt;script src="/client.js"&gt;&lt;/script&gt;</code></pre>
+      </div>
+
+      <div class="warn">
+        <strong>⚠️ Common confusion from the lecture:</strong>
+        <p>
+          If your server reads <code>index.html</code> only once at startup (using <code>readFileSync</code> outside the request handler),
+          you might need to restart the server to see new HTML changes.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Step 3 — Why the browser requests <code>/client.js</code> but gets “URL cannot be found” 🤔</h2>
+      <p>
+        Once the script tag is present, your browser will request <code>/client.js</code>. But your server currently has no route for it,
+        so it returns your fallback response (“URL cannot be found”).
+      </p>
+
+      <div class="box">
+        <strong>What’s happening:</strong>
+        <ul>
+          <li>Browser: “Give me <code>/client.js</code>” 📥</li>
+          <li>Server: “I don’t know that route” → returns 404-style message ❌</li>
+        </ul>
+      </div>
+
+      <div class="good">
+        <strong>✅ Fix:</strong>
+        <p>
+          Add a route on the server that reads and returns <code>client.js</code> with the correct content type.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Step 4 — Serve <code>client.js</code> from the Node server 📡</h2>
+      <p>
+        Read <code>client.js</code> similar to how you read <code>index.html</code>. Then send it back when the route matches.
+      </p>
+
+      <div class="code">
+        <div class="label">Server route idea (conceptual)</div>
+        <pre><code>// if (pathname === '/client.js') {
+//   const clientJS = readFileSync(__dirname + '/client.js', 'utf-8');
+//   res.writeHead(200, { 'Content-Type': 'application/javascript' });
+//   res.end(clientJS);
+// }</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>✅ Important header:</strong>
+        <p>
+          Use <code>Content-Type: application/javascript</code> (not <code>text/html</code>) so the browser treats it as JavaScript.
+        </p>
+      </div>
+
+      <div class="good">
+        <strong>Success check:</strong>
+        <p>
+          After refreshing the page, you should now see the “Hey” log in the console.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Step 5 — Copy the React app code into <code>client.js</code> (for the demo) 📋</h2>
+      <p>
+        To keep this experiment simple, you duplicate the same React component code into <code>client.js</code>.
+        (In real projects, bundlers handle this without copying.)
+      </p>
+
+      <div class="warn">
+        <strong>⚠️ Real-world note:</strong>
+        <p>
+          You would never manually duplicate components like this in production. This is purely to understand the SSR + hydration concept.
+        </p>
+      </div>
+
+      <div class="box">
+        <strong>Why duplication is “okay” here:</strong>
+        <ul>
+          <li>We want the browser to have the same component tree as the server used ✅</li>
+          <li>Hydration requires the client and server to render the same structure ✅</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>8) Step 6 — Make JSX work in the browser (Babel CDN) 🧱</h2>
+      <p>
+        Your <code>client.js</code> now contains JSX, which the browser can’t execute by default.
+        The easy demo solution is to load Babel in the browser.
+      </p>
+
+      <div class="steps" role="region" aria-label="Client-side setup">
+        <div class="row">1) Add Babel CDN script to <code>index.html</code> 🧩</div>
+        <div class="row">2) Add React + ReactDOM CDN scripts to <code>index.html</code> ⚛️</div>
+        <div class="row">3) Set <code>type="text/babel"</code> on the <code>client.js</code> script tag 🧠</div>
+      </div>
+
+      <div class="code">
+        <div class="label">index.html (conceptual script setup)</div>
+        <pre><code>&lt;!-- 1) Babel (so browser can understand JSX in this demo) --&gt;
+&lt;script src="...babel..."&gt;&lt;/script&gt;
+
+&lt;!-- 2) React + ReactDOM (global objects) --&gt;
+&lt;script src="...react..."&gt;&lt;/script&gt;
+&lt;script src="...react-dom..."&gt;&lt;/script&gt;
+
+&lt;!-- 3) Your client code --&gt;
+&lt;script type="text/babel" src="/client.js"&gt;&lt;/script&gt;</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>What changes after this:</strong>
+        <ul>
+          <li>The browser can parse JSX for this demo ✅</li>
+          <li><code>React</code> and <code>ReactDOM</code> exist as global variables ✅</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>9) Step 7 — Hydrate the existing SSR HTML with <code>hydrateRoot</code> 💧</h2>
+      <p>
+        In a normal client-only app, you do <code>createRoot(...).render(&lt;App /&gt;)</code> which creates new DOM.
+        In SSR, the DOM already exists, so you use <strong>hydration</strong> instead.
+      </p>
+
+      <div class="grid">
+        <div class="box">
+          <strong>Client-only (typical) 🧱</strong>
+          <ul>
+            <li>Create brand-new React root</li>
+            <li>Build DOM from scratch</li>
+          </ul>
+        </div>
+        <div class="box">
+          <strong>SSR + Hydration 💧</strong>
+          <ul>
+            <li>Reuse server-rendered DOM</li>
+            <li>Attach handlers/state/effects</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code">
+        <div class="label">client.js (hydration concept)</div>
+        <pre><code>// ReactDOM is global (loaded via script tag)
+ReactDOM.hydrateRoot(
+  document.getElementById("root"),
+  &lt;Home /&gt;
+);</code></pre>
+      </div>
+
+      <div class="warn">
+        <strong>⚠️ Critical requirement:</strong>
+        <p>
+          The <code>&lt;Home /&gt;</code> component tree must match what the server rendered.
+          If it doesn’t, you can get hydration mismatch errors.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>10) Quick bug from the lecture: “We forgot the pizzas data” 🍕</h2>
+      <p>
+        If your components use data like a <code>pizzas</code> array, it must exist on the client too (for this demo copy/paste approach).
+        Otherwise, rendering fails.
+      </p>
+
+      <div class="box">
+        <strong>Fix:</strong>
+        <p>Make sure the same data used on the server is available in <code>client.js</code> as well.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>11) Performance demo: Why buttons don’t work immediately on slow networks 🐢</h2>
+      <p>
+        With slow network throttling (example: “Slow 3G”), you can see the core SSR benefit:
+      </p>
+      <ul>
+        <li>✅ Content appears quickly (HTML already there)</li>
+        <li>❌ Buttons don’t work yet while React + <code>client.js</code> download</li>
+        <li>✨ Once scripts finish loading, hydration completes and buttons work</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Practical takeaway:</strong>
+        <p>
+          SSR improves “see content fast.” Hydration improves “use the app.” They happen at different times.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>12) The two most important functions (memorize) 🎯</h2>
+      <div class="grid">
+        <div class="box">
+          <strong>🖥️ Server</strong>
+          <ul>
+            <li><code>renderToString</code></li>
+            <li>Components → HTML string</li>
+          </ul>
+        </div>
+        <div class="box">
+          <strong>💧 Client</strong>
+          <ul>
+            <li><code>hydrateRoot</code></li>
+            <li>HTML + React code → interactive app</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Nice intuition from the lecture:</strong>
+        <p>
+          <code>renderToString</code> transforms components into HTML.
+          Hydration “kind of does the opposite” by connecting React behavior back onto that HTML.
+        </p>
+      </div>
+    </section>
+
+    <section class="qa">
+      <h2>13) Mini Q&amp;A (Self-check) 🧪</h2>
+
+      <details>
+        <summary>Q1) Why didn’t <code>client.js</code> load at first?</summary>
+        <div class="answer">
+          Because the server had no route for <code>/client.js</code>, so it returned the “URL cannot be found” fallback instead of the JS file.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q2) Why set <code>Content-Type: application/javascript</code>?</summary>
+        <div class="answer">
+          It tells the browser to interpret the response as JavaScript, not HTML.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q3) Why is <code>hydrateRoot</code> used instead of <code>createRoot</code>?</summary>
+        <div class="answer">
+          Because the DOM already exists from SSR. Hydration reuses it and attaches event handlers/state rather than rebuilding everything.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q4) What’s the main lesson before moving to Next.js?</summary>
+        <div class="answer">
+          Next.js automates SSR + hydration (and does it better, with bundling and streaming). Understanding this manual flow removes the “magic.”
+        </div>
+      </details>
+    </section>
+
+    <p class="footer">
+      End of reviewer. Next lecture moves from this manual experiment to the real-world solution: Next.js.
+    </p>
+  </main>
+</body>
+</html>

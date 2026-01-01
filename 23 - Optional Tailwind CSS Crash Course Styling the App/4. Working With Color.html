@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Working With Color in Tailwind CSS — Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #047857;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .soft { background: var(--soft); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #eef2ff;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7faff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #ecfdf5;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+    }
+
+    .danger {
+      border-left: 4px solid var(--danger);
+      background: #fef2f2;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      header, .card, pre, .note { break-inside: avoid; page-break-inside: avoid; }
+
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li { font-size: 12.2px; }
+
+      /* Do not print URLs after links */
+      a[href]::after { content: "" !important; }
+
+      pre {
+        color: #111 !important;
+        background: #f2f2f2 !important;
+        border: 1px solid #ddd;
+      }
+
+      .chip {
+        border-color: #ddd;
+        background: #f7f7f7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">🎨 Tailwind CSS Crash Course — Colors</p>
+      <h1>🌈 Working With Color in Tailwind CSS</h1>
+      <p class="subtitle">
+        Learn how Tailwind names colors, how shades work (50 → 950), and how to apply colors to
+        <strong>text</strong> and <strong>backgrounds</strong> using intuitive utility classes.
+      </p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">📚 docs-first workflow</span>
+        <span class="chip">🎛️ palettes + shades</span>
+        <span class="chip">📝 text-*</span>
+        <span class="chip">🧱 bg-*</span>
+        <span class="chip">🧩 contrast & hierarchy</span>
+        <span class="chip">🔎 Command/Ctrl + K search</span>
+      </div>
+    </header>
+
+    <section class="card soft">
+      <h2>🎯 What you’re trying to learn</h2>
+      <p>
+        Tailwind ships with <strong>predefined color palettes</strong>. You pick:
+      </p>
+      <ul>
+        <li>🩶 A neutral/gray palette for most text + backgrounds (e.g., <code>gray</code>, <code>slate</code>, <code>stone</code>)</li>
+        <li>🟡 One “brand” or “accent” color (e.g., <code>yellow</code>)</li>
+      </ul>
+      <div class="note">
+        ✅ You <em>can</em> add custom colors in <code>tailwind.config.js</code>, but in this lecture we stick to built-in palettes.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>📚 Keep the Tailwind docs open</h2>
+      <p>
+        Tailwind’s docs are designed for fast lookup. The lecture recommends keeping them open while you code.
+      </p>
+      <div class="note good">
+        🔎 Pro tip: use the docs search (often <strong>Command/Ctrl + K</strong>) to jump directly to utilities like
+        <em>Text Color</em> or <em>Background Color</em>.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🎛️ Color naming: <code>color</code> + <code>shade</code></h2>
+      <p>
+        Tailwind colors usually follow this pattern:
+      </p>
+      <ul>
+        <li><strong>Color name</strong>: <code>yellow</code>, <code>stone</code>, <code>slate</code>, etc.</li>
+        <li><strong>Shade</strong>: from <code>50</code> (lightest) to <code>950</code> (darkest)</li>
+      </ul>
+      <div class="note">
+        🧠 Think of the number as the “intensity” of the color: higher number → darker.
+      </div>
+      <p>
+        Example palette idea from the lecture:
+      </p>
+      <ul>
+        <li>🟡 <strong>Brand color</strong>: <code>yellow</code> (e.g., <code>500</code>)</li>
+        <li>🪨 <strong>Warm neutral</strong>: <code>stone</code> (warmer than bluish grays like <code>slate</code>)</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>📝 Text color</h2>
+      <p>
+        Use:
+      </p>
+      <pre>text-&lt;color&gt;-&lt;shade&gt;</pre>
+      <p>
+        Examples:
+      </p>
+      <pre>text-yellow-500
+text-yellow-700
+text-stone-700</pre>
+
+      <h3>🔎 Why docs search matters</h3>
+      <p>
+        If you forget the exact utility name, search the docs for “text color” and Tailwind will show all variants.
+      </p>
+      <div class="note warn">
+        Some special text-color utilities exist too, like <code>text-inherit</code> or <code>text-transparent</code>.
+        You don’t need them often, but it’s good to know they exist.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🧱 Background color</h2>
+      <p>
+        Use:
+      </p>
+      <pre>bg-&lt;color&gt;-&lt;shade&gt;</pre>
+      <p>
+        Example (header background):
+      </p>
+      <pre>bg-yellow-500</pre>
+
+      <h3>Example: Cart overview with warm dark background</h3>
+      <p>
+        The lecture picks a warm gray (<code>stone</code>) and chooses a dark-ish shade:
+      </p>
+      <pre>bg-stone-800</pre>
+      <p>
+        Then adjust text color so it stays readable:
+      </p>
+      <pre>text-stone-200</pre>
+      <div class="note good">
+        ✅ Practical rule: when you use a dark background, avoid pure white text if it feels too harsh.
+        Use a lighter shade of the same palette (e.g., <code>stone-200</code> on <code>stone-800</code>).
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🏗️ Visual hierarchy using shades</h2>
+      <p>
+        Tailwind’s shades make it easy to create hierarchy:
+      </p>
+      <ul>
+        <li>🧩 Make “secondary” text slightly darker/lighter than the rest</li>
+        <li>🔗 Make links stand out by changing only the link color</li>
+        <li>🟡 Use brand color sparingly for emphasis</li>
+      </ul>
+
+      <h3>Example: Gray headline + yellow accent word</h3>
+      <pre>&lt;h1 className="text-xl font-semibold text-stone-700"&gt;
+  Welcome to &lt;span className="text-yellow-500"&gt;Fast React Pizza&lt;/span&gt;
+&lt;/h1&gt;</pre>
+
+      <div class="note">
+        🧠 Why this looks better: your eyes get a clear “focus point” (yellow) while most text stays neutral.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🧪 Quick memory cheatsheet</h2>
+      <ul>
+        <li>📝 Text color → <code>text-*</code></li>
+        <li>🧱 Background → <code>bg-*</code></li>
+        <li>🎛️ Shade scale → <code>50</code> (light) → <code>950</code> (dark)</li>
+        <li>🪨 Warm neutral → <code>stone</code>; cooler neutral → <code>slate</code></li>
+        <li>🧩 Prefer “near-white” text on dark backgrounds → <code>stone-200</code> instead of pure white</li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="card">
+      <h2>✅ Summary</h2>
+      <p>
+        Working with colors in Tailwind is mostly about learning the naming convention:
+        pick a <strong>palette</strong> and a <strong>shade</strong>, then apply it with <code>text-</code> or <code>bg-</code>.
+        Use shades to create contrast and hierarchy, and rely on the documentation search when in doubt.
+      </p>
+    </section>
+
+    <footer class="muted" style="margin-top:16px; font-size:12px;">
+      Print format: A4, single-column, word-wrapped, clean margins.
+    </footer>
+  </main>
+</body>
+</html>

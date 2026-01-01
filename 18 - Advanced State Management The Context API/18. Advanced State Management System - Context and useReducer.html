@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced State Management — Context + useReducer (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codefg: #e9eefc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 18px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px 0;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 22px 0 10px;
+    }
+
+    h3 {
+      font-size: 15.5px;
+      margin: 18px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol { margin: 8px 0 10px 20px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 6px solid #d6d6d6;
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .callout.tip { border-left-color: #b7e4c7; }
+    .callout.warn { border-left-color: #ffd6a5; }
+    .callout.why { border-left-color: #cdb4db; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px;
+      background: #fff;
+    }
+
+    .card h3 { margin-top: 0; }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--codebg);
+      color: var(--codefg);
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 12.5px;
+      line-height: 1.55;
+      tab-size: 2;
+      white-space: pre;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .checklist li { margin: 7px 0; }
+
+    /* Print */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, .card, .callout { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Do not print URLs after links */
+      a[href]:after { content: "" !important; }
+
+      /* Slightly tighter for print */
+      h1 { font-size: 20px; }
+      h2 { font-size: 17px; }
+      h3 { font-size: 15px; }
+      .subtitle { font-size: 12.5px; }
+      pre { font-size: 11.5px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 Advanced State Management System — Context API + <span class="inline-code">useReducer</span></h1>
+      <p class="subtitle">
+        Reviewer / study guide based on the lecture transcript. Focus: refactoring a Context Provider from multiple <span class="inline-code">useState</span> calls to one <span class="inline-code">useReducer</span> state machine.
+      </p>
+      <div class="meta">
+        <span class="chip">✅ Single source of truth</span>
+        <span class="chip">🔁 Predictable state transitions</span>
+        <span class="chip">⚙️ Reducer + async fetch functions</span>
+        <span class="chip">🧠 Event-style action naming</span>
+      </div>
+    </header>
+
+    <h2>1) Goal of this pattern</h2>
+    <p>
+      We build an “advanced” state system by combining:
+      <span class="inline-code">Context</span> (share state globally) + <span class="inline-code">useReducer</span> (centralize state transitions).
+      This is common in React apps that want Redux-like organization without adding a library.
+    </p>
+
+    <div class="callout why">
+      <strong>Why do this? 🤔</strong>
+      <ul class="checklist">
+        <li>🧠 <b>All updates live in one place</b> (the reducer), making behavior easier to reason about.</li>
+        <li>🔁 <b>Related updates happen together</b> (e.g., set <span class="inline-code">isLoading</span> and update <span class="inline-code">cities</span> in one action).</li>
+        <li>🧩 Works naturally with Context: any component can read shared state via a custom hook.</li>
+      </ul>
+    </div>
+
+    <h2>2) Starting point (what we refactor)</h2>
+    <p>
+      In the WorldWise <b>CitiesProvider</b>, we originally had multiple state variables:
+    </p>
+    <ul>
+      <li>🏙️ <span class="inline-code">cities</span> (array)</li>
+      <li>⏳ <span class="inline-code">isLoading</span> (boolean)</li>
+      <li>📍 <span class="inline-code">currentCity</span> (object)</li>
+      <li>(Optional) ❌ <span class="inline-code">error</span> (string)</li>
+    </ul>
+
+    <h2>3) Core rule: reducers must be pure</h2>
+    <div class="callout warn">
+      <strong>Important ⚠️</strong>
+      <p>
+        Reducers cannot run side effects. That means:
+        <b>no fetching</b>, <b>no API calls</b>, <b>no timers</b> inside the reducer.
+      </p>
+      <p>
+        ✅ We still fetch data in async functions (inside the Provider), then <b>dispatch actions</b> with the result.
+      </p>
+    </div>
+
+    <h2>4) Build the reducer: initial state + cases</h2>
+
+    <div class="grid">
+      <section class="card">
+        <h3>4.1 Initial state 🧱</h3>
+        <pre><code>// CitiesContext.jsx
+const initialState = {
+  cities: [],
+  isLoading: false,
+  currentCity: {},
+  error: "", // optional but useful for completeness
+};</code></pre>
+      </section>
+
+      <section class="card">
+        <h3>4.2 Action naming convention 🏷️</h3>
+        <p>
+          Prefer <b>event-style</b> names instead of setter-style names.
+          Example: <span class="inline-code">cities/loaded</span> instead of <span class="inline-code">setCities</span>.
+        </p>
+        <ul>
+          <li>✅ Makes it obvious that multiple state fields may change in one event.</li>
+          <li>✅ Easier to scan and understand state transitions.</li>
+          <li>💡 The “slash” style is common in Redux ecosystems.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h3>4.3 Reducer function (pure) 🔁</h3>
+        <pre><code>function reducer(state, action) {
+  switch (action.type) {
+    case "loading":
+      return { ...state, isLoading: true, error: "" };
+
+    case "cities/loaded":
+      return {
+        ...state,
+        isLoading: false,
+        cities: action.payload,
+      };
+
+    case "city/loaded":
+      return {
+        ...state,
+        isLoading: false,
+        currentCity: action.payload,
+      };
+
+    case "city/created":
+      return {
+        ...state,
+        isLoading: false,
+        cities: [...state.cities, action.payload],
+        // Nice improvement: make the new city active
+        currentCity: action.payload,
+      };
+
+    case "city/deleted":
+      return {
+        ...state,
+        isLoading: false,
+        cities: state.cities.filter(city => city.id !== action.payload),
+        // Nice improvement: reset current city
+        currentCity: {},
+      };
+
+    case "rejected":
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload,
+      };
+
+    default:
+      throw new Error(`Unknown action type: ${action.type}`);
+  }
+}</code></pre>
+      </section>
+    </div>
+
+    <h2>5) Replace multiple <span class="inline-code">useState</span> with <span class="inline-code">useReducer</span></h2>
+    <p>
+      In the Provider, create state + dispatch:
+    </p>
+    <pre><code>import { createContext, useContext, useEffect, useReducer } from "react";
+
+const CitiesContext = createContext();
+
+export function CitiesProvider({ children }) {
+  const [{ cities, isLoading, currentCity, error }, dispatch] = useReducer(
+    reducer,
+    initialState
+  );
+
+  // ... async functions live here
+
+  return (
+    &lt;CitiesContext.Provider value={{
+      cities,
+      isLoading,
+      currentCity,
+      error,
+      // functions below
+    }}&gt;
+      {children}
+    &lt;/CitiesContext.Provider&gt;
+  );
+}</code></pre>
+
+    <div class="callout tip">
+      <strong>Tip ✅</strong>
+      <p>
+        You can destructure the reducer state immediately:
+        <span class="inline-code">const [{ cities, isLoading, currentCity }, dispatch] = useReducer(...)</span>
+        — keeps the Provider readable.
+      </p>
+    </div>
+
+    <h2>6) Async data: dispatch actions after fetch</h2>
+    <p>
+      Because async work can’t be in the reducer, each async function typically does:
+    </p>
+    <ol>
+      <li>Dispatch <span class="inline-code">loading</span></li>
+      <li>Fetch / mutate</li>
+      <li>Dispatch success action with <span class="inline-code">payload</span></li>
+      <li>On error: dispatch <span class="inline-code">rejected</span></li>
+    </ol>
+
+    <div class="grid">
+      <section class="card">
+        <h3>6.1 Load all cities 🏙️</h3>
+        <pre><code>const BASE_URL = "http://localhost:9000";
+
+useEffect(function () {
+  async function fetchCities() {
+    dispatch({ type: "loading" });
+    try {
+      const res = await fetch(`${BASE_URL}/cities`);
+      const data = await res.json();
+      dispatch({ type: "cities/loaded", payload: data });
+    } catch {
+      dispatch({ type: "rejected", payload: "There was an error loading cities" });
+    }
+  }
+
+  fetchCities();
+}, []);</code></pre>
+      </section>
+
+      <section class="card">
+        <h3>6.2 Load a single city by id 📍</h3>
+        <pre><code>async function getCity(idFromUrl) {
+  // IDs from the URL are strings → convert before comparing
+  const id = Number(idFromUrl);
+
+  // Small optimization: don’t refetch if already current
+  if (id === currentCity.id) return;
+
+  dispatch({ type: "loading" });
+  try {
+    const res = await fetch(`${BASE_URL}/cities/${id}`);
+    const data = await res.json();
+    dispatch({ type: "city/loaded", payload: data });
+  } catch {
+    dispatch({ type: "rejected", payload: "There was an error loading the city" });
+  }
+}</code></pre>
+      </section>
+
+      <section class="card">
+        <h3>6.3 Create a city ➕</h3>
+        <pre><code>async function createCity(newCity) {
+  dispatch({ type: "loading" });
+  try {
+    const res = await fetch(`${BASE_URL}/cities`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newCity),
+    });
+
+    const data = await res.json();
+    dispatch({ type: "city/created", payload: data });
+    return data; // helpful if the caller wants to await
+  } catch {
+    dispatch({ type: "rejected", payload: "There was an error creating the city" });
+    throw new Error("Create city failed");
+  }
+}</code></pre>
+      </section>
+
+      <section class="card">
+        <h3>6.4 Delete a city 🗑️</h3>
+        <pre><code>async function deleteCity(id) {
+  dispatch({ type: "loading" });
+  try {
+    await fetch(`${BASE_URL}/cities/${id}`, { method: "DELETE" });
+    dispatch({ type: "city/deleted", payload: id });
+  } catch {
+    dispatch({ type: "rejected", payload: "There was an error deleting the city" });
+  }
+}</code></pre>
+      </section>
+    </div>
+
+    <h2>7) Context value: two options with async data</h2>
+    <div class="callout why">
+      <strong>Two patterns you can use 🧠</strong>
+      <ol>
+        <li>
+          <b>Expose state + dispatch</b>
+          <ul>
+            <li>✅ Great when state updates are synchronous and pure.</li>
+            <li>⚠️ For async work, components must hold fetch logic (can get messy).</li>
+          </ul>
+        </li>
+        <li>
+          <b>Expose state + async “event handler” functions</b> (what we do here)
+          <ul>
+            <li>✅ Keeps components clean: components just call <span class="inline-code">createCity()</span>, <span class="inline-code">deleteCity()</span>, etc.</li>
+            <li>✅ Fetch logic stays inside the Provider (centralized).</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <p>
+      In this course project, we follow option #2:
+      pass functions that already dispatch internally.
+    </p>
+
+    <pre><code>return (
+  &lt;CitiesContext.Provider value={{
+    cities,
+    isLoading,
+    currentCity,
+    error,
+    getCity,
+    createCity,
+    deleteCity,
+  }}&gt;
+    {children}
+  &lt;/CitiesContext.Provider&gt;
+);</code></pre>
+
+    <h2>8) Custom hook for consumption</h2>
+    <pre><code>export function useCities() {
+  const context = useContext(CitiesContext);
+  if (context === undefined)
+    throw new Error("CitiesContext was used outside the CitiesProvider");
+  return context;
+}</code></pre>
+
+    <h2>9) Common pitfalls (and quick fixes)</h2>
+
+    <div class="grid">
+      <section class="card">
+        <h3>⚠️ Pitfall: “Reducer should do the fetch”</h3>
+        <p>
+          Don’t do it. Reducers must be pure.
+          Fetch outside, dispatch results in.
+        </p>
+      </section>
+
+      <section class="card">
+        <h3>⚠️ Pitfall: Loading stuck on true</h3>
+        <p>
+          If an error happens and you never dispatch a failure action,
+          <span class="inline-code">isLoading</span> will stay true.
+        </p>
+        <p>
+          Fix: add <span class="inline-code">rejected</span> case and dispatch it in <span class="inline-code">catch</span>.
+        </p>
+      </section>
+
+      <section class="card">
+        <h3>⚠️ Pitfall: ID comparison fails</h3>
+        <p>
+          IDs coming from the URL are strings.
+          API IDs are often numbers.
+        </p>
+        <p>
+          Fix: <span class="inline-code">const id = Number(idFromUrl)</span> before comparing.
+        </p>
+      </section>
+
+      <section class="card">
+        <h3>✅ Improvement: “Skip refetch if already current”</h3>
+        <p>
+          In <span class="inline-code">getCity</span>, if the requested ID equals
+          <span class="inline-code">currentCity.id</span>, return early.
+        </p>
+      </section>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>10) Quick self-check (mini quiz) 🧪</h2>
+    <ol>
+      <li>Why can’t we fetch inside the reducer?</li>
+      <li>What is the benefit of action names like <span class="inline-code">city/created</span> vs <span class="inline-code">setCity</span>?</li>
+      <li>Why does <span class="inline-code">idFromUrl === currentCity.id</span> sometimes fail?</li>
+      <li>When async work is involved, why might we prefer exposing functions instead of exposing dispatch?</li>
+    </ol>
+
+    <div class="callout tip">
+      <strong>Answer key (short) ✅</strong>
+      <ul>
+        <li>Reducers must be pure → no side effects.</li>
+        <li>Event names signal a “story” and imply related transitions.</li>
+        <li>URL gives strings; API may store numbers → convert.</li>
+        <li>To keep components clean and keep fetch logic centralized.</li>
+      </ul>
+    </div>
+
+    <h2>11) What you should remember</h2>
+    <ul class="checklist">
+      <li>🧩 Context shares state; <span class="inline-code">useReducer</span> centralizes transitions.</li>
+      <li>⚠️ Async fetch stays outside reducer; reducer only reacts to actions.</li>
+      <li>🧠 Event-style action names make intent and side effects clearer.</li>
+      <li>✅ This pattern scales well for “small-to-medium” apps and is common in production codebases.</li>
+    </ul>
+
+    <div class="divider"></div>
+
+    <p class="subtitle">
+      End of study guide. Print tip: Use your browser’s Print → Save as PDF (A4). The layout is single-column and print-optimized.
+    </p>
+  </main>
+</body>
+</html>

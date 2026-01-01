@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Query + Supabase — Uploading Images to Supabase (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --code:#0b1020;
+      --codeBg:#f3f4f6;
+      --accent:#1a73e8;
+      --ok:#137333;
+      --warn:#b05a00;
+      --bad:#b00020;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px 64px;
+    }
+
+    header{
+      padding: 14px 0 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1{
+      margin:0 0 8px;
+      font-size: 1.6rem;
+      letter-spacing: .2px;
+    }
+    .subtitle{margin:0;color:var(--muted);font-size:.98rem;}
+
+    h2{
+      margin: 22px 0 10px;
+      font-size: 1.2rem;
+    }
+    h3{
+      margin: 16px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p{margin: 10px 0;}
+
+    .card{
+      border:1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 14px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .callout.ok{border-left-color: var(--ok);}
+    .callout.warn{border-left-color: var(--warn);}
+    .callout.bad{border-left-color: var(--bad);}
+
+    ul{margin: 8px 0 8px 22px;}
+    li{margin: 6px 0;}
+
+    .k{
+      display:inline-block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .92em;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--codeBg);
+      color: var(--code);
+      white-space: nowrap;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--codeBg);
+      overflow:auto;
+      max-width:100%;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .92rem;
+      color: var(--code);
+    }
+
+    .grid2{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .muted{color:var(--muted);}
+
+    /* Print: A4, clean margins, no URL after links */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header{ border-bottom: 1px solid #00000020; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]::after{ content: ""; } /* prevent printing URLs */
+      pre{ break-inside: avoid; }
+      .card, .callout{ break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>📤 Uploading Images to Supabase (Cabin Photo Upload)</h1>
+      <p class="subtitle">Reviewer / Study Guide — React Hook Form + Supabase Storage + React Query mutations</p>
+    </header>
+
+    <section class="callout">
+      <p><strong>Goal 🎯</strong></p>
+      <ul>
+        <li>Make the <span class="k">Cabin photo</span> input work ✅</li>
+        <li>Upload the selected file into a Supabase <span class="k">storage bucket</span> 🪣</li>
+        <li>Store the final image URL (or path) into the <span class="k">cabins</span> table so the UI can render it 🖼️</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1) Register the file input in React Hook Form 🧾</h2>
+      <p>Just like your other inputs, you register the file field. The key difference is: file inputs return a <strong>FileList</strong>, not a simple string/number.</p>
+
+      <div class="card">
+        <h3>✅ Register the field as <span class="k">image</span></h3>
+        <pre><code>// CreateCabinForm.jsx
+&lt;Input
+  id="image"
+  {...register("image", { required: "Cabin photo is required" })}
+/&gt;</code></pre>
+        <p class="muted">🧠 Why <span class="k">image</span>? Because it matches your Supabase column naming convention and makes mapping easier.</p>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Important ⚠️</strong> The value of <span class="k">data.image</span> from the form is a <span class="k">FileList</span>.</p>
+        <ul>
+          <li>Use <span class="k">data.image[0]</span> to get the first selected file.</li>
+          <li>Avoid <span class="k">.at(0)</span> here — some environments won’t treat FileList like a normal array.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Make your styled <span class="k">Input</span> always behave like a file input 🧩</h2>
+      <p>If you already know this particular input should always be a file selector, you can bake the <span class="k">type="file"</span> into the styled component using <span class="k">attrs</span>.</p>
+
+      <div class="card">
+        <h3>✅ Styled Components: <span class="k">attrs</span> trick</h3>
+        <pre><code>// Input.jsx (or wherever your styled Input is)
+import styled from "styled-components";
+
+export const Input = styled.input.attrs({ type: "file" })`
+  /* your existing styles */
+`;</code></pre>
+        <p class="muted">🙂 Benefit: You don’t have to manually write <span class="k">type="file"</span> each time you use this Input component.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Convert form data into a payload React Query can mutate 🔁</h2>
+      <p>When you submit, transform the <span class="k">FileList</span> into a real <span class="k">File</span> object, and pass that along to your mutation.</p>
+
+      <div class="card">
+        <h3>✅ Create a clean payload</h3>
+        <pre><code>// CreateCabinForm.jsx
+function onSubmit(data) {
+  const imageFile = data.image[0];
+
+  const newCabin = {
+    ...data,
+    image: imageFile,
+  };
+
+  createCabin(newCabin); // mutate(newCabin)
+}</code></pre>
+        <p class="muted">📝 At this point, <span class="k">newCabin.image</span> is a real file object (it contains the image data).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) In the service: create the cabin row first, then upload the file 🏗️➡️🖼️</h2>
+      <p>You need <strong>two steps</strong> in <span class="k">createCabin</span>:</p>
+      <ul>
+        <li><strong>Create cabin row</strong> in the <span class="k">cabins</span> table (but with the final <span class="k">image</span> value already set to the image URL/path).</li>
+        <li><strong>Upload the file</strong> into the Supabase bucket using <span class="k">supabase.storage.from(...).upload(...)</span>.</li>
+      </ul>
+
+      <div class="callout ok">
+        <p><strong>Key idea 💡</strong> The table’s <span class="k">image</span> column should store a string (URL/path), not the raw file.</p>
+      </div>
+
+      <div class="card">
+        <h3>✅ Build a unique file name (avoid collisions) 🔐</h3>
+        <pre><code>// apiCabins.js (service)
+const imageName = `${Math.random()}-${newCabin.image.name}`.replaceAll("/", "");</code></pre>
+        <p class="muted">😅 Why replace slashes? A file name containing <span class="k">/</span> can create folders in storage, which you typically don’t want.</p>
+      </div>
+
+      <div class="card">
+        <h3>✅ Construct the final image path you store in the DB 🔗</h3>
+        <pre><code>// supabaseUrl should come from your supabase client file
+// Example path format:
+// {supabaseUrl}/storage/v1/object/public/cabin-images/{imageName}
+
+const imagePath = `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;</code></pre>
+        <p class="muted">📌 The bucket must be public if you want the browser to render the image by URL.</p>
+      </div>
+
+      <div class="card">
+        <h3>✅ Full service flow: insert row then upload file</h3>
+        <pre><code>// apiCabins.js
+import supabase, { supabaseUrl } from "./supabase";
+
+export async function createCabin(newCabin) {
+  // 1) Build image name + URL/path
+  const imageName = `${Math.random()}-${newCabin.image.name}`.replaceAll("/", "");
+  const imagePath = `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
+
+  // 2) Create cabin row (store imagePath string, not the file)
+  const { data, error } = await supabase
+    .from("cabins")
+    .insert([{ ...newCabin, image: imagePath }])
+    .select()
+    .single();
+
+  if (error) throw new Error("Cabin could not be created");
+
+  // 3) Upload file to storage bucket
+  const { error: storageError } = await supabase.storage
+    .from("cabin-images")
+    .upload(imageName, newCabin.image);
+
+  // 4) If upload fails: rollback by deleting the created cabin
+  if (storageError) {
+    await supabase.from("cabins").delete().eq("id", data.id);
+    console.error(storageError);
+    throw new Error("Cabin image could not be uploaded and the cabin was not created");
+  }
+
+  return data;
+}</code></pre>
+        <p class="muted">✅ Result: the DB row points to the file, and the file exists in storage. UI can render it.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Supabase Storage Policies (RLS) for uploading 🔒</h2>
+      <p>Even if a bucket is public for reading, uploads/deletes still need policies.</p>
+
+      <div class="card">
+        <h3>Quick setup for learning (temporary) 🧪</h3>
+        <ul>
+          <li>Go to your bucket → <strong>Policies</strong></li>
+          <li>Create a policy allowing all operations (for now)</li>
+          <li>Later: restrict to authenticated users only</li>
+        </ul>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Reminder ⚠️</strong> “Allow all for everyone” is fine for a demo, but not for production. In real apps, limit uploads to authenticated/authorized users.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Common bug: <span class="k">data.image.at</span> is not a function 🐛</h2>
+      <p>If you see an error like:</p>
+      <pre><code>data.image.at is not a function</code></pre>
+      <p>It’s because <span class="k">data.image</span> is a <span class="k">FileList</span> (not a real array). Fix it like this:</p>
+      <pre><code>// ✅ Correct
+const file = data.image[0];
+
+// ❌ Risky / may fail
+const file = data.image.at(0);</code></pre>
+    </section>
+
+    <section>
+      <h2>7) How this connects back to React Query “magic” ✨</h2>
+      <div class="callout ok">
+        <p><strong>Why the UI updates automatically 😄</strong></p>
+        <ul>
+          <li>You run a <span class="k">useMutation</span> to create the cabin.</li>
+          <li>On success, you call <span class="k">queryClient.invalidateQueries({ queryKey: ["cabins"] })</span>.</li>
+          <li>React Query refetches the cabin list → cache updates → React re-renders the table.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Mini Checklist ✅</h2>
+      <ul>
+        <li>📌 File input registered: <span class="k">register("image")</span></li>
+        <li>🖼️ Form payload uses <span class="k">data.image[0]</span></li>
+        <li>🧷 Unique <span class="k">imageName</span> created (random prefix + sanitized)</li>
+        <li>🔗 <span class="k">imagePath</span> stored in DB row</li>
+        <li>🪣 File uploaded to <span class="k">supabase.storage.from("cabin-images")</span></li>
+        <li>🧹 Rollback if upload fails (delete cabin row)</li>
+        <li>🔄 React Query invalidates <span class="k">["cabins"]</span></li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <p><strong>What’s next ➡️</strong> After uploads work, the next “real-world” improvement is to handle editing cabins (update + replace image), plus stricter bucket policies once authentication is in place.</p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,388 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Creating Our First Custom Hook: useMovies</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .compare{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 4px;
+      font-size: 13.5px;
+    }
+    .compare th,
+    .compare td{
+      border:1px solid var(--border);
+      padding: 10px 10px;
+      vertical-align: top;
+    }
+    .compare th{
+      background: var(--panel);
+      text-align:left;
+      font-weight:700;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+    .danger{ color: var(--danger); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🧠 React Study Guide: Creating Our First Custom Hook — <code>useMovies</code></h1>
+      <p class="subtitle">We extract the movie-fetching logic (state + effect) from <code>App</code> into a reusable custom hook called <code>useMovies</code>.</p>
+      <div class="meta">
+        <span class="chip">🧷 Custom Hook: <strong>useMovies</strong></span>
+        <span class="chip">🎯 Goal: cleaner App component</span>
+        <span class="chip">♻️ Benefit: reusable fetch logic</span>
+        <span class="chip">📦 Return: <code>{ movies, isLoading, error }</code></span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Why create <code>useMovies</code>? (2 common strategies)</h2>
+      <p>The lecture explains two reasons you might create a custom hook:</p>
+      <ul>
+        <li>♻️ <strong>Reuse non-visual logic</strong> across components/projects.</li>
+        <li>🧹 <strong>Extract a large chunk of hook-based logic</strong> out of a component to reduce clutter.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>This lecture uses strategy #2:</strong> extract a big <code>useEffect</code> + related state from <code>App</code> into <code>useMovies</code>.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 What logic belongs together?</h2>
+      <p>Fetching movies is not “just an effect.” It usually needs multiple pieces of state:</p>
+      <ul>
+        <li>🎞️ <code>movies</code> — the fetched data</li>
+        <li>⏳ <code>isLoading</code> — loading indicator</li>
+        <li>⚠️ <code>error</code> — error message if the request fails</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Key idea:</strong> When extracting, move the <em>whole unit</em> of related stateful logic, not only the <code>useEffect</code>.
+      </div>
+    </section>
+
+    <section>
+      <h2>📁 Step-by-step: create the hook file</h2>
+      <div class="rule">
+        <h3>1) Create <code>useMovies.js</code></h3>
+        <p>Inside your <code>src</code> folder, create a new file:</p>
+        <pre><code>src/useMovies.js</code></pre>
+      </div>
+
+      <div class="rule">
+        <h3>2) Export the hook (named export)</h3>
+        <p>The lecturer prefers:</p>
+        <ul>
+          <li>✅ <strong>default export</strong> for components</li>
+          <li>✅ <strong>named export</strong> for hooks</li>
+        </ul>
+        <pre><code>export function useMovies(query) {
+  // ...
+}</code></pre>
+        <p class="muted">This is a style choice, not a strict requirement.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧷 The core hook: state + effect + return value</h2>
+      <p>A working <code>useMovies</code> hook will typically:</p>
+      <ul>
+        <li>✅ import and use <code>useState</code> and <code>useEffect</code></li>
+        <li>✅ accept <code>query</code> as an argument (not props)</li>
+        <li>✅ return <code>{ movies, isLoading, error }</code></li>
+      </ul>
+
+      <pre><code>import { useEffect, useState } from "react";
+
+const KEY = "&lt;YOUR_OMDB_KEY&gt;";
+
+export function useMovies(query) {
+  const [movies, setMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() =&gt; {
+    async function fetchMovies() {
+      try {
+        setIsLoading(true);
+        setError("");
+
+        const res = await fetch(
+          `https://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+        );
+
+        if (!res.ok) throw new Error("Something went wrong with fetching movies");
+
+        const data = await res.json();
+
+        if (data.Response === "False") throw new Error(data.Error);
+
+        setMovies(data.Search);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (query.length &lt; 3) {
+      setMovies([]);
+      setError("");
+      return;
+    }
+
+    fetchMovies();
+  }, [query]);
+
+  return { movies, isLoading, error };
+}</code></pre>
+
+      <div class="callout">
+        <strong>Notice:</strong> A custom hook can accept arguments and can return an object/array. It does not return JSX.
+      </div>
+    </section>
+
+    <section>
+      <h2>🔌 Using the hook in <code>App</code></h2>
+      <p>Call the hook and destructure its returned object:</p>
+
+      <pre><code>import { useMovies } from "./useMovies";
+
+export default function App() {
+  const [query, setQuery] = useState("");
+
+  const { movies, isLoading, error } = useMovies(query);
+
+  // ... JSX uses movies/isLoading/error
+}</code></pre>
+
+      <div class="callout">
+        <strong>Named import clue:</strong> Curly braces (<code>{ useMovies }</code>) means you used a named export.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Optional extension: passing a callback (and why it got removed)</h2>
+      <p>The lecture briefly explores making the hook more customizable by accepting a callback (e.g., closing an open movie when query changes).</p>
+
+      <div class="rule">
+        <h3>Idea (API customization)</h3>
+        <pre><code>export function useMovies(query, callback) {
+  useEffect(() =&gt; {
+    callback?.();
+    // ... fetch logic
+  }, [query]);
+}</code></pre>
+        <p class="muted">This is similar to how props act as a component's public API — arguments act as a hook's API.</p>
+      </div>
+
+      <div class="rule">
+        <h3>Why it caused trouble here</h3>
+        <ul>
+          <li>Adding <code>callback</code> to the dependency array can create re-run loops if the callback is re-created every render.</li>
+          <li>The lecture opts to remove callback support for now to avoid dependency complexity at this stage.</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <strong>Important learning:</strong> Effects + function dependencies can be tricky. You’ll learn safer patterns later (memoization, stable callbacks, etc.).
+      </div>
+    </section>
+
+    <section>
+      <h2>🆚 Before vs After (why this is worth doing)</h2>
+      <table class="compare" aria-label="Before vs After">
+        <thead>
+          <tr>
+            <th>Before</th>
+            <th>After</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <ul>
+                <li>Huge <code>useEffect</code> inside <code>App</code></li>
+                <li>Multiple related states scattered in the component</li>
+                <li>Harder to scan and maintain</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li><code>App</code> is cleaner and focuses more on UI composition</li>
+                <li>Fetching logic is isolated in <code>useMovies</code></li>
+                <li>Easier to reuse in another component/project</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>♻️ Custom hooks help reuse <strong>non-visual</strong> logic that contains hooks.</li>
+        <li>🧩 When extracting logic, move the whole “bundle” (effect + required state).</li>
+        <li>📦 Hooks often return an object like <code>{ movies, isLoading, error }</code>.</li>
+        <li>📛 Hook function names must start with <code>use</code>.</li>
+        <li class="warn">⚠️ Passing callbacks into hooks can complicate effect dependencies; learn stable patterns later.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

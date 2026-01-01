@@ -1,0 +1,465 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Hook Form — Handling Form Errors (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --codebg:#0b1020;
+      --codetext:#e8eefc;
+      --accent:#1a73e8;
+      --ok:#0f7b3a;
+      --warn:#8a5a00;
+      --bad:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 44px;
+    }
+
+    header{
+      border-bottom:1px solid var(--border);
+      padding-bottom:14px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      font-size: 1.55rem;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: .98rem;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:var(--soft);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:.85rem;
+      color:var(--muted);
+    }
+
+    h2{
+      font-size:1.15rem;
+      margin: 18px 0 8px;
+    }
+
+    h3{
+      font-size:1.02rem;
+      margin: 14px 0 6px;
+    }
+
+    p{ margin: 8px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background:var(--soft);
+      border-left: 5px solid var(--accent);
+      padding: 12px 12px;
+      margin: 10px 0;
+      border-radius: 10px;
+    }
+
+    .callout.ok{ border-left-color: var(--ok); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.bad{ border-left-color: var(--bad); }
+
+    .kvs{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      margin: 10px 0;
+    }
+
+    .kv{
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:12px;
+      background:#fff;
+    }
+
+    .kv b{ display:block; margin-bottom:4px; }
+    .kv .hint{ color:var(--muted); font-size:.93rem; }
+
+    ul,ol{ padding-left: 20px; margin: 8px 0; }
+    li{ margin: 6px 0; }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .95em;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codetext);
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.08);
+      overflow: auto;
+      white-space: pre-wrap; /* important for print */
+      word-break: break-word;
+      margin: 10px 0;
+    }
+
+    .mini{
+      color: var(--muted);
+      font-size: .93rem;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 18px 0;
+    }
+
+    .toc{
+      border:1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      margin: 14px 0 16px;
+    }
+
+    .toc h2{ margin: 0 0 8px; font-size: 1.05rem; }
+    .toc a{ color: var(--text); text-decoration:none; }
+    .toc a:hover{ text-decoration:underline; }
+
+    /* Print rules */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      a{ color: inherit; text-decoration: none; }
+      /* Don’t print URL after links */
+      a[href]:after{ content: "" !important; }
+      .chip{ background:#fff; }
+      pre{ page-break-inside: avoid; }
+      .callout, .kv, .toc{ page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>React Hook Form — Handling Form Errors</h1>
+      <p class="subtitle">Print-friendly reviewer/study guide with beginner explanations, examples, and practical refactoring patterns.</p>
+      <div class="meta">
+        <span class="chip">🧩 Topic: Form validation + errors</span>
+        <span class="chip">⚙️ Tools: React Hook Form</span>
+        <span class="chip">🧠 Pattern: Reusable FormRow</span>
+        <span class="chip">🖨️ A4-ready</span>
+      </div>
+    </header>
+
+    <section class="toc" aria-label="Table of contents">
+      <h2>🧭 Contents</h2>
+      <ol>
+        <li><a href="#goal">Goal of this lecture</a></li>
+        <li><a href="#layout-fix">Small UI fix: only the main content scrolls</a></li>
+        <li><a href="#required">Required validation (fastest win)</a></li>
+        <li><a href="#handlesubmit">How <code>handleSubmit</code> works (onSubmit vs onError)</a></li>
+        <li><a href="#built-in">Built-in rules: <code>min</code>, <code>max</code>, etc.</a></li>
+        <li><a href="#custom">Custom validation with <code>validate</code> + <code>getValues</code></a></li>
+        <li><a href="#show-errors">Showing error messages in the UI using <code>formState.errors</code></a></li>
+        <li><a href="#formrow">Refactor: a reusable <code>FormRow</code> component</a></li>
+        <li><a href="#ux">UX polish: disable inputs while saving</a></li>
+        <li><a href="#takeaways">Key takeaways</a></li>
+      </ol>
+    </section>
+
+    <section id="goal">
+      <h2>🎯 Goal of this lecture</h2>
+      <p>
+        React Hook Form shines in <b>validation</b> and <b>error handling</b>. The lecture focuses on:
+      </p>
+      <ul>
+        <li>Adding validation rules directly inside <code>register()</code></li>
+        <li>Understanding <code>handleSubmit(onSubmit, onError)</code></li>
+        <li>Displaying error messages beside inputs (not just in console)</li>
+        <li>Reducing repetition by building a reusable <code>FormRow</code> component</li>
+      </ul>
+
+      <div class="callout ok">
+        <b>✅ Big idea:</b>
+        <div class="mini">You don’t need lots of local state for each input. React Hook Form wires input events and validation automatically.</div>
+      </div>
+    </section>
+
+    <section id="layout-fix">
+      <h2>🧱 Small UI fix: only the main content scrolls</h2>
+      <p>
+        The lecture starts with a small layout improvement: the sidebar + header stay fixed, and only the page content scrolls.
+        This is typically done by setting <code>overflow</code> on the main content area.
+      </p>
+      <pre><code>// AppLayout.jsx (concept)
+const Main = styled.main`
+  overflow: scroll; /* or auto */
+`;</code></pre>
+
+      <div class="callout warn">
+        <b>⚠️ Note:</b>
+        <div class="mini">Use <code>overflow: auto</code> if you prefer scrollbars only when needed. The course uses <code>scroll</code> to force a consistent scrollbar.</div>
+      </div>
+    </section>
+
+    <section id="required">
+      <h2>🧾 Required validation (fastest win)</h2>
+      <p>
+        The simplest validation is <code>required</code>. You pass a second argument to <code>register</code>:
+      </p>
+      <pre><code>&lt;input
+  id="name"
+  {...register("name", {
+    required: "This field is required",
+  })}
+/&gt;</code></pre>
+
+      <p>
+        Repeat this for fields like <code>maxCapacity</code>, <code>regularPrice</code>, <code>discount</code>, and <code>description</code>.
+        (The image field is handled later.)
+      </p>
+
+      <div class="callout">
+        <b>💡 Why this is nice:</b>
+        <div class="mini">Validation lives next to the input definition, so it’s easy to maintain and review.</div>
+      </div>
+    </section>
+
+    <section id="handlesubmit">
+      <h2>🧠 How <code>handleSubmit</code> works (onSubmit vs onError)</h2>
+      <p>
+        When you submit a form, React Hook Form runs validation rules. Then:
+      </p>
+      <ul>
+        <li>✅ If everything passes → it calls <code>onSubmit(data)</code></li>
+        <li>❌ If any rule fails → it calls <code>onError(errors)</code></li>
+      </ul>
+
+      <pre><code>const { register, handleSubmit } = useForm();
+
+function onSubmit(data) {
+  console.log("SUBMIT DATA:", data);
+}
+
+function onError(errors) {
+  console.log("FORM ERRORS:", errors);
+}
+
+return (
+  &lt;form onSubmit={handleSubmit(onSubmit, onError)}&gt;
+    ...
+  &lt;/form&gt;
+);</code></pre>
+
+      <div class="callout ok">
+        <b>✅ Practical takeaway:</b>
+        <div class="mini">This prevents invalid forms from calling your submit logic. Your API doesn’t get spammed with bad payloads.</div>
+      </div>
+    </section>
+
+    <section id="built-in">
+      <h2>📏 Built-in rules: <code>min</code>, <code>max</code>, etc.</h2>
+      <p>
+        Numeric fields usually need constraints. Example: maximum capacity should be at least 1.
+      </p>
+      <pre><code>&lt;input
+  type="number"
+  id="maxCapacity"
+  {...register("maxCapacity", {
+    required: "This field is required",
+    min: {
+      value: 1,
+      message: "Capacity should be at least 1",
+    },
+  })}
+/&gt;</code></pre>
+
+      <p class="mini">You can apply similar rules to <code>regularPrice</code> (e.g., must be at least 1).</p>
+    </section>
+
+    <section id="custom">
+      <h2>🧪 Custom validation with <code>validate</code> + <code>getValues</code></h2>
+      <p>
+        Some business rules require comparing two fields. Example:
+      </p>
+      <div class="kvs">
+        <div class="kv">
+          <b>Rule</b>
+          <div class="hint">Discount must be ≤ Regular Price</div>
+        </div>
+      </div>
+
+      <p>
+        For that, you can use <code>validate</code>, which can return <code>true</code> (valid) or a string (error message).
+        To compare against another field, use <code>getValues()</code>.
+      </p>
+
+      <pre><code>const { register, getValues } = useForm();
+
+&lt;input
+  type="number"
+  id="discount"
+  defaultValue={0}
+  {...register("discount", {
+    required: "This field is required",
+    validate: (value) =>
+      value &lt;= getValues().regularPrice ||
+      "Discount should be less than the regular price",
+  })}
+/&gt;</code></pre>
+
+      <div class="callout warn">
+        <b>⚠️ Common gotcha:</b>
+        <div class="mini">If <code>regularPrice</code> comes in as a string, you may need numeric coercion (e.g., <code>Number(getValues().regularPrice)</code>).</div>
+      </div>
+    </section>
+
+    <section id="show-errors">
+      <h2>🔎 Showing error messages using <code>formState.errors</code></h2>
+      <p>
+        Logging errors is useful during development, but users need feedback in the UI.
+        React Hook Form exposes errors via:
+      </p>
+      <pre><code>const {
+  register,
+  handleSubmit,
+  formState: { errors },
+} = useForm();</code></pre>
+
+      <p>
+        Then display a message for a field (example for <code>name</code>):
+      </p>
+      <pre><code>{errors?.name?.message &amp;&amp; (
+  &lt;Error&gt;{errors.name.message}&lt;/Error&gt;
+)}</code></pre>
+
+      <div class="callout ok">
+        <b>✅ UX bonus:</b>
+        <div class="mini">Errors often disappear immediately once the user starts typing again (depending on validation mode), which feels responsive.</div>
+      </div>
+    </section>
+
+    <section id="formrow">
+      <h2>🧱 Refactor: reusable <code>FormRow</code></h2>
+      <p>
+        Forms become repetitive: label → input → error message. The lecture refactors that into a reusable component.
+      </p>
+
+      <h3>1) Build <code>FormRow</code></h3>
+      <pre><code>// FormRow.jsx (concept)
+function FormRow({ label, error, children }) {
+  return (
+    &lt;StyledFormRow&gt;
+      {label &amp;&amp; (
+        &lt;Label htmlFor={children.props.id}&gt;{label}&lt;/Label&gt;
+      )}
+
+      {children}
+
+      {error &amp;&amp; &lt;Error&gt;{error}&lt;/Error&gt;}
+    &lt;/StyledFormRow&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <b>🪄 Useful trick:</b>
+        <div class="mini"><code>children.props.id</code> lets the label automatically connect to the input’s <code>id</code> (clicking the label focuses the input).</div>
+      </div>
+
+      <h3>2) Use it in the form</h3>
+      <pre><code>&lt;FormRow label="Cabin name" error={errors?.name?.message}&gt;
+  &lt;Input id="name" {...register("name", { required: "This field is required" })} /&gt;
+&lt;/FormRow&gt;
+
+&lt;FormRow label="Maximum capacity" error={errors?.maxCapacity?.message}&gt;
+  &lt;Input
+    id="maxCapacity"
+    type="number"
+    {...register("maxCapacity", {
+      required: "This field is required",
+      min: { value: 1, message: "Capacity should be at least 1" },
+    })}
+  /&gt;
+&lt;/FormRow&gt;</code></pre>
+
+      <div class="callout ok">
+        <b>✅ Result:</b>
+        <div class="mini">Cleaner JSX, consistent layout, and fewer copy/paste bugs.</div>
+      </div>
+    </section>
+
+    <section id="ux">
+      <h2>🧯 UX polish: disable fields while saving</h2>
+      <p>
+        When a create/update mutation is running (e.g., <code>isCreating</code>), disable inputs/buttons to prevent double submits.
+      </p>
+      <pre><code>&lt;Input disabled={isCreating} ... /&gt;
+&lt;Button disabled={isCreating}&gt;Add cabin&lt;/Button&gt;
+&lt;Button type="reset" disabled={isCreating}&gt;Cancel&lt;/Button&gt;</code></pre>
+
+      <div class="callout warn">
+        <b>⚠️ Why it matters:</b>
+        <div class="mini">Without disabling, users can click multiple times and create duplicates or cause confusing UI states.</div>
+      </div>
+    </section>
+
+    <section id="takeaways">
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>🧩 Add validation rules in <code>register(name, rules)</code></li>
+        <li>🧠 Use <code>handleSubmit(onSubmit, onError)</code> to split happy-path vs validation failures</li>
+        <li>📏 Use built-in rules like <code>required</code>, <code>min</code>, and <code>max</code></li>
+        <li>🧪 Use <code>validate</code> + <code>getValues</code> for cross-field rules (e.g., discount ≤ price)</li>
+        <li>🔎 Display errors via <code>formState.errors</code> (don’t rely on console logs)</li>
+        <li>🧱 Refactor repeated layout into <code>FormRow</code> for maintainable forms</li>
+        <li>🧯 Disable form inputs while the mutation is in progress</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <div class="callout">
+        <b>➡️ Next lesson preview:</b>
+        <div class="mini">Handle the cabin photo by uploading an image to a Supabase storage bucket, then storing the image URL in the cabins table.</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

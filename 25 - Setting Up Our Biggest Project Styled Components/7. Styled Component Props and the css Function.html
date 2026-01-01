@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Styled Component Props and the css Function — Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f7f7f9;
+      --chip: #f3f4f6;
+      --ok: #0b7a2a;
+      --warn: #8a4b00;
+      --danger: #b00020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.danger { border-left-color: var(--danger); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    @media (min-width: 900px) {
+      .grid2 { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Print rules */
+    @page { size: A4; margin: 18mm; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      pre { overflow: visible; white-space: pre-wrap; word-break: break-word; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 Styled Component Props and the <code>css</code> Function</h1>
+      <p class="subtitle">
+        Reviewer / study guide: build a reusable <strong>Heading</strong> component (H1/H2/H3) using
+        <strong>template literal interpolations</strong>, the styled-components <code>css</code> helper, and the polymorphic
+        <code>as</code> prop for correct semantic HTML.
+      </p>
+      <div class="meta">
+        <span class="chip">✨ Template literal interpolations</span>
+        <span class="chip">🧠 Props-driven styles</span>
+        <span class="chip">🧱 <code>css</code> helper</span>
+        <span class="chip">🏷️ <code>as</code> prop (polymorphic components)</span>
+        <span class="chip">♿ Semantics, accessibility, SEO</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>✅ What we’re building</h2>
+        <p>
+          We want a reusable heading component that can be rendered as <code>h1</code>, <code>h2</code>, or <code>h3</code>,
+          while also getting the correct size/weight styles.
+        </p>
+        <ul>
+          <li>🎯 One component: <code>&lt;Heading /&gt;</code></li>
+          <li>🎛️ Different styles depending on level (H1 vs H2 vs H3)</li>
+          <li>🏷️ Correct HTML element in the DOM (important for SEO + accessibility)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧠 Core concept: styled-components uses template literals</h2>
+        <p>
+          Styled components are written with <strong>tagged template literals</strong>. That means you can interpolate JavaScript
+          inside the CSS using <code>${...}</code>.
+        </p>
+
+        <div class="callout ok">
+          <strong>Key idea:</strong> Anything inside <code>${...}</code> is JavaScript. It can return strings (CSS) conditionally.
+        </div>
+
+        <h3>Example: conditional CSS value</h3>
+        <pre><code>import styled from "styled-components";
+
+const Heading = styled.h1`
+  font-size: ${10 &gt; 5 ? "30px" : "5px"};
+`;
+</code></pre>
+
+        <p class="note">
+          This is just a demo to prove you can use JS. In real code, you’d use props (next sections).
+        </p>
+      </section>
+
+      <section>
+        <h2>🧱 Extract CSS blocks into variables (and why <code>css</code> helps)</h2>
+        <p>
+          Sometimes you want to store a chunk of CSS in a variable and inject it into multiple components.
+          A plain string works, but the editor may lose CSS syntax highlighting.
+        </p>
+
+        <div class="grid2">
+          <div>
+            <h3>Basic variable (can lose highlighting)</h3>
+            <pre><code>const centered = `
+  text-align: center;
+`;
+
+const Heading = styled.h1`
+  ${centered}
+`;
+</code></pre>
+          </div>
+
+          <div>
+            <h3>Using the styled-components <code>css</code> helper ✅</h3>
+            <pre><code>import styled, { css } from "styled-components";
+
+const centered = css`
+  text-align: center;
+`;
+
+const Heading = styled.h1`
+  ${centered}
+`;
+</code></pre>
+          </div>
+        </div>
+
+        <div class="callout ok">
+          <strong>Why <code>css</code>?</strong> It preserves editor highlighting and is designed for reusable CSS with interpolations.
+        </div>
+
+        <div class="callout warn">
+          The transcript notes: some cases may still “work” without <code>css</code>, but the docs recommend <code>css</code>
+          when you generate CSS from a template literal with interpolations.
+        </div>
+      </section>
+
+      <section>
+        <h2>🎛️ Props-driven styles (the real goal)</h2>
+        <p>
+          The practical reason we want JS inside the template literal is to read <strong>props</strong> and decide which CSS to apply.
+          In styled-components, you can interpolate a function:
+        </p>
+        <pre><code>${props =&gt; /* return CSS */}</code></pre>
+
+        <h3>📄 File: <code>ui/Heading.jsx</code> (initial version)</h3>
+        <pre><code>import styled, { css } from "styled-components";
+
+const Heading = styled.h1`
+  line-height: 1.4;
+
+  ${props =&gt;
+    props.as === "h1" &&
+    css`
+      font-size: 3rem;
+      font-weight: 600;
+    `}
+
+  ${props =&gt;
+    props.as === "h2" &&
+    css`
+      font-size: 2rem;
+      font-weight: 600;
+    `}
+
+  ${props =&gt;
+    props.as === "h3" &&
+    css`
+      font-size: 2rem;
+      font-weight: 500;
+    `}
+`;
+
+export default Heading;
+</code></pre>
+
+        <div class="callout ok">
+          <strong>Pattern:</strong> each block is “conditionally injected” only when the condition is true.
+        </div>
+      </section>
+
+      <section>
+        <h2>⚠️ Big gotcha: styling is not the same as semantic HTML</h2>
+        <p>
+          If you only pass your own prop like <code>type="h2"</code> and use it to change styles, the DOM element might still be
+          <code>&lt;h1&gt;</code>. That looks right visually, but the markup is wrong.
+        </p>
+
+        <div class="callout danger">
+          <strong>Why it matters:</strong> wrong heading tags can harm <strong>accessibility</strong> (screen readers) and
+          <strong>SEO</strong> (document structure).
+        </div>
+
+        <h3>Bad approach (visual only)</h3>
+        <pre><code>// ❌ Still renders an &lt;h1&gt; in the DOM
+&lt;Heading type="h2"&gt;Check-in and out&lt;/Heading&gt;
+</code></pre>
+
+        <h3>Correct approach: use the <code>as</code> prop ✅</h3>
+        <p>
+          Styled-components supports a special prop called <code>as</code> that changes the rendered HTML tag.
+          So the DOM becomes semantically correct.
+        </p>
+        <pre><code>// ✅ Renders an actual &lt;h2&gt;
+&lt;Heading as="h2"&gt;Check-in and out&lt;/Heading&gt;
+</code></pre>
+
+        <div class="callout ok">
+          <strong>Takeaway:</strong> Use <code>as</code> for semantics; use your conditional CSS blocks to match styling for that level.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Usage examples (H1, H2, H3)</h2>
+        <pre><code>import Heading from "./ui/Heading";
+
+function Demo() {
+  return (
+    &lt;&gt;
+      &lt;Heading as="h1"&gt;The Wild Oasis&lt;/Heading&gt;
+      &lt;Heading as="h2"&gt;Check-in and out&lt;/Heading&gt;
+      &lt;Heading as="h3"&gt;Form&lt;/Heading&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+
+        <p class="note">
+          The styling is now consistent, and the HTML tags are correct.
+        </p>
+      </section>
+
+      <section>
+        <h2>🧠 Quick mental model</h2>
+        <ul>
+          <li>🧩 <strong>styled-components CSS</strong> is a template literal → JS can be interpolated via <code>${...}</code>.</li>
+          <li>🎛️ To style conditionally, interpolate a function: <code>${props =&gt; ...}</code>.</li>
+          <li>🧱 Use <code>css`...`</code> for reusable blocks + better support for interpolations.</li>
+          <li>🏷️ Use the built-in <code>as</code> prop for semantic HTML (H1/H2/H3), not a custom “type” prop.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>📝 Mini-quiz</h2>
+        <ol>
+          <li>What does <code>${...}</code> do inside a styled component?</li>
+          <li>When is the <code>css</code> helper most useful?</li>
+          <li>Why is <code>type="h2"</code> (custom prop) not enough for headings?</li>
+          <li>What does the <code>as</code> prop change: styles, HTML tag, or both?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>➡️ Next step</h2>
+        <div class="callout ok">
+          Next, you’ll keep building more UI primitives for the Wild Oasis project using these same styled-components patterns.
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

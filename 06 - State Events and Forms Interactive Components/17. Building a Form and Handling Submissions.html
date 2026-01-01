@@ -1,0 +1,377 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Far Away — Building a Form & Handling Submissions | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background: #fef2f2; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn, .callout.danger{ background:#ffffff; }
+      .card, .term, pre, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Building a Form & Handling Submissions — Far Away 📝</h1>
+      <p class="subtitle">
+        Lecture reviewer: create a form (select + input + button), generate options dynamically, add <strong>onSubmit</strong>, and prevent page reload.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">🧾 HTML forms in React</span>
+        <span class="chip">🖱️ onSubmit</span>
+        <span class="chip">⛔ preventDefault()</span>
+        <span class="chip">🗺️ Array.from()</span>
+        <span class="chip">🔑 key prop</span>
+        <span class="chip">🧪 Event object</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Why Forms Matter</h2>
+      <div class="callout">
+        <p><strong>Forms are fundamental on the web.</strong> 🙂</p>
+        <p>
+          Most user interactions in web apps happen through forms: login, search, add items, checkout, filters, etc.
+          In this project, the form lets the user add a new packing item.
+        </p>
+      </div>
+
+      <div class="term">
+        <div class="icon">✅</div>
+        <div class="body">
+          <p class="title">Important React idea</p>
+          <p class="desc">In React, you still use the normal <code>&lt;form&gt;</code> element. The difference is how you handle events and data.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Build the Form UI (Static First)</h2>
+      <div class="card">
+        <h3>Form elements needed</h3>
+        <ul>
+          <li><code>&lt;form&gt;</code> container</li>
+          <li><code>&lt;select&gt;</code> for quantity (1…20)</li>
+          <li><code>&lt;input type="text"&gt;</code> for item description</li>
+          <li><code>&lt;button&gt;</code> to submit (“Add”)</li>
+        </ul>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Starter JSX (conceptual):</strong></p>
+        <pre><code>function Form() {
+  return (
+    &lt;form className="add-form"&gt;
+      &lt;h3&gt;What do you need for your trip? 🧳&lt;/h3&gt;
+
+      &lt;select&gt;
+        {/* options go here */}
+      &lt;/select&gt;
+
+      &lt;input type="text" placeholder="Item..." /&gt;
+      &lt;button&gt;Add&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Small JSX detail: numbers vs strings</h3>
+        <p class="mini">
+          In JSX, attribute values are strings by default. If you want a real number for <code>value</code>, use JavaScript mode:
+          <code>value={1}</code> instead of <code>value="1"</code>.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Generate 1–20 Options Dynamically (Array.from Trick) 🗺️</h2>
+      <div class="callout">
+        <p><strong>Problem:</strong> You don’t want to write 20 <code>&lt;option&gt;</code> tags by hand. 😅</p>
+        <p><strong>Solution:</strong> generate an array <code>[1,2,...,20]</code> and map it into options.</p>
+      </div>
+
+      <div class="card">
+        <h3>A) Create numbers 1..20 using <code>Array.from</code></h3>
+        <pre><code>// Creates: [1, 2, 3, ... , 20]
+const numbers = Array.from({ length: 20 }, (_, i) =&gt; i + 1);</code></pre>
+        <p class="mini">
+          You don’t need to memorize how <code>Array.from</code> works internally; just know this pattern is common in React.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>B) Map numbers to <code>&lt;option&gt;</code> elements</h3>
+        <pre><code>&lt;select&gt;
+  {numbers.map((num) =&gt; (
+    &lt;option value={num} key={num}&gt;
+      {num}
+    &lt;/option&gt;
+  ))}
+&lt;/select&gt;</code></pre>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Why do we add <code>key</code>?</strong> 🔑</p>
+        <p class="mini">
+          Whenever you render a list in React (options, items, rows, etc.), React expects a stable unique key.
+          Here, <code>num</code> is unique, so it’s a good key.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Fix “Key” Warnings in Your Items List 🔑</h2>
+      <div class="card">
+        <p class="mini">
+          The lecture also fixes a missing key in the packing items list. When mapping an array of objects, the best key is usually <code>item.id</code>.
+        </p>
+        <pre><code>{items.map((item) =&gt; (
+  &lt;Item key={item.id} item={item} /&gt;
+))}</code></pre>
+        <p class="mini">IDs are unique, so React can track each list element correctly.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Handle Form Submission (onSubmit) 🖱️</h2>
+      <div class="card">
+        <h3>A) Create a handler function</h3>
+        <pre><code>function handleSubmit(e) {
+  // logic later
+}</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>B) Listen for the submit event on the form</h3>
+        <pre><code>&lt;form onSubmit={handleSubmit}&gt;
+  ...
+&lt;/form&gt;</code></pre>
+        <p class="mini">
+          Important: you pass the function reference (<code>handleSubmit</code>), you do <strong>not</strong> call it (<code>handleSubmit()</code>).
+          React will call it when the event occurs.
+        </p>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>When does submit happen?</strong></p>
+        <ul>
+          <li>Click the submit button ✅</li>
+          <li>Press <strong>Enter</strong> while focused in the input ✅</li>
+        </ul>
+        <p class="mini">This is normal HTML form behavior—and it’s why <code>onSubmit</code> is better than a button <code>onClick</code>.</p>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>If you use button <code>onClick</code> only:</strong> it won’t catch Enter submissions. 😬</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Prevent Page Reload (Single-Page App Behavior) ⛔</h2>
+      <div class="callout danger">
+        <p><strong>Default HTML behavior:</strong> submitting a form reloads the page.</p>
+        <p class="mini">In React SPAs, you usually want to submit without reloading.</p>
+      </div>
+
+      <div class="card">
+        <h3>Fix: call <code>preventDefault()</code></h3>
+        <pre><code>function handleSubmit(e) {
+  e.preventDefault();
+  // now the page will not reload
+}</code></pre>
+      </div>
+
+      <div class="callout">
+        <p><strong>Why does <code>e</code> exist?</strong> 🧪</p>
+        <p class="mini">
+          When the submit event happens, React calls your handler and passes the <strong>event object</strong> into it.
+          This is similar to Vanilla JavaScript.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Getting Form Values (Preview)</h2>
+      <div class="card">
+        <p>
+          You can inspect values from the event object (e.g., from <code>e.target</code>), but the lecture notes that
+          <strong>React usually uses controlled elements</strong> instead.
+        </p>
+        <ul>
+          <li>Event-object approach: possible, but not the common “React way”</li>
+          <li>Controlled elements: you store input values in state and update them on change ✅</li>
+        </ul>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Next video:</strong> controlled components (controlled elements). 🎯</p>
+        <p class="mini">That’s where you will learn the recommended approach to get quantity + description into your submit handler.</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>8) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>Why is <code>onSubmit</code> better than a button <code>onClick</code> for forms?</li>
+          <li>What does <code>e.preventDefault()</code> do?</li>
+          <li>How do you generate the array <code>[1..20]</code> using <code>Array.from</code>?</li>
+          <li>What makes a good <code>key</code> when mapping over an array of objects?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li><code>onSubmit</code> handles both clicking and pressing Enter.</li>
+          <li><code>preventDefault()</code> stops the browser reload on submit.</li>
+          <li><code>Array.from({ length: 20 }, (_, i) =&gt; i + 1)</code></li>
+          <li>Use a stable unique ID like <code>item.id</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Keep margins around ~14mm and enable background graphics only if you want shaded callouts.
+    </footer>
+  </main>
+</body>
+</html>

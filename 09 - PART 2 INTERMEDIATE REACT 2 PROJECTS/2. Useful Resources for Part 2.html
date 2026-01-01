@@ -1,0 +1,451 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Part 2 — Useful Resources (Print-Friendly Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --chip: #f2f2f2;
+      --accent: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column print-friendly container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px 64px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 14px 0 18px;
+    }
+
+    .callout p { margin: 6px 0; }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    .resources {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    .card .top {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      font-size: 16px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 14.5px;
+      line-height: 1.35;
+    }
+
+    .note {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .bullets {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--text);
+      font-size: 13.5px;
+    }
+
+    .bullets li { margin: 6px 0; }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(11,87,208,.45);
+    }
+
+    a:hover { text-decoration: underline; }
+
+    .footer {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* Print CSS (A4, clean margins, no ugly URLs) */
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      a { color: inherit; border-bottom: none; text-decoration: none; }
+      a[href]:after { content: ""; }
+      .chip { background: #fff; }
+      .card, .callout { break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>📚 Useful Resources for Part 2</h1>
+      <p class="subtitle">
+        Optional deep-dives to strengthen your understanding of <strong>how React works behind the scenes</strong> (rendering, Fiber, events, hooks, and advanced patterns).
+      </p>
+      <div class="meta">
+        <span class="chip">🖨️ A4 print-ready</span>
+        <span class="chip">📄 Single-column layout</span>
+        <span class="chip">🧠 Beginner-friendly notes</span>
+        <span class="chip">✅ No new concepts required</span>
+      </div>
+    </header>
+
+    <section class="callout" aria-label="How to use this list">
+      <p><strong>How to use these resources:</strong></p>
+      <p>✅ Pick <strong>1–2</strong> items that match what you’re currently learning (rendering, hooks, events, Fiber). Don’t try to read everything in one sitting.</p>
+      <p>📝 As you read/watch, write down: <em>“What surprised me?”</em> and <em>“What can I apply in my current app?”</em></p>
+      <p>🔁 Revisit these later—many of them make more sense after you’ve built a few small projects.</p>
+    </section>
+
+    <section>
+      <h2>🧩 Rendering & Component Design</h2>
+      <ul class="resources">
+        <li class="card">
+          <div class="top">
+            <div class="icon">🛡️</div>
+            <div>
+              <p class="title"><strong>Writing Resilient Components</strong> (Dan Abramov — React team)</p>
+              <p class="note">Why it matters: helps you design components that behave well as requirements change.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Focus: component boundaries, state placement, and avoiding fragile assumptions.</li>
+            <li>Useful when you catch yourself “fighting React” or repeatedly refactoring the same component.</li>
+          </ul>
+        </li>
+
+        <li class="card">
+          <div class="top">
+            <div class="icon">🧠</div>
+            <div>
+              <p class="title"><strong>Things I think about when I write React code</strong> (GitHub repository)</p>
+              <p class="note">Why it matters: practical checklists for day-to-day React decisions.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Focus: mental models, trade-offs, and patterns you’ll repeatedly use in real apps.</li>
+            <li>Great for building your own “React rules of thumb”.</li>
+          </ul>
+        </li>
+
+        <li class="card">
+          <div class="top">
+            <div class="icon">🧭</div>
+            <div>
+              <p class="title"><strong>A (Mostly) Complete Guide to React Rendering Behavior</strong> (Mark Erikson — Redux team)</p>
+              <p class="note">Why it matters: clears up common confusion about re-renders and performance.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Focus: what triggers renders, how props/state changes flow, and why “rendering ≠ DOM updates”.</li>
+            <li>Read this when you start optimizing or debugging “why did this component render?”.</li>
+          </ul>
+        </li>
+
+        <li class="card">
+          <div class="top">
+            <div class="icon">👀</div>
+            <div>
+              <p class="title"><strong>A Visual Guide to React Rendering</strong> (multi-part series)</p>
+              <p class="note">Why it matters: visual explanations are often easier than pure text for rendering flow.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Focus: diagrams and step-by-step animation-style explanations.</li>
+            <li>Tip: check the other parts in the series (often linked at the end of each post).</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧵 Fiber & Reconciliation</h2>
+      <ul class="resources">
+        <li class="card">
+          <div class="top">
+            <div class="icon">🧬</div>
+            <div>
+              <p class="title"><strong>Inside Fiber</strong> — in-depth overview of React’s reconciliation algorithm</p>
+              <p class="note">Why it matters: explains how React can pause/resume work and prioritize updates.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Focus: Fiber architecture, incremental rendering, and scheduling concepts.</li>
+            <li>Best read after you’re comfortable with basic rendering behavior.</li>
+          </ul>
+        </li>
+
+        <li class="card">
+          <div class="top">
+            <div class="icon">🎨</div>
+            <div>
+              <p class="title"><strong>A Cartoon Intro to Fiber</strong> (YouTube)</p>
+              <p class="note">Why it matters: quick, friendly overview before deeper articles.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Good first step if “reconciliation” and “scheduling” feel abstract.</li>
+          </ul>
+        </li>
+
+        <li class="card">
+          <div class="top">
+            <div class="icon">🔎</div>
+            <div>
+              <p class="title"><strong>What Is React Fiber? React.js Deep Dive</strong> (YouTube)</p>
+              <p class="note">Why it matters: reinforces Fiber with examples and more detailed explanations.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Watch after the cartoon intro for a deeper second pass.</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧷 Events & the React Event System</h2>
+      <ul class="resources">
+        <li class="card">
+          <div class="top">
+            <div class="icon">🧷</div>
+            <div>
+              <p class="title"><strong>The React and React Native Event System Explained</strong></p>
+              <p class="note">Why it matters: helps you understand event delegation, synthetic events, and differences vs. the DOM.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Focus: how React listens to events and dispatches them to components.</li>
+            <li>Useful when debugging event behavior (bubbling, capture, stopPropagation).</li>
+          </ul>
+        </li>
+
+        <li class="card">
+          <div class="top">
+            <div class="icon">🧯</div>
+            <div>
+              <p class="title"><strong>Under the hood of event listeners in React</strong></p>
+              <p class="note">Why it matters: explains performance-friendly event handling patterns.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Focus: why React does not attach a new DOM listener for every component.</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🪝 Hooks & State Internals</h2>
+      <ul class="resources">
+        <li class="card">
+          <div class="top">
+            <div class="icon">🧰</div>
+            <div>
+              <p class="title"><strong>Under the hood of React’s hooks system</strong></p>
+              <p class="note">Why it matters: builds the correct mental model for why hooks work the way they do.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Focus: internal bookkeeping, render cycles, and how React tracks hook state per component.</li>
+          </ul>
+        </li>
+
+        <li class="card">
+          <div class="top">
+            <div class="icon">🔁</div>
+            <div>
+              <p class="title"><strong>Why Do React Hooks Rely on Call Order?</strong> (Dan Abramov)</p>
+              <p class="note">Why it matters: explains a key rule of hooks that prevents many bugs.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Focus: why hooks must be called unconditionally and in the same order.</li>
+            <li>After reading, you’ll understand why “rules of hooks” are not arbitrary.</li>
+          </ul>
+        </li>
+
+        <li class="card">
+          <div class="top">
+            <div class="icon">🧩</div>
+            <div>
+              <p class="title"><strong>useSyncExternalStore — First Look</strong></p>
+              <p class="note">Why it matters: modern solution for safely subscribing to external stores in React.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Focus: integrating external state (stores, subscriptions) with React’s rendering model.</li>
+            <li>Optional, but valuable if you’re curious about advanced state patterns.</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧱 Refs, Libraries, and Learning by Building</h2>
+      <ul class="resources">
+        <li class="card">
+          <div class="top">
+            <div class="icon">📌</div>
+            <div>
+              <p class="title"><strong>So you think you know everything about React refs</strong></p>
+              <p class="note">Why it matters: refs are powerful, but easy to misuse—this clarifies when they’re appropriate.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Focus: DOM access, imperative patterns, forwarding refs, and anti-patterns.</li>
+          </ul>
+        </li>
+
+        <li class="card">
+          <div class="top">
+            <div class="icon">🛠️</div>
+            <div>
+              <p class="title"><strong>A DIY guide to build your own React</strong></p>
+              <p class="note">Why it matters: seeing a tiny React-like implementation makes the real React less “magical”.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Focus: virtual DOM ideas, diffing basics, and rendering pipelines (simplified).</li>
+            <li>Don’t worry if you don’t understand everything—skim and revisit later.</li>
+          </ul>
+        </li>
+
+        <li class="card">
+          <div class="top">
+            <div class="icon">🧪</div>
+            <div>
+              <p class="title"><strong>react-use</strong> — reusable React hooks (GitHub repository)</p>
+              <p class="note">Why it matters: learn common hook patterns from a mature library.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Use it as reference: see how hooks are designed and documented.</li>
+          </ul>
+        </li>
+
+        <li class="card">
+          <div class="top">
+            <div class="icon">✅</div>
+            <div>
+              <p class="title"><strong>react-hookz</strong> — React hooks done right (GitHub repository)</p>
+              <p class="note">Why it matters: alternative hook implementations and patterns to compare.</p>
+            </div>
+          </div>
+          <ul class="bullets">
+            <li>Compare with react-use to see different design decisions and APIs.</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section class="footer">
+      <p>🗂️ Note: This list is optional and may be updated over time. If you find other high-quality deep-dives, add them to the lecture Q&amp;A so you can revisit later.</p>
+      <p>🖨️ Print tip: Use your browser’s <em>Print</em> → <em>Save as PDF</em>. The layout is A4 with clean margins and will not print raw URLs.</p>
+    </section>
+  </main>
+</body>
+</html>

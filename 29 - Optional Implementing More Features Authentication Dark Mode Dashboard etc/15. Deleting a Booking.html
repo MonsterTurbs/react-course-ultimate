@@ -1,0 +1,386 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Deleting a Booking (Modal + React Query)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --chip:#f3f4f6;
+      --accent:#1a73e8;
+      --danger:#b42318;
+      --danger-bg:#fff1f0;
+      --ok:#067647;
+      --ok-bg:#ecfdf3;
+      --code-bg:#0b1020;
+      --code-text:#e7eefc;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--soft), #fff);
+      padding: 18px 18px 14px;
+      border-radius: 12px;
+    }
+
+    h1{margin:0 0 6px; font-size: 22px;}
+    .subtitle{margin:0; color:var(--muted); font-size: 14px;}
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      background: var(--chip);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--text);
+      white-space:nowrap;
+    }
+
+    main{margin-top: 16px;}
+
+    section{
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    h2{margin:0 0 10px; font-size: 18px;}
+    h3{margin:14px 0 8px; font-size: 15px;}
+    p{margin: 8px 0;}
+    ul{margin: 8px 0 8px 18px; padding:0;}
+    li{margin: 6px 0;}
+
+    .callout{
+      border-left: 6px solid var(--accent);
+      background: #f5f9ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .danger{
+      border-left-color: var(--danger);
+      background: var(--danger-bg);
+    }
+
+    .ok{
+      border-left-color: var(--ok);
+      background: var(--ok-bg);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border:1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: #fff;
+      font-size: 12px;
+      white-space:nowrap;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      overflow:auto;
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .toc a{color: var(--accent); text-decoration: none;}
+    .toc a:hover{text-decoration: underline;}
+
+    .hr{height:1px; background:var(--border); margin:12px 0;}
+
+    /* Print styles */
+    @page{ size: A4; margin: 16mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header, section{ border-color:#ddd; box-shadow:none; }
+      a{ color: inherit; text-decoration:none; }
+      a[href]:after{ content: ""; }
+      pre{ white-space: pre-wrap; word-wrap: break-word; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🗑️ Deleting a Booking — Study Guide (React + React Query + Modal Confirm)</h1>
+      <p class="subtitle">Focus: adding a safe “Delete booking” flow from a row context menu and from the booking detail page, using a confirmation modal and React Query mutations.</p>
+      <div class="meta">
+        <span class="chip">🧩 Reusable UI: Modal + ConfirmDelete</span>
+        <span class="chip">⚡ React Query: useMutation + invalidateQueries</span>
+        <span class="chip">🧭 Navigation: go back after delete</span>
+        <span class="chip">🔒 UX safety: confirm before destructive action</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="toc" id="toc">
+        <h2>📌 Contents</h2>
+        <ul>
+          <li><a href="#goal">Goal and expected UI</a></li>
+          <li><a href="#mental-model">Mental model (how the parts work together)</a></li>
+          <li><a href="#menu-delete">1) Delete from BookingRow (context menu + modal)</a></li>
+          <li><a href="#hook-delete">2) useDeleteBooking hook (React Query mutation)</a></li>
+          <li><a href="#detail-delete">3) Delete from BookingDetail (danger button + navigate back)</a></li>
+          <li><a href="#best-practices">Best practices and common pitfalls</a></li>
+          <li><a href="#mini-checklist">Quick checklist</a></li>
+        </ul>
+      </section>
+
+      <section id="goal">
+        <h2>🎯 Goal and expected UI</h2>
+        <div class="grid">
+          <div class="callout">
+            <p><strong>What you want:</strong></p>
+            <ul>
+              <li>From the <strong>booking row menu</strong> (⋯), user can choose <strong>Delete booking</strong>.</li>
+              <li>Before deleting, show a <strong>confirmation modal</strong> ✅/❌ (prevents accidental deletion).</li>
+              <li>From the <strong>booking detail page</strong>, show a <strong>red danger button</strong> to delete.</li>
+              <li>After deletion from the detail page, user should <strong>navigate back</strong> to the previous list page.</li>
+              <li>Tables should automatically refresh because React Query cache is invalidated. ⚡</li>
+            </ul>
+          </div>
+
+          <div class="callout danger">
+            <p><strong>Why confirm?</strong> 🧯</p>
+            <p>Delete is a destructive action. A confirm step reduces mistakes and aligns with common UX expectations in admin dashboards.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="mental-model">
+        <h2>🧠 Mental model (how the parts work together)</h2>
+        <ul>
+          <li><strong>UI</strong> triggers a delete request (via a button inside a modal).</li>
+          <li><strong>Custom hook</strong> wraps React Query’s <code>useMutation</code> so delete logic is reusable.</li>
+          <li><strong>Service/API</strong> function performs the actual delete request (Supabase or API layer).</li>
+          <li><strong>Cache invalidation</strong> ensures tables and detail views are refetched and stay consistent.</li>
+          <li><strong>Per-call mutation handlers</strong> can add special behavior (e.g., “go back after delete” only on detail page).</li>
+        </ul>
+
+        <div class="callout ok">
+          <p><strong>Key idea:</strong> You can define global mutation behavior in the hook (toast + cache invalidation), and add <em>extra</em> behavior per call (like navigation) when needed.</p>
+        </div>
+      </section>
+
+      <section id="menu-delete">
+        <h2>1) 🧾 Delete from BookingRow (context menu + modal)</h2>
+        <p>On each booking row, you already have a context menu built with compound components (e.g., <code>Menus</code>). You add a modal confirm flow like this:</p>
+
+        <h3>What to add</h3>
+        <ul>
+          <li>Wrap row actions with <code>&lt;Modal&gt;</code> so you can open a window.</li>
+          <li>Add <code>&lt;Modal.Open opens="delete"&gt;</code> around the menu button.</li>
+          <li>Add <code>&lt;Modal.Window name="delete"&gt;</code> rendering <code>ConfirmDelete</code>.</li>
+          <li>In <code>ConfirmDelete</code>, pass <code>onConfirm</code> that calls <code>deleteBooking(bookingId)</code>.</li>
+        </ul>
+
+        <pre><code>// BookingRow (conceptual example)
+// ✅ Delete option is inside the row menu
+
+&lt;Modal&gt;
+  &lt;Menus.Menu&gt;
+    &lt;Menus.Toggle id={bookingId} /&gt;
+
+    &lt;Menus.List id={bookingId}&gt;
+      ...
+      &lt;Modal.Open opens="delete"&gt;
+        &lt;Menus.Button icon={TrashIcon}&gt;Delete booking&lt;/Menus.Button&gt;
+      &lt;/Modal.Open&gt;
+    &lt;/Menus.List&gt;
+
+    &lt;Modal.Window name="delete"&gt;
+      &lt;ConfirmDelete
+        resourceName="booking"
+        onConfirm={() =&gt; deleteBooking(bookingId)}
+        disabled={isDeleting}
+      /&gt;
+    &lt;/Modal.Window&gt;
+  &lt;/Menus.Menu&gt;
+&lt;/Modal&gt;
+</code></pre>
+
+        <div class="callout">
+          <p><strong>Beginner tip:</strong> The <code>opens</code> prop (in <code>Modal.Open</code>) must match the <code>name</code> prop (in <code>Modal.Window</code>). If they don’t match, the modal won’t open.</p>
+        </div>
+      </section>
+
+      <section id="hook-delete">
+        <h2>2) 🪝 useDeleteBooking hook (React Query mutation)</h2>
+        <p>This hook hides the delete implementation details and exposes a simple API:</p>
+        <ul>
+          <li><code>deleteBooking(id)</code> — triggers deletion</li>
+          <li><code>isDeleting</code> — disables buttons while the request runs</li>
+        </ul>
+
+        <h3>What the hook should do</h3>
+        <ul>
+          <li>Call your service function (e.g., <code>deleteBookingApi(id)</code>).</li>
+          <li>Show a success toast (optional).</li>
+          <li><strong>Invalidate queries</strong> so booking lists refetch automatically.</li>
+        </ul>
+
+        <pre><code>// useDeleteBooking.js (conceptual example)
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
+import { deleteBooking as deleteBookingApi } from "../../services/apiBookings";
+
+export function useDeleteBooking() {
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteBooking, isPending: isDeleting } = useMutation({
+    mutationFn: (id) =&gt; deleteBookingApi(id),
+    onSuccess: () =&gt; {
+      toast.success("Booking successfully deleted");
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+    },
+    onError: () =&gt; toast.error("Failed to delete booking"),
+  });
+
+  return { deleteBooking, isDeleting };
+}
+</code></pre>
+
+        <div class="callout">
+          <p><strong>Why <code>invalidateQueries</code>?</strong> 🧼</p>
+          <p>Because list pages and detail pages might still show stale data. Invalidating forces React Query to refetch and keep UI consistent.</p>
+        </div>
+      </section>
+
+      <section id="detail-delete">
+        <h2>3) 🧾 Delete from BookingDetail (danger button + navigate back)</h2>
+        <p>On the detail page, the booking disappears after deletion, so staying on the same URL doesn’t make sense. You should navigate back after the delete succeeds.</p>
+
+        <h3>Use per-call mutation handlers</h3>
+        <p>React Query lets you pass handlers <em>when calling</em> <code>mutate</code>. This is perfect when only one delete flow needs navigation:</p>
+
+        <pre><code>// BookingDetail (conceptual example)
+const navigate = useNavigate();
+const { deleteBooking, isDeleting } = useDeleteBooking();
+
+function handleDelete() {
+  deleteBooking(bookingId, {
+    onSettled: () =&gt; navigate(-1), // ✅ run whether success or error
+    // or use onSuccess if you only want to navigate on success
+  });
+}
+
+return (
+  &lt;Modal&gt;
+    &lt;Modal.Open opens="delete"&gt;
+      &lt;Button variation="danger" disabled={isDeleting}&gt;Delete booking&lt;/Button&gt;
+    &lt;/Modal.Open&gt;
+
+    &lt;Modal.Window name="delete"&gt;
+      &lt;ConfirmDelete
+        resourceName="booking"
+        disabled={isDeleting}
+        onConfirm={handleDelete}
+      /&gt;
+    &lt;/Modal.Window&gt;
+  &lt;/Modal&gt;
+);
+</code></pre>
+
+        <div class="callout ok">
+          <p><strong>Why <code>onSettled</code>?</strong> 🧭</p>
+          <p>If you want to always leave the page after a delete attempt (success or failure), use <code>onSettled</code>. If you only want to go back when successful, use <code>onSuccess</code>.</p>
+        </div>
+      </section>
+
+      <section id="best-practices">
+        <h2>✅ Best practices and common pitfalls</h2>
+
+        <h3>Common pitfalls</h3>
+        <ul>
+          <li>❌ <strong>Forgetting to invalidate</strong> bookings queries → list still shows deleted booking.</li>
+          <li>❌ <strong>Not disabling buttons</strong> during delete → double-click can trigger multiple requests.</li>
+          <li>❌ <strong>Modal name mismatch</strong> (<code>opens</code> ≠ <code>name</code>) → modal never opens.</li>
+          <li>❌ <strong>Staying on deleted detail page</strong> → broken URL / confusing UX.</li>
+        </ul>
+
+        <h3>Recommended patterns</h3>
+        <ul>
+          <li>✅ Use a reusable <code>ConfirmDelete</code> component for consistent UX.</li>
+          <li>✅ Keep the mutation in a hook (<code>useDeleteBooking</code>) and keep UI code lean.</li>
+          <li>✅ Use per-call handlers for page-specific behavior (navigation).</li>
+          <li>✅ Prefer <code>queryClient.invalidateQueries({ queryKey: ["bookings"] })</code> to refresh lists, including filtered/paginated variants.</li>
+        </ul>
+
+        <div class="callout danger">
+          <p><strong>Safety note:</strong> In real apps, ensure server-side authorization (RLS policies / API auth) prevents unauthorized deletes. 🔐</p>
+        </div>
+      </section>
+
+      <section id="mini-checklist">
+        <h2>🧾 Quick checklist</h2>
+        <ul>
+          <li>☐ Menu: Add “Delete booking” option wrapped with <code>Modal.Open</code></li>
+          <li>☐ Modal: Render <code>ConfirmDelete</code> inside <code>Modal.Window</code></li>
+          <li>☐ Hook: Implement <code>useDeleteBooking</code> with <code>useMutation</code></li>
+          <li>☐ Cache: Invalidate <code>["bookings"]</code> queries on success</li>
+          <li>☐ Detail page: Add red delete button + navigate back after delete</li>
+          <li>☐ UX: Disable delete buttons while <code>isDeleting</code></li>
+        </ul>
+
+        <div class="hr"></div>
+        <p class="subtitle">End of lecture notes. Next topic: Authentication system implementation.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

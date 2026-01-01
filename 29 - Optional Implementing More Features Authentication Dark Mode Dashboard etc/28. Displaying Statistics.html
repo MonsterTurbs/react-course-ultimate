@@ -1,0 +1,347 @@
+
+
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Dashboard — Displaying Statistics (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f6f8fa;
+      --accent: #0b57d0;
+      --ok: #137333;
+      --warn: #b15c00;
+      --bad: #b00020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px 0;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 6px 0;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul {
+      margin: 10px 0 10px 20px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #f3f7ff;
+      padding: 12px 12px;
+      border-radius: 8px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--muted);
+      vertical-align: middle;
+    }
+
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .bad { color: var(--bad); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      overflow: auto;
+      margin: 10px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    /* Print rules (A4, clean margins, no link URLs) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; }
+      .card, .callout, pre { break-inside: avoid; page-break-inside: avoid; }
+      header { border-bottom: 1px solid #000; }
+      .badge { border-color: #000; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">🧠 Reviewer / Study Guide • React Dashboard</p>
+      <h1>Displaying Statistics on the Dashboard</h1>
+      <p class="subtitle">Focus: computing and rendering dashboard stats (bookings, sales, check-ins, occupancy rate) using reusable components and React Query hooks.</p>
+    </header>
+
+    <section class="callout">
+      <p><strong>Goal of this lecture</strong> 🎯</p>
+      <ul>
+        <li>Create a <strong>Stats</strong> component that calculates key dashboard metrics.</li>
+        <li>Render <strong>4 Stat cards</strong> (presentational UI) using computed values.</li>
+        <li>Compute occupancy rate using <strong>confirmed stays</strong>, <strong>number of days</strong>, and <strong>number of cabins</strong>.</li>
+      </ul>
+    </section>
+
+    <h2>1) Key idea: Split “calculation” vs “presentation”</h2>
+
+    <div class="card">
+      <p><strong>🧩 Presentational component:</strong> <span class="badge">Stat</span></p>
+      <ul>
+        <li>Receives <strong>icon</strong>, <strong>title</strong>, <strong>value</strong>, <strong>color</strong>.</li>
+        <li>Does <strong>no data fetching</strong>, no heavy logic.</li>
+        <li>Only responsible for <strong>display</strong>.</li>
+      </ul>
+
+      <p><strong>🧮 Logic component:</strong> <span class="badge">Stats</span></p>
+      <ul>
+        <li>Receives data via props (example: <code>bookings</code>, <code>confirmedStays</code>).</li>
+        <li>Computes numbers (totals, counts, rates).</li>
+        <li>Renders <strong>multiple</strong> <code>&lt;Stat /&gt;</code> items.</li>
+      </ul>
+
+      <p class="mini">✅ This separation makes your code easier to test, reuse, and maintain.</p>
+    </div>
+
+    <h2>2) Inputs you need for stats</h2>
+
+    <div class="card">
+      <p><strong>Data coming from hooks</strong> 📦</p>
+      <ul>
+        <li><code>bookings</code> → recent bookings (sales made within last N days)</li>
+        <li><code>confirmedStays</code> → stays with status <span class="badge">checked-in</span> or <span class="badge">checked-out</span></li>
+        <li><code>numDays</code> → current dashboard interval (7, 30, 90) from URL/search params</li>
+        <li><code>cabins</code> → needed to compute capacity (available nights = numDays × cabinCount)</li>
+      </ul>
+
+      <p class="mini">💡 The lecture uses <code>useCabins()</code> to get the cabin list, then uses <code>cabins.length</code> as <strong>cabinCount</strong>.</p>
+    </div>
+
+    <h2>3) The four statistics and how to compute them</h2>
+
+    <div class="grid">
+      <div class="card">
+        <h3>3.1 Number of bookings (sales count) 🧾</h3>
+        <p><strong>Meaning:</strong> how many bookings were created in the selected period.</p>
+        <pre><code>// Count of recent bookings
+const numBookings = bookings.length;</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>3.2 Total sales (sum of totalPrice) 💵</h3>
+        <p><strong>Meaning:</strong> total revenue from bookings created in the selected period.</p>
+        <pre><code>// Sum totalPrice across bookings
+const sales = bookings.reduce(
+  (acc, b) =&gt; acc + b.totalPrice,
+  0
+);
+
+// Optional: show as money
+const formattedSales = formatCurrency(sales);</code></pre>
+        <p class="mini">🧠 Beginner tip: <code>reduce</code> is “loop + accumulate.” Start at 0, keep adding.</p>
+      </div>
+
+      <div class="card">
+        <h3>3.3 Check-ins (confirmed stays count) 🗓️</h3>
+        <p><strong>Meaning:</strong> how many guests actually showed up (checked-in/out), not just booked.</p>
+        <pre><code>// Only stays that are checked-in or checked-out
+const checkIns = confirmedStays.length;</code></pre>
+        <p class="mini warn">⚠️ Why not use all stays? Because <em>unconfirmed</em> bookings might never happen.</p>
+      </div>
+
+      <div class="card">
+        <h3>3.4 Occupancy rate (simple approximation) 🏨</h3>
+        <p><strong>Meaning:</strong> “How full the hotel was” during the selected period.</p>
+
+        <p><strong>Step A — compute checked-in nights</strong> 🌙</p>
+        <pre><code>// Total nights stayed (sum numNights across confirmed stays)
+const numNights = confirmedStays.reduce(
+  (acc, stay) =&gt; acc + stay.numNights,
+  0
+);</code></pre>
+
+        <p><strong>Step B — compute available nights</strong> 🧮</p>
+        <pre><code>// Hotel capacity in the period
+const cabinCount = cabins.length;
+const availableNights = numDays * cabinCount;</code></pre>
+
+        <p><strong>Step C — compute occupancy percentage</strong> 📊</p>
+        <pre><code>const occupancyRate = Math.round((numNights / availableNights) * 100);
+const occupancyLabel = `${occupancyRate}%`;</code></pre>
+
+        <p class="mini">📝 Note: This is a simplified model (good enough for a dashboard intro). Real occupancy calculations can be more complex.</p>
+      </div>
+    </div>
+
+    <h2>4) Rendering: why return multiple &lt;Stat /&gt; (Fragment vs Div)</h2>
+
+    <div class="card">
+      <p><strong>Problem:</strong> The dashboard grid expects <strong>four separate items</strong> so each occupies its own column.</p>
+      <ul>
+        <li>If you wrap all stats in a single <code>&lt;div&gt;</code>, that div becomes just <strong>one grid item</strong> (it only fills one column).</li>
+        <li>Using a <strong>Fragment</strong> (<code>&lt;&gt;...&lt;/&gt;</code>) lets you return multiple siblings without adding a wrapper DOM element.</li>
+      </ul>
+
+      <pre><code>// ✅ Good: 4 separate grid items
+return (
+  &lt;&gt;
+    &lt;Stat title="Bookings" value={numBookings} /&gt;
+    &lt;Stat title="Sales" value={formattedSales} /&gt;
+    &lt;Stat title="Check-ins" value={checkIns} /&gt;
+    &lt;Stat title="Occupancy" value={occupancyLabel} /&gt;
+  &lt;/&gt;
+);
+
+// ❌ Risky for grid layout: becomes 1 grid item
+return (
+  &lt;div&gt;
+    ...four stats...
+  &lt;/div&gt;
+);</code></pre>
+    </div>
+
+    <h2>5) Loading states: don’t compute until data exists</h2>
+
+    <div class="card">
+      <p><strong>Why:</strong> occupancy needs <code>cabins</code>. If cabins are still loading, <code>cabins.length</code> may fail.</p>
+      <ul>
+        <li>Use loading flags (example: <code>isLoadingCabins</code>) and return a spinner early.</li>
+        <li>This keeps the UI stable and prevents errors.</li>
+      </ul>
+      <pre><code>const { cabins, isLoading: isLoadingCabins } = useCabins();
+
+if (isLoadingCabins) return &lt;Spinner /&gt;;</code></pre>
+    </div>
+
+    <h2>6) Mini checklist (quick review)</h2>
+
+    <div class="card">
+      <ul>
+        <li>✅ <strong>Stats</strong> receives <code>bookings</code> and <code>confirmedStays</code> as props.</li>
+        <li>✅ <strong>Bookings count</strong> = <code>bookings.length</code></li>
+        <li>✅ <strong>Sales total</strong> = <code>reduce</code> sum of <code>totalPrice</code> (then <code>formatCurrency</code>)</li>
+        <li>✅ <strong>Check-ins</strong> = <code>confirmedStays.length</code></li>
+        <li>✅ <strong>Occupancy</strong> = <code>sum(numNights) / (numDays * cabinCount)</code> → percentage</li>
+        <li>✅ Return 4 <code>&lt;Stat /&gt;</code> siblings using a Fragment for correct grid layout.</li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+
+    <section class="callout">
+      <p><strong>What’s next</strong> 🚀</p>
+      <p>After stats are working, the dashboard moves on to <strong>charts</strong> (sales and stay durations). You will reuse the same “compute data first, then render UI” approach.</p>
+    </section>
+
+    <p class="mini">End of notes for: <strong>Displaying Statistics</strong></p>
+  </main>
+</body>
+
+</html>

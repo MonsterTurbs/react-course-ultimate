@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Streaming UI with Suspense — Cabin List (Study Guide)</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#5a5a5a;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --good:#0f7b3f;
+      --warn:#9a6a00;
+      --danger:#b3261e;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+
+    header{
+      padding: 16px 16px 14px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--soft2), var(--bg));
+      border-radius: 14px;
+    }
+    h1{
+      margin:0 0 6px;
+      font-size: 1.75rem;
+      letter-spacing: -0.02em;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      border:1px solid var(--border);
+      background: var(--soft);
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main{ margin-top: 16px; }
+
+    section{
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    h2{
+      margin: 0 0 10px;
+      font-size: 1.25rem;
+      letter-spacing: -0.01em;
+    }
+    h3{
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p{ margin: 8px 0; }
+    ul, ol{ margin: 8px 0 8px 18px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 10px 0;
+    }
+    .callout.good{ border-left: 5px solid var(--good); }
+    .callout.warn{ border-left: 5px solid var(--warn); }
+    .callout.danger{ border-left: 5px solid var(--danger); }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b0b0b;
+      color: #f1f1f1;
+      border-radius: 12px;
+      overflow:auto;
+      font-family: var(--mono);
+      font-size: 0.92rem;
+      line-height: 1.45;
+      border: 1px solid #1c1c1c;
+    }
+    code{ font-family: var(--mono); font-size: 0.95em; }
+    .inline-code{
+      font-family: var(--mono);
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 8px;
+    }
+
+    .two-col{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+      margin-top: 10px;
+    }
+    .card{
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+    .card .title{
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .muted{ color: var(--muted); }
+
+    /* Print */
+    @page { size: A4; margin: 18mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header, section{ border-color:#d9d9d9; box-shadow:none; }
+      .chip{ background:#fff; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]::after{ content: ""; } /* don't print URLs */
+      section, header, .card, .callout { break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🚀 Next.js Streaming UI with Suspense — Cabin List</h1>
+      <p class="subtitle">
+        How to avoid “blocking UI” by streaming only the part that needs data (the cabin list), while the rest of the page shows instantly.
+      </p>
+      <div class="meta">
+        <span class="chip">🧩 Topic: Suspense Boundary</span>
+        <span class="chip">🌊 Concept: Streaming UI</span>
+        <span class="chip">🧱 Compare: loading.js vs Suspense</span>
+        <span class="chip">🏨 Example: Cabins page</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) The problem: “Blocking UI” with <span class="inline-code">loading.js</span> ⛔</h2>
+        <p>
+          In Next.js, a <span class="inline-code">loading.js</span> file can show a loading indicator for an entire <strong>route segment</strong>.
+          This is useful, but it can also feel <strong>too global</strong>.
+        </p>
+        <p>
+          On the cabins page, the heading and paragraph do <strong>not</strong> depend on data — they can render immediately.
+          Only the <strong>cabin list</strong> needs to wait for Supabase.
+        </p>
+
+        <div class="callout warn">
+          <p><strong>⚠️ UX issue:</strong> If the entire route is replaced by a loading screen,
+            users can’t even read the static parts while data is loading.</p>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="title">Option A: Route-level loading (coarse) 🧱</div>
+            <p class="muted">Use <span class="inline-code">/app/loading.js</span> or <span class="inline-code">/app/cabins/loading.js</span> to block/stream the whole segment.</p>
+          </div>
+          <div class="card">
+            <div class="title">Option B: Component-level loading (granular) 🎯</div>
+            <p class="muted">Use <span class="inline-code">&lt;Suspense fallback=...&gt;</span> to stream only the data-dependent component.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) The goal: Stream only the cabin list 🌊</h2>
+        <p>
+          We want this behavior:
+        </p>
+        <ul>
+          <li>✅ Show heading + text immediately (no waiting)</li>
+          <li>⏳ Show a spinner only where the list will appear</li>
+          <li>✅ When cabins data arrives, replace spinner with the list</li>
+        </ul>
+
+        <div class="callout good">
+          <p><strong>✅ Key idea:</strong> Put the async data fetching inside a separate component, then wrap that component in a Suspense boundary.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) Step-by-step implementation 🧰</h2>
+
+        <h3>Step 1 — Extract the data-fetching list into its own component 🧱</h3>
+        <p>
+          Create a new file like <span class="inline-code">CabinList.js</span> (or <span class="inline-code">CabinList.jsx</span>).
+          This component is a <strong>Server Component</strong> as long as you do <strong>not</strong> add <span class="inline-code">"use client"</span>.
+        </p>
+
+        <pre><code>// app/_components/CabinList.js (Server Component)
+import CabinCard from "@/app/_components/CabinCard";
+import { getCabins } from "@/app/_lib/data-service";
+
+export default async function CabinList() {
+  const cabins = await getCabins();
+
+  // cleaner guard
+  if (!cabins?.length) return null;
+
+  return (
+    &lt;div className="grid gap-6"&gt;
+      {cabins.map((cabin) =&gt; (
+        &lt;CabinCard cabin={cabin} key={cabin.id} /&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+        <div class="callout good">
+          <p><strong>✅ Why this helps:</strong> Now the “async part” (fetching cabins) is isolated inside <span class="inline-code">CabinList</span>,
+            which makes it easy to stream only that piece of UI.</p>
+        </div>
+
+        <h3>Step 2 — Use a Suspense boundary in the page 🎯</h3>
+        <p>
+          Back in the cabins page, render your static content normally, and wrap only the list in Suspense.
+          The fallback should be a <strong>React element</strong> (example: <span class="inline-code">&lt;Spinner /&gt;</span>, not <span class="inline-code">Spinner</span>).
+        </p>
+
+        <pre><code>// app/cabins/page.js
+import { Suspense } from "react";
+import CabinList from "@/app/_components/CabinList";
+import Spinner from "@/app/_components/Spinner";
+
+export default function Page() {
+  return (
+    &lt;section&gt;
+      &lt;h1 className="text-4xl font-semibold"&gt;Our Cabins&lt;/h1&gt;
+      &lt;p className="text-primary-200"&gt;
+        Cozy cabins in the mountains. Pick your favorite.
+      &lt;/p&gt;
+
+      &lt;Suspense fallback={&lt;Spinner /&gt;}&gt;
+        &lt;CabinList /&gt;
+      &lt;/Suspense&gt;
+    &lt;/section&gt;
+  );
+}</code></pre>
+
+        <div class="callout warn">
+          <p><strong>⚠️ Common mistake:</strong> Don’t do <span class="inline-code">fallback={Spinner}</span>.
+            It must be JSX like <span class="inline-code">fallback={&lt;Spinner /&gt;}</span>.</p>
+        </div>
+
+        <h3>Step 3 — (Optional) Slow down fetch to “see” the spinner 🐢</h3>
+        <p class="muted">
+          For learning/demo purposes, you can temporarily add an artificial delay in your data service so you can clearly see the streaming.
+        </p>
+        <pre><code>// app/_lib/data-service.js (demo only)
+function sleep(ms) {
+  return new Promise((resolve) =&gt; setTimeout(resolve, ms));
+}
+
+export async function getCabins() {
+  await sleep(2000); // demo: 2 seconds
+  // ...fetch from Supabase
+}</code></pre>
+
+        <div class="callout danger">
+          <p><strong>🧯 Reminder:</strong> Remove artificial delays in real production code.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) What changed compared to <span class="inline-code">loading.js</span>? 🔄</h2>
+        <ul>
+          <li>🧱 <span class="inline-code">loading.js</span> = loading UI for the <strong>whole route segment</strong> (coarse)</li>
+          <li>🎯 <span class="inline-code">&lt;Suspense&gt;</span> = loading UI for a <strong>specific subtree</strong> (granular)</li>
+          <li>✅ Static content can render immediately (better perceived performance)</li>
+        </ul>
+
+        <div class="callout good">
+          <p><strong>✅ Rule of thumb:</strong> If a page is mostly data-dependent, route-level loading might be enough.
+            If a page contains meaningful static UI + a data-heavy section, use Suspense for a better UX.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Why “move data fetching close to where it’s needed”? 📌</h2>
+        <p>
+          In Next.js (especially with Server Components), it’s best practice to fetch data
+          <strong>as close as possible</strong> to the component that needs it.
+        </p>
+        <ul>
+          <li>✅ Enables granular streaming (Suspense boundaries)</li>
+          <li>✅ Reduces prop-drilling (fewer “pass data down” chains)</li>
+          <li>✅ Makes code easier to maintain (each component owns its data needs)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>6) Quick checklist (self-test) ✅</h2>
+        <ol>
+          <li>Can you explain why <span class="inline-code">loading.js</span> can “block” UI? 🤔</li>
+          <li>Did you move <span class="inline-code">await getCabins()</span> into <span class="inline-code">CabinList</span>? 🧱</li>
+          <li>Is <span class="inline-code">CabinList</span> a Server Component (no <span class="inline-code">"use client"</span>)? 🖥️</li>
+          <li>Is your fallback JSX (e.g., <span class="inline-code">&lt;Spinner /&gt;</span>) and not the component reference? 🧩</li>
+          <li>Does the heading/text show immediately while the list streams in? 🌊</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>7) Mini-summary 🧠</h2>
+        <p>
+          You now have two streaming tools:
+        </p>
+        <ul>
+          <li>🧱 <strong>Route streaming</strong> via <span class="inline-code">loading.js</span> (simple, global)</li>
+          <li>🎯 <strong>Granular streaming</strong> via <span class="inline-code">Suspense</span> (better UX for mixed pages)</li>
+        </ul>
+        <p class="muted">
+          Next step in the course: implement the cabin detail pages (dynamic routes) once users click a cabin link.
+        </p>
+      </section>
+
+      <p class="muted" style="margin-top:12px;">
+        Print tip: Use your browser’s Print dialog and choose “Save as PDF”. This page is A4-ready and avoids printing URLs.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

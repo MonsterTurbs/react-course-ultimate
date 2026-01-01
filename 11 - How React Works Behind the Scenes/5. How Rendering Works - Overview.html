@@ -1,0 +1,418 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Rendering Works — Overview (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --soft2: #fbfbfb;
+      --accent: #0b57d0;
+      --accent2: #1a73e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      hyphens: auto;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px;
+    }
+
+    header {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.55rem;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: #222;
+    }
+
+    main { padding-top: 14px; }
+
+    h2 {
+      font-size: 1.2rem;
+      margin: 18px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol { margin: 8px 0 8px 22px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .callout strong { color: #000; }
+
+    .kvs {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 10px 0;
+      background: #fff;
+    }
+
+    .kvs .row {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 10px;
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .kvs .row:first-child { border-top: 0; }
+
+    .kvs .key {
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .kvs .val { color: #222; }
+
+    .flow {
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .flow .step {
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--soft2);
+      margin: 10px 0;
+    }
+
+    .flow .arrow {
+      text-align: center;
+      color: var(--muted);
+      font-size: 1.15rem;
+      line-height: 1;
+      margin: 2px 0;
+    }
+
+    .mini {
+      font-size: 0.95rem;
+      color: #1c1c1c;
+    }
+
+    .badge {
+      font-weight: 700;
+      color: #0b1f44;
+      background: rgba(11,87,208,0.08);
+      border: 1px solid rgba(11,87,208,0.20);
+      padding: 1px 8px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    .code {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px 12px;
+      margin: 10px 0;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      white-space: pre;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .quiz {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .quiz details {
+      border-top: 1px solid var(--border);
+      margin-top: 10px;
+      padding-top: 10px;
+    }
+
+    .quiz summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .muted { color: var(--muted); }
+
+    /* Print */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, .callout, .flow, .kvs, .quiz, .code { break-inside: avoid; page-break-inside: avoid; }
+      h1, h2, h3 { break-after: avoid; page-break-after: avoid; }
+      a, a:visited { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>⚙️ React Rendering Works — Overview</h1>
+      <p class="subtitle">Reviewer / study guide (beginner-friendly) — from “How Rendering Works (Overview)”</p>
+      <div class="meta">
+        <span class="chip">🧩 Components → Instances → Elements</span>
+        <span class="chip">🧠 Render Phase vs Commit Phase</span>
+        <span class="chip">🎨 Browser Paint</span>
+        <span class="chip">⏱️ Scheduling & batching (intro)</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>1) Quick recap: what we already know ✅</h2>
+      <p class="mini">
+        As we build React apps, we write <strong>components</strong> and use them inside other components.
+        React then creates <strong>component instances</strong> (the “real” copies living in the app), calls them,
+        and turns their JSX into <strong>React elements</strong>.
+      </p>
+
+      <div class="kvs" role="group" aria-label="Key terms recap">
+        <div class="row">
+          <div class="key">🧩 Component</div>
+          <div class="val">A JavaScript function (blueprint/template) that returns React elements.</div>
+        </div>
+        <div class="row">
+          <div class="key">🌱 Component instance</div>
+          <div class="val">A “live” occurrence of a component in the tree; it owns its own props, state, lifecycle.</div>
+        </div>
+        <div class="row">
+          <div class="key">🧱 React element</div>
+          <div class="val">An immutable JS object React keeps in memory; later used to produce DOM changes.</div>
+        </div>
+        <div class="row">
+          <div class="key">🧑‍🎨 DOM elements</div>
+          <div class="val">The actual HTML nodes in the browser, shown on screen.</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Key idea 🧠:</strong> The part we are missing is: <em>How do React elements end up as real DOM updates</em>
+        that the user can see?
+      </div>
+
+      <h2>2) The big picture: React rendering pipeline 🧭</h2>
+      <p>
+        This lecture introduces the phases React goes through <strong>each time a render is triggered</strong>.
+        The process is often started by a <strong>state update</strong> somewhere in the app.
+      </p>
+
+      <div class="flow" aria-label="Rendering pipeline">
+        <div class="step"><span class="badge">1</span>⚡ Trigger</div>
+        <div class="arrow">↓</div>
+        <div class="step"><span class="badge">2</span>🧠 Render Phase (inside React, no DOM updates yet)</div>
+        <div class="arrow">↓</div>
+        <div class="step"><span class="badge">3</span>🧱 Commit Phase (React updates the DOM)</div>
+        <div class="arrow">↓</div>
+        <div class="step"><span class="badge">4</span>🎨 Browser Paint (browser repaints the screen)</div>
+      </div>
+
+      <h2>3) The most important distinction: “Render” in React ≠ “Render” in your head ⚠️</h2>
+      <div class="callout">
+        <p><strong>Common confusion 😵‍💫:</strong> We often say “React rendered the UI” meaning “I saw visual changes.”</p>
+        <p>
+          But in React terminology, the <strong>Render Phase</strong> is mostly about:
+          <strong>calling components</strong> and <strong>figuring out what should change</strong>.
+          It <strong>does not</strong> directly update the DOM.
+        </p>
+        <p>
+          Visual updates happen only after React commits changes, and the browser repaints.
+        </p>
+      </div>
+
+      <div class="kvs" role="group" aria-label="Render vs Commit">
+        <div class="row">
+          <div class="key">🧠 Render Phase</div>
+          <div class="val">
+            React calls component functions and builds/compares element trees to determine DOM changes.
+            <strong>No DOM mutations here.</strong>
+          </div>
+        </div>
+        <div class="row">
+          <div class="key">🧱 Commit Phase</div>
+          <div class="val">
+            React applies the computed changes to the DOM: insert, update, delete nodes.
+            <strong>This is the “traditional rendering” people mean.</strong>
+          </div>
+        </div>
+        <div class="row">
+          <div class="key">🎨 Browser Paint</div>
+          <div class="val">
+            The browser notices DOM changes and repaints pixels. React is not involved in this step.
+          </div>
+        </div>
+      </div>
+
+      <h2>4) What triggers a render? (Only two ways) ✅</h2>
+      <ol>
+        <li>
+          <strong>Initial render</strong> — the first time the app runs.
+        </li>
+        <li>
+          <strong>Re-render</strong> — when <strong>state updates</strong> happen in one or more component instances.
+        </li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>Important nuance 🔍:</strong> The render process is triggered for the <strong>entire application tree</strong>, not only the component that updated state.</p>
+        <p class="muted">
+          That does <em>not</em> mean React will update the entire DOM. It means React will consider the tree to
+          figure out what (if anything) should be committed to the DOM.
+        </p>
+      </div>
+
+      <h3>Beginner-friendly mental model</h3>
+      <ul>
+        <li>State update happens → React schedules work.</li>
+        <li>React “re-checks” the component tree (render phase) → determines minimal DOM changes.</li>
+        <li>React applies changes (commit phase) → browser repaints.</li>
+      </ul>
+
+      <h2>5) Scheduling (intro): renders are not always immediate ⏱️</h2>
+      <p>
+        A render is <strong>scheduled</strong> after state updates, typically when the JavaScript engine has a tiny bit of free time.
+        The delay is usually only a few milliseconds, so users don’t notice.
+      </p>
+      <ul>
+        <li>React may <strong>batch</strong> multiple state updates together (especially when they happen close to each other).</li>
+        <li>This reduces extra work and makes the UI more efficient.</li>
+      </ul>
+
+      <h2>6) Tiny examples you can remember 🧪</h2>
+
+      <h3>Example A: State update triggers a re-render</h3>
+      <div class="code" aria-label="Example A code">
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      Count: {count}
+    </button>
+  );
+}
+      </div>
+      <ul>
+        <li>Click → <code>setCount</code> schedules work.</li>
+        <li>Render phase: React calls <code>Counter</code> again to get the latest element output.</li>
+        <li>Commit phase: React updates the button text in the DOM.</li>
+        <li>Browser paint: you see the new number.</li>
+      </ul>
+
+      <h3>Example B: “Render phase” doesn’t mean you see changes</h3>
+      <p class="mini">
+        You can think of render phase as React doing “planning” 🧠, while commit phase is doing “execution” 🧱.
+      </p>
+
+      <div class="hr"></div>
+
+      <h2>7) Quick checklist: what to remember for interviews 🎯</h2>
+      <ul>
+        <li><strong>Only two render triggers:</strong> initial render and state updates (re-renders).</li>
+        <li><strong>Render phase ≠ DOM updates:</strong> render phase computes; commit phase mutates DOM.</li>
+        <li><strong>Browser paint is separate:</strong> happens after DOM updates, controlled by the browser.</li>
+        <li><strong>React considers the tree:</strong> render is triggered for the app tree (even if DOM updates are minimal).</li>
+        <li><strong>Scheduling & batching:</strong> updates may be scheduled and combined for efficiency.</li>
+      </ul>
+
+      <h2>8) Mini quiz (self-check) 📝</h2>
+      <div class="quiz">
+        <p><strong>Q1.</strong> In React terms, which phase actually updates the DOM?</p>
+        <p><strong>Q2.</strong> Name the two ways a render is triggered.</p>
+        <p><strong>Q3.</strong> True/False: “When state updates, React immediately updates the DOM.”</p>
+        <details>
+          <summary>Show suggested answers</summary>
+          <ul>
+            <li><strong>A1:</strong> The <strong>commit phase</strong>.</li>
+            <li><strong>A2:</strong> <strong>Initial render</strong> and <strong>state updates (re-render)</strong>.</li>
+            <li><strong>A3:</strong> <strong>False</strong>. React schedules work; render phase computes first; commit phase mutates DOM; then browser paints.</li>
+          </ul>
+        </details>
+      </div>
+
+      <div class="callout">
+        <p><strong>Next lecture preview 🔜:</strong> The “easy part” is triggers. The hard part is what React does during the render phase and commit phase internally.</p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

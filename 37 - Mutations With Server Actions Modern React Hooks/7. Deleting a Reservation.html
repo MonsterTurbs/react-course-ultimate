@@ -1,0 +1,402 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Server Actions — Deleting a Reservation (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --soft2:#fbfbfc;
+      --codebg:#0b1020;
+      --codetext:#e7e7ea;
+      --accent:#0b57d0;
+      --danger:#b42318;
+      --ok:#067647;
+      --warn:#a15c07;
+    }
+
+    /* Base */
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px 56px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--soft2), #fff);
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+    }
+
+    h1{
+      font-size: 22px;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 4px 10px;
+    }
+
+    main{ margin-top: 16px; }
+
+    h2{
+      font-size: 18px;
+      margin: 18px 0 8px;
+    }
+
+    h3{
+      font-size: 15.5px;
+      margin: 14px 0 6px;
+    }
+
+    p{ margin: 8px 0; }
+
+    ul,ol{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .card{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+    }
+
+    .callout.danger{ border-left-color: var(--danger); }
+    .callout.ok{ border-left-color: var(--ok); }
+    .callout.warn{ border-left-color: var(--warn); }
+
+    .callout b{ display:inline-block; margin-bottom: 2px; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      border-radius: 12px;
+      overflow:auto;
+      border: 1px solid rgba(255,255,255,.12);
+      font-size: 12.5px;
+      line-height: 1.55;
+      tab-size: 2;
+      white-space: pre;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12.5px;
+    }
+
+    .hr{ height:1px; background: var(--border); margin: 14px 0; }
+
+    .two-col{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .small{ font-size: 12.8px; color: var(--muted); }
+
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+    @media print {
+      body{ background:#fff; }
+      .page{ max-width: unset; padding: 0; }
+      header, .card, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      pre{ break-inside: avoid; page-break-inside: avoid; }
+      a{ color: var(--text); text-decoration: none; }
+      a[href]::after{ content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧹 Deleting a Reservation in Next.js (Server Actions)</h1>
+      <p class="subtitle">
+        Reviewer / study guide: wiring a delete button to a Server Action, revalidating cache to refresh UI, and securing the action so users can only delete their own bookings.
+      </p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Server Actions (Mutations)</span>
+        <span class="chip">🧩 Pattern: Client Button → Server Action</span>
+        <span class="chip">🗄️ Cache: revalidatePath()</span>
+        <span class="chip">🔐 Security: Authorization check</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>✅ Goal</h2>
+        <ul>
+          <li>Allow a logged-in guest to delete an <b>upcoming</b> reservation (booking) using a <b>Delete</b> button.</li>
+          <li>Ensure the UI updates immediately after delete (no manual reload).</li>
+          <li>Prevent malicious deletion of other users’ bookings (authorization fix).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧩 Where the booking ID comes from</h2>
+        <div class="callout">
+          <b>Key idea:</b> Your UI shows “Reservations”, but the database table is “Bookings”.
+          <div class="small">So you’ll often see names like <code>bookingId</code> even though the UI says reservation.</div>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <h3>ReservationCard → DeleteReservation</h3>
+            <p>The <code>ReservationCard</code> receives a <code>booking</code> object and extracts the <code>id</code>. That <code>id</code> becomes the <code>bookingId</code> prop passed to the delete button component.</p>
+            <pre><code>// ReservationCard.jsx (concept)
+export default function ReservationCard({ booking }) {
+  const { id } = booking;
+
+  return (
+    &lt;div&gt;
+      {/* ...reservation details... */}
+      &lt;DeleteReservation bookingId={id} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Deleting via Server Action (recommended structure)</h2>
+        <div class="callout warn">
+          <b>Why not define the action inside the component?</b>
+          <p class="small">
+            You <i>can</i> define a Server Action inside a Server Component, but this delete component needs to be a <b>Client Component</b> (it handles a click). So it’s cleaner to keep mutations inside a central <code>actions.js</code> module.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>1) Server Action signature</h3>
+          <p>Unlike form-based actions, a button click means you manually pass what you need: the <b>bookingId</b>.</p>
+          <pre><code>// app/_lib/actions.js
+"use server";
+
+import { auth } from "@/app/_lib/auth";
+import { revalidatePath } from "next/cache";
+import supabase from "@/app/_lib/supabase"; // adjust import to your project
+import { getBookings } from "@/app/_lib/data-service"; // adjust import
+
+export async function deleteReservation(bookingId) {
+  // 1) Auth check
+  const session = await auth();
+  if (!session) throw new Error("You must be logged in.");
+
+  // 2) Authorization check (critical!)
+  const guestBookings = await getBookings(session.user.guestId);
+  const guestBookingIds = guestBookings.map((b) => b.id);
+
+  if (!guestBookingIds.includes(Number(bookingId))) {
+    throw new Error("You are not allowed to delete this booking.");
+  }
+
+  // 3) Delete in DB
+  const { error } = await supabase
+    .from("bookings")
+    .delete()
+    .eq("id", bookingId);
+
+  if (error) throw new Error("Booking could not be deleted.");
+
+  // 4) Refresh UI data
+  revalidatePath("/account/reservations");
+}
+</code></pre>
+          <div class="callout danger">
+            <b>Security note (very important):</b>
+            <p class="small">
+              If you only delete by <code>bookingId</code> without checking ownership, any authenticated user could copy the network request and delete someone else’s booking by changing the ID.
+              That’s why we fetch the guest’s bookings and verify the ID belongs to them.
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>2) Client button calls the Server Action</h3>
+          <p>
+            Click handlers require client-side JavaScript, so the delete button component must use <code>"use client"</code>.
+            Server Actions can still be invoked from the client, but they execute on the server.
+          </p>
+          <pre><code>// components/DeleteReservation.jsx
+"use client";
+
+import { deleteReservation } from "@/app/_lib/actions";
+
+export default function DeleteReservation({ bookingId }) {
+  return (
+    &lt;button
+      type="button"
+      onClick={() =&gt; deleteReservation(bookingId)}
+      className="text-red-600 hover:underline"
+    &gt;
+      Delete
+    &lt;/button&gt;
+  );
+}
+</code></pre>
+          <div class="callout">
+            <b>Why no state?</b>
+            <p class="small">
+              In this Next.js model, you typically update the UI by <b>revalidating cache</b> (refetch fresh data) instead of removing the item from a client-side array state.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>♻️ Why revalidatePath fixes the “stale UI”</h2>
+        <div class="card">
+          <p>
+            After deletion, your page still shows the old list because the route data may be served from cache.
+            <b>revalidatePath()</b> clears the cached data for a route, so Next.js fetches the updated list (without the deleted booking).
+          </p>
+          <ul>
+            <li><b>Use it when:</b> your mutation changes data that is displayed on-screen.</li>
+            <li><b>Place it:</b> at the end of the Server Action (after a successful mutation).</li>
+            <li><b>Choose the path:</b> the route that needs fresh data, e.g. <code>/account/reservations</code>.</li>
+          </ul>
+        </div>
+
+        <div class="callout warn">
+          <b>Alternative:</b> <code>revalidateTag()</code>
+          <p class="small">
+            Tag-based revalidation is great when your data fetching uses <code>fetch</code> and tags. If you’re using Supabase calls, path-based revalidation is often the most practical approach.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🔒 Threat model: “Copy as cURL” attack</h2>
+        <div class="callout danger">
+          <b>What happened in the lecture:</b>
+          <ul>
+            <li>You copy the network request (e.g., as cURL).</li>
+            <li>The request includes auth cookies (session).</li>
+            <li>You change the raw ID (e.g., <code>617</code>) and send it again.</li>
+            <li>Without an ownership check, the server action deletes that booking.</li>
+          </ul>
+          <p class="small">
+            Server Actions behave like hidden API endpoints. Treat them like backend routes: verify the user and verify permissions.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>✅ Correct fix</h3>
+          <ol>
+            <li>Get current user session: <code>const session = await auth()</code></li>
+            <li>Fetch bookings for this guest: <code>getBookings(session.user.guestId)</code></li>
+            <li>Ensure the requested <code>bookingId</code> is inside that list</li>
+            <li>If not, throw: <code>throw new Error("You are not allowed...")</code></li>
+          </ol>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Quick checklist (so you don’t get stuck)</h2>
+        <div class="card">
+          <ul>
+            <li>☑️ Delete button component has <code>"use client"</code></li>
+            <li>☑️ Server Action file starts with <code>"use server"</code></li>
+            <li>☑️ Server Action receives a <code>bookingId</code> parameter</li>
+            <li>☑️ Auth check: throw error if no session</li>
+            <li>☑️ Authorization check: booking must belong to session guest</li>
+            <li>☑️ DB delete call targets the correct table and id column</li>
+            <li>☑️ Call <code>revalidatePath("/account/reservations")</code> after success</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧭 Common mistakes</h2>
+        <div class="card">
+          <ul>
+            <li>😵 Forgetting revalidation → the booking deletes in DB, but UI still shows it until reload.</li>
+            <li>🔓 Skipping authorization → any logged-in user can delete any booking by guessing IDs.</li>
+            <li>🧱 Putting click handler in a Server Component → click handlers require a Client Component.</li>
+            <li>🔤 Type mismatch: sometimes <code>bookingId</code> is string—convert carefully when comparing.</li>
+          </ul>
+        </div>
+      </section>
+
+      <div class="hr"></div>
+
+      <section class="card">
+        <h2>Next up</h2>
+        <p>
+          In the next lecture, you’ll add a loading indicator (UX) so the user knows the delete is in progress.
+          Typical tools: <code>useTransition</code>, <code>useFormStatus</code> (if using forms), and disabling buttons while pending.
+        </p>
+        <p class="small">End of reviewer. Review the security section twice—this is real backend thinking. 🙂</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

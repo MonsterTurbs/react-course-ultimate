@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Error Handling in Form Actions — Validation + useActionData (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #047857;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .soft { background: var(--soft); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #eef2ff;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7faff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #ecfdf5;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+    }
+
+    .danger {
+      border-left: 4px solid var(--danger);
+      background: #fef2f2;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+
+    .table th, .table td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    .table th {
+      background: var(--soft);
+      text-align: left;
+    }
+
+    /* Print styles (A4, clean margins, no URL after links) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Keep blocks from splitting awkwardly */
+      header, .card, pre, .note, .table { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Printer-friendly sizing */
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li, .table { font-size: 12.2px; }
+
+      /* Remove automatic URL printing */
+      a[href]::after { content: "" !important; }
+
+      /* Ensure code blocks print legibly */
+      pre {
+        color: #111 !important;
+        background: #f2f2f2 !important;
+        border: 1px solid #ddd;
+      }
+
+      .chip {
+        border-color: #ddd;
+        background: #f7f7f7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">🧯 React Router Actions — Validation + User Feedback</p>
+      <h1>🚧 Error Handling in Form Actions (useNavigation + useActionData)</h1>
+      <p class="subtitle">
+        Add a better UX while submitting (disable button + change label), then validate submitted data in the action.
+        If validation fails, return an <code>errors</code> object and render it back in the form using <code>useActionData()</code>.
+      </p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">🧭 useNavigation()</span>
+        <span class="chip">⛔ disable submit</span>
+        <span class="chip">🧾 HTML required</span>
+        <span class="chip">✅ server-side validation</span>
+        <span class="chip">📦 errors object</span>
+        <span class="chip">🪝 useActionData()</span>
+        <span class="chip">📞 phone validation</span>
+      </div>
+    </header>
+
+    <section class="card soft">
+      <h2>🎯 What we add in this lecture</h2>
+      <ol>
+        <li>🧭 <strong>Submission feedback</strong>: disable “Order now” while the action is submitting</li>
+        <li>✅ <strong>Validation</strong>: ensure the phone number is in a valid format</li>
+        <li>🧯 <strong>Error UI</strong>: return errors from the action and show them in the form</li>
+      </ol>
+      <div class="note">
+        ✅ This matches real-world behavior: forms need both UX feedback and validation/guardrails.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>1) 🧭 Show “submitting” feedback using <code>useNavigation()</code></h2>
+      <p>
+        React Router’s navigation state is global and can be <code>idle</code>, <code>loading</code>, or <code>submitting</code>.
+        Here, we use it inside <code>CreateOrder</code> to disable the button and change its label.
+      </p>
+
+      <div class="note good">
+        ✅ No manual loading state needed — React Router already tracks the submission lifecycle.
+      </div>
+
+      <pre>import { Form, useNavigation } from "react-router-dom";
+
+export default function CreateOrder() {
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
+
+  return (
+    <Form method="post">
+      {/* fields */}
+
+      <button disabled={isSubmitting}>
+        {isSubmitting ? "Placing order…" : "Order now"}
+      </button>
+    </Form>
+  );
+}</pre>
+
+      <div class="note">
+        💡 UX impact: when the user submits, the button becomes disabled (prevents double submits) and gives clear feedback.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>2) 🧾 Use basic HTML validation first</h2>
+      <p>
+        The <code>required</code> attribute is plain HTML5 validation.
+        React Router encourages using browser-native validation where it fits.
+      </p>
+      <ul>
+        <li>✅ Great for “must not be empty”</li>
+        <li>⚠️ Not enough for “must be correctly formatted” (e.g., phone number)</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>3) ✅ Validate form data in the <code>action</code></h2>
+      <p>
+        The action is the perfect place to validate submitted values.
+        If validation fails, we return early with an <code>errors</code> object.
+      </p>
+
+      <h3>Why return errors instead of redirect?</h3>
+      <ul>
+        <li>🛑 Prevent creating the order on the server when input is invalid</li>
+        <li>🧠 Let the form display the exact reason and keep the user on the same page</li>
+      </ul>
+
+      <div class="note warn">
+        ⚠️ Validation must happen <strong>before</strong> calling <code>createOrder()</code>.
+      </div>
+
+      <pre>// CreateOrder.jsx
+import { redirect } from "react-router-dom";
+import { createOrder } from "../../services/apiRestaurant";
+import { isValidPhone } from "../../utils/helpers"; // example location
+
+export async function action({ request }) {
+  const formData = await request.formData();
+  const data = Object.fromEntries(formData);
+
+  const order = {
+    ...data,
+    cart: JSON.parse(data.cart),
+    priority: data.priority === "on",
+  };
+
+  // ✅ Validation
+  const errors = {};
+  if (!isValidPhone(order.phone)) {
+    errors.phone = "Please give us your correct phone number. We might need it to contact you.";
+  }
+
+  // If any errors exist, return them (no redirect, no server write)
+  if (Object.keys(errors).length > 0) return errors;
+
+  // If everything is OK, create new order and redirect
+  const newOrder = await createOrder(order);
+  return redirect(`/order/${newOrder.id}`);
+}</pre>
+
+      <div class="note good">
+        ✅ Pattern: <strong>validate → return errors if any → otherwise mutate + redirect</strong>
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>4) 🪝 Show action errors in the form with <code>useActionData()</code></h2>
+      <p>
+        The component tied to the route action can read whatever the action returned (when it was not a redirect)
+        using <code>useActionData()</code>.
+      </p>
+
+      <pre>import { Form, useActionData, useNavigation } from "react-router-dom";
+
+export default function CreateOrder() {
+  const formErrors = useActionData();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
+
+  return (
+    <Form method="post">
+      {/* Phone field */}
+      <input name="phone" required />
+
+      {formErrors?.phone && (
+        <p style={{ color: "#b91c1c" }}>
+          {formErrors.phone}
+        </p>
+      )}
+
+      <button disabled={isSubmitting}>
+        {isSubmitting ? "Placing order…" : "Order now"}
+      </button>
+    </Form>
+  );
+}</pre>
+
+      <div class="note">
+        ✅ Result: invalid phone shows a friendly error message, and the user stays on the form.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧠 What actually happens (step-by-step)</h2>
+      <ol>
+        <li>🧾 User submits the React Router <code>&lt;Form&gt;</code></li>
+        <li>📤 Router calls the route <code>action</code></li>
+        <li>🧰 Action reads submitted values via <code>request.formData()</code></li>
+        <li>✅ Action validates (e.g., phone format)</li>
+        <li>❌ If invalid → return <code>{ phone: "..." }</code></li>
+        <li>🪝 Component reads returned object with <code>useActionData()</code></li>
+        <li>🧯 UI renders the error message near the field</li>
+        <li>✅ If valid → create order + <code>redirect()</code> to <code>/order/:id</code></li>
+      </ol>
+    </section>
+
+    <section class="card soft">
+      <h2>✅ Key takeaways</h2>
+      <ul>
+        <li>🧭 Use <code>useNavigation()</code> to detect <code>"submitting"</code> and improve UX (disable button, change text).</li>
+        <li>🧾 Use HTML validation (<code>required</code>) for simple constraints, but still validate in the action.</li>
+        <li>✅ Validate critical business fields (phone) before server mutation.</li>
+        <li>📦 Return an <code>errors</code> object when validation fails.</li>
+        <li>🪝 Display returned errors with <code>useActionData()</code> inside the same route component.</li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="card soft">
+      <h2>➡️ What’s next</h2>
+      <p>
+        You now understand the two core React Router data APIs:
+        <strong>loaders</strong> (read) and <strong>actions</strong> (write).
+        Next step in the course: apply styling (Tailwind CSS crash course).
+      </p>
+    </section>
+
+    <footer class="muted" style="margin-top:16px; font-size:12px;">
+      Print format: A4, single-column, word-wrapped, clean margins.
+    </footer>
+  </main>
+</body>
+</html>

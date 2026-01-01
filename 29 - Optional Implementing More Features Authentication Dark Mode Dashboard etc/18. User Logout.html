@@ -1,0 +1,376 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Logout (Supabase + React Query) — Reviewer / Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --code-bg: #f6f8fa;
+      --code-border: #d0d7de;
+      --accent: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column, print-friendly container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 18px 0 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 8px 18px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .chiprow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 10px;
+      overflow: auto;
+      line-height: 1.45;
+      font-size: 12.5px;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .inline-code {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .mini {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+
+      a[href]::after { content: ""; } /* do NOT print URLs */
+
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow: visible;
+      }
+
+      .callout, pre {
+        break-inside: avoid;
+      }
+
+      h2, h3 {
+        break-after: avoid;
+      }
+
+      .page-break {
+        break-before: page;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">React + Supabase + React Query</p>
+      <h1>Lesson Reviewer: User Logout</h1>
+      <p class="subtitle">Goal: add a logout button, sign the user out via Supabase, clear React Query cache, and redirect to Login. ✅</p>
+      <div class="chiprow" aria-label="tags">
+        <span class="chip">🔐 Auth</span>
+        <span class="chip">🧠 React Query</span>
+        <span class="chip">🧭 React Router</span>
+        <span class="chip">🧼 Cache cleanup</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>What you are building (high-level)</h2>
+      <ul>
+        <li>🧩 A <strong>Logout</strong> UI component (an icon button in the header).</li>
+        <li>🧰 A Supabase service function: <span class="inline-code">logout()</span> → <span class="inline-code">supabase.auth.signOut()</span>.</li>
+        <li>🪝 A React Query hook: <span class="inline-code">useLogout()</span> using <span class="inline-code">useMutation</span>.</li>
+        <li>🚪 After success: clear cached queries + redirect to <span class="inline-code">/login</span> using <span class="inline-code">navigate(..., { replace: true })</span>.</li>
+        <li>✨ Nice UX: disable button while loading + show a tiny spinner while logging out.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Why logout is a mutation? 🧪</strong>
+        <p>Because it <em>changes server/session state</em>: the user session gets invalidated and tokens are removed. In React Query terms, actions that change something are typically modeled as mutations.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Step-by-step flow</h2>
+      <h3>1) Create a Logout UI component (Logout.jsx)</h3>
+      <p>Use the existing <span class="inline-code">ButtonIcon</span> component and render an icon inside it. 🙂</p>
+      <pre><code>// features/authentication/Logout.jsx
+import ButtonIcon from "../../ui/ButtonIcon";
+import SpinnerMini from "../../ui/SpinnerMini";
+import { HiArrowRightOnRectangle } from "react-icons/hi2";
+import { useLogout } from "./useLogout";
+
+export default function Logout() {
+  const { logout, isLoading } = useLogout();
+
+  return (
+    &lt;ButtonIcon disabled={isLoading} onClick={logout}&gt;
+      {!isLoading ? &lt;HiArrowRightOnRectangle /&gt; : &lt;SpinnerMini /&gt;}
+    &lt;/ButtonIcon&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout">
+        <strong>Beginner note 🧠</strong>
+        <p><span class="inline-code">disabled={isLoading}</span> prevents double-clicks. Without this, you might accidentally call logout multiple times.</p>
+      </div>
+
+      <h3>2) Place it in the Header (UI)</h3>
+      <p>Add the logout button in your header so it’s always accessible. 📌</p>
+      <pre><code>// ui/Header.jsx (example)
+import Logout from "../features/authentication/Logout";
+
+export default function Header() {
+  return (
+    &lt;header&gt;
+      {/* ...other header content... */}
+      &lt;Logout /&gt;
+    &lt;/header&gt;
+  );
+}
+</code></pre>
+
+      <h3>3) Create the Supabase service function (apiAuth.js)</h3>
+      <p>This function talks to Supabase Auth and signs the user out. 🧾</p>
+      <pre><code>// services/apiAuth.js
+import supabase from "./supabase";
+
+export async function logout() {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw new Error(error.message);
+}
+</code></pre>
+
+      <h3>4) Create the React Query hook (useLogout.js)</h3>
+      <p>This hook wraps the service in a mutation and defines post-logout behavior. 🚀</p>
+      <pre><code>// features/authentication/useLogout.js
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { logout as logoutApi } from "../../services/apiAuth";
+
+export function useLogout() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { mutate: logout, isLoading } = useMutation({
+    mutationFn: logoutApi,
+    onSuccess: () =&gt; {
+      // 🧼 Security + correctness: clear any cached data from the previous user
+      queryClient.removeQueries();
+
+      // 🚪 Kick user back to login and prevent “Back” from returning to protected pages
+      navigate("/login", { replace: true });
+    },
+  });
+
+  return { logout, isLoading };
+}
+</code></pre>
+
+      <div class="callout">
+        <strong>Why removeQueries() matters 🧼</strong>
+        <p>You previously used <span class="inline-code">queryClient.setQueryData(['user'], user)</span> during login. If you don’t clear cache on logout, stale private data could remain in memory (and sometimes be shown briefly after logout).</p>
+      </div>
+    </section>
+
+    <section class="page-break">
+      <h2>Key concepts (simple explanations)</h2>
+
+      <h3>Supabase logout</h3>
+      <ul>
+        <li>✅ <span class="inline-code">supabase.auth.signOut()</span> invalidates the session and clears tokens.</li>
+        <li>✅ After sign out, protected routes should redirect to login (because there is no user).</li>
+      </ul>
+
+      <h3>React Query mutation lifecycle</h3>
+      <ul>
+        <li>⏳ <strong>isLoading</strong>: use this to disable the button and show a spinner.</li>
+        <li>✅ <strong>onSuccess</strong>: redirect + clear cache.</li>
+        <li>⚠️ If you want: add <strong>onError</strong> to show a toast message.</li>
+      </ul>
+
+      <h3>React Router: navigate replace</h3>
+      <ul>
+        <li>🧭 <span class="inline-code">navigate('/login', { replace: true })</span> replaces history so the browser “Back” won’t go back into protected pages.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Mini-checklist (quick self-test) ✅</h2>
+      <ul>
+        <li>☐ Logout button appears in header.</li>
+        <li>☐ Clicking logout shows spinner + disables the button.</li>
+        <li>☐ User gets redirected to <span class="inline-code">/login</span>.</li>
+        <li>☐ React Query cache is cleared (no stale bookings/cabins data).</li>
+        <li>☐ Protected routes block access when logged out.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Common issues and fixes (debug guide) 🛠️</h2>
+
+      <h3>1) “Logout button does nothing”</h3>
+      <ul>
+        <li>Check <span class="inline-code">onClick={logout}</span> is present.</li>
+        <li>Confirm <span class="inline-code">useLogout()</span> returns <span class="inline-code">logout</span> from <span class="inline-code">mutate</span>.</li>
+      </ul>
+
+      <h3>2) “After logout I can still see old data”</h3>
+      <ul>
+        <li>Add <span class="inline-code">queryClient.removeQueries()</span> inside <span class="inline-code">onSuccess</span>.</li>
+        <li>Make sure protected route uses <span class="inline-code">useUser()</span> and redirects when unauthenticated.</li>
+      </ul>
+
+      <h3>3) “Back button returns me to dashboard after logout”</h3>
+      <ul>
+        <li>Use <span class="inline-code">navigate('/login', { replace: true })</span>.</li>
+      </ul>
+
+      <h3>4) “Spinner shows forever”</h3>
+      <ul>
+        <li>Check your <span class="inline-code">logout()</span> service throws errors properly.</li>
+        <li>If adding <span class="inline-code">onError</span>, ensure errors are surfaced and the UI can recover.</li>
+      </ul>
+
+      <div class="divider"></div>
+      <p class="mini">Tip: When testing, open DevTools → Application/Storage → Local Storage to confirm tokens are removed after logout.</p>
+    </section>
+
+    <section>
+      <h2>Summary (1-minute recap) 🧾</h2>
+      <ul>
+        <li>Logout = call Supabase <span class="inline-code">signOut()</span>.</li>
+        <li>Wrap it in React Query <span class="inline-code">useMutation</span>.</li>
+        <li>On success: clear cache + redirect to login (replace history).</li>
+        <li>UI polish: disable button + show spinner.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

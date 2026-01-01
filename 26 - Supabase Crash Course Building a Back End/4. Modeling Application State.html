@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Modeling Application State (Supabase) — Reviewer / Study Guide</title>
+  <style>
+    /* =========================
+       Print-friendly A4 Study Guide
+       Single-column • White background • Safe margins
+       ========================= */
+
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --soft: #f6f7f9;
+      --border: #e6e6e6;
+      --accent: #0b57d0;
+      --accent-2: #1a73e8;
+      --good: #0f7b3a;
+      --warn: #9a5b00;
+      --bad: #b00020;
+
+      --paper-w: 210mm;  /* A4 */
+      --paper-h: 297mm;
+      --page-margin: 16mm;
+
+      --font: Arial, Helvetica, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      --h1: 20pt;
+      --h2: 13.5pt;
+      --h3: 11.5pt;
+      --p: 10.8pt;
+      --lh: 1.55;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: var(--lh);
+      overflow-wrap: anywhere;
+      word-break: normal;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Page container (single column) */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 22px 18px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 14px 14px 12px;
+      border-radius: 10px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: var(--h1);
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 11pt;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 10pt;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 4px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 14px; }
+
+    section {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .sec-h {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+
+    .sec-h h2 {
+      margin: 0;
+      font-size: var(--h2);
+    }
+
+    .sec-b {
+      padding: 12px 14px 14px;
+      font-size: var(--p);
+    }
+
+    h3 {
+      margin: 14px 0 6px;
+      font-size: var(--h3);
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 8px 20px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong { color: var(--text); }
+
+    .good { border-left: 5px solid var(--good); }
+    .warn { border-left: 5px solid var(--warn); }
+    .bad  { border-left: 5px solid var(--bad); }
+
+    .kbd {
+      font-family: var(--mono);
+      font-size: 0.95em;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 10pt;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    .box h3 { margin-top: 0; }
+
+    pre {
+      margin: 10px 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      font-family: var(--mono);
+      font-size: 9.8pt;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    a { color: var(--accent); text-decoration: underline; }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      header, section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .sec-b, .sec-h {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      /* Do NOT print link URLs */
+      a[href]:after { content: "" !important; }
+
+      /* Ensure clean printing */
+      .chip { background: #fff; }
+      .callout { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1 class="title">🧠 Modeling Application State (Supabase) — Reviewer / Study Guide</h1>
+      <p class="subtitle">How to decide which database tables you need, and how bookings connect guests and cabins.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Data modeling</span>
+        <span class="chip">🗃️ Supabase / Postgres (relational)</span>
+        <span class="chip">⚛️ Frontend: React Query (remote state)</span>
+        <span class="chip">🧩 Level: Beginner-friendly</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <div class="sec-h"><h2>1) Big Idea: Start from Features → Derive State → Create Tables</h2></div>
+        <div class="sec-b">
+          <p>✅ In a bigger app (like Wild Oasis), you don’t plan state per <em>component</em>. Instead, you think in <strong>feature-level</strong> or <strong>page-level</strong> chunks.</p>
+
+          <div class="callout good">
+            <strong>Rule of thumb:</strong> If a feature needs data that lives on a server, treat it as <strong>remote state</strong>.
+            <span class="mini">(In this project: most state is remote and stored in Supabase.)</span>
+          </div>
+
+          <h3>🧠 Why this matters</h3>
+          <ul>
+            <li>It helps you avoid random, messy state scattered across components.</li>
+            <li>It makes it clear what the backend (database) must store.</li>
+            <li>It aligns naturally with React Query, which is built for remote data.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-h"><h2>2) From “State Slices” to “Data Tables”</h2></div>
+        <div class="sec-b">
+          <p>In Redux, you might say “state slice.” But since the data lives in a database, it’s more accurate to call them <strong>tables</strong>.</p>
+
+          <div class="grid2">
+            <div class="box">
+              <h3>🧩 Main Data Areas (Feature Categories)</h3>
+              <ul>
+                <li>📅 <strong>Bookings</strong> (core data)</li>
+                <li>🏡 <strong>Cabins</strong></li>
+                <li>🧑‍💼 <strong>Guests</strong></li>
+                <li>⚙️ <strong>Settings</strong></li>
+                <li>🔐 <strong>Users / Authentication</strong></li>
+              </ul>
+            </div>
+
+            <div class="box">
+              <h3>🧷 Which features depend on which data?</h3>
+              <ul>
+                <li>📊 <strong>Dashboard</strong> uses <strong>Bookings</strong> data to compute statistics.</li>
+                <li>✅ <strong>Check-in / Check-out</strong> is basically <strong>updating a booking</strong> status.</li>
+                <li>➡️ So both Dashboard and Check-in/out can be powered by the <strong>Bookings table</strong>.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout warn">
+            <strong>Important:</strong> Because these are remote, global data tables, you manage them in the frontend using <strong>React Query</strong> (fetching, caching, refetching, mutations).
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-h"><h2>3) The Special Table: Bookings (It Connects Everything)</h2></div>
+        <div class="sec-b">
+          <p>Think of a booking as: <strong>“A guest rents a cabin.”</strong> 🧑‍💼➡️🏡</p>
+          <p>So a booking must remember <strong>which guest</strong> booked <strong>which cabin</strong>.</p>
+
+          <h3>🔗 Relational databases use “Foreign Keys”</h3>
+          <p>Supabase uses Postgres (SQL, relational). To connect tables, we store IDs from one table inside another table.</p>
+
+          <div class="callout good">
+            <strong>Simple definition:</strong>
+            <ul>
+              <li>🪪 <strong>Primary key</strong>: The main unique ID in a table (e.g., <span class="kbd">cabins.id</span>).</li>
+              <li>🔑 <strong>Foreign key</strong>: A field that stores another table’s primary key (e.g., <span class="kbd">bookings.cabinId</span>).</li>
+            </ul>
+          </div>
+
+          <h3>📌 What fields will Bookings need?</h3>
+          <ul>
+            <li><strong>guestId</strong> → points to a row in <strong>Guests</strong></li>
+            <li><strong>cabinId</strong> → points to a row in <strong>Cabins</strong></li>
+            <li>Plus other booking fields (dates, status, price, etc.) that you’ll add later.</li>
+          </ul>
+
+          <h3>🧾 Mini Example (Beginner-friendly)</h3>
+          <pre>
+Guests table
+- id: 17
+- fullName: "Ana Santos"
+
+Cabins table
+- id: 3
+- name: "Cabin Pine"
+
+Bookings table
+- id: 101
+- guestId: 17   (foreign key -> Guests.id)
+- cabinId: 3    (foreign key -> Cabins.id)
+- status: "unconfirmed" / "checked-in" / "checked-out" ...
+          </pre>
+
+          <div class="callout warn">
+            <strong>Why store IDs and not the whole object?</strong>
+            <ul>
+              <li>IDs are small and stable.</li>
+              <li>Relational databases are designed for this kind of linking.</li>
+              <li>You can “join” them later (fetch booking + guest + cabin info together).</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-h"><h2>4) Quick Recap (Memorize This)</h2></div>
+        <div class="sec-b">
+          <ul>
+            <li>🧠 Start from <strong>features</strong> → identify needed <strong>remote data</strong>.</li>
+            <li>🗃️ Each major remote data area becomes a <strong>Supabase table</strong>.</li>
+            <li>📅 <strong>Bookings</strong> is special because it <strong>connects</strong> guests and cabins.</li>
+            <li>🔑 Connections happen via <strong>foreign keys</strong>: <span class="kbd">bookings.guestId</span> and <span class="kbd">bookings.cabinId</span>.</li>
+            <li>⚛️ Frontend will manage this remote state using <strong>React Query</strong>.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-h"><h2>5) Common Mistakes (and How to Avoid Them)</h2></div>
+        <div class="sec-b">
+          <div class="callout bad">
+            <strong>❌ Mistake:</strong> Planning state per component first.
+            <div class="mini">✅ Better: Think feature/page-level state in bigger apps.</div>
+          </div>
+
+          <div class="callout bad">
+            <strong>❌ Mistake:</strong> Duplicating dashboard/check-in data in separate tables.
+            <div class="mini">✅ Better: Dashboard + check-in/out can rely on the <strong>Bookings</strong> table.</div>
+          </div>
+
+          <div class="callout bad">
+            <strong>❌ Mistake:</strong> Putting guest/cabin details directly inside bookings (copy-paste data).
+            <div class="mini">✅ Better: Store only <strong>IDs</strong>, then join/fetch related data when needed.</div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-h"><h2>6) Quick Self-Test (1 minute)</h2></div>
+        <div class="sec-b">
+          <ol>
+            <li>🧩 What’s the difference between a “state slice” and a “data table” in this project?</li>
+            <li>📊 Which table powers dashboard statistics?</li>
+            <li>🔗 In a booking, what do <span class="kbd">guestId</span> and <span class="kbd">cabinId</span> represent?</li>
+            <li>✅ Why is storing IDs better than storing full guest/cabin objects inside bookings?</li>
+          </ol>
+
+          <div class="callout good">
+            <strong>Answer key (short):</strong>
+            <ul>
+              <li>State slice (frontend concept) → data table (database concept).</li>
+              <li>Bookings table powers dashboard + check-in/out.</li>
+              <li>They are foreign keys linking to Guests.id and Cabins.id.</li>
+              <li>Avoid duplication; enables joins; keeps data consistent.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-h"><h2>7) What’s Next</h2></div>
+        <div class="sec-b">
+          <p>➡️ Next, you’ll create the “simple” tables first (Cabins, Guests, Settings, Users), then create <strong>Bookings</strong> and connect it using foreign keys.</p>
+          <p class="mini">Tip: When building the Bookings table, always think: “This row represents a relationship between a guest and a cabin.”</p>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

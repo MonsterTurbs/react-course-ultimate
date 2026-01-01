@@ -1,0 +1,382 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Next.js generateStaticParams — Make Dynamic Pages Static (Study Guide)</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, var(--panel));
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+      margin-bottom: 16px;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color:#222;
+    }
+
+    main{ margin-top: 14px; }
+
+    section{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    h2{
+      margin:0 0 10px 0;
+      font-size: 16px;
+    }
+    h3{
+      margin:14px 0 8px 0;
+      font-size: 14px;
+    }
+
+    p{ margin: 8px 0; }
+    ul, ol{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid #111;
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .key{ font-weight:700; }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px 12px;
+      border-radius: 12px;
+      overflow:auto;
+      border:1px solid #1b2547;
+      white-space: pre-wrap; /* important for printing */
+      word-break: break-word;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 12px 0;
+    }
+
+    .mini{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .table{
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    .table th, .table td{
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+    .table th{
+      text-align: left;
+      background: var(--panel);
+    }
+
+    /* Print styles: A4, clean margins, no cut-off */
+    @media print{
+      @page{
+        size: A4;
+        margin: 14mm;
+      }
+      body{
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .page{
+        max-width: none;
+        padding: 0;
+      }
+      section, header{
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      pre, table{
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #000;
+      }
+      .callout{ border-left-color:#000; }
+      .chip, .table th, .table td{ border-color:#000; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧱 Making Dynamic Pages Static with <code>generateStaticParams</code></h1>
+      <p class="sub">
+        Reviewer / study guide: how to pre-render dynamic route pages as static HTML by telling Next.js which route params exist.
+      </p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Dynamic Route Params</span>
+        <span class="chip">🟢 Goal: Pre-render as Static</span>
+        <span class="chip">⚙️ Commands: <code>npm run dev</code> / <code>npm run build</code></span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>✅ What this lecture is about</h2>
+        <p>
+          When you have a dynamic URL segment (example: <code>/cabins/[cabinId]</code>), Next.js may render that page
+          <span class="key">dynamically</span> because it cannot know all possible IDs at build time.
+        </p>
+        <p>
+          This lecture shows how to use <span class="key"><code>generateStaticParams</code></span> so Next.js can learn
+          the list of valid IDs ahead of time — and then pre-render those pages as <span class="key">static HTML</span>.
+        </p>
+
+        <div class="callout">
+          <p><span class="key">Main takeaway:</span> If the set of values for a dynamic segment is <span class="key">finite</span>, it’s usually best to tell Next.js the list so it can generate static pages for performance.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Why dynamic routes become “dynamic rendering” by default</h2>
+        <div class="grid">
+          <div>
+            <h3>Problem (build time)</h3>
+            <ul>
+              <li>Next.js sees a folder like <code>app/cabins/[cabinId]/page.js</code>.</li>
+              <li>At build time, Next.js does <span class="key">not</span> automatically know which IDs exist (e.g., 89–96 in the lecture).</li>
+              <li>So it can’t pre-generate HTML for every possible URL.</li>
+            </ul>
+          </div>
+          <div class="divider"></div>
+          <div>
+            <h3>Result</h3>
+            <ul>
+              <li>The page is rendered <span class="key">on demand</span> when a request comes in.</li>
+              <li>Each visit to a new ID may require server work.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Quick demo idea from the lecture (in dev)</h2>
+        <p>
+          The instructor runs <code>npm run dev</code> to open the app again and tries visiting an ID that doesn’t exist.
+          In the lecture, there are only <span class="key">8 cabins</span>, so only 8 IDs matter.
+        </p>
+
+        <pre><code># Start dev server
+npm run dev
+
+# Example URLs (conceptual)
+/cabins/89
+/cabins/90
+/cabins/96
+
+# Example of an ID that should NOT exist
+/cabins/999
+</code></pre>
+
+        <div class="callout">
+          <p>🔎 Concept: As developers, we often know there’s a limited set of valid IDs. The trick is to teach Next.js that same list.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 The solution: <code>generateStaticParams</code></h2>
+        <p>
+          You export a special function called <code>generateStaticParams</code>. Next.js recognizes it and uses it
+          to determine which parameter combinations should be pre-rendered.
+        </p>
+
+        <h3>What Next.js expects you to return</h3>
+        <p class="mini">
+          You must return an <span class="key">array</span> of <span class="key">objects</span>. Each object contains a key that matches the
+          dynamic segment name (folder name) and a value for it.
+        </p>
+
+        <table class="table" aria-label="generateStaticParams return shape">
+          <thead>
+            <tr>
+              <th>Folder name</th>
+              <th>Param key you must return</th>
+              <th>Example returned object</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>[cabinId]</code></td>
+              <td><code>cabinId</code></td>
+              <td><code>{ cabinId: "89" }</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <p>🧷 Rule: the key is the dynamic segment name. If the folder is <code>[cabinId]</code>, the key is <code>cabinId</code>. This also matches what you read from <code>params.cabinId</code>.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧰 How to build the params list (don’t hardcode IDs)</h2>
+        <p>
+          Instead of manually writing IDs like <code>89</code>, <code>90</code>, ... you fetch the data (cabins) and extract IDs.
+          This supports future changes (e.g., if you later have 20 cabins).
+        </p>
+
+        <pre><code>// Conceptual example (App Router)
+// File: app/cabins/[cabinId]/page.js
+
+import { getCabins } from "@/lib/data"; // example import
+
+export async function generateStaticParams() {
+  const cabins = await getCabins();
+
+  return cabins.map((cabin) =&gt; ({
+    cabinId: String(cabin.id),
+  }));
+}
+</code></pre>
+
+        <div class="callout">
+          <p>⚠️ Important: In the lecture, an error appears because the ID was a number. Next.js expects the dynamic param to be a <span class="key">string</span>, so the solution is converting it with <code>String(...)</code>.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧯 Common errors and quick fixes</h2>
+        <ul>
+          <li><span class="key">“required parameter was not provided as a string”</span> → Convert ID to string: <code>String(cabin.id)</code>.</li>
+          <li><span class="key">Returned nothing</span> → Ensure you <code>return</code> the mapped array from <code>generateStaticParams</code>.</li>
+          <li><span class="key">Wrong key name</span> → The object key must match the dynamic folder name (e.g., <code>cabinId</code>).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🔍 Verify the result using <code>npm run build</code></h2>
+        <p>
+          After adding <code>generateStaticParams</code>, run a production build again to see how routes are classified.
+          The lecture shows that the previously dynamic route becomes <span class="key">static</span> (circle indicator).
+        </p>
+
+        <pre><code># Stop dev server (Ctrl+C) then:
+npm run build
+</code></pre>
+
+        <div class="callout">
+          <p>✅ What you want to see: the route is now “pre-rendered as static HTML” (no more λ for that dynamic segment).</p>
+          <p class="mini">Note: build output wording may mention older terms (like “getStaticProps”), but the important part is the route is now static.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🚀 Why this is “better” (performance and deployment)</h2>
+        <ul>
+          <li>🟢 Faster: static HTML can be served quickly (often via CDN).</li>
+          <li>💸 Cheaper: less server work at request time.</li>
+          <li>📦 Easier deployment: if all routes become static, you can generate/export a full static site and host it on static hosting.</li>
+        </ul>
+
+        <div class="callout">
+          <p>🧠 Rule of thumb: If a dynamic route has a finite list of valid values, consider <code>generateStaticParams</code> to make it static.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 Mini summary (memorize this)</h2>
+        <ul>
+          <li>Dynamic segments (like <code>[cabinId]</code>) are often dynamic because IDs are unknown at build time.</li>
+          <li><code>generateStaticParams</code> tells Next.js which params exist.</li>
+          <li>Return an array of objects like: <code>{ cabinId: "89" }</code>.</li>
+          <li>Convert numeric IDs to strings.</li>
+          <li>Re-run <code>npm run build</code> to confirm the route is now static.</li>
+        </ul>
+      </section>
+
+      <p class="mini" style="margin-top:12px;">
+        End of reviewer. Print tip: Use your browser’s Print dialog and set paper to A4 (margins are already configured in CSS).
+      </p>
+    </main>
+  </div>
+</body>
+</html>

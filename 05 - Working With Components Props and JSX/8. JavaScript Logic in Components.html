@@ -1,0 +1,450 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — JavaScript Logic in Components (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    /* Better anchor navigation when clicking the TOC */
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-left: 6px;
+      white-space: nowrap;
+    }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .term {
+      display: inline-block;
+      padding: 1px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      /* Let long sections flow across pages; avoid splitting key blocks */
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+
+      /* Avoid link styling in print */
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      /* Ensure consistent print colors */
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 JavaScript Logic in Components — Reviewer</h1>
+      <p class="subtitle">Where to put JS logic, open/closed computation, console logging, and Strict Mode behavior. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print dialog, set Paper size = A4, Margins = Default.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#big-idea">Big idea: components are just functions</a></li>
+          <li><a href="#where-logic-goes">Where logic can live (outside JSX vs inside JSX)</a></li>
+          <li><a href="#time-example">Example: get the current hour</a></li>
+          <li><a href="#open-close">Compute if the restaurant is open</a></li>
+          <li><a href="#alerts">Why <code>alert()</code> is a bad demo in real apps</a></li>
+          <li><a href="#strict-mode">Strict Mode: why you saw things run twice</a></li>
+          <li><a href="#isopen">Better pattern: compute <code>isOpen</code> boolean</a></li>
+          <li><a href="#practice">Practice & quick self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="big-idea">
+      <h2>🧩 Big idea: components are just functions</h2>
+      <p>
+        A React component is a <strong>JavaScript function</strong>. That means you can run any JavaScript inside it.
+        The code runs when the component function is executed (rendered).
+      </p>
+
+      <div class="callout">
+        <p><strong>Remember ✅</strong></p>
+        <ul>
+          <li>🧠 The function body runs when the component renders.</li>
+          <li>🧾 The <code>return (...)</code> returns JSX, which describes the UI.</li>
+          <li>🔁 If the component re-renders, the function body runs again.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="where-logic-goes">
+      <h2>📍 Where logic can live</h2>
+      <p>
+        So far you used small JS snippets <em>inside</em> JSX (like <code>{new Date().toLocaleTimeString()}</code>).
+        But you can also write logic <strong>above</strong> the returned JSX.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Inside JSX (small expressions) ✅</h3>
+          <pre><code>return (
+  &lt;footer&gt;
+    We're currently open {new Date().toLocaleTimeString()}.
+  &lt;/footer&gt;
+);</code></pre>
+          <p class="muted">Good for short expressions.</p>
+        </div>
+
+        <div class="card">
+          <h3>Outside JSX (compute first) ✅</h3>
+          <pre><code>const hour = new Date().getHours();
+const message = hour &gt;= 12 ? "Open" : "Closed";
+
+return &lt;footer&gt;{message}&lt;/footer&gt;;</code></pre>
+          <p class="muted">Better for multi-step logic and readability.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="time-example">
+      <h2>🕒 Example: get the current hour</h2>
+      <p>
+        You can create variables inside the component and log them to the console.
+      </p>
+
+      <pre><code>function Footer() {
+  const hour = new Date().getHours();
+  console.log(hour);
+
+  return &lt;footer&gt;Footer&lt;/footer&gt;;
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>VS Code shortcut tip ⌨️</strong></p>
+        <p class="muted">The lecture uses a console log snippet (often <code>cl</code> → Enter) to quickly write <code>console.log()</code>.</p>
+      </div>
+    </section>
+
+    <section id="open-close">
+      <h2>🏪 Compute if the restaurant is open</h2>
+      <p>
+        The lecture defines opening hours and checks if the current hour is within that range.
+      </p>
+
+      <pre><code>function Footer() {
+  const hour = new Date().getHours();
+  const openHour = 12;
+  const closeHour = 22;
+
+  if (hour &gt;= openHour &amp;&amp; hour &lt;= closeHour) {
+    alert("We're currently open!");
+  } else {
+    alert("Sorry, we're closed");
+  }
+
+  return &lt;footer&gt;...&lt;/footer&gt;;
+}</code></pre>
+
+      <div class="card">
+        <h3>Understanding the condition 🧠</h3>
+        <ul>
+          <li><code>hour &gt;= openHour</code> ✅ means “it’s after opening time”</li>
+          <li><code>hour &lt;= closeHour</code> ✅ means “it’s before closing time”</li>
+          <li><code>&amp;&amp;</code> ✅ means “both must be true”</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="alerts">
+      <h2>🚫 Why <code>alert()</code> is a bad demo in real apps</h2>
+      <p>
+        The lecture uses <code>alert()</code> just to prove that JS runs inside components.
+        But <code>alert()</code> is <strong>blocking</strong> (it pauses JavaScript execution).
+      </p>
+
+      <div class="callout">
+        <p><strong>In real apps ✅</strong></p>
+        <ul>
+          <li>Prefer rendering a message in JSX instead of blocking alerts.</li>
+          <li>Or show a non-blocking UI notification (toast) later using libraries.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="strict-mode">
+      <h2>🔁 Strict Mode: why you saw things run twice</h2>
+      <p>
+        You may see the alert appear twice in development. The lecture explains this is due to <strong>Strict Mode</strong>,
+        where components can render twice to help detect side effects.
+      </p>
+
+      <div class="card">
+        <h3>What to remember ✅</h3>
+        <ul>
+          <li>🧪 In development, React may invoke render logic more than once.</li>
+          <li>⚠️ Side effects like <code>alert()</code> become very noticeable.</li>
+          <li>✅ This is one reason to avoid side effects directly in render logic.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="isopen">
+      <h2>✅ Better pattern: compute <code>isOpen</code> boolean</h2>
+      <p>
+        Instead of triggering alerts, compute a boolean and then use it for UI decisions.
+        This becomes useful later when you conditionally render UI.
+      </p>
+
+      <pre><code>function Footer() {
+  const hour = new Date().getHours();
+  const openHour = 12;
+  const closeHour = 22;
+
+  const isOpen = hour &gt;= openHour &amp;&amp; hour &lt;= closeHour;
+  console.log(isOpen);
+
+  return (
+    &lt;footer&gt;
+      We're currently {isOpen ? "open ✅" : "closed ❌"}
+    &lt;/footer&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Key takeaway 🔑</strong></p>
+        <p class="muted">
+          Put multi-step logic above the return, compute values like <code>isOpen</code>, then let JSX display the result.
+        </p>
+      </div>
+    </section>
+
+    <section id="practice">
+      <h2>🧪 Practice & quick self-check</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Practice 1: Use <code>isOpen</code> in UI 🏪</h3>
+          <ul>
+            <li>Show “Open” or “Closed” in the footer using a ternary <code>?</code> operator.</li>
+            <li>Add the current time next to the message.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Practice 2: Change business hours 🕒</h3>
+          <ul>
+            <li>Set <code>openHour = 8</code> and <code>closeHour = 20</code>.</li>
+            <li>Check if your footer message changes correctly based on your current time.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Self-check ✅</h3>
+          <ul>
+            <li>Why does code in a component function run more than once?</li>
+            <li>Why is <code>alert()</code> a poor UI pattern in React?</li>
+            <li>Where is the best place to put complex logic: inside JSX or above the return?</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Quick summary 🧠</strong></p>
+        <p class="muted">
+          Components are JS functions, so you can run JS logic inside them. Keep logic readable by computing values
+          (like <code>isOpen</code>) above the JSX return, and render results declaratively.
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

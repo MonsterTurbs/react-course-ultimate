@@ -1,0 +1,473 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Pages Router — getServerSideProps (SSR) vs getStaticProps (SSG) — Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --code-bg: #0b1020;
+      --code-text: #e6edf3;
+      --accent: #1a73e8;
+      --warn: #b42318;
+      --ok: #067647;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      display: inline-block;
+      font-size: 12px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 0 0 10px;
+      letter-spacing: -0.1px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol { margin: 8px 0 8px 22px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.ok { border-left-color: var(--ok); }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1px 6px;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid #1f2a44;
+      overflow: hidden;
+      white-space: pre-wrap;     /* IMPORTANT: wrap long lines for printing */
+      word-break: break-word;
+      margin: 10px 0;
+    }
+
+    pre code {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      color: inherit;
+      font-size: 12.8px;
+      line-height: 1.55;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .kpi {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Print styles (A4) */
+    @page {
+      size: A4;
+      margin: 14mm 12mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited { color: #000; text-decoration: none; }
+      a[href]:after { content: ""; } /* don't print URLs */
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>📘 Next.js Pages Router — getServerSideProps (SSR) vs getStaticProps (SSG)</h1>
+      <p class="subtitle">Reviewer / Study Guide (beginner-friendly) — single-cabin dynamic routes, SSR on request, SSG at build time, plus ISR notes.</p>
+      <div class="meta">
+        <span class="pill">🧠 Topic: Data Fetching (Pages Router)</span>
+        <span class="pill">⚙️ APIs: getServerSideProps, getStaticProps</span>
+        <span class="pill">🧩 Related: Dynamic Routes, getStaticPaths, ISR</span>
+        <span class="pill">🖨️ Print-ready: A4, single-column</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Learning goals</h2>
+      <ul>
+        <li>Understand <strong>why dynamic routes often need SSR</strong> in the Pages Router.</li>
+        <li>Learn how <code>getServerSideProps</code> fetches data <strong>on every request</strong>.</li>
+        <li>Compare <code>getServerSideProps</code> (SSR) vs <code>getStaticProps</code> (SSG).</li>
+        <li>Know the role of <code>getStaticPaths</code> when you want SSG for dynamic routes.</li>
+        <li>Recognize how ISR works in Pages Router using <code>revalidate</code>.</li>
+      </ul>
+      <div class="callout">
+        ✅ Key idea: In the Pages Router, <strong>the data-fetching function you choose</strong> strongly determines <strong>how the page is rendered</strong> (static vs dynamic).
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Big picture: SSG vs SSR in the Pages Router</h2>
+      <div class="grid">
+        <div class="card">
+          <p class="kpi">🏗️ <strong>SSG (Static Site Generation)</strong> — with <code>getStaticProps</code></p>
+          <ul>
+            <li>Runs at <strong>build time</strong> (not per request).</li>
+            <li>Resulting HTML is pre-generated and reused for all visitors.</li>
+            <li>Best when data changes <strong>rarely</strong>.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <p class="kpi">🌐 <strong>SSR (Server-Side Rendering)</strong> — with <code>getServerSideProps</code></p>
+          <ul>
+            <li>Runs at <strong>request time</strong> (every page request).</li>
+            <li>Ideal when data changes <strong>frequently</strong> or depends on user/request.</li>
+            <li>Great for dynamic pages that must always be fresh.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout warn">
+        ⚠️ Dynamic route note: if a route includes a dynamic segment like <code>/cabins/[cabinId]</code>, you typically render it dynamically (SSR) <strong>unless</strong> you provide all possible IDs using <code>getStaticPaths</code>.
+      </div>
+    </section>
+
+    <section>
+      <h2>🛣️ Dynamic routes (Pages Router) refresher</h2>
+      <p>In the Pages Router, a dynamic route is created by naming the file with square brackets:</p>
+      <pre><code>// pages/cabins/[cabinId].js
+</code></pre>
+      <p>Example URLs that hit this page:</p>
+      <ul>
+        <li><code>/cabins/88</code></li>
+        <li><code>/cabins/202</code></li>
+        <li><code>/cabins/999</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧩 Implementing SSR with getServerSideProps</h2>
+      <p>
+        The special feature of <code>getServerSideProps</code> is that it runs on the server and receives a context object
+        that includes <strong>route params</strong>. That means you can access <code>params.cabinId</code> for <code>/cabins/[cabinId]</code>.
+      </p>
+
+      <h3>✅ Minimal SSR pattern</h3>
+      <pre><code>export async function getServerSideProps({ params }) {
+  // 1) Read the dynamic segment
+  const cabinId = params.cabinId;
+
+  // 2) Fetch data on the server (request-time)
+  const cabin = await getCabin(cabinId);
+
+  // 3) Pass to the page component as props
+  return {
+    props: { cabin },
+  };
+}
+
+export default function CabinPage({ cabin }) {
+  return (
+    &lt;div style={{ maxWidth: 900, margin: "0 auto", marginTop: 24 }}&gt;
+      &lt;CabinView cabin={cabin} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout ok">
+        ✅ What you get: Each time a user requests <code>/cabins/88</code>, Next.js runs <code>getServerSideProps</code>, fetches the latest cabin data, and renders the page HTML on the server.
+      </div>
+
+      <h3>🔎 Where does <code>params</code> come from?</h3>
+      <p>
+        Next.js builds it from your file name <code>[cabinId].js</code>. Whatever appears in the URL at that spot becomes:
+        <code>params.cabinId</code>.
+      </p>
+      <div class="callout">
+        🧠 Memory tip: <strong>File name controls param name</strong>. If the file is <code>[productId].js</code>, you read <code>params.productId</code>.
+      </div>
+    </section>
+
+    <section>
+      <h2>🆚 getStaticProps vs getServerSideProps (clear comparison)</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>🏗️ getStaticProps (SSG)</h3>
+          <ul>
+            <li>Runs at build time</li>
+            <li>Fast for users, highly cacheable</li>
+            <li>Best for “content-like” pages (rarely changing)</li>
+          </ul>
+          <pre><code>export async function getStaticProps() {
+  const cabins = await getCabins();
+  return { props: { cabins } };
+}
+</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>🌐 getServerSideProps (SSR)</h3>
+          <ul>
+            <li>Runs on every request</li>
+            <li>Fresh data each time</li>
+            <li>Best for “live” pages (frequent updates / user-specific)</li>
+          </ul>
+          <pre><code>export async function getServerSideProps({ params }) {
+  const cabin = await getCabin(params.cabinId);
+  return { props: { cabin } };
+}
+</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        🧭 Rule of thumb:
+        <ul>
+          <li>If data changes <strong>rarely</strong> → prefer <strong>SSG</strong>.</li>
+          <li>If data changes <strong>often</strong> or depends on request/user → prefer <strong>SSR</strong>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Can dynamic routes be SSG?</h2>
+      <p>
+        Yes. But Next.js needs to know <strong>all possible</strong> dynamic values at build time.
+        In the Pages Router, you do that with <code>getStaticPaths</code> (similar idea to <code>generateStaticParams</code> in the App Router).
+      </p>
+
+      <h3>🧪 Conceptual SSG setup for a dynamic route</h3>
+      <pre><code>export async function getStaticPaths() {
+  // Tell Next.js which IDs exist
+  const cabins = await getCabins();
+
+  return {
+    paths: cabins.map((c) =&gt; ({ params: { cabinId: String(c.id) } })),
+    fallback: false,
+  };
+}
+
+export async function getStaticProps({ params }) {
+  const cabin = await getCabin(params.cabinId);
+  return { props: { cabin } };
+}
+</code></pre>
+
+      <div class="callout warn">
+        ⚠️ If you don’t provide paths, Next.js can’t prebuild unknown IDs. That’s why SSR is the simpler default for many dynamic pages.
+      </div>
+    </section>
+
+    <section>
+      <h2>⏱️ ISR (Incremental Static Regeneration) in Pages Router</h2>
+      <p>
+        ISR is a middle-ground between SSG and SSR. You generate a page statically, but Next.js will re-generate it in the background after some time.
+      </p>
+
+      <h3>✅ How ISR is expressed in getStaticProps</h3>
+      <pre><code>export async function getStaticProps() {
+  const cabins = await getCabins();
+
+  return {
+    props: { cabins },
+    revalidate: 3600, // seconds (e.g., once per hour)
+  };
+}
+</code></pre>
+
+      <div class="callout">
+        🧠 ISR behavior:
+        <ul>
+          <li>Users still get fast static HTML.</li>
+          <li>After <code>revalidate</code> seconds, Next.js refreshes the page in the background.</li>
+          <li>The next request after regeneration receives updated content.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Practical checklist (avoid common mistakes)</h2>
+      <ol>
+        <li>Use <code>getServerSideProps</code> when you need <strong>fresh data per request</strong>.</li>
+        <li>Read dynamic params via <code>{ params }</code> and match the file name (e.g., <code>[cabinId].js</code> → <code>params.cabinId</code>).</li>
+        <li>Return props using <code>return { props: { ... } }</code>.</li>
+        <li>Make sure your page component accepts the same prop names you returned.</li>
+        <li>If you want SSG for dynamic routes, add <code>getStaticPaths</code> + <code>getStaticProps</code>.</li>
+      </ol>
+      <div class="callout warn">
+        ⚠️ Remember: You can also fetch on the client (useEffect / React Query / SWR), but Next.js exists mainly to help with server rendering for faster first load.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Mini-quiz (quick self-check)</h2>
+      <ol>
+        <li>When does <code>getServerSideProps</code> run?</li>
+        <li>Why can <code>getStaticProps</code> be problematic for unknown dynamic IDs?</li>
+        <li>What function do you add to enable SSG for dynamic routes?</li>
+        <li>Where do you configure ISR in the Pages Router?</li>
+      </ol>
+      <div class="hr"></div>
+      <p><strong>Answer key (short):</strong></p>
+      <ul>
+        <li>1) On every request (request time) ✅</li>
+        <li>2) IDs aren’t known at build time unless you provide them ✅</li>
+        <li>3) <code>getStaticPaths</code> ✅</li>
+        <li>4) <code>revalidate</code> returned from <code>getStaticProps</code> ✅</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📝 Original transcript (cleaned)</h2>
+      <div class="callout">
+        ℹ️ This section preserves the lecture content in a cleaner, readable format.
+      </div>
+      <p>
+        In this lecture, the goal is to understand the difference between <code>getStaticProps</code> (SSG) and <code>getServerSideProps</code> (SSR).
+        The example uses a dynamic route for a single cabin page (e.g., <code>/cabins/90</code>), where the ID is part of the URL.
+      </p>
+      <p>
+        With <code>getServerSideProps</code>, Next.js can access the route parameters via <code>params</code>, so the cabin ID can be read from <code>params.cabinId</code>.
+        The server fetches the cabin data at request time, returns it as props, and the page component renders the cabin using a <code>CabinView</code> component.
+      </p>
+      <p>
+        A key point is that in the Pages Router, developers explicitly choose the rendering strategy by choosing the data-fetching function:
+        <code>getStaticProps</code> for static generation, or <code>getServerSideProps</code> for server-side rendering.
+      </p>
+      <p>
+        Dynamic routes can be statically generated only if you also provide <code>getStaticPaths</code> (similar to App Router’s <code>generateStaticParams</code>),
+        so Next.js knows which IDs exist at build time.
+      </p>
+      <p>
+        ISR (Incremental Static Regeneration) is also possible in the Pages Router by returning a <code>revalidate</code> value from <code>getStaticProps</code>.
+        Finally, client-side fetching is always an option (useEffect / React Query / SWR), but Next.js is mainly used to do as much server-side work as possible
+        for better initial performance.
+      </p>
+    </section>
+
+    <section>
+      <h2>🏁 Summary</h2>
+      <ul>
+        <li>✅ <code>getStaticProps</code> → SSG (build time), fast, reusable HTML</li>
+        <li>✅ <code>getServerSideProps</code> → SSR (request time), freshest data per request</li>
+        <li>✅ Dynamic routes can still do SSG if you add <code>getStaticPaths</code></li>
+        <li>✅ ISR is done via <code>revalidate</code> in Pages Router</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

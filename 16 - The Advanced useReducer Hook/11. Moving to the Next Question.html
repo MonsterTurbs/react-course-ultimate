@@ -1,0 +1,331 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React (Advanced) — useReducer: Moving to the Next Question</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --soft2: #fbfbfb;
+      --chip: #f2f4f7;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 46px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+    }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--soft2);
+      page-break-inside: avoid;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 8px 20px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid #111;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+    }
+
+    .callout p { margin: 6px 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b0b0b;
+      color: #f2f2f2;
+      border-radius: 10px;
+      overflow: auto;
+      border: 1px solid #000;
+      page-break-inside: avoid;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .kbd {
+      display: inline-block;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+      background: #fff;
+      font-family: inherit;
+      font-size: 12px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print */
+    @media print {
+      @page { size: A4; margin: 16mm; }
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Prevent browsers from adding URL after text */
+      a[href]::after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>useReducer (React Quiz) — Moving to the Next Question</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-Friendly) — single-column, A4 print-ready</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: useReducer state transitions</span>
+        <span class="chip">✅ Feature: Next button + next question</span>
+        <span class="chip">🔁 Fix: reset answer on navigation</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What you are building in this lecture</h2>
+      <ul>
+        <li>As soon as the user selects an option (a <strong>new answer</strong>), show a <strong>Next</strong> button.</li>
+        <li>Clicking <strong>Next</strong> should move the quiz to the <strong>next question</strong>.</li>
+        <li>When moving forward, <strong>clear the previous answer</strong> (reset) so the next question starts fresh.</li>
+      </ul>
+      <div class="callout">
+        <p>✅ Key idea: “Move to next question” simply means <strong>incrementing <code>index</code></strong>.</p>
+        <p class="note">Because the current question is read like: <code>questions[index]</code></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Core idea: Current question is derived from <code>index</code></h2>
+      <p>Your UI displays only one question at a time. It’s selected from the questions array using the <code>index</code> state:</p>
+      <pre><code>// App.jsx (concept)
+const question = questions[index];
+
+return (
+  &lt;Question question={question} /&gt;
+);</code></pre>
+      <p class="note">So when <code>index</code> changes from 0 → 1, React re-renders and shows the next question.</p>
+    </section>
+
+    <section>
+      <h2>✅ Step 1: Add a reducer action: <code>nextQuestion</code></h2>
+      <p>We create a new action in the reducer that increases <code>index</code> by 1.</p>
+      <pre><code>// reducer.js (inside switch)
+case "nextQuestion":
+  return {
+    ...state,
+    index: state.index + 1,
+  };</code></pre>
+      <div class="callout">
+        <p>🧠 Why reducer? Because navigation + answer reset are <strong>state transitions</strong>, and reducers centralize them.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🖱️ Step 2: Show a Next button only after answering</h2>
+      <p>Requirement: <strong>Next button appears only if an answer exists</strong>.</p>
+      <ul>
+        <li>If <code>answer === null</code> → don’t show the button</li>
+        <li>If the user already picked an option → show the button</li>
+      </ul>
+
+      <h3>Option A (common pattern): Conditional rendering in App</h3>
+      <pre><code>{answer !== null &amp;&amp; (
+  &lt;button onClick={...}&gt;Next&lt;/button&gt;
+)}</code></pre>
+
+      <h3>Option B (used here): Let the button component decide</h3>
+      <p>This lecture uses a component that returns <code>null</code> when it should not display itself.</p>
+      <pre><code>// NextButton.jsx
+export default function NextButton({ dispatch, answer }) {
+  // Early return: render nothing if there is no answer yet
+  if (answer === null) return null;
+
+  return (
+    &lt;button
+      className="btn btn-ui"
+      onClick={() =&gt; dispatch({ type: "nextQuestion" })}
+    &gt;
+      Next
+    &lt;/button&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p>✅ “Return <code>null</code>” is a standard React technique meaning: “render nothing”.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>📦 Step 3: Pass <code>dispatch</code> and <code>answer</code> to the button</h2>
+      <p>Because the button needs to dispatch an action and decide whether to render, it needs:</p>
+      <ul>
+        <li><code>dispatch</code> — to trigger <code>nextQuestion</code></li>
+        <li><code>answer</code> — to know if user already answered</li>
+      </ul>
+      <pre><code>// App.jsx (concept)
+&lt;Question question={questions[index]} dispatch={dispatch} answer={answer} /&gt;
+
+// inside Question.jsx (concept)
+return (
+  &lt;div&gt;
+    ...question + options...
+    &lt;NextButton dispatch={dispatch} answer={answer} /&gt;
+  &lt;/div&gt;
+);</code></pre>
+      <p class="note">Yes, this is a bit of “prop drilling”, but only 1–2 levels. It’s fine here.</p>
+    </section>
+
+    <section>
+      <h2>⚠️ Common bug: After moving forward, old answer is still selected</h2>
+      <p>If you only increment <code>index</code>, you will move to the next question… but your old <code>answer</code> is still in state.</p>
+      <div class="callout">
+        <p>Problem symptoms:</p>
+        <ul>
+          <li>Next question is shown, but options look “already answered”</li>
+          <li>Buttons may remain disabled (because <code>answer !== null</code>)</li>
+          <li>Correct/wrong styling can leak into the next question</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🛠️ Fix: Reset <code>answer</code> to <code>null</code> on <code>nextQuestion</code></h2>
+      <p>Because “moving to next question” and “clearing answer” are part of the same state transition, we fix it in the reducer.</p>
+      <pre><code>// reducer.js
+case "nextQuestion":
+  return {
+    ...state,
+    index: state.index + 1,
+    answer: null, // ✅ reset so next question starts fresh
+  };</code></pre>
+      <div class="callout">
+        <p>✅ This is a perfect example of why reducers are useful: multiple related state updates happen together, predictably.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🏁 Quick mental model (what happens after a user clicks)</h2>
+      <ol>
+        <li>🙂 User clicks an option → dispatch({ type: "newAnswer", payload: optionIndex })</li>
+        <li>✅ Reducer saves <code>answer</code>, updates <code>points</code> (if correct)</li>
+        <li>👀 UI re-renders → Next button appears (because <code>answer !== null</code>)</li>
+        <li>🖱️ User clicks Next → dispatch({ type: "nextQuestion" })</li>
+        <li>🔁 Reducer increments <code>index</code> and resets <code>answer</code> to null</li>
+        <li>✨ UI re-renders → next question appears, options are clickable again</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>✅ Mini-checklist (so you can verify quickly)</h2>
+      <ul>
+        <li>✅ Next button is hidden before answering</li>
+        <li>✅ After answering, Next button appears</li>
+        <li>✅ Clicking Next moves to the next question</li>
+        <li>✅ After Next, <code>answer</code> resets (options are not disabled and no styling leaks)</li>
+        <li>✅ Points keep accumulating correctly</li>
+      </ul>
+      <div class="divider"></div>
+      <p class="note">Next lecture preview: display the score and progress (current points / max points + progress bar).</p>
+    </section>
+
+  </main>
+</body>
+</html>

@@ -1,0 +1,346 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Performance Challenge — Workout Timer (Profiler + memo/useMemo)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --accent: #1a73e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 20px 56px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    h2 {
+      font-size: 1.12rem;
+      margin: 18px 0 10px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.02rem;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr;
+    }
+
+    ul, ol {
+      margin: 8px 0 10px 20px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92em;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b0f19;
+      color: #f2f4f8;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      font-size: 0.9em;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin: 2px 6px 2px 0;
+      white-space: nowrap;
+    }
+
+    a { color: var(--accent); }
+
+    /* Print (A4) */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      a, a:visited { color: var(--text); text-decoration: none; }
+      a[href]:after { content: "" !important; }
+      pre { page-break-inside: avoid; }
+      h2, h3 { page-break-after: avoid; }
+      .callout { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>⏱️ React Performance Challenge — Workout Timer</h1>
+      <p class="subtitle">Reviewer / study guide: using React DevTools Profiler + <span class="tag">memo</span> <span class="tag">useMemo</span> (+ dependency rules)</p>
+    </header>
+
+    <section class="callout">
+      <strong>🎯 Goal of this lecture</strong>
+      <div class="grid">
+        <div>
+          <p>Set up a small project (Workout Timer) and <em>practice performance diagnosis</em> using the <strong>Profiler</strong>, then fix a small (mostly “invisible”) wasted-render issue using:</p>
+          <ul>
+            <li>✅ <strong>memo()</strong> to prevent child re-renders when props are unchanged</li>
+            <li>✅ <strong>useMemo()</strong> to stabilize object/array props that would otherwise break memoization</li>
+            <li>🧠 Apply dependency-array rules (“reactive values”) so memoization stays correct</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>1) Project Setup (Create React App)</h2>
+      <p>The starter project is already complete. You just need to copy it locally and run it.</p>
+      <ol>
+        <li>📁 Copy the <strong>workout-timer</strong> folder from starter files into your workspace.</li>
+        <li>🔍 Confirm it’s CRA by checking <code>package.json</code> (scripts include <code>react-scripts</code>).</li>
+        <li>📦 Install dependencies (node_modules isn’t included when you clone/copy projects):</li>
+      </ol>
+      <pre><code>npm install</code></pre>
+      <ol start="4">
+        <li>▶️ Start the dev server:</li>
+      </ol>
+      <pre><code>npm start</code></pre>
+
+      <div class="callout">
+        <strong>💡 Note</strong>
+        <p>CRA can feel slower on first boot. That’s one reason many teams prefer Vite for new projects.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Quick Familiarization: Component Tree</h2>
+      <p>Use the React DevTools <strong>Components</strong> tab to understand the “componentry” fast:</p>
+      <ul>
+        <li>🧩 <strong>App</strong></li>
+        <li>🔊 <strong>ToggleSounds</strong></li>
+        <li>🧮 <strong>Calculator</strong></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>3) Find the Performance Issue (Profiler)</h2>
+      <p>The issue isn’t super visible, but the Profiler exposes it immediately.</p>
+      <ol>
+        <li>Open DevTools → <strong>Profiler</strong></li>
+        <li>Click <strong>Record</strong></li>
+        <li>⏳ Wait a few seconds (don’t click anything)</li>
+        <li>Stop recording</li>
+      </ol>
+
+      <div class="callout">
+        <strong>🧯 What you’ll observe</strong>
+        <p>You’ll see repeated commits (renders). Often, <strong>all components re-render every second</strong>.</p>
+      </div>
+
+      <h3>Root Cause</h3>
+      <p>There’s a clock in <strong>App</strong> that updates state every second via <code>useEffect</code> (e.g., <code>setTime(new Date())</code>). That re-renders <strong>App</strong> every second, and by default React re-renders children too.</p>
+
+      <div class="callout">
+        <strong>✅ Key React rule reminder</strong>
+        <p>When a component re-renders, <em>all its children re-render too</em> (unless React can bail out via memoization).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Fix Strategy: Memoize Child Components</h2>
+      <p>If children are re-rendering only because the parent re-renders, then:</p>
+      <ul>
+        <li>✅ memoize the child components using <code>memo()</code></li>
+        <li>⚠️ ensure props are stable (primitives OK; objects/arrays/functions often need memoization too)</li>
+      </ul>
+
+      <h3>4.1 Memoize ToggleSounds</h3>
+      <p>This one is typically easy because its props are stable:</p>
+      <ul>
+        <li><code>allowSound</code> is a boolean (primitive)</li>
+        <li><code>setAllowSound</code> is a state setter, and React guarantees setter identity is stable ✅</li>
+      </ul>
+
+      <pre><code>import { memo } from "react";
+
+function ToggleSounds({ allowSound, setAllowSound }) {
+  // ...component
+}
+
+export default memo(ToggleSounds);</code></pre>
+
+      <div class="callout">
+        <strong>✅ Why this works</strong>
+        <p><code>memo()</code> skips re-render when props are the same by reference/value. Booleans are stable; and state setters are stable by React design.</p>
+      </div>
+
+      <h3>4.2 Memoize Calculator (but it still re-renders…)</h3>
+      <p>You can memoize it the same way:</p>
+      <pre><code>import { memo } from "react";
+
+function Calculator({ allowSound, workouts }) {
+  // ...component
+}
+
+export default memo(Calculator);</code></pre>
+
+      <p>But you’ll likely see it still re-rendering. Why?</p>
+
+      <div class="callout">
+        <strong>⚠️ memo() only works if props are stable</strong>
+        <p>If <code>workouts</code> is an array created inside <code>App</code> on every render, then it becomes a <em>new reference</em> each second. To React, that means “new props” → memo cannot bail out.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Fix the “Array Prop” Problem with useMemo</h2>
+      <p>To make memoization effective, stabilize the array prop with <code>useMemo()</code>.</p>
+
+      <h3>5.1 Basic pattern</h3>
+      <pre><code>import { useMemo } from "react";
+
+const workouts = useMemo(() =&gt; {
+  return [
+    // ...array items
+  ];
+}, [/* dependencies */]);</code></pre>
+
+      <h3>5.2 Dependency rule (reactive values)</h3>
+      <p>Dependencies must include <strong>all reactive values used inside the memo callback</strong>:</p>
+      <ul>
+        <li>state</li>
+        <li>props</li>
+        <li>context values</li>
+        <li>derived values that depend on state/props/context (also “reactive”)</li>
+      </ul>
+
+      <div class="callout">
+        <strong>🧠 Example from the lecture: “partOfDay” is reactive</strong>
+        <p>If <code>partOfDay</code> depends on a state variable like <code>time</code>, then <code>partOfDay</code> is reactive too. If you use it inside the workouts array, you must include it in dependencies.</p>
+      </div>
+
+      <pre><code>// Example idea (names may vary in your project):
+const partOfDay = time.getHours() &lt; 12 ? "morning" : "afternoon";
+
+const workouts = useMemo(() =&gt; {
+  return [
+    { name: "Push-ups", time: 5, when: partOfDay },
+    // ...
+  ];
+}, [partOfDay]);</code></pre>
+
+      <p>After this, <code>workouts</code> stays the same reference between renders (unless <code>partOfDay</code> changes), so <code>memo(Calculator)</code> can finally skip the wasted re-renders each second.</p>
+    </section>
+
+    <section>
+      <h2>6) Small Extra Optimization: Move Non-Reactive Helpers Outside</h2>
+      <p>If a helper function inside a component doesn’t use reactive values, it doesn’t need to be recreated every render.</p>
+
+      <pre><code>// ✅ Outside the component (module scope)
+function formatTime(seconds) {
+  // ...
+}
+
+function App() {
+  // uses formatTime, but formatTime doesn’t depend on state/props
+}</code></pre>
+
+      <div class="callout">
+        <strong>✅ Why this helps</strong>
+        <p>It reduces needless allocations and keeps component bodies simpler. (This is a micro-optimization, but also a good habit.)</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Quick Checklist (What to remember)</h2>
+      <ul>
+        <li>🧪 <strong>Profiler first</strong>: Don’t guess. Measure commits and heavy renders.</li>
+        <li>⏰ A ticking state (clock) in a parent will re-render children by default.</li>
+        <li>✅ Use <strong>memo()</strong> for child components that re-render with unchanged props.</li>
+        <li>⚠️ <strong>Objects/arrays/functions</strong> as props break memo if recreated each render.</li>
+        <li>🧠 Use <strong>useMemo()</strong> to stabilize arrays/objects; include all reactive deps.</li>
+        <li>🧹 Move non-reactive helper functions outside the component when possible.</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <strong>🏁 Outcome</strong>
+      <p>After memoizing children and stabilizing the workouts array with <code>useMemo</code>, the app can still update the clock every second <em>without</em> forcing expensive or unnecessary child re-renders.</p>
+    </section>
+  </main>
+</body>
+</html>

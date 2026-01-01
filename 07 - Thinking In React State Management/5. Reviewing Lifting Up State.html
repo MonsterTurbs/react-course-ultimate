@@ -1,0 +1,431 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Review — Lifting State Up & Child-to-Parent Communication | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background: #fef2f2; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .diagram{
+      border: 1px dashed var(--border);
+      background:#ffffff;
+      border-radius: 10px;
+      padding: 10px 10px;
+      margin: 12px 0;
+    }
+
+    .badge{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:#ffffff;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      color: var(--muted);
+      vertical-align: middle;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre, .diagram{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn, .callout.danger{ background:#ffffff; }
+      .card, .term, pre, .callout, .diagram{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Reviewing Lifting State Up ⬆️🧠</h1>
+      <p class="subtitle">
+        Reviewer/study guide: why lifting state up exists, how it solves sibling-component sharing, and how children can still update parent state using callbacks (inverse data flow).
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">⬆️ Lift state up</span>
+        <span class="chip">🧬 One-way data flow</span>
+        <span class="chip">👨‍👩‍👧 Sibling components</span>
+        <span class="chip">🧷 Props are read-only</span>
+        <span class="chip">🪝 Pass setter / handler</span>
+        <span class="chip">🔁 “Inverse data flow”</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Why Lifting State Up Can Feel Counterintuitive</h2>
+      <div class="callout warn">
+        <p>
+          Sometimes you start building a component, create state there, and it feels natural.
+          Then React “forces” you to move that state into a parent component… even though the parent doesn’t directly use it.
+          That can feel weird at first.
+        </p>
+      </div>
+
+      <div class="callout">
+        <p>
+          The reason is simple: <strong>React has one-way data flow</strong> ⬇️.
+          Parents can pass data down to children via props, but siblings can’t directly share state.
+        </p>
+      </div>
+
+      <div class="term">
+        <div class="icon">🧠</div>
+        <div class="body">
+          <p class="title">Mental model</p>
+          <p class="desc">If two components need the same data, the “owner” of that data should be above both of them in the component tree.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Example Scenario: Checkout Coupons (Udemy-like UI) 🛍️🏷️</h2>
+      <div class="card">
+        <p>
+          Imagine a checkout page with two sibling areas:
+        </p>
+        <ul>
+          <li><strong>Promotions</strong> component: user types a coupon code and applies it 🧾</li>
+          <li><strong>Total</strong> component: calculates final price after discounts 💰</li>
+        </ul>
+        <p class="mini">
+          Both components need access to the same <span class="badge">coupons</span> data.
+        </p>
+      </div>
+
+      <div class="diagram" aria-label="Checkout component tree">
+        <pre><code>Checkout
+├─ Promotions   (adds coupons)
+└─ Total        (uses coupons to compute total)
+</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) The Problem: State Created in One Sibling, Needed by Another ❌</h2>
+      <div class="card">
+        <p>
+          If you start by building <strong>Promotions</strong>, you might create local state there:
+        </p>
+        <pre><code>function Promotions() {
+  const [coupons, setCoupons] = useState([]);
+  // ... UI to add coupons
+}
+</code></pre>
+
+        <p>
+          Then you build <strong>Total</strong> and realize it also needs <code>coupons</code>.
+          But because Promotions and Total are siblings, you cannot pass coupons directly from Promotions to Total.
+        </p>
+      </div>
+
+      <div class="callout danger">
+        <p>
+          <strong>Key rule:</strong> Props only flow <strong>down</strong> from parent to child.
+          There is no “props sideways” between siblings. ❌
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) The Solution: Lift State Up to the Closest Common Parent ⬆️</h2>
+      <div class="callout ok">
+        <p>
+          <strong>Lifting state up</strong> means moving state into a component that is a parent of all components that need that state.
+        </p>
+      </div>
+
+      <div class="card">
+        <p>
+          In this example, the closest common parent of Promotions and Total is <strong>Checkout</strong>.
+          So we move <code>coupons</code> state into Checkout.
+        </p>
+      </div>
+
+      <div class="diagram" aria-label="Before and after lift">
+        <pre><code>Before (problem):
+Promotions owns coupons ❌  Total needs coupons
+
+After (solution):
+Checkout owns coupons ✅
+  ├─ Promotions receives coupons + a way to update them
+  └─ Total receives coupons to compute totals
+</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Checkout (state owner)</h3>
+        <pre><code>function Checkout() {
+  const [coupons, setCoupons] = useState([]);
+
+  return (
+    &lt;&gt;
+      &lt;Promotions coupons={coupons} setCoupons={setCoupons} /&gt;
+      &lt;Total coupons={coupons} /&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+        <p class="mini">
+          Now both components can access the same state because it is passed down from the parent.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) But… How Can a Child Update Parent State? (Inverse Data Flow) 🔁⬆️</h2>
+      <div class="card">
+        <p>
+          After lifting state up, <strong>Promotions</strong> no longer owns the state.
+          It only <em>receives</em> <code>coupons</code> via props.
+        </p>
+        <ul>
+          <li>Props are <strong>read-only</strong> 🧷 (child cannot mutate them)</li>
+          <li>So the child needs a <strong>way to request</strong> an update</li>
+        </ul>
+      </div>
+
+      <div class="callout ok">
+        <p>
+          Solution: pass a <strong>setter</strong> or <strong>handler function</strong> down as a prop.
+          Child calls it when user interacts.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Option A: Pass the setter directly (<code>setCoupons</code>)</h3>
+        <pre><code>function Promotions({ coupons, setCoupons }) {
+  function handleApply(code) {
+    const newCoupon = { id: Date.now(), code };
+    setCoupons((coupons) =&gt; [...coupons, newCoupon]);
+  }
+
+  return (
+    &lt;div&gt;
+      {/* input + button; on click call handleApply */}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+        <p class="mini">This is valid, but it couples the child to the exact state shape/update logic.</p>
+      </div>
+
+      <div class="card">
+        <h3>Option B (common): Pass a handler like <code>onAddCoupon</code> ✅</h3>
+        <pre><code>function Checkout() {
+  const [coupons, setCoupons] = useState([]);
+
+  function handleAddCoupon(code) {
+    const newCoupon = { id: Date.now(), code };
+    setCoupons((coupons) =&gt; [...coupons, newCoupon]);
+  }
+
+  return (
+    &lt;&gt;
+      &lt;Promotions coupons={coupons} onAddCoupon={handleAddCoupon} /&gt;
+      &lt;Total coupons={coupons} /&gt;
+    &lt;/&gt;
+  );
+}
+
+function Promotions({ onAddCoupon }) {
+  function handleApply(code) {
+    onAddCoupon(code); // ✅ child requests update
+  }
+}
+</code></pre>
+        <p class="mini">
+          This matches what you did in the Far Away app: you didn’t pass <code>setItems</code> directly—
+          you passed a function that uses it.
+        </p>
+      </div>
+
+      <div class="callout">
+        <p>
+          This pattern is called:
+          <strong>child-to-parent communication</strong> or <strong>inverse data flow</strong>.
+          Not because data literally flows up, but because children can <em>trigger</em> updates to parent-owned state.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Why This Pattern Is So Important 🔑</h2>
+      <div class="card">
+        <ul>
+          <li>✅ Lets you share state between siblings without breaking one-way data flow</li>
+          <li>✅ Keeps a <strong>single source of truth</strong> for shared data</li>
+          <li>✅ Makes UI predictable: parent owns state → children receive a snapshot via props</li>
+          <li>✅ Scales naturally as component trees grow</li>
+        </ul>
+      </div>
+
+      <div class="term">
+        <div class="icon">📌</div>
+        <div class="body">
+          <p class="title">Rule of thumb</p>
+          <p class="desc">If multiple components must stay in sync, state should live in their closest common parent.</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>7) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>Why can’t siblings share state directly via props?</li>
+          <li>What does “closest common parent” mean?</li>
+          <li>After lifting state up, how does a child update it?</li>
+          <li>What’s the difference between passing <code>setCoupons</code> vs <code>onAddCoupon</code>?</li>
+          <li>In the Far Away app, why did <code>items</code> state move to <code>App</code>?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li>React’s data flow is one-way: parents → children only.</li>
+          <li>The lowest component in the tree that is a parent of all components needing the state.</li>
+          <li>Parent passes down a setter/handler function; child calls it on events.</li>
+          <li>Setter: child knows state shape; handler: parent controls update logic (often cleaner).</li>
+          <li>Because Form and PackingList are siblings and both need access (update vs render).</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Keep margins around ~14mm and enable background graphics only if you want shaded callouts.
+    </footer>
+  </main>
+</body>
+</html>

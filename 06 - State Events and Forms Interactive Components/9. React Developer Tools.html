@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Developer Tools — Study Guide (Components, State, Hooks)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #1a73e8;
+      --accent2: #0b57d0;
+      --ok: #0f766e;
+      --warn: #b45309;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column, print-friendly layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      margin-top: 14px;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      letter-spacing: -0.1px;
+    }
+
+    h3 {
+      margin: 12px 0 6px;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 0; padding-left: 18px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      border-radius: 10px;
+    }
+
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+
+    .label {
+      font-weight: 700;
+      font-size: 12.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 4px;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0b1020;
+      color: #eaf0ff;
+      overflow: auto;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .mini {
+      border: 1px dashed var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .mini strong { display: inline-block; margin-bottom: 4px; }
+
+    .muted { color: var(--muted); }
+
+    .footer {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Print settings */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      a { color: var(--text); text-decoration: none; }
+      a[href]::after { content: ""; } /* do NOT print URLs */
+
+      header, section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      pre { break-inside: avoid; page-break-inside: avoid; }
+
+      .chip {
+        background: #fff;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>React Developer Tools — Reviewer / Study Guide</h1>
+      <p class="subtitle">Focus: using React DevTools to inspect component trees, props, hooks, and state (especially while learning State).</p>
+      <div class="meta">
+        <span class="chip">🧰 Topic: React DevTools</span>
+        <span class="chip">🧠 Key Idea: Inspect + debug State</span>
+        <span class="chip">🧩 Tabs: Components + Profiler</span>
+        <span class="chip">⚙️ Works in: Chrome (extension)</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) Why React DevTools matter</h2>
+        <p>As web developers, we already rely on browser Developer Tools (Console, Elements/Inspector). React DevTools adds <strong>React-specific visibility</strong> so you can debug things like <strong>State</strong> and <strong>component structure</strong> much faster.</p>
+
+        <div class="callout ok">
+          <div class="label">Big benefit ✅</div>
+          <p>You can see your <strong>component tree</strong> and the <strong>current state values</strong> (hooks) of each component — no guessing.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) Install React DevTools (Chrome)</h2>
+        <p>There are two common ways you’ll find the extension:</p>
+        <ul>
+          <li>✅ React often prints a console message suggesting the DevTools, including a link.</li>
+          <li>🔎 If you don’t see the message: search <strong>“chrome react dev tools”</strong> and install the official extension.</li>
+        </ul>
+
+        <div class="callout warn">
+          <div class="label">Common setup issue ⚠️</div>
+          <p>If you’re in a <strong>Guest</strong> Chrome window, extensions may not be available. Switch to a normal profile where extensions are enabled.</p>
+        </div>
+
+        <div class="callout">
+          <div class="label">Troubleshooting tip 🛠️</div>
+          <p>If the React tab shows <em>“Loading React Element Tree…”</em> and gets stuck, try <strong>closing and reopening the browser</strong>.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) Where to find it</h2>
+        <p>After installing the extension and opening the browser devtools (<span class="kbd">F12</span> or <span class="kbd">Ctrl</span> + <span class="kbd">Shift</span> + <span class="kbd">I</span> on Windows), you’ll see two new tabs:</p>
+        <ul>
+          <li><strong>Components</strong> — inspect the component tree + props + hooks/state</li>
+          <li><strong>Profiler</strong> — measure performance (you’ll revisit later)</li>
+        </ul>
+        <p class="muted">Tip: You can drag the Components tab near the beginning so it stays visible.</p>
+      </section>
+
+      <section>
+        <h2>4) Components tab: what you can see</h2>
+        <p>In <strong>Components</strong>, you can select any component and inspect:</p>
+        <div class="grid">
+          <div class="mini">
+            <strong>🧩 Component Tree</strong>
+            <p class="muted">Shows the parent → child structure of your UI. In small apps you may only see <code>App</code>, but in real projects you’ll see dozens/hundreds of components.</p>
+          </div>
+          <div class="mini">
+            <strong>📦 Props</strong>
+            <p class="muted">Lists all props the selected component receives. If it receives none, you’ll see an empty props panel.</p>
+          </div>
+          <div class="mini">
+            <strong>🪝 Hooks / State</strong>
+            <p class="muted">Lists hooks like <code>useState</code>. Each state hook shows the current value (e.g., <code>step</code>, <code>isOpen</code>).</p>
+          </div>
+        </div>
+
+        <div class="callout">
+          <div class="label">Key connection 🔗</div>
+          <p><strong>State is stored in hooks</strong> (e.g., <code>useState</code>), so DevTools shows them under the <strong>Hooks</strong> section.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Editing State from DevTools (very useful)</h2>
+        <p>One powerful feature: you can <strong>manually change state values</strong> from DevTools to quickly test how your UI behaves.</p>
+
+        <h3>Examples</h3>
+        <ul>
+          <li>✅ If a piece of state is a boolean, DevTools often shows a checkbox (toggle <code>true</code>/<code>false</code>).</li>
+          <li>✅ If state is a number (like <code>step</code>), you can set it directly (e.g., jump from 1 → 3).</li>
+          <li>🧪 You can even set values the UI normally can’t reach (e.g., set <code>step</code> to <code>10</code>) to stress-test screens and edge cases.</li>
+        </ul>
+
+        <div class="callout warn">
+          <div class="label">Important note ⚠️</div>
+          <p>This is mainly for <strong>debugging and experimentation</strong>. In real apps, setting impossible values (like <code>step = 10</code>) can reveal missing guards/validation in your code.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>6) Why the component tree view is a big deal</h2>
+        <p>As apps grow, it’s easy to lose track of where components live and how they nest. DevTools helps you:</p>
+        <ul>
+          <li>🔍 Find which component renders what</li>
+          <li>🧭 Understand parent/child relationships quickly</li>
+          <li>🧠 Avoid manually drawing component trees every time</li>
+        </ul>
+
+        <div class="callout ok">
+          <div class="label">Practical use ✅</div>
+          <p>If you’re debugging props/state, first locate the component in the tree, then inspect its <strong>Props</strong> and <strong>Hooks</strong> panels.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>7) Quick checklist (memorize this) 📝</h2>
+        <ul>
+          <li>✅ Install React DevTools extension (Chrome profile, not Guest)</li>
+          <li>✅ Open DevTools → go to <strong>Components</strong></li>
+          <li>✅ Select a component → check <strong>Props</strong> and <strong>Hooks</strong></li>
+          <li>✅ (Optional) Edit state values to test UI edge cases</li>
+          <li>⏳ Profiler tab is for later (performance)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>8) Tiny mental model (easy to remember)</h2>
+        <p>Think of React DevTools like an “X-ray” for React apps:</p>
+        <ul>
+          <li>🦴 Component Tree = skeleton/structure</li>
+          <li>📦 Props = inputs to the component</li>
+          <li>🧠 State (hooks) = the component’s memory</li>
+        </ul>
+
+        <pre><code>// What you typically want to confirm when debugging:
+// 1) Is this the right component?
+// 2) What props did it receive?
+// 3) What is its current state?
+// 4) If state changes, does the UI update as expected?</code></pre>
+
+        <p class="footer">End of lecture notes: React DevTools are extremely handy. Install them now — you will use them repeatedly in future lessons.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

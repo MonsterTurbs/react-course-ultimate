@@ -1,0 +1,383 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Far Away — Building the Static Layout | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 24px;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .callout.ok{
+      border-left-color: var(--ok);
+      background: #f0fdfa;
+    }
+
+    .callout.warn{
+      border-left-color: var(--warn);
+      background: #fffbeb;
+    }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{
+      size: A4;
+      margin: 14mm;
+    }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn{ background:#ffffff; }
+      .card, .term, pre, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Building the Layout — Far Away Travel List 🧳</h1>
+      <p class="subtitle">
+        Lecture reviewer: scaffold the <strong>static UI</strong> first (no dynamic list yet), using starter CSS and component placeholders.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">🧩 Component scaffolding</span>
+        <span class="chip">🎨 Starter CSS</span>
+        <span class="chip">🧹 CRA cleanup</span>
+        <span class="chip">🏷️ className wiring</span>
+        <span class="chip">🧪 npm start</span>
+        <span class="chip">😀 Emojis</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) What This Lecture Does</h2>
+      <div class="callout">
+        <p><strong>Goal:</strong> build the <em>static layout</em> of the Far Away app before adding real data and interactivity. 🙂</p>
+        <ul>
+          <li>Import the starter CSS so you don’t write styling from scratch.</li>
+          <li>Clean the Create React App starter “junk”.</li>
+          <li>Create the main components (Logo, Form, PackingList, Stats).</li>
+          <li>Render them in <code>App</code> with the correct CSS class names.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Why build layout first? ✅</h3>
+        <ul>
+          <li>It reduces complexity: you can confirm the UI structure looks correct before adding state + logic.</li>
+          <li>You get faster feedback: if the layout matches the demo, you’re on track.</li>
+          <li>Later, you only “fill in” the components with real data and events.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Setup: Starter CSS + Project Cleanup</h2>
+
+      <div class="card">
+        <h3>Bring in the starter CSS 🎨</h3>
+        <ul>
+          <li>Copy the provided <strong>CSS file</strong> into <code>src/</code>.</li>
+          <li>If a CSS file already exists there, <strong>replace it</strong>.</li>
+          <li>The lecture relies on pre-defined class names (so the JSX must match them).</li>
+        </ul>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Clean file list (target):</strong></p>
+        <ul>
+          <li><code>App.js</code></li>
+          <li><code>index.js</code></li>
+          <li><code>index.css</code></li>
+        </ul>
+        <p class="mini">Everything else from CRA (logos, test files, unused imports) can be removed for this project.</p>
+      </div>
+
+      <div class="card">
+        <h3>Typical cleanup tasks 🧹</h3>
+        <ul>
+          <li>Remove imports of files you deleted (CRA often imports logos and default CSS).</li>
+          <li>Replace the default App content with your own App component.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Scaffold Components (Placeholders First)</h2>
+      <p>
+        In this lesson, all main components are created in <strong>one file</strong> (<code>App.js</code>) to avoid jumping across files.
+        Later in the course, each component will typically live in its own file.
+      </p>
+
+      <div class="term">
+        <div class="icon">🟨</div>
+        <div class="body">
+          <p class="title">Logo</p>
+          <p class="desc">A heading that says “Far Away” with emojis (palm tree + bag).</p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">📝</div>
+        <div class="body">
+          <p class="title">Form</p>
+          <p class="desc">A container for the future inputs (select, text input, add button). For now: static text + emoji.</p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">📦</div>
+        <div class="body">
+          <p class="title">PackingList</p>
+          <p class="desc">A placeholder for the list UI. Next lecture will render static items from an array.</p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">📊</div>
+        <div class="body">
+          <p class="title">Stats</p>
+          <p class="desc">Shown at the bottom; implemented as a <code>&lt;footer&gt;</code> with class <code>stats</code>.</p>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>CSS class names matter.</strong> 🏷️</p>
+        <p class="mini">If the JSX uses the wrong <code>className</code>, the layout won’t match the demo—even if your HTML structure is correct.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Example Layout Code (Conceptual)</h2>
+      <p class="mini">This is a simplified representation of what the lecture builds in <code>App.js</code>.</p>
+
+      <pre><code>// Conceptual structure (inside App.js)
+export default function App() {
+  return (
+    &lt;div className="app"&gt;
+      &lt;Logo /&gt;
+      &lt;Form /&gt;
+      &lt;PackingList /&gt;
+      &lt;Stats /&gt;
+    &lt;/div&gt;
+  );
+}
+
+function Logo() {
+  return &lt;h1&gt;Far Away 🌴🧳&lt;/h1&gt;;
+}
+
+function Form() {
+  return (
+    &lt;div className="add-form"&gt;
+      &lt;h3&gt;What do you need for your trip? 🧳&lt;/h3&gt;
+      {/* form elements later */}
+    &lt;/div&gt;
+  );
+}
+
+function PackingList() {
+  return &lt;div className="list"&gt;List&lt;/div&gt;;
+}
+
+function Stats() {
+  return (
+    &lt;footer className="stats"&gt;
+      &lt;em&gt;You have X items on your list, and you already packed X (X%) 🧳&lt;/em&gt;
+    &lt;/footer&gt;
+  );
+}</code></pre>
+
+      <div class="card">
+        <h3>Important detail: Stats must have <code>className="stats"</code> ✅</h3>
+        <p class="mini">In the lecture, the footer looked “off” until the missing class was added. After adding it, the design matched the demo.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Emoji Shortcuts (Mac vs Windows)</h2>
+      <div class="card">
+        <ul>
+          <li>Mac: <strong>Control + Command + Space</strong> 😀</li>
+          <li>Windows: <strong>Windows key + .</strong> 😀</li>
+        </ul>
+        <p class="mini">If emojis don’t work, you can copy them from the final project files (or skip them).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Run the App and Verify the Layout</h2>
+      <div class="callout ok">
+        <p><strong>Run the dev server:</strong></p>
+        <pre><code>npm start</code></pre>
+        <ul>
+          <li>If you see styling issues, check <code>className</code> values first.</li>
+          <li>Also confirm you replaced the CSS file correctly and removed old imports.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>What’s next? ➡️</h3>
+        <p>In the next lecture, you’ll render some <strong>static items</strong> from an array (still not adding items dynamically yet).</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>7) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>What are the four main components for this layout?</li>
+          <li>Which component should use <code>&lt;footer&gt;</code> and why?</li>
+          <li>Which <code>className</code> values are required for styling (<code>app</code>, <code>add-form</code>, <code>stats</code>)?</li>
+          <li>Why is it okay to keep all components in one file for now?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li>Logo, Form, PackingList, Stats</li>
+          <li>Stats is at the bottom: footer is semantically correct</li>
+          <li>Class names must match the provided CSS</li>
+          <li>Less file-jumping while learning core concepts</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4 and keep margins around ~14mm. Enable background graphics only if you want shaded callouts.
+    </footer>
+  </main>
+</body>
+</html>

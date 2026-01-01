@@ -1,0 +1,441 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Far Away App — Thinking About State & Lifting State Up | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background: #fef2f2; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .diagram{
+      border: 1px dashed var(--border);
+      background:#ffffff;
+      border-radius: 10px;
+      padding: 10px 10px;
+      margin: 12px 0;
+    }
+
+    .badge{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:#ffffff;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      color: var(--muted);
+      vertical-align: middle;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre, .diagram{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn, .callout.danger{ background:#ffffff; }
+      .card, .term, pre, .callout, .diagram{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Far Away App — Thinking About State & Lifting State Up 🧳⬆️</h1>
+      <p class="subtitle">
+        Reviewer/study guide: adding <strong>items</strong> state to the Far Away app, updating it immutably, and sharing it between siblings by <strong>lifting state up</strong>.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">🧠 Decide: state needed?</span>
+        <span class="chip">📦 items[] state</span>
+        <span class="chip">🧱 Immutable array updates</span>
+        <span class="chip">⬆️ Lift state up</span>
+        <span class="chip">⬇️ Props down</span>
+        <span class="chip">⬆️ Functions up (callbacks)</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Recap: Where We Left Off</h2>
+      <div class="card">
+        <ul>
+          <li>✅ The <strong>Form</strong> has two <strong>controlled elements</strong>: <span class="badge">description</span> and <span class="badge">quantity</span> ✍️🔢</li>
+          <li>✅ Submitting the form triggers <code>onSubmit</code> → <code>handleSubmit</code> 📨</li>
+          <li>✅ <code>handleSubmit</code> creates a <strong>new item object</strong>, but initially it was only logged to the console 🧾</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <p>
+          Goal of this lecture: store those new items <strong>in state</strong> so React can re-render the UI when items change.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Applying the State-Decision Flowchart 🗺️</h2>
+      <div class="card">
+        <p class="mini">We want to store the new item object somewhere. Let’s run through the logic from the previous lecture:</p>
+        <ol>
+          <li><strong>Will the data change over time?</strong> Yes — every time you add an item. 🔁</li>
+          <li><strong>Can we compute it from existing state/props?</strong> No — it’s a new list we must store. ❌🧮</li>
+          <li><strong>Should updates re-render the UI?</strong> Yes — the list on screen must update. 🎨✅</li>
+        </ol>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Conclusion:</strong> Create a new piece of state using <code>useState</code>. ✅</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Create the <code>items</code> State (First Attempt) 📦</h2>
+      <div class="card">
+        <p>
+          The packing items are stored in an array. So the natural initial state is an empty array.
+        </p>
+        <pre><code>// inside a component
+const [items, setItems] = useState([]);
+</code></pre>
+        <p class="mini">At first app load, the list is empty — that matches <code>[]</code>.</p>
+      </div>
+
+      <div class="callout warn">
+        <p>
+          If you put <code>items</code> state in the <strong>Form</strong>, you can update it there… but you can’t easily render it in <strong>PackingList</strong>.
+          This sets up the “sibling components” problem.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Updating Items State (Immutable Update) 🧱</h2>
+      <div class="term">
+        <div class="icon">🚫</div>
+        <div class="body">
+          <p class="title">Do NOT mutate state arrays</p>
+          <p class="desc">Avoid <code>items.push(newItem)</code>. React state should be treated as immutable.</p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">✅</div>
+        <div class="body">
+          <p class="title">Create a new array instead</p>
+          <p class="desc">Use the spread operator to build a brand new array: <code>[...items, newItem]</code>.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Example: add item to end</h3>
+        <pre><code>function handleAddItems(item) {
+  // new state depends on current state ➜ use callback form
+  setItems((items) =&gt; [...items, item]);
+}
+</code></pre>
+        <p class="mini">
+          Why callback form? Because the next state uses the previous state (<code>items</code> → new array).
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) The Core Problem: Form vs PackingList (Siblings) 👨‍👩‍👧</h2>
+      <div class="card">
+        <p>
+          The <strong>Form</strong> creates items, but the <strong>PackingList</strong> renders items.
+          These are <strong>sibling components</strong>, so you cannot pass data directly from Form to PackingList via props.
+        </p>
+        <ul>
+          <li>Props flow <strong>down</strong> the component tree ⬇️</li>
+          <li>They do not flow sideways or up directly ❌</li>
+        </ul>
+      </div>
+
+      <div class="diagram" aria-label="Component tree diagram">
+        <pre><code>App
+├─ Logo
+├─ Form          (creates new items)
+├─ PackingList   (renders items)
+└─ Stats
+</code></pre>
+        <p class="mini">Form and PackingList are siblings ➜ state must move to their closest common parent.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Solution: Lift State Up ⬆️</h2>
+      <div class="callout ok">
+        <p>
+          <strong>Lifting state up</strong> means: when multiple siblings need the same state, move that state to their
+          <strong>first common parent</strong>.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Where should <code>items</code> live?</h3>
+        <p>
+          The closest common parent of Form and PackingList is <strong>App</strong>.
+          So we move <code>items</code> state (and the update logic) into <strong>App</strong>.
+        </p>
+      </div>
+
+      <div class="diagram" aria-label="Lift state diagram">
+        <pre><code>Before (problem):
+Form owns items  ❌  PackingList needs items
+
+After (solution):
+App owns items ✅
+  ├─ Form gets onAddItems callback
+  └─ PackingList gets items data
+</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Final Wiring: Props Down, Events Up 🔌</h2>
+      <div class="card">
+        <h3>App component (state owner)</h3>
+        <pre><code>function App() {
+  const [items, setItems] = useState([]);
+
+  function handleAddItems(item) {
+    setItems((items) =&gt; [...items, item]);
+  }
+
+  return (
+    &lt;div className="app"&gt;
+      &lt;Logo /&gt;
+      &lt;Form onAddItems={handleAddItems} /&gt;
+      &lt;PackingList items={items} /&gt;
+      &lt;Stats items={items} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Form component (creates data, calls callback)</h3>
+        <pre><code>function Form({ onAddItems }) {
+  const [description, setDescription] = useState("");
+  const [quantity, setQuantity] = useState(1);
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!description) return;
+
+    const newItem = {
+      id: Date.now(),
+      description,
+      quantity,
+      packed: false,
+    };
+
+    onAddItems(newItem); // ✅ send data UP
+
+    setDescription("");
+    setQuantity(1);
+  }
+
+  return (
+    &lt;form className="add-form" onSubmit={handleSubmit}&gt;
+      {/* controlled elements here */}
+    &lt;/form&gt;
+  );
+}
+</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>PackingList component (renders items from props)</h3>
+        <pre><code>function PackingList({ items }) {
+  return (
+    &lt;div className="list"&gt;
+      &lt;ul&gt;
+        {items.map((item) =&gt; (
+          &lt;Item key={item.id} item={item} /&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+      </div>
+
+      <div class="callout">
+        <p>
+          <strong>Pattern to memorize:</strong> <br />
+          <strong>State lives in the common parent</strong> ✅ → pass state down via props ⬇️ → pass handler functions down ⬇️ → child calls handler to update parent state ⬆️.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>8) Re-check the Flowchart: Where Does State Belong? ✅</h2>
+      <div class="card">
+        <p class="mini">Using the “where to place state” decisions:</p>
+        <ol>
+          <li>Is the state only used in Form? <strong>No</strong> ❌</li>
+          <li>Is it needed by a child of Form? <strong>No</strong> ❌</li>
+          <li>Is it needed by a sibling (PackingList)? <strong>Yes</strong> ✅</li>
+          <li>➡️ Therefore: <strong>lift state up to App</strong> ⬆️</li>
+        </ol>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>9) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>Why can’t Form pass items directly to PackingList via props?</li>
+          <li>What does “lift state up” mean?</li>
+          <li>Why do we use <code>setItems((items) =&gt; ...)</code> instead of <code>setItems([...items, item])</code>?</li>
+          <li>What is the “props down, events up” pattern?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li>They’re siblings; props only flow down from parent to child.</li>
+          <li>Move shared state to the nearest common parent so siblings can share it.</li>
+          <li>Because the next state depends on previous state (safer with concurrent updates).</li>
+          <li>Parent passes data + callbacks down; children call callbacks to update parent state.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Keep margins around ~14mm and enable background graphics only if you want shaded callouts.
+    </footer>
+  </main>
+</body>
+</html>

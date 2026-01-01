@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WorldWise (Vite Setup) — Reviewer / Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --soft2:#fbfbfc;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#a16207;
+      --bad:#b91c1c;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column page container */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header.top{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--soft2), var(--bg));
+      border-radius: 12px;
+      padding: 18px 16px;
+    }
+    .kicker{
+      color:var(--muted);
+      font-size: 12.5px;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      margin: 0 0 6px;
+    }
+    h1{
+      font-size: 22px;
+      margin: 0 0 8px;
+      line-height: 1.25;
+    }
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14.5px;
+    }
+
+    .toc{
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+    }
+    .toc h2{
+      font-size: 14px;
+      margin: 0 0 8px;
+    }
+    .toc ol{
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+    .toc a{
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .toc a:hover{ text-decoration: underline; }
+
+    main{ margin-top: 16px; }
+
+    section{
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    section > .hd{
+      padding: 12px 14px;
+      background: var(--soft);
+      border-bottom: 1px solid var(--border);
+    }
+    section > .hd h2{
+      font-size: 16px;
+      margin: 0;
+      line-height: 1.25;
+    }
+    section > .bd{
+      padding: 12px 14px;
+    }
+
+    p{ margin: 0 0 10px; }
+    ul, ol{ margin: 0 0 10px; padding-left: 18px; }
+    li{ margin: 4px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+    .callout .t{
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .grid2{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 820px){
+      .grid2{ grid-template-columns: 1fr 1fr; }
+    }
+
+    .chip{
+      display:inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12.5px;
+      margin: 2px 6px 2px 0;
+      white-space: nowrap;
+    }
+
+    .keyline{ border-top: 1px dashed var(--border); margin: 12px 0; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0b1020;
+      color: #e8edf7;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.55;
+      white-space: pre;
+    }
+    code{
+      font-family: var(--mono);
+      font-size: .96em;
+    }
+    .inline{
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    .qa{
+      margin: 0;
+      padding-left: 0;
+      list-style: none;
+    }
+    .qa li{
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 8px 0;
+      background: var(--bg);
+    }
+    .qa b{ display:block; margin-bottom: 4px; }
+
+    .badge-ok{ color: var(--ok); font-weight: 700; }
+    .badge-warn{ color: var(--warn); font-weight: 700; }
+    .badge-bad{ color: var(--bad); font-weight: 700; }
+
+    .muted{ color: var(--muted); }
+
+    details{ margin: 10px 0; }
+    details summary{ cursor: pointer; font-weight: 700; }
+
+    footer.bottom{
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12.5px;
+      text-align: left;
+    }
+
+    /* Print rules: A4, single column, clean output */
+    @page{
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print{
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; padding: 0; }
+
+      /* Remove shadows/gradients that may print muddy */
+      header.top{ background: #fff; }
+      section > .hd{ background: #fff; }
+      .callout{ background: #fff; }
+
+      /* Avoid cutting blocks */
+      header.top, section, .callout, pre, .qa li{ break-inside: avoid; page-break-inside: avoid; }
+      h1, h2{ break-after: avoid; page-break-after: avoid; }
+
+      /* Do not print link URLs */
+      a[href]::after{ content: "" !important; }
+      a{ color: #000; text-decoration: none; }
+
+      /* Hide interactive-only UI */
+      details summary{ cursor: default; }
+
+      /* Ensure readable font sizes */
+      body{ font-size: 11.5pt; }
+      pre{ font-size: 9.5pt; }
+      .kicker{ font-size: 10pt; }
+      .subtitle{ font-size: 10.8pt; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="top">
+      <p class="kicker">React Router Section — WorldWise Project</p>
+      <h1>Creating Our First App With Vite (WorldWise) — Reviewer / Study Guide</h1>
+      <p class="subtitle">Goal: understand what WorldWise is, why it’s a Single Page Application (SPA), how Vite differs from Create React App, and how to set up ESLint in a Vite React project.</p>
+
+      <div class="toc" aria-label="Table of contents">
+        <h2>Table of Contents</h2>
+        <ol>
+          <li><a href="#overview">Project overview: what WorldWise does</a></li>
+          <li><a href="#spa">SPA + routing: what changes in the URL</a></li>
+          <li><a href="#vite">Why Vite: what changes vs Create React App</a></li>
+          <li><a href="#setup">Step-by-step setup commands</a></li>
+          <li><a href="#structure">Folder structure differences</a></li>
+          <li><a href="#dev">Running the dev server</a></li>
+          <li><a href="#eslint">ESLint in Vite: install + configure</a></li>
+          <li><a href="#checklist">Common mistakes checklist</a></li>
+          <li><a href="#practice">Self-check questions</a></li>
+          <li><a href="#transcript">Original transcript (for reference)</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <main>
+      <section id="overview">
+        <div class="hd"><h2>1) 🧭 Project overview: what WorldWise does</h2></div>
+        <div class="bd">
+          <p><span class="chip">🧠 Big idea</span> WorldWise is a “travel log” app: users register cities they’ve visited and see them on a map.</p>
+          <div class="grid2">
+            <div class="callout">
+              <div class="t">✅ What the user can do</div>
+              <ul>
+                <li>🔐 “Login” (fake login for now) and enter the app.</li>
+                <li>🏙️ View a list of cities and an auto-derived list of countries.</li>
+                <li>🗺️ See markers on a map and click to view city details.</li>
+                <li>➕ Add a city: click map → city name fetched from external API → add date + notes.</li>
+                <li>🗑️ Delete cities.</li>
+              </ul>
+            </div>
+            <div class="callout">
+              <div class="t">⚙️ Data sources</div>
+              <ul>
+                <li>🧪 A <b>fake API</b> serves the cities list (like the previous project).</li>
+                <li>🌍 An <b>external API</b> can fetch the city name after clicking the map.</li>
+                <li>📍 Uses the browser <b>Geolocation API</b> to jump to your position (permission required).</li>
+              </ul>
+            </div>
+          </div>
+          <p class="muted">Takeaway: this is the first project in the course that “feels” like a real product (navigation, multiple pages, map, data loading).</p>
+        </div>
+      </section>
+
+      <section id="spa">
+        <div class="hd"><h2>2) 🧩 SPA + routing: why the URL changes without full page reload</h2></div>
+        <div class="bd">
+          <p><span class="chip">📌 Key term</span> <b>Single Page Application (SPA)</b>: the browser stays on one HTML page, but the UI changes as routes (URLs) change.</p>
+          <div class="callout">
+            <div class="t">🔎 What you observed in the demo</div>
+            <ul>
+              <li>Click <b>Pricing</b> → URL changes to something like <span class="inline">/pricing</span>.</li>
+              <li>Click <b>Product</b> → URL changes to <span class="inline">/product</span>.</li>
+              <li>Click <b>Login</b> → URL changes to <span class="inline">/login</span>.</li>
+              <li>Click the logo → returns to the home route <span class="inline">/</span>.</li>
+              <li>Inside the app, navigating between <b>Cities</b> and <b>Countries</b> also changes the URL.</li>
+            </ul>
+          </div>
+          <p>✅ This “URL → view” mapping is exactly what <b>React Router</b> will manage in this section.</p>
+          <details>
+            <summary>🧠 Beginner mental model</summary>
+            <p class="muted">Think of routing as a “switchboard”: when the path is <span class="inline">/pricing</span>, show the Pricing UI; when the path is <span class="inline">/app/cities</span>, show the Cities UI, etc. No full page reload required.</p>
+          </details>
+        </div>
+      </section>
+
+      <section id="vite">
+        <div class="hd"><h2>3) ⚡ Why Vite: what changes vs Create React App</h2></div>
+        <div class="bd">
+          <p><span class="chip">⚡ Vite</span> A modern build tool that offers templates for React and other frameworks.</p>
+          <div class="grid2">
+            <div class="callout">
+              <div class="t">🆚 CRA vs Vite (in this lecture)</div>
+              <ul>
+                <li><b>CRA</b>: usually comes with many tools pre-configured (e.g., ESLint).</li>
+                <li><b>Vite</b>: faster dev experience, but you often configure some tooling yourself (e.g., ESLint).</li>
+                <li><b>Vite</b> uses different scripts: <span class="inline">npm run dev</span> instead of <span class="inline">npm start</span>.</li>
+              </ul>
+            </div>
+            <div class="callout">
+              <div class="t">🎯 Practical benefit you will feel</div>
+              <ul>
+                <li>📦 Dependency install and dev startup typically feel faster.</li>
+                <li>🧰 Cleaner entry file compared to CRA’s default setup.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="muted">Course instruction: use <b>Vite v4</b> in this course so everyone is aligned.</p>
+        </div>
+      </section>
+
+      <section id="setup">
+        <div class="hd"><h2>4) 🛠️ Step-by-step: creating the WorldWise project with Vite</h2></div>
+        <div class="bd">
+          <p><span class="chip">✅ Goal</span> Create the project, pick the React template, then install dependencies.</p>
+
+          <div class="callout">
+            <div class="t">⌨️ Commands (copy/paste)</div>
+            <pre><code>npm create vite@4
+# then follow prompts:
+# Project name: worldwise
+# Framework: React
+# Variant: JavaScript</code></pre>
+          </div>
+
+          <p><b>Important notes:</b></p>
+          <ul>
+            <li>🟦 You may be prompted to install the Vite package the first time. Confirm with <b>Y</b> or Enter.</li>
+            <li>📁 After Vite scaffolds the folder, <b>open the folder in VS Code</b>.</li>
+            <li>📦 Install dependencies manually (unlike CRA):</li>
+          </ul>
+          <pre><code>npm install
+# or: npm i</code></pre>
+        </div>
+      </section>
+
+      <section id="structure">
+        <div class="hd"><h2>5) 🗂️ Vite project structure: what’s different</h2></div>
+        <div class="bd">
+          <div class="grid2">
+            <div class="callout">
+              <div class="t">📌 Notable differences you saw</div>
+              <ul>
+                <li><b>index.html</b> is at the project root (not inside <span class="inline">public</span>).</li>
+                <li>Entry file is <span class="inline">src/main.jsx</span> (instead of CRA’s <span class="inline">src/index.js</span>).</li>
+                <li>Components commonly use <span class="inline">.jsx</span> extension (Vite expects JSX in JSX files).</li>
+              </ul>
+            </div>
+            <div class="callout">
+              <div class="t">🧠 What to remember</div>
+              <ul>
+                <li>React doesn’t “care” about your folder structure—<b>you</b> do.</li>
+                <li>React’s job is to render components; the bundler/dev server handles the file setup.</li>
+              </ul>
+            </div>
+          </div>
+
+          <p class="keyline"></p>
+
+          <p><b>Quick cleanup (same idea as before):</b></p>
+          <ul>
+            <li>🧼 Replace starter App markup with a minimal component.</li>
+            <li>🧼 Remove unused CSS imports and starter CSS you won’t use.</li>
+          </ul>
+
+          <pre><code>// src/App.jsx
+export default function App() {
+  return (
+    &lt;div&gt;WorldWise&lt;/div&gt;
+  );
+}
+</code></pre>
+          <p class="muted">Tip: you can use your VS Code snippets (e.g., RFC) to scaffold components quickly.</p>
+        </div>
+      </section>
+
+      <section id="dev">
+        <div class="hd"><h2>6) ▶️ Running the dev server in Vite</h2></div>
+        <div class="bd">
+          <p><span class="chip">⚠️ Common gotcha</span> In Vite, you typically run <b>dev</b>, not <b>start</b>.</p>
+          <pre><code>npm run dev</code></pre>
+          <ul>
+            <li>🧭 Vite prints a local URL in the terminal (Ctrl/Cmd-click to open).</li>
+            <li>🧪 Open browser devtools console as usual for debugging.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="eslint">
+        <div class="hd"><h2>7) 🧯 ESLint in Vite: install + configure (so you don’t code half-blind)</h2></div>
+        <div class="bd">
+          <p><span class="chip">🧠 Why it matters</span> ESLint catches unused variables, missing dependencies, bad patterns, and many bugs early.</p>
+
+          <div class="callout">
+            <div class="t">📦 Install the required dev dependencies</div>
+            <pre><code>npm install eslint vite-plugin-eslint eslint-config-react-app --save-dev</code></pre>
+            <p class="muted">(In the transcript, the instructor initially forgot the <span class="inline">install</span> keyword—make sure it’s included.)</p>
+          </div>
+
+          <div class="callout">
+            <div class="t">🧾 Create: <span class="inline">.eslintrc.json</span></div>
+            <pre><code>{
+  "extends": "react-app"
+}
+</code></pre>
+          </div>
+
+          <div class="callout">
+            <div class="t">🔌 Add the ESLint plugin to <span class="inline">vite.config.js</span></div>
+            <pre><code>import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import eslint from "vite-plugin-eslint";
+
+export default defineConfig({
+  plugins: [react(), eslint()],
+});
+</code></pre>
+          </div>
+
+          <p><b>What you should see after setup:</b></p>
+          <ul>
+            <li><span class="badge-ok">✅</span> Unused variables get underlined in VS Code.</li>
+            <li><span class="badge-ok">✅</span> Terminal output also shows ESLint warnings/errors while running Vite.</li>
+          </ul>
+
+          <details>
+            <summary>Example: ESLint warning you want back</summary>
+            <pre><code>// Unused variable → ESLint should warn
+const test = 123;
+</code></pre>
+          </details>
+        </div>
+      </section>
+
+      <section id="checklist">
+        <div class="hd"><h2>8) 🧾 Common mistakes checklist</h2></div>
+        <div class="bd">
+          <ul>
+            <li><span class="badge-warn">⚠️</span> Running <span class="inline">npm start</span> in Vite (use <span class="inline">npm run dev</span>).</li>
+            <li><span class="badge-warn">⚠️</span> Forgetting <span class="inline">npm install</span> after creating the project.</li>
+            <li><span class="badge-warn">⚠️</span> ESLint install command missing <span class="inline">install</span>.</li>
+            <li><span class="badge-warn">⚠️</span> Creating <span class="inline">.eslintrc.json</span> but not adding the Vite plugin.</li>
+            <li><span class="badge-warn">⚠️</span> Leaving starter CSS/markup and wondering why UI looks “weird”.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="practice">
+        <div class="hd"><h2>9) 🧠 Self-check questions</h2></div>
+        <div class="bd">
+          <ol class="qa">
+            <li>
+              <b>1) What makes WorldWise a Single Page Application (SPA)?</b>
+              The URL changes (routes) and the view updates without full page reloads.
+            </li>
+            <li>
+              <b>2) What command runs the dev server in Vite?</b>
+              <span class="inline">npm run dev</span>
+            </li>
+            <li>
+              <b>3) What’s the Vite entry file called (instead of <span class="inline">index.js</span>)?</b>
+              <span class="inline">src/main.jsx</span>
+            </li>
+            <li>
+              <b>4) Why add ESLint?</b>
+              To catch bugs early (unused vars, incorrect patterns) and improve consistency.
+            </li>
+            <li>
+              <b>5) What does <span class="inline">vite-plugin-eslint</span> do?</b>
+              It integrates ESLint checks into the Vite dev process so warnings show in terminal/overlay.
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="transcript">
+        <div class="hd"><h2>10) 📜 Original transcript (reference)</h2></div>
+        <div class="bd">
+          <p class="muted">This is the original lecture text you provided, kept here so you can review exact phrasing and details.</p>
+          <div class="callout">
+            <div class="t">Transcript</div>
+            <p>
+              Welcome to our biggest project yet.
+              Which is gonna be called WorldWise.
+              And what's special about this one is that we're going to use Vite for the first time to set up this project instead of Create React App.
+              But before we do that, let's first take a quick look at the project.
+              And here it is.
+              So this is the WorldWise application.
+              And for the first time, this actually looks more like a real world product.
+              Now, here we have this page link or this page navigation where we can click and it will then lead us to these different pages.
+              Now, notice how up here in the URL bar, as we move to different pages, it actually changes.
+              So now I'm on the pricing page, and so then it says pricing, but if I go to the product page, then there it says product.
+              And the same on the login page.
+              And if I click here on the logo, then we go back to basically the homepage where we then are at the root URL.
+              So basically, we have these different URLs matched to different views in the application.
+              And so this makes this a single page application.
+              And more about that in the next lecture.
+              But now, let's actually take a look at the heart of the application.
+              And so for that, let's come to the login page.
+              Yeah, this is actually really just a fake login where we just click this button here, which will then take us to the application.
+              So in this application, basically, users can register all the cities that they have ever traveled to.
+              So here on the left side, we have a list of all these cities and also the countries which automatically come from the cities.
+              And notice how actually here, the URL also changes between countries and cities.
+              So this also makes part of the routing that we will learn about in the next lecture.
+              But anyway, here on the right side is then where we have a map and we can go to our current position by clicking here.
+              So this is using the geolocation API in the background.
+              And so for that, we need to give our permission.
+              And then after getting our position, the map will move to our current location.
+              So let's wait for that.
+              And there we are.
+              All right.
+              And now let's see that I went here to Sevila.
+              So I click here.
+              And so then, actually the city name gets fetched from an external API.
+              We get our date, and then I can just say something about my trip and then I add that to the list.
+              So we see then we get this marker here, which we can click.
+              And yeah, it got added to our list right here.
+              And I can also delete cities by clicking here.
+              So you saw here this loading spinner.
+              And the reason for that is that this list of cities is once again, fetched from a fake API just like we used in our previous project.
+              But anyway, we can of course also click on one of these cities and that will then move the map there and it will show us all the details here about the city name, the date we went there and our notes.
+              And even here, this link to the Wikipedia article.
+              Okay.
+              And so that's pretty much it.
+              So that's how this application works and I think this is our nicest application yet and the most real world for sure.
+              So with that being said, let's now actually set up a new application on your computer using Vite for the very first time.
+              So let's minimize this here.
+              And then just as always, we need to open up a new terminal or a command prompt on Windows, and move to the folder where we want to create that project.
+              And so now, instead of using Create React App, we will do npm, so not npx.
+              So npm create vite.
+              And in the future, once you start building your own applications with Vite, you will then use @latest so to use the latest version of Vite.
+              But here in this course, I now want you to use version four so that we are all using the same thing.
+              And that's actually all the command that you need.
+              Now, since you are using this command for the first time, it will ask you to install the Vite package.
+              And so then you just hit enter or Y to confirm that.
+              And afterwards, you will then see this prompt here for the project name.
+              Okay, so since I already used Vite before, that's not showing up here on my screen but you'll have this step here between these two.
+              So just confirm that.
+              That will then quickly install Vite and then here you can enter the project name.
+              So this one, again, is called worldwise.
+              And then here we can select the framework that we want to use.
+              So remember how I showed you in the beginning of the course that Vite is really quite different from Create React App.
+              So Vite is basically more of a modern build tool that also happens to have a few templates for all these different frameworks.
+              So we could even use Vanilla JavaScript but of course we want React.
+              And so with our arrow keys, we can navigate to React, hit enter and then, finally to finish, we just select JavaScript here and then that's it.
+              So now it tells us to go into the folder and to then install the dependencies, but let's not do it that way.
+              So let's instead open up our folder in VS Code and do it from there.
+              So again, quickly renaming it here.
+              Okay, let's make it a bit bigger actually.
+              And then let's open up the terminal.
+              And so from here, we now need to actually install the dependencies manually.
+              So at Create React App, we didn't have to do that.
+              So it would already then contain the node modules folder here, but this one didn't.
+              So let's just type npm install or just npm i for short.
+              And so this will then install all the packages but it will be a lot faster than with Create React App.
+              So there's a lot less packages necessary apparently.
+              But while this is installing, and actually now it already finished, but what I wanted to do now was just to take a quick look at the file structure here.
+              So we have our node modules again which will contain all the libraries necessary.
+              so React, React Dom, and a bunch of other ones that are necessary behind the scenes.
+              Then we have also the public folder again but this time index.html is actually outside that folder.
+              So that's another small difference here.
+              And the reason for that is simply that the developer who maintains this template here thinks basically that this is the best structure.
+              So once again, React really doesn't care about this and it doesn't even know, basically, what the structure here of the folder is.
+              So remember, React really only is concerned about displaying components onto the screen.
+              It doesn't care about the file structure, but of course we do.
+              So let's just take a look here at our source folder.
+              And so here we see that instead of an index.js, we have this main.jsx.
+              So the file extension is now this jsx which as we can see down here, stands for JavaScript JSX.
+              So it's pretty much the same as a JavaScript file but Vite really needs this to be JSX files and not just JS files.
+              So here, the entry point is not index.js, but again, this file called Main.
+              And notice how this one here almost doesn't have any junk at all.
+              So unlike the index.js file that we get from Create React App.
+              All right.
+              Then here, we also have our app.jsx file.
+              As always, this one is just a bit different.
+              But let's just, as always, get rid of everything.
+              And then here I will use that snippet that we started using in the previous section to very quickly scaffold a new component.
+              So for now, let's just write the name of the application here.
+              Just so we have something.
+              And then let's also get rid of all this CSS.
+              We will get some new one soon.
+              And then here we need to remove that line of code as well.
+              Okay.
+              And so now we are ready to start the application.
+              However, here is another difference.
+              We don't do that with npm start.
+              So instead, we can check out here that we have this dev script.
+              And so here, we need to run npm run dev.
+              Okay.
+              And so that's running now successfully.
+              But notice how it actually didn't open up a new browser tab.
+              So we need to manually do that.
+              Now, let's make this a lot smaller here like this and then I can just command or control click here on this link and then it opens up our page.
+              And you see it is working great.
+              And as always, let's also bring up our console here which we are going to need all the time.
+              And now to finish, remember how I also told you at the beginning of the course that the great thing about Create React App is that it already comes with all the important developer tools pre-installed.
+              And the most important one of those is by far ESLint.
+              So hopefully you saw throughout this course until this point that ESLint helped us so much and prevented so many bugs from happening.
+              So building a React app without ESLint is a bit like coding half-blinded.
+              So we really don't want that.
+              And so we now need to config ESLint here in our Vite project.
+              So again, we need to do that manually each time that we set up a new project with Vite.
+              So that can be a bit annoying and that's the reason why I told you that for learning, it is just good enough to actually use Create React App.
+              But yeah, now we are using Vite.
+              And so let's then config ESLint.
+              Let me just show you an example here of why we need that.
+              So let's say we define this variable and we are not using it.
+              And so then usually ESLint would warn us by highlighting this variable here with that yellow underline.
+              So that's what we want to get back, basically.
+              So let's open up a new terminal here.
+              So by clicking this button here.
+              And so with this, we keep our application running here in this other process.
+              So to configure ESLint, we need to install a few NPM packages.
+              So that's ESLint itself.
+              Then the Vite ESLint plugin.
+              So vite-plugin-eslint.
+              And finally, we also need to install all the React-specific ESLint rules.
+              So that's eslint-config-react-app.
+              So those are our three packages and then we need to save them as dependencies.
+              So dev dependencies with save-dev.
+              And then here, apparently I forgot the install keyword.
+              And so let's see.
+              So this should now install these three packages.
+              And so next, we need to actually config our project here to integrate with these packages.
+              So the first step was to install those three packages and the second one is to create a new file called .eslintrc.json.
+              And so here we can basically configure the behavior of ESLint.
+              And in this case, what we want to do is to extend the default rules of ESLint with those React rules that we just installed.
+              So just create an object like this and then extends and then react-app.
+              So again, these are the ESLint rules that we just installed before.
+              So basically these ones right here.
+              So with this, we extend ESLint to work with those rules.
+              And then finally, we also need to config our Vite project with this vite.config.js file.
+              So on this file we can configure all kinds of things about development and building of our project.
+              But here, all we need to do is to now add the ESLint plugin to this array.
+              So for that, we first import that here.
+              So import eslint from the vite-plugin-eslint.
+              And then finally, we add that here to our plugins array.
+              Give it a save, and that should then work.
+              So our application got reloaded here a few times.
+              There are no more errors.
+              Here, we can also close this process.
+              And you see that now ESLint is back to working.
+              So we get the error right here in our VS Code and also even that warning down here in our output from the Vite development process.
+              So let's get rid of that because now we know that this is actually working.
+              Great!
+              So with this, we have Vite correctly set up.
+              It is a little bit of work, but you just have to write down somewhere how it works and then do it every time.
+              So that's not too bad.
+              Especially if it's a big project that you will be working on for a long time.
+              But anyway, with this we have our project set up and so now we can start learning about the main concepts that we will talk about in this section, which are routing single page applications and React Router.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="bottom">
+        <p>Print tip: In the print dialog, choose “A4”, scale 100%, and disable “Headers and footers” for the cleanest output.</p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,386 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js — Building the Guest’s Reservations Page (Reviewer)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --chip:#f3f4f6;
+      --accent:#0b57d0;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1{
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip{
+      display: inline-block;
+      padding: 6px 10px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+    }
+
+    main{ padding-top: 18px; }
+
+    section{
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2{
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    h3{
+      margin: 12px 0 8px;
+      font-size: 15px;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 0 18px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      background: var(--soft);
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--soft);
+      white-space: pre-wrap;      /* wrap lines for printing */
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .two-col{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .hr{
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    /* Print styles (A4, clean output) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; padding: 0; }
+      header, section{ break-inside: avoid-page; page-break-inside: avoid; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]::after{ content: ""; } /* do not print URLs */
+      .chip{ background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧾 Next.js Reviewer: Building the Guest’s Reservations Page</h1>
+      <p class="subtitle">Focus: Fetching a user’s bookings (reservations) by <strong>guestId</strong>, rendering cards, and hiding actions for past reservations.</p>
+      <div class="meta">
+        <span class="chip">Single-column • A4 print-ready</span>
+        <span class="chip">Next.js App Router</span>
+        <span class="chip">Auth.js / NextAuth session</span>
+        <span class="chip">Supabase bookings</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goal of this lesson</h2>
+        <ul>
+          <li>Build the <strong>Reservations</strong> page that shows a guest’s <strong>past + future</strong> reservations.</li>
+          <li>Fetch bookings using <code>getBookings(guestId)</code> from your data service.</li>
+          <li>Use the logged-in user’s <code>guestId</code> from the <strong>session</strong>.</li>
+          <li>Render a list of <code>ReservationCard</code> components.</li>
+          <li>Hide <strong>Edit</strong>/<strong>Delete</strong> for reservations that are already in the past.</li>
+        </ul>
+
+        <div class="callout">
+          ✅ Mental model: In the database the table is commonly called <strong>bookings</strong>, but the UI says <strong>reservations</strong> for user clarity.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Key Concepts (Beginner-friendly)</h2>
+
+        <h3>1) “Bookings” vs “Reservations”</h3>
+        <p>
+          In this project, records are stored in a <strong>bookings</strong> table. The UI calls them <strong>reservations</strong> because users are not paying online yet.
+          The naming is a UX decision; technically, you still fetch from <code>bookings</code>.
+        </p>
+
+        <h3>2) Fetch the guest’s bookings using the session guestId</h3>
+        <p>
+          You previously stored <code>guestId</code> into the session (in Auth.js callbacks). Now you use it to fetch only the logged-in guest’s bookings.
+        </p>
+        <div class="callout">
+          🔐 Why it matters: <code>guestId</code> is the “foreign key” used to find bookings that belong to a user.
+        </div>
+
+        <h3>3) Server Component pattern</h3>
+        <p>
+          This page is typically a <strong>Server Component</strong> (default in App Router). That means you can:
+        </p>
+        <ul>
+          <li>Call <code>await auth()</code> directly (server-only).</li>
+          <li>Fetch data with <code>await getBookings(...)</code> without client state.</li>
+          <li>Return JSX that already contains the data.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧩 Implementation Recipe</h2>
+
+        <h3>Step A: Fetch bookings in the Reservations page</h3>
+        <p>
+          1) Make the page component <strong>async</strong>. 2) Read the session. 3) Use <code>session.user.guestId</code> as input to <code>getBookings</code>.
+        </p>
+
+        <pre><code>// app/account/reservations/page.js (example)
+import { auth } from "@/app/_lib/auth";
+import { getBookings } from "@/app/_lib/data-service";
+import ReservationCard from "@/app/_components/ReservationCard";
+
+export default async function ReservationsPage() {
+  const session = await auth();
+
+  // If you want extra safety:
+  // if (!session?.user?.guestId) throw new Error("Not authenticated");
+
+  const bookings = await getBookings(session.user.guestId);
+
+  if (!bookings.length)
+    return (
+      &lt;div&gt;
+        &lt;h2&gt;Your reservations&lt;/h2&gt;
+        &lt;p&gt;You have no reservations yet. Start by selecting a cabin.&lt;/p&gt;
+      &lt;/div&gt;
+    );
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Your reservations&lt;/h2&gt;
+      &lt;ul&gt;
+        {bookings.map((booking) =&gt; (
+          &lt;li key={booking.id}&gt;
+            &lt;ReservationCard booking={booking} /&gt;
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout">
+          🧷 Tip: Your data service might name it <code>getBookings</code> or <code>getBookingsByGuest</code>. The important part is: it filters by <code>guestId</code>.
+        </div>
+
+        <div class="hr"></div>
+
+        <h3>Step B: ReservationCard using Next.js &lt;Image /&gt; (Responsive technique)</h3>
+        <p>
+          Common pattern for responsive images in Next.js:
+          put <code>&lt;Image fill /&gt;</code> inside a <strong>relative</strong> parent with a fixed height (and often a square aspect ratio).
+        </p>
+
+        <pre><code>// components/ReservationCard.jsx (snippet)
+import Image from "next/image";
+
+export default function ReservationCard({ booking }) {
+  return (
+    &lt;div className="card"&gt;
+      &lt;div className="relative h-20 aspect-square"&gt;
+        &lt;Image
+          src={booking.cabins.image}
+          alt={`Cabin ${booking.cabins.name}`}
+          fill
+          className="object-cover"
+        /&gt;
+      &lt;/div&gt;
+      {/* ...more UI... */}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout">
+          🖼️ Why this works: <code>fill</code> makes the image take the parent’s box. The parent must be <code>position: relative</code>.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Testing Tip: Create sample bookings in Supabase</h2>
+        <p>
+          If your UI has no “Create reservation” feature yet, you can temporarily create sample data by editing rows in Supabase:
+        </p>
+        <ul>
+          <li>Find your <strong>guestId</strong> (e.g., displayed in session or DB).</li>
+          <li>In the <strong>bookings</strong> table, update 2–3 rows to use your <code>guestId</code>.</li>
+          <li>Adjust dates so you have both:
+            <ul>
+              <li>✅ Future reservation (editable/deletable)</li>
+              <li>⏳ Past reservation (actions hidden)</li>
+            </ul>
+          </li>
+        </ul>
+
+        <div class="callout">
+          ⚠️ Reminder: This is only for development/testing. Later, you will create real bookings via Server Actions.
+        </div>
+      </section>
+
+      <section>
+        <h2>🛡️ Hide Edit/Delete for Past Reservations</h2>
+        <p>
+          Past reservations should not be editable or deletable. You can conditionally render the buttons based on whether the start date is in the past.
+        </p>
+
+        <pre><code>// ReservationCard.jsx (snippet)
+import { isPast } from "date-fns";
+import Link from "next/link";
+
+export default function ReservationCard({ booking }) {
+  const startDate = new Date(booking.startDate);
+
+  return (
+    &lt;div&gt;
+      {/* ...booking details... */}
+
+      {!isPast(startDate) ? (
+        &lt;&gt;
+          &lt;Link href={`/account/reservations/edit/${booking.id}`} className="btn"&gt;
+            ✏️ Edit
+          &lt;/Link&gt;
+
+          &lt;button className="btn danger"&gt;🗑️ Delete&lt;/button&gt;
+        &lt;/&gt;
+      ) : null}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout">
+          ✅ Pattern: <code>condition ? &lt;&gt;...&lt;/&gt; : null</code> cleanly “removes” UI when not allowed.
+        </div>
+
+        <p>
+          Also prefer <code>&lt;Link /&gt;</code> over raw <code>&lt;a href="..."&gt;</code> in Next.js for client-side navigation.
+        </p>
+      </section>
+
+      <section>
+        <h2>✅ Quick Checklist (for your code)</h2>
+        <ul>
+          <li>☐ Page is <code>async</code> and calls <code>await auth()</code></li>
+          <li>☐ Uses <code>session.user.guestId</code> to fetch bookings</li>
+          <li>☐ Renders empty-state UI if no bookings</li>
+          <li>☐ Uses <code>ReservationCard</code> for each booking</li>
+          <li>☐ Uses Next.js <code>&lt;Image /&gt;</code> with <code>fill</code> inside a <code>relative</code> parent</li>
+          <li>☐ Hides Edit/Delete for past reservations using <code>isPast</code></li>
+          <li>☐ Uses <code>&lt;Link /&gt;</code> for navigation</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>➡️ What’s next</h2>
+        <p>
+          Now that the reservations page displays the correct bookings for the logged-in guest, the next steps are:
+        </p>
+        <ul>
+          <li>Implement <strong>Edit</strong> reservation (likely via Server Actions).</li>
+          <li>Implement <strong>Delete</strong> reservation (Server Action + cache revalidation).</li>
+          <li>Improve UX (loading states, optimistic UI, transitions).</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,327 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Creating useKey (Keyboard Event Custom Hook)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+    .danger{ color: var(--danger); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🧠 React Study Guide: Creating <code>useKey</code> (Keyboard Event Custom Hook)</h1>
+      <p class="subtitle">We create a reusable custom hook that attaches and removes a keyboard event listener. Then we reuse it in two places: <strong>Escape</strong> closes a movie, and <strong>Enter</strong> focuses the search input.</p>
+      <div class="meta">
+        <span class="chip">🧷 Custom Hook: <strong>useKey</strong></span>
+        <span class="chip">⌨️ Event: <code>keydown</code></span>
+        <span class="chip">🧹 Cleanup: remove listener</span>
+        <span class="chip">♻️ Reuse: MovieDetails + Search</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Why this hook exists</h2>
+      <p>We already implemented keyboard interactions using <code>useEffect</code>:</p>
+      <ul>
+        <li>🧯 In <strong>MovieDetails</strong>: pressing <strong>Escape</strong> closes the movie.</li>
+        <li>🔎 In <strong>Search</strong>: pressing <strong>Enter</strong> focuses the search input and clears the query.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Problem:</strong> These effects look very similar (add listener → check key → run action → cleanup). That’s reusable logic.
+      </div>
+
+      <div class="callout">
+        <strong>Solution:</strong> Extract this into a custom hook: <code>useKey</code>.
+      </div>
+    </section>
+
+    <section>
+      <h2>📁 Create <code>useKey.js</code></h2>
+      <p>Create a new file in <code>src</code>:</p>
+      <pre><code>src/useKey.js</code></pre>
+
+      <p>Then create a named export:</p>
+      <pre><code>export function useKey(key, action) {
+  // ...
+}</code></pre>
+
+      <div class="callout">
+        <strong>Note:</strong> This hook doesn’t need to return anything. It only performs an effect (attach listener).
+      </div>
+    </section>
+
+    <section>
+      <h2>🧷 Hook API: inputs required</h2>
+      <p>To make this hook reusable, the consumer provides:</p>
+      <ul>
+        <li>🔤 <strong><code>key</code></strong> — which keyboard key should trigger the action (e.g., <code>"Escape"</code>, <code>"Enter"</code>)</li>
+        <li>🎬 <strong><code>action</code></strong> — the callback function to run when that key is pressed</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Think of it as a “public API”:</strong> arguments are to hooks what props are to components.
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Implementation (complete)</h2>
+      <p>We implement it with a <code>useEffect</code> that:</p>
+      <ul>
+        <li>adds the <code>keydown</code> listener</li>
+        <li>checks whether the pressed key matches</li>
+        <li>calls the action</li>
+        <li>cleans up the listener on unmount</li>
+      </ul>
+
+      <pre><code>import { useEffect } from "react";
+
+export function useKey(key, action) {
+  useEffect(() =&gt; {
+    function onKeyDown(e) {
+      // Normalize both sides to avoid casing issues
+      if (e.code.toLowerCase() === key.toLowerCase()) {
+        action();
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () =&gt; document.removeEventListener("keydown", onKeyDown);
+  }, [key, action]);
+}</code></pre>
+
+      <div class="callout">
+        <strong>Why normalize to lowercase?</strong> Consumers might pass <code>"escape"</code>, <code>"Escape"</code>, etc. Lowercasing avoids string mismatch.
+      </div>
+
+      <div class="callout">
+        <strong>Dependencies:</strong> don’t lie — include both <code>key</code> and <code>action</code> because they are used inside the effect.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧯 Reuse in MovieDetails (Escape closes)</h2>
+      <p>Replace the original effect with one line:</p>
+
+      <pre><code>import { useKey } from "./useKey";
+
+function MovieDetails({ onCloseMovie }) {
+  useKey("Escape", onCloseMovie);
+
+  // ...
+}</code></pre>
+
+      <div class="callout">
+        <strong>Important:</strong> pass the function reference (<code>onCloseMovie</code>), don’t call it (<code>onCloseMovie()</code>).
+      </div>
+    </section>
+
+    <section>
+      <h2>🔎 Reuse in Search (Enter focuses + clears)</h2>
+      <p>For Search, the “action” is a bit longer because it needs extra logic (check focused element, focus input, clear query).</p>
+
+      <pre><code>import { useKey } from "./useKey";
+
+function Search({ setQuery }) {
+  // assume: inputEl is a ref to the input element
+
+  useKey("Enter", function () {
+    if (document.activeElement === inputEl.current) return;
+    inputEl.current?.focus();
+    setQuery("");
+  });
+
+  // ...
+}</code></pre>
+
+      <div class="callout">
+        <strong>Notice:</strong> The hook handles the “when key is pressed” part. The callback describes “what should happen.”
+      </div>
+    </section>
+
+    <section>
+      <h2 class="warn">⚠️ Practical note: <code>action</code> dependency and re-renders</h2>
+      <p>Because <code>action</code> is a function, it can be re-created on every render (especially if it’s an inline function).</p>
+      <ul>
+        <li>That’s okay here: re-creating the listener is usually cheap.</li>
+        <li>But in larger apps, you might use <code>useCallback</code> to stabilize <code>action</code>.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Rule stays the same:</strong> include all dependencies; optimize later if needed.
+      </div>
+    </section>
+
+    <section>
+      <h2>📝 Mini practice</h2>
+      <ul>
+        <li>✅ Add <code>useKey("KeyK", ...)</code> to focus a search box when user presses <strong>K</strong>.</li>
+        <li>✅ Add <code>useKey("Escape", ...)</code> to close a modal.</li>
+        <li>✅ Add <code>useKey("Enter", ...)</code> to submit a form (if not already focused in an input).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>🧷 <code>useKey</code> abstracts “attach listener → check key → run action → cleanup”.</li>
+        <li>♻️ It’s reusable across many components that need keyboard shortcuts.</li>
+        <li>🧹 Always clean up listeners in effects.</li>
+        <li>🔤 Normalize key strings to avoid case mismatch.</li>
+        <li>📐 Include <code>[key, action]</code> in the dependency array (don’t lie to React).</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

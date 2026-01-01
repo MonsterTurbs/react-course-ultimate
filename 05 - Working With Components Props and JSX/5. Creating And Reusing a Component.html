@@ -1,0 +1,553 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Creating & Reusing a Component (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    /* Better anchor navigation when clicking the TOC */
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-left: 6px;
+      white-space: nowrap;
+    }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .kbd {
+      display: inline-block;
+      padding: 1px 7px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 7px;
+      background: #fff;
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      /* Let long sections flow across pages; avoid splitting key blocks */
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+
+      /* Avoid link styling in print */
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      /* Ensure consistent print colors */
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🍕 Creating & Reusing a Component (React) — Reviewer</h1>
+      <p class="subtitle">Beginner-friendly study guide from the lecture transcript. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print dialog, set Paper size = A4, Margins = Default.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#goal">Lesson goal</a></li>
+          <li><a href="#starter-files">Add starter files (public vs src)</a></li>
+          <li><a href="#create-component">Create a new component</a></li>
+          <li><a href="#use-component">Use the component inside <code>App</code></a></li>
+          <li><a href="#one-root">Important rule: return one root element</a></li>
+          <li><a href="#nesting">Nesting components vs nesting declarations</a></li>
+          <li><a href="#data-images">Add text + image (and ESLint <code>alt</code>)</a></li>
+          <li><a href="#reuse">Reusability: render the same component many times</a></li>
+          <li><a href="#vscode">Bonus: remove Git diff decorations in VS Code</a></li>
+          <li><a href="#practice">Practice tasks</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="goal">
+      <h2>🎯 Lesson goal</h2>
+      <p>
+        Continue building the app by creating a <strong>brand new component</strong> and learning the first idea of
+        <strong>reusability</strong> in React.
+      </p>
+      <div class="callout">
+        <p><strong>Core idea 🧠</strong></p>
+        <ul>
+          <li>🧩 A component is a reusable piece of UI.</li>
+          <li>🔁 You can render the same component multiple times to reuse the same UI pattern.</li>
+          <li>📦 Later, you will use <strong>props</strong> to customize each instance with different data.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="starter-files">
+      <h2>📁 Add starter files (public vs src)</h2>
+      <p>From the downloaded GitHub starter folder, you copy these into your project:</p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>✅ Put images in <code>public</code> <span class="tag">Assets</span></h3>
+          <ul>
+            <li>🍕 Folder of pizza images goes to <code>public</code>.</li>
+            <li>📌 Reason: files in <code>public</code> can be referenced by path (e.g., <code>"spinaci.jpg"</code> or a folder path).</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>✅ Put code/CSS in <code>src</code> <span class="tag">App code</span></h3>
+          <ul>
+            <li>🎨 <code>index.css</code> should live in <code>src</code> (or be imported from there).</li>
+            <li>🗃️ Starter data file (like <code>data.js</code>) is usually kept in <code>src</code> too.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Beginner note 🧭</strong></p>
+        <p class="muted">
+          In real projects you split code into many files (modules). In this lecture, the instructor keeps things
+          in one file temporarily for simplicity.
+        </p>
+      </div>
+    </section>
+
+    <section id="create-component">
+      <h2>🧩 Create a new component (function component)</h2>
+      <p>In React, a common way to write a component is a <strong>function</strong> that returns markup (usually JSX).</p>
+
+      <div class="card">
+        <h3>Two important rules ✅</h3>
+        <ul>
+          <li>🔠 The function name must start with an <strong>uppercase</strong> letter (e.g., <code>Pizza</code>, not <code>pizza</code>).</li>
+          <li>🧾 The function must <strong>return</strong> something (JSX markup, or <code>null</code> if you intentionally render nothing).</li>
+        </ul>
+      </div>
+
+      <h3>Example: simplest component</h3>
+      <pre><code>function Pizza() {
+  return &lt;h2&gt;Pizza&lt;/h2&gt;;
+}</code></pre>
+
+      <p class="muted">If ESLint says “defined but never used”, it just means you created it but didn’t render it yet.</p>
+    </section>
+
+    <section id="use-component">
+      <h2>🧱 Use the component inside <code>App</code></h2>
+      <p>
+        Creating a component is not enough—React only shows it when you <strong>use it</strong> inside a rendered component.
+        Usually, <code>App</code> is the component currently rendered.
+      </p>
+
+      <h3>Render the component like an HTML tag</h3>
+      <pre><code>function App() {
+  return (
+    &lt;div&gt;
+      &lt;Pizza /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Why does this work? 🔍</strong></p>
+        <p class="muted">
+          <code>&lt;Pizza /&gt;</code> tells React to call the <code>Pizza()</code> function and place the returned JSX into the UI.
+        </p>
+      </div>
+    </section>
+
+    <section id="one-root">
+      <h2>⚠️ Important rule: return exactly one root element</h2>
+      <p>
+        A React component must return <strong>one</strong> parent element. This means you can’t return two siblings side-by-side.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>❌ Not allowed (two root elements)</h3>
+          <pre><code>function Pizza() {
+  return (
+    &lt;h2&gt;Pizza&lt;/h2&gt;
+    &lt;p&gt;Tomato, cheese, spinach&lt;/p&gt;
+  );
+}</code></pre>
+          <p class="muted">This causes an error because there are two top-level elements.</p>
+        </div>
+
+        <div class="card">
+          <h3>✅ Allowed (wrap inside one parent)</h3>
+          <pre><code>function Pizza() {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Pizza&lt;/h2&gt;
+      &lt;p&gt;Tomato, cheese, spinach&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+          <p class="muted">The <code>&lt;div&gt;</code> becomes the single root element.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Pro tip 🧠</strong></p>
+        <p class="muted">
+          Another common option is a React Fragment: <code>&lt;&gt; ... &lt;/&gt;</code>. You’ll see that later.
+        </p>
+      </div>
+    </section>
+
+    <section id="nesting">
+      <h2>🧭 Nesting components vs nesting declarations</h2>
+      <p>
+        When the instructor says “nesting components”, it means <strong>using one component inside another</strong>.
+        It does <strong>not</strong> mean writing a function declaration inside another function.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>✅ Good: declare components at top-level</h3>
+          <pre><code>function Pizza() {
+  return &lt;h2&gt;Pizza&lt;/h2&gt;;
+}
+
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;Pizza /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+          <p class="muted">Clean, predictable, and matches real-world patterns.</p>
+        </div>
+
+        <div class="card">
+          <h3>🚫 Avoid: declaring a component inside another component</h3>
+          <pre><code>function App() {
+  function Pizza() {
+    return &lt;h2&gt;Pizza&lt;/h2&gt;;
+  }
+
+  return &lt;Pizza /&gt;;
+}</code></pre>
+          <p class="muted">It may “work”, but it’s a bad pattern and can cause issues (you’ll learn why later).</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="data-images">
+      <h2>🗃️ Add starter data + text + image</h2>
+      <p>
+        Next, you make the component more interesting by adding pizza data and an image.
+        In the lecture, the instructor temporarily copies starter data into the same file.
+      </p>
+
+      <h3>Example: basic pizza markup</h3>
+      <pre><code>function Pizza() {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Spinaci&lt;/h2&gt;
+      &lt;p&gt;Tomato, mozzarella, spinach, and ricotta cheese&lt;/p&gt;
+      &lt;img src="spinaci.jpg" alt="Spinaci" /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Why the <code>alt</code> attribute matters ♿</strong></p>
+        <ul>
+          <li>✅ ESLint warns if an image has no <code>alt</code> text.</li>
+          <li>👀 Helps screen readers and improves accessibility.</li>
+          <li>🧠 Good habit: use the pizza name or a short description.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Beginner mental model 🧱</h3>
+        <ul>
+          <li>🖼️ Images in <code>public</code> can be referenced by path.</li>
+          <li>🧾 JSX looks like HTML, but it lives inside JavaScript.</li>
+          <li>🧠 If you see red underline: check if you’re returning multiple root elements.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="reuse">
+      <h2>🔁 Reusability: render the same component multiple times</h2>
+      <p>
+        For the first “reusability” demo, you simply include the same component several times.
+        This repeats the same UI block.
+      </p>
+
+      <pre><code>function App() {
+  return (
+    &lt;div&gt;
+      &lt;Pizza /&gt;
+      &lt;Pizza /&gt;
+      &lt;Pizza /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Important note 🧩</strong></p>
+        <p class="muted">
+          At this stage all pizzas look the same because the component uses the same hardcoded data.
+          Next lectures (Props) will show how to pass different data into each component instance.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Common beginner mistake ❗</h3>
+        <p class="muted">
+          If you see the component repeated but you expected different content, that’s normal for now.
+          You haven’t introduced <strong>props</strong> yet.
+        </p>
+      </div>
+    </section>
+
+    <section id="vscode">
+      <h2>🧰 Bonus: Remove Git diff decorations in VS Code</h2>
+      <p>
+        You might notice colored lines in the editor gutter and sidebar. That’s VS Code showing Git diffs.
+        In Create React App projects, Git is often initialized automatically.
+      </p>
+
+      <div class="card">
+        <h3>Steps (quick) ✅</h3>
+        <ol>
+          <li>Open VS Code <strong>Settings</strong>.</li>
+          <li>Search: <strong>diff decorations</strong>.</li>
+          <li>Change “Diff Decorations” from <strong>all</strong> to <strong>none</strong>.</li>
+        </ol>
+        <p class="muted">Result: cleaner editor look with fewer visual indicators.</p>
+      </div>
+    </section>
+
+    <section id="practice">
+      <h2>🧪 Practice tasks</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Task 1: Make a second component 🧩</h3>
+          <ul>
+            <li>Create <code>Header</code> component that returns <code>&lt;h1&gt;Fast React Pizza Co.&lt;/h1&gt;</code></li>
+            <li>Render it above the pizzas in <code>App</code>.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Task 2: Fix the “two roots” error ⚠️</h3>
+          <ul>
+            <li>Make <code>Pizza</code> return a title + paragraph.</li>
+            <li>If you get an error, wrap them in a <code>&lt;div&gt;</code> (or try a Fragment if you know it).</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Task 3: Prepare for props 📦</h3>
+          <ul>
+            <li>Create two pizza objects (Spinaci + another).</li>
+            <li>For now, just swap the hardcoded name/ingredients manually and see the UI update.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Quick self-check ✅</strong></p>
+        <ul>
+          <li>Can you explain what a “component” is in 1 sentence?</li>
+          <li>Do you remember the 2 rules for function components (uppercase + return)?</li>
+          <li>Do you know why <code>alt</code> is required on images?</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

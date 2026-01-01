@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Creating a New Cabin — Study Guide (React Query + React Hook Form + Supabase)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f9;
+      --soft2:#fbfbfd;
+      --codebg:#0b1020;
+      --codetext:#f5f7ff;
+      --accent:#1a73e8;
+      --good:#137333;
+      --warn:#b26a00;
+      --bad:#b00020;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column, print-friendly layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    header{
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 12px;
+    }
+
+    h1{
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    h2{
+      margin: 22px 0 8px;
+      font-size: 18px;
+    }
+    h3{
+      margin: 16px 0 8px;
+      font-size: 15.5px;
+    }
+
+    p{margin: 10px 0;}
+
+    .toc{
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+    .toc h2{margin: 0 0 8px; font-size: 16px;}
+    .toc ul{margin: 0; padding-left: 20px;}
+    .toc li{margin: 4px 0;}
+
+    .card{
+      margin: 12px 0;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .callout{
+      margin: 12px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+    }
+
+    .callout.good{border-color: rgba(19,115,51,.35); background: rgba(19,115,51,.06);}
+    .callout.warn{border-color: rgba(178,106,0,.35); background: rgba(178,106,0,.06);}
+    .callout.bad{border-color: rgba(176,0,32,.35); background: rgba(176,0,32,.06);}
+
+    .badge{
+      display:inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background:#fff;
+      font-size: 12px;
+      color: var(--muted);
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    ul,ol{padding-left: 20px;}
+    li{margin: 6px 0;}
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      border-radius: 12px;
+      overflow:auto;
+      border: 1px solid rgba(255,255,255,.08);
+      white-space: pre;
+      tab-size: 2;
+    }
+    code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12.5px;}
+
+    .k{
+      font-weight: bold;
+      color: var(--accent);
+    }
+
+    .two-col{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .mini{
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .divider{
+      height:1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    a{color: var(--accent); text-decoration: none;}
+    a:hover{text-decoration: underline;}
+
+    /* Print rules: A4, clean margins, no link URLs */
+    @page{ size: A4; margin: 12mm; }
+    @media print{
+      body{background:#fff;}
+      .page{max-width: unset; padding: 0;}
+      header,.toc,.card,.callout{break-inside: avoid;}
+      pre{break-inside: avoid;}
+      a{color: #000; text-decoration: none;}
+      a[href]:after{content: "" !important;}
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🏡 Creating a New Cabin <span class="badge">React Query + React Hook Form + Supabase</span></h1>
+      <p class="subtitle">Reviewer / study guide for the lecture transcript (single-column, A4 print-ready).</p>
+      <div class="meta">
+        <div>✅ Goal: submit a form → create a cabin in Supabase → automatically refresh the UI (table) using React Query.</div>
+        <div>🧩 Key tools: <span class="k">useMutation</span>, <span class="k">invalidateQueries</span>, Supabase <span class="k">insert</span>, RLS policies, and <span class="k">reset()</span> from React Hook Form.</div>
+      </div>
+    </header>
+
+    <section class="toc" aria-label="Table of contents">
+      <h2>📌 Contents</h2>
+      <ul>
+        <li><a href="#big-picture">Big picture (what you are building)</a></li>
+        <li><a href="#step-by-step">Step-by-step workflow</a></li>
+        <li><a href="#rls">Supabase RLS: why inserts/updates fail without policies</a></li>
+        <li><a href="#service">Service layer: <code>createCabin(newCabin)</code></a></li>
+        <li><a href="#mutation">React Query mutation: create + refresh list</a></li>
+        <li><a href="#why-onsuccess">Why side-effects belong in <code>onSuccess</code></a></li>
+        <li><a href="#common-issues">Common issues + debugging tips</a></li>
+        <li><a href="#next">What’s next: validation with React Hook Form</a></li>
+      </ul>
+    </section>
+
+    <section id="big-picture" class="card">
+      <h2>🧠 Big picture (mental model)</h2>
+      <p>
+        You already have a <b>Cabin Form</b> (React Hook Form) and a <b>Cabin Table</b> that shows cabins fetched via React Query.
+        Now you’re adding the missing piece: <b>create a cabin</b> (mutation).
+      </p>
+      <div class="callout good">
+        <p><b>✨ The “magic” is actually predictable:</b></p>
+        <ul>
+          <li>Form submit → <b>mutation</b> sends data to Supabase.</li>
+          <li>If success → React Query <b>invalidates</b> the <code>["cabins"]</code> query.</li>
+          <li>Invalidation triggers a <b>refetch</b> → cache updates → table re-renders (because state changed).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="step-by-step" class="card">
+      <h2>🧭 Step-by-step workflow</h2>
+      <ol>
+        <li>🛡️ In Supabase, enable RLS policies that allow <b>INSERT</b> (create) and <b>UPDATE</b> (for later edits).</li>
+        <li>🧰 In <b>services</b>, implement <code>createCabin(newCabin)</code> using Supabase <code>.insert()</code>.</li>
+        <li>🔁 In the form component, use React Query’s <code>useMutation</code> with:
+          <ul>
+            <li><code>mutationFn: createCabin</code></li>
+            <li><code>onSuccess</code>: show success toast + <code>invalidateQueries</code> + <code>reset()</code></li>
+            <li><code>onError</code>: show error toast</li>
+          </ul>
+        </li>
+        <li>⛔ Disable the submit button while creating (<code>isCreating</code>) to prevent double-submits.</li>
+      </ol>
+    </section>
+
+    <section id="rls" class="card">
+      <h2>🔐 Supabase RLS policies (critical)</h2>
+      <p>
+        When <b>Row Level Security (RLS)</b> is enabled, your public/anon key can’t do writes unless you explicitly allow it.
+        That’s why <b>select (read)</b> might work, but <b>insert/update/delete</b> will fail until policies exist.
+      </p>
+      <div class="callout warn">
+        <p><b>⚠️ Temporary dev setup (as in the lecture):</b> allow everyone to insert/update by using an expression like <code>true</code>.</p>
+        <p class="mini">Later you should restrict policies to authenticated users (real-world production approach).</p>
+      </div>
+      <ul>
+        <li>🧩 Create policy for <b>INSERT</b>: “Enable create for all users” → expression: <code>true</code></li>
+        <li>🧩 Create policy for <b>UPDATE</b>: “Enable update access for all users” → expression: <code>true</code></li>
+      </ul>
+    </section>
+
+    <section id="service" class="card">
+      <h2>🧰 Service layer: <code>createCabin(newCabin)</code></h2>
+      <p>
+        You create a function in your services that talks to Supabase.
+        The key idea: <b>the object’s field names must match the table columns</b> (e.g., <code>regularPrice</code>, <code>maxCapacity</code>, <code>description</code>, <code>discount</code>, etc.).
+      </p>
+
+      <div class="callout">
+        <p><b>📝 Why an array?</b> Supabase <code>.insert()</code> expects an array of rows to insert (even if inserting just one row).</p>
+      </div>
+
+      <pre><code>// services/apiCabins.js
+import supabase from "./supabase";
+
+export async function createCabin(newCabin) {
+  const { data, error } = await supabase
+    .from("cabins")
+    .insert([newCabin])
+    .select();
+
+  if (error) {
+    console.error(error);
+    throw new Error("Cabin could not be created");
+  }
+
+  return data;
+}
+</code></pre>
+
+      <div class="callout good">
+        <p><b>✅ Quick checklist:</b></p>
+        <ul>
+          <li>Correct table name: <code>"cabins"</code></li>
+          <li>Insert is an array: <code>.insert([newCabin])</code></li>
+          <li>Throw errors so React Query can catch them and run <code>onError</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="mutation" class="card">
+      <h2>🔁 React Query mutation: create cabin + refresh list</h2>
+      <p>
+        Fetching uses <code>useQuery</code>. Creating/updating/deleting uses <code>useMutation</code>.
+        A mutation gives you a <code>mutate</code> function, and state like <code>isLoading</code> (rename it to <code>isCreating</code> for clarity).
+      </p>
+
+      <pre><code>// CreateCabinForm.jsx (conceptual snippet)
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { useForm } from "react-hook-form";
+import { createCabin } from "../services/apiCabins";
+
+export default function CreateCabinForm() {
+  const queryClient = useQueryClient();
+  const { register, handleSubmit, reset } = useForm();
+
+  const { mutate, isLoading: isCreating } = useMutation({
+    mutationFn: createCabin,
+    onSuccess: () =&gt; {
+      toast.success("New cabin successfully created");
+      queryClient.invalidateQueries({ queryKey: ["cabins"] });
+      reset();
+    },
+    onError: (err) =&gt; {
+      toast.error(err.message);
+    },
+  });
+
+  function onSubmit(data) {
+    // For now: assume data is valid
+    mutate(data);
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit(onSubmit)}&gt;
+      {/* inputs: {...register('name')}, etc */}
+      &lt;button disabled={isCreating}&gt;Add cabin&lt;/button&gt;
+      &lt;button type="reset"&gt;Cancel&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout good">
+        <p><b>✅ Result:</b> submit form → cabin inserted → cabins query invalidated → table refetches → UI updates automatically.</p>
+      </div>
+    </section>
+
+    <section id="why-onsuccess" class="card">
+      <h2>🎯 Why keep logic inside <code>onSuccess</code> instead of <code>onSubmit</code>?</h2>
+      <ul>
+        <li>✅ You only want to reset/notify if the server really accepted the new cabin.</li>
+        <li>⏳ Mutations are async: <code>onSuccess</code> runs <b>after</b> Supabase confirms success.</li>
+        <li>🧼 Cleaner code: the submit handler becomes a simple “send data” function, while mutation-related side effects stay near the mutation.</li>
+      </ul>
+      <div class="callout">
+        <p><b>🧩 Clear separation of responsibilities:</b></p>
+        <ul>
+          <li><b>onSubmit</b> = collect data and trigger mutation</li>
+          <li><b>useMutation</b> = server write + what to do on success/error</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="common-issues" class="card">
+      <h2>🧯 Common issues + debugging tips</h2>
+
+      <h3>1) “Cabin could not be created” (toast error)</h3>
+      <ul>
+        <li>🔐 Most common cause: missing RLS policy for <b>INSERT</b>.</li>
+        <li>🧾 Check console for the Supabase error (you log it before throwing).</li>
+      </ul>
+
+      <h3>2) Wrong field types / “Invalid input syntax …”</h3>
+      <ul>
+        <li>🧮 Your table expects certain columns as <b>integers/floats</b>. Empty strings or wrong inputs can break inserts.</li>
+        <li>🧪 This is exactly why the next lecture adds <b>React Hook Form validation</b> (required fields, number validation, etc.).</li>
+      </ul>
+
+      <h3>3) UI does not update after creating</h3>
+      <ul>
+        <li>🔑 Ensure you invalidate the correct query key: <code>["cabins"]</code> must match the key used in <code>useQuery</code>.</li>
+        <li>🧰 Use React Query DevTools to verify that the cabins query refetched.</li>
+      </ul>
+
+      <div class="callout warn">
+        <p><b>🛑 Reminder:</b> Allowing everyone to insert/update is for learning only. In real apps, lock writes to authenticated roles.</p>
+      </div>
+    </section>
+
+    <section id="next" class="card">
+      <h2>➡️ What’s next (validation)</h2>
+      <p>
+        You saw that submitting empty or incorrect values can cause server errors.
+        Next, you’ll use React Hook Form validators to prevent bad submits:
+      </p>
+      <ul>
+        <li>✅ Required fields (name, maxCapacity, regularPrice, etc.)</li>
+        <li>🔢 Number validation (ensure numeric fields are numbers)</li>
+        <li>📉 Custom rules (e.g., discount ≤ regularPrice)</li>
+        <li>🧾 Display field-level errors in the UI</li>
+      </ul>
+
+      <div class="divider"></div>
+      <p class="mini">End of reviewer.</p>
+    </section>
+  </main>
+</body>
+</html>

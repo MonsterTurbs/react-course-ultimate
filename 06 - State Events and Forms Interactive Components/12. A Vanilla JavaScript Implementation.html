@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React vs Vanilla JS + Component State Isolation — Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column page layout */
+    .page{
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 24px;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    h2{
+      margin: 20px 0 10px;
+      font-size: 18px;
+    }
+
+    h3{
+      margin: 16px 0 8px;
+      font-size: 15.5px;
+    }
+
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .two-col{
+      display:block; /* keep single column always */
+    }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{
+      flex:1;
+    }
+    .term .title{
+      font-weight: 700;
+      margin: 0 0 4px;
+    }
+    .term .desc{
+      margin:0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap;       /* wrap long lines for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .mini{
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .divider{
+      border:none;
+      border-top:1px solid var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print styles */
+    @page{
+      size: A4;
+      margin: 14mm;
+    }
+    @media print{
+      body{
+        background:#ffffff !important;
+        color:#000000 !important;
+      }
+      .page{
+        max-width: none;
+        padding: 0;
+        margin: 0;
+      }
+      header{
+        border-bottom: 1px solid #000000;
+      }
+      .chip, .card, .term, pre{
+        border-color: #000000;
+      }
+      .callout{
+        background: #ffffff;
+        border-left-color: #000000;
+      }
+      /* Avoid ugly splits */
+      .card, .term, pre, .callout{
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>React vs Vanilla JavaScript + Component State Isolation — Reviewer</h1>
+      <p class="subtitle">
+        Focus: comparing “React state updates + declarative UI” versus “Vanilla JS + manual DOM manipulation,”
+        and proving that each React component instance owns isolated state.
+      </p>
+      <div class="chip-row" aria-label="Key themes">
+        <span class="chip">🧠 State</span>
+        <span class="chip">🧩 Components</span>
+        <span class="chip">🛠️ DOM Manipulation</span>
+        <span class="chip">✅ Declarative UI</span>
+        <span class="chip">📌 DevTools</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Big Picture Summary</h2>
+      <div class="callout">
+        <p><strong>Key idea:</strong> In React, you usually <em>update state</em> and React keeps the UI in sync automatically. 🙂</p>
+        <p><strong>In Vanilla JS,</strong> you update a variable (your “state”) and then you must <em>manually update the DOM</em> so the UI changes. 😅</p>
+      </div>
+
+      <div class="card">
+        <h3>What the lecture is doing</h3>
+        <ul>
+          <li>Compares the React version of the app to an equivalent Vanilla JavaScript HTML+JS implementation.</li>
+          <li>Highlights the difference between <strong>declarative</strong> (React/JSX) and <strong>imperative</strong> (manual DOM operations) code.</li>
+          <li>Demonstrates that <strong>each component instance</strong> has its <strong>own isolated state</strong> by rendering the same component twice.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Key Terms (Beginner-Friendly)</h2>
+
+      <div class="term">
+        <div class="icon">🧠</div>
+        <div class="body">
+          <p class="title">State</p>
+          <p class="desc">
+            A piece of data that can change over time (e.g., current step = 1, 2, 3). When state changes, the UI should reflect it.
+          </p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">🧰</div>
+        <div class="body">
+          <p class="title">DOM</p>
+          <p class="desc">
+            The “live” HTML structure in the browser. In Vanilla JS, you often select elements and change their text/classes manually.
+          </p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">🧾</div>
+        <div class="body">
+          <p class="title">Imperative Programming (Vanilla JS style)</p>
+          <p class="desc">
+            You tell the browser step-by-step what to do: “find this element, set text, add class, remove class…”
+          </p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">✅</div>
+        <div class="body">
+          <p class="title">Declarative Programming (React style)</p>
+          <p class="desc">
+            You describe what the UI should look like for a given state. React decides how to update the DOM.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) React vs Vanilla JS — What Actually Changes?</h2>
+
+      <div class="card">
+        <h3>Vanilla JS flow (simplified)</h3>
+        <ol>
+          <li>Store your “state” in a variable (e.g., <code>let step = 1;</code>).</li>
+          <li>Select DOM elements with <code>document.querySelector</code>.</li>
+          <li>Attach event handlers using <code>addEventListener</code>.</li>
+          <li>When user clicks:
+            <ul>
+              <li>Update the state variable (<code>step++</code> or <code>step--</code>).</li>
+              <li>Call an <strong>update function</strong> to manually change the DOM so the UI matches the new step.</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+
+      <pre><code>// Vanilla JS (conceptual example)
+let step = 1;
+
+const btnNext = document.querySelector(".next");
+const btnPrev = document.querySelector(".prev");
+const messageEl = document.querySelector(".message");
+
+function updateUI() {
+  messageEl.textContent = `Step ${step}`;
+  // Also update classes like "active" manually...
+}
+
+btnNext.addEventListener("click", function () {
+  step = step + 1;
+  updateUI(); // required!
+});
+
+btnPrev.addEventListener("click", function () {
+  step = step - 1;
+  updateUI(); // required!
+});</code></pre>
+
+      <div class="card">
+        <h3>React flow (simplified)</h3>
+        <ol>
+          <li>Store state with <code>useState</code> (e.g., <code>const [step, setStep] = useState(1)</code>).</li>
+          <li>When user clicks:
+            <ul>
+              <li>Call <code>setStep(step + 1)</code> (or use a safe updater).</li>
+              <li>React re-renders the component and updates the DOM automatically to match the new state.</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+
+      <pre><code>// React (conceptual example)
+function Steps() {
+  const [step, setStep] = React.useState(1);
+
+  function next() {
+    setStep(s =&gt; s + 1); // React updates UI automatically
+  }
+
+  function prev() {
+    setStep(s =&gt; s - 1);
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Step {step}&lt;/p&gt;
+      &lt;button onClick={prev}&gt;Previous&lt;/button&gt;
+      &lt;button onClick={next}&gt;Next&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Main difference:</strong></p>
+        <ul>
+          <li>Vanilla JS: update variable ➜ <strong>must</strong> call a DOM-update function. 🛠️</li>
+          <li>React: update state ➜ React keeps UI synced for you. ✅</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Why React feels “cleaner” here</h3>
+        <ul>
+          <li>You write the UI once in JSX, and React handles DOM changes.</li>
+          <li>You avoid repeating DOM manipulation code in multiple event handlers.</li>
+          <li>Your UI becomes a predictable function of state: <strong>UI = f(state)</strong>. 🧠</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Imperative vs Declarative — Simple Mental Model</h2>
+
+      <div class="term">
+        <div class="icon">🧭</div>
+        <div class="body">
+          <p class="title">Imperative (Vanilla JS): “How to do it”</p>
+          <p class="desc">
+            “Set text content, then add/remove classes, then show/hide elements…” (step-by-step instructions).
+          </p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">🗺️</div>
+        <div class="body">
+          <p class="title">Declarative (React): “What it should be”</p>
+          <p class="desc">
+            “If step ≥ 1, the class should include ‘active’.” You describe conditions; React applies them.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Rule of thumb:</strong> If you find yourself writing lots of <code>classList.add/remove</code> and <code>textContent</code> updates,
+        you are in imperative land. If you write conditions directly in markup based on state, you are declarative. 🙂</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Proof: Each Component Instance Has Its Own State</h2>
+
+      <p>
+        The lecture demonstrates state isolation by rendering the same component twice.
+        Even if both components are the same “Steps” component, they maintain separate state values.
+      </p>
+
+      <div class="card">
+        <h3>What changes in code?</h3>
+        <ul>
+          <li>Rename/refactor the UI logic into a reusable component (e.g., <code>Steps</code> or <code>Step</code>).</li>
+          <li>Render it twice inside <code>App</code>.</li>
+          <li>Use React DevTools to observe each component’s state independently. 🔍</li>
+        </ul>
+      </div>
+
+      <pre><code>// Conceptual structure
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;Steps /&gt;
+      &lt;Steps /&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Each &lt;Steps /&gt; gets its own separate state instance.</code></pre>
+
+      <div class="callout">
+        <p><strong>What you observe:</strong></p>
+        <ul>
+          <li>Changing the step in the first component does <strong>not</strong> change the step in the second component. ✅</li>
+          <li>Closing/hiding one component does not automatically close the other. ✅</li>
+          <li>React DevTools will show two separate components with separate state values. 🔍</li>
+        </ul>
+      </div>
+
+      <p class="mini">
+        This is a core React concept: <strong>state belongs to a component instance</strong>, not just to the component definition.
+        Same blueprint, separate “copies” on the page. 🧩
+      </p>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>6) Quick Practice (Mini Quiz) 📝</h2>
+
+      <div class="card">
+        <h3>Answer in your own words</h3>
+        <ol>
+          <li>In Vanilla JS, why do you need an <code>updateUI()</code> function after changing <code>step</code>?</li>
+          <li>In React, what happens after calling <code>setStep</code>?</li>
+          <li>What is the difference between “imperative” and “declarative” code?</li>
+          <li>If you render <code>&lt;Steps /&gt;</code> twice, why doesn’t one component’s step affect the other?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Expected key points ✅</h3>
+        <ul>
+          <li>Vanilla JS: updating a variable alone doesn’t update the DOM, so nothing changes visually unless you manipulate DOM.</li>
+          <li>React: updating state triggers re-render; React updates DOM efficiently to match the new state.</li>
+          <li>Imperative: instructions; Declarative: describing the desired UI based on state.</li>
+          <li>Each component instance has its own isolated state storage.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Common Beginner Mistakes (and fixes) 🧯</h2>
+
+      <div class="card">
+        <h3>Mistake: “I changed my variable but the UI didn’t update” (Vanilla JS)</h3>
+        <ul>
+          <li><strong>Cause:</strong> DOM is not automatically linked to your JS variable.</li>
+          <li><strong>Fix:</strong> update the DOM manually (e.g., set <code>textContent</code>, update classes) after changing the variable.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Mistake: “I tried to update state directly” (React)</h3>
+        <ul>
+          <li><strong>Cause:</strong> React state must be updated via the setter (e.g., <code>setStep</code>), not by doing <code>step++</code>.</li>
+          <li><strong>Fix:</strong> use <code>setStep(s =&gt; s + 1)</code> or <code>setStep(step + 1)</code>.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Mistake: “Both components should share the same state” (React)</h3>
+        <ul>
+          <li><strong>Reality:</strong> Separate component instances have separate states by default.</li>
+          <li><strong>If you want shared state:</strong> lift state up to a parent component and pass it down via props. (You’ll learn this pattern soon.)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>8) Final Takeaways 🎯</h2>
+      <ul>
+        <li><strong>React advantage:</strong> update state, and React keeps the UI synchronized (less manual DOM work).</li>
+        <li><strong>Vanilla JS reality:</strong> you must manually connect state changes to DOM updates.</li>
+        <li><strong>Component state isolation:</strong> same component rendered twice = two independent state instances.</li>
+        <li><strong>Next step:</strong> practice state management in the upcoming coding challenge. 💪</li>
+      </ul>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: Use your browser Print dialog and ensure Paper Size = A4 and Margins = Default (or Custom ~14mm) for best results.
+    </footer>
+  </main>
+</body>
+</html>

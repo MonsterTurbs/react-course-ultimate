@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tailwind CSS Crash Course — Reusing Styles With React Components (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --chip:#f2f2f2;
+      --codebg:#0b1020;
+      --codefg:#e8eefc;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column, print-friendly container */
+    .page{
+      max-width:900px;
+      margin:0 auto;
+      padding:28px 20px 56px;
+    }
+
+    header{
+      padding:18px 18px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size:1.6rem;
+      letter-spacing:.2px;
+      line-height:1.25;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:0.98rem;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-block;
+      padding:6px 10px;
+      background:var(--chip);
+      border:1px solid var(--border);
+      border-radius:999px;
+      font-size:0.9rem;
+    }
+
+    nav{
+      margin:18px 0 0;
+      padding:14px 16px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:var(--soft);
+    }
+
+    nav h2{
+      margin:0 0 8px;
+      font-size:1.05rem;
+    }
+
+    nav ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    nav li{ margin:6px 0; }
+
+    a{ color:inherit; text-decoration:underline; text-decoration-thickness:1px; }
+
+    section{
+      margin-top:18px;
+      padding:16px 18px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+    }
+
+    h2{
+      margin:0 0 10px;
+      font-size:1.25rem;
+      line-height:1.25;
+    }
+
+    h3{
+      margin:14px 0 8px;
+      font-size:1.05rem;
+    }
+
+    p{ margin:10px 0; }
+
+    ul{
+      margin:10px 0;
+      padding-left:20px;
+    }
+
+    li{ margin:6px 0; }
+
+    .callout{
+      margin:12px 0;
+      padding:12px 12px;
+      border:1px solid var(--border);
+      border-left:6px solid var(--border);
+      border-radius:12px;
+      background:var(--soft);
+    }
+
+    .callout strong{ display:block; margin-bottom:4px; }
+
+    .ok{ border-left-color:#2e7d32; }
+    .warn{ border-left-color:#b26a00; }
+    .info{ border-left-color:#1f5fbf; }
+
+    code, pre{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    pre{
+      background:var(--codebg);
+      color:var(--codefg);
+      padding:12px 12px;
+      border-radius:12px;
+      overflow:auto;
+      margin:10px 0;
+      border:1px solid rgba(255,255,255,.12);
+      font-size:0.92rem;
+      line-height:1.5;
+      white-space:pre-wrap;
+    }
+
+    .kbd{
+      display:inline-block;
+      padding:2px 7px;
+      border:1px solid var(--border);
+      border-bottom-width:2px;
+      border-radius:8px;
+      background:#fff;
+      font-size:0.9rem;
+      font-family:inherit;
+    }
+
+    .divider{ height:1px; background:var(--border); margin:14px 0; }
+
+    /* Print settings */
+    @page{ size:A4; margin:14mm; }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width:none; padding:0; }
+      a{ text-decoration:none; }
+      /* Do NOT print URL after links */
+      a[href]::after{ content:"" !important; }
+      header, nav, section{ break-inside:avoid; page-break-inside:avoid; }
+      pre{ break-inside:avoid; page-break-inside:avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 Reusing Tailwind Styles With React Components</h1>
+      <p class="subtitle">Study guide based on the lecture transcript — focused on turning long Tailwind class strings into reusable UI building blocks.</p>
+      <div class="meta">
+        <span class="chip">React + Tailwind</span>
+        <span class="chip">Reusable components</span>
+        <span class="chip">Polymorphic Button/Link</span>
+        <span class="chip">@apply + extension classes</span>
+      </div>
+    </header>
+
+    <nav aria-label="Table of contents">
+      <h2>📌 Table of Contents</h2>
+      <ul>
+        <li><a href="#goal">Goal of the lecture</a></li>
+        <li><a href="#why-components">Why React components are the “better way”</a></li>
+        <li><a href="#button">Build a reusable <code>&lt;Button /&gt;</code></a></li>
+        <li><a href="#reuse">Reuse Button + reuse the <code>.input</code> class</a></li>
+        <li><a href="#linkbutton">Build <code>&lt;LinkButton /&gt;</code> for link-style actions</a></li>
+        <li><a href="#back">Support “Go back” behavior using <code>navigate(-1)</code></a></li>
+        <li><a href="#polymorphic">Make Button act as Link when <code>to</code> exists</a></li>
+        <li><a href="#tips">Tips, pitfalls, and mini-exercises</a></li>
+      </ul>
+    </nav>
+
+    <section id="goal">
+      <h2>🎯 Goal of the lecture</h2>
+      <p>
+        You already styled a button using a long Tailwind class string. Now the goal is to <strong>reuse that styling</strong>
+        without copy-pasting the same classes everywhere.
+      </p>
+      <ul>
+        <li>✅ Create a reusable <strong>React component</strong> that encapsulates the Tailwind classes.</li>
+        <li>✅ Reuse the component in different pages/features (Create Order, Create User, Cart, Error page).</li>
+        <li>✅ Optionally reuse <code>@apply</code>-based classes (like <code>.input</code>) and add extra utilities on top.</li>
+      </ul>
+
+      <div class="callout info">
+        <strong>🧠 Key idea</strong>
+        Tailwind utilities are still used — but the <em>reuse mechanism</em> becomes React components (best) and <code>@apply</code> (sometimes).
+      </div>
+    </section>
+
+    <section id="why-components">
+      <h2>🏗️ Why React components are the “better way”</h2>
+      <p>
+        Tailwind gives fast styling, but repeated long class strings become noisy and error-prone. Instead of creating many CSS classes (old-school),
+        you can create <strong>UI components</strong> that wrap the markup + Tailwind classes.
+      </p>
+      <ul>
+        <li>🔁 Reuse without copy/paste</li>
+        <li>🧼 Cleaner JSX in feature pages</li>
+        <li>🧩 Encapsulated behavior (disabled, navigation, “go back”)</li>
+        <li>🛠️ Easier to evolve: new variants later (secondary, small, etc.)</li>
+      </ul>
+
+      <div class="callout warn">
+        <strong>⚠️ Note about <code>@apply</code></strong>
+        <code>@apply</code> is useful, but if you overuse it everywhere, you effectively go back to traditional CSS class naming. Treat it as an exception.
+      </div>
+    </section>
+
+    <section id="button">
+      <h2>🟡 Step 1: Build a reusable <code>&lt;Button /&gt;</code></h2>
+      <p>
+        You take the existing Tailwind class string from your “Order Now” button and move it into a reusable component file like
+        <code>components/Button.jsx</code>.
+      </p>
+
+      <h3>✅ What the component should support</h3>
+      <ul>
+        <li>👶 <strong><code>children</code></strong> — the label/content inside the button</li>
+        <li>🚫 <strong><code>disabled</code></strong> — forwarded to the actual <code>&lt;button&gt;</code></li>
+      </ul>
+
+      <h3>Example: <code>Button.jsx</code></h3>
+      <pre><code>import React from 'react';
+
+export default function Button({ children, disabled }) {
+  return (
+    &lt;button
+      disabled={disabled}
+      className="inline-block rounded-full bg-yellow-400 px-4 py-3 font-semibold uppercase tracking-wide text-stone-800 transition-colors duration-300 hover:bg-yellow-300 focus:bg-yellow-300 focus:outline-none focus:ring focus:ring-yellow-300 focus:ring-offset-2 disabled:cursor-not-allowed"
+    &gt;
+      {children}
+    &lt;/button&gt;
+  );
+}</code></pre>
+
+      <div class="callout ok">
+        <strong>✅ Result</strong>
+        You can now replace repeated button markup with <code>&lt;Button&gt;Order Now&lt;/Button&gt;</code> and keep the styling consistent everywhere.
+      </div>
+    </section>
+
+    <section id="reuse">
+      <h2>🔁 Step 2: Reuse Button + reuse the <code>.input</code> class</h2>
+      <p>
+        Once you have <code>&lt;Button /&gt;</code>, you can reuse it in other features (example: Create User form on the homepage).
+      </p>
+
+      <h3>🧪 Example usage</h3>
+      <pre><code>// CreateOrder.jsx
+&lt;Button disabled={isSubmitting}&gt;
+  {isSubmitting ? 'Placing order…' : 'Order now'}
+&lt;/Button&gt;
+
+// CreateUser.jsx
+&lt;Button&gt;Start ordering&lt;/Button&gt;</code></pre>
+
+      <div class="divider"></div>
+
+      <h3>🧷 Reusing the <code>.input</code> class from <code>@apply</code></h3>
+      <p>
+        From the previous lecture, you created a shared <code>.input</code> class using Tailwind’s <code>@apply</code> directive.
+        Now you can use that base style and add extra utilities on top.
+      </p>
+
+      <pre><code>// Example: extending the base input
+&lt;input
+  className="input w-72 mb-8"
+  placeholder="Your name"
+/&gt;</code></pre>
+
+      <div class="callout info">
+        <strong>💡 Why this is a good <code>@apply</code> use case</strong>
+        You have a strong base style (input look/feel), but some screens need extra utilities like width, margins, or responsive tweaks.
+      </div>
+    </section>
+
+    <section id="linkbutton">
+      <h2>🔗 Step 3: Create <code>&lt;LinkButton /&gt;</code> to reuse link-style actions</h2>
+      <p>
+        Some UI elements look like links (blue text + hover underline) but appear in multiple places (Cart page, Error page, etc.).
+        Instead of repeating classes, create a dedicated component.
+      </p>
+
+      <h3>Example: <code>LinkButton.jsx</code> (basic)</h3>
+      <pre><code>import React from 'react';
+import { Link } from 'react-router-dom';
+
+export default function LinkButton({ to, children }) {
+  return (
+    &lt;Link
+      to={to}
+      className="text-sm text-blue-500 hover:text-blue-600 hover:underline"
+    &gt;
+      {children}
+    &lt;/Link&gt;
+  );
+}</code></pre>
+
+      <h3>Usage</h3>
+      <pre><code>// Cart.jsx
+&lt;LinkButton to="/menu"&gt;← Back to menu&lt;/LinkButton&gt;</code></pre>
+    </section>
+
+    <section id="back">
+      <h2>↩️ Step 4: Support “Go back” using <code>navigate(-1)</code></h2>
+      <p>
+        In the Error UI, the “Go back” control <em>looks like</em> a link-style action, but it’s often implemented as a button
+        that calls <code>navigate(-1)</code>.
+      </p>
+
+      <div class="callout warn">
+        <strong>⚠️ Transcript detail</strong>
+        The transcript mentions passing <code>-1</code> (as a string) to <code>to</code> and then conditionally rendering a button.
+        In practice, you can pass <code>to={-1}</code> (number) or adopt a clearer prop like <code>back</code>.
+      </div>
+
+      <h3>Example: LinkButton that supports back</h3>
+      <pre><code>import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+
+export default function LinkButton({ to, children }) {
+  const navigate = useNavigate();
+
+  const className = 'text-sm text-blue-500 hover:text-blue-600 hover:underline';
+
+  // “Go back” mode
+  if (to === -1 || to === '-1') {
+    return (
+      &lt;button type="button" className={className} onClick={() =&gt; navigate(-1)}&gt;
+        {children}
+      &lt;/button&gt;
+    );
+  }
+
+  // Normal link
+  return (
+    &lt;Link to={to} className={className}&gt;
+      {children}
+    &lt;/Link&gt;
+  );
+}</code></pre>
+
+      <p>
+        ✅ Now you can use the same component for both:
+        <span class="kbd">Link navigation</span> and <span class="kbd">Go back</span>.
+      </p>
+    </section>
+
+    <section id="polymorphic">
+      <h2>🧬 Step 5: Make <code>&lt;Button /&gt;</code> act as a link when <code>to</code> exists</h2>
+      <p>
+        Sometimes you want a control that <em>looks like a button</em> but performs navigation (e.g., “Order pizzas” link).
+        A common approach is to let the Button accept a <code>to</code> prop:
+      </p>
+
+      <h3>Example: polymorphic Button (button or Link)</h3>
+      <pre><code>import React from 'react';
+import { Link } from 'react-router-dom';
+
+export default function Button({ children, disabled, to }) {
+  const className =
+    'inline-block rounded-full bg-yellow-400 px-4 py-3 font-semibold uppercase tracking-wide text-stone-800 transition-colors duration-300 hover:bg-yellow-300 focus:bg-yellow-300 focus:outline-none focus:ring focus:ring-yellow-300 focus:ring-offset-2 disabled:cursor-not-allowed';
+
+  // If "to" exists, render a Link that looks like a button
+  if (to) {
+    return (
+      &lt;Link to={to} className={className}&gt;
+        {children}
+      &lt;/Link&gt;
+    );
+  }
+
+  // Otherwise render a real button
+  return (
+    &lt;button disabled={disabled} className={className}&gt;
+      {children}
+    &lt;/button&gt;
+  );
+}</code></pre>
+
+      <h3>Usage examples</h3>
+      <pre><code>// A real button
+&lt;Button disabled={isSubmitting}&gt;Order now&lt;/Button&gt;
+
+// A navigation "button"
+&lt;Button to="/order/new"&gt;Order pizzas&lt;/Button&gt;</code></pre>
+
+      <div class="callout ok">
+        <strong>✅ Result</strong>
+        Consistent visuals across “submit actions” and “navigation actions”, with one shared Tailwind class string.
+      </div>
+    </section>
+
+    <section id="tips">
+      <h2>🧠 Tips, pitfalls, and mini-exercises</h2>
+
+      <h3>Common pitfalls</h3>
+      <ul>
+        <li>⚠️ Overusing <code>@apply</code> → you drift back toward old-style CSS architecture.</li>
+        <li>⚠️ Mixing Link vs Button semantics incorrectly (links for navigation, buttons for actions).</li>
+        <li>⚠️ Duplicating the class string in multiple places → create a <code>className</code> variable inside the component.</li>
+      </ul>
+
+      <h3>Mini-exercises (quick practice)</h3>
+      <ul>
+        <li>🧪 Add a <code>variant</code> prop to Button: <code>primary</code> (yellow) vs <code>secondary</code> (outline).</li>
+        <li>🧪 Add a <code>size</code> prop: <code>sm</code>, <code>md</code>, <code>lg</code> (adjust padding + text size).</li>
+        <li>🧪 Make LinkButton support an optional <code>onClick</code> (for analytics) while keeping navigation.</li>
+      </ul>
+
+      <div class="callout info">
+        <strong>📌 Mental model to remember</strong>
+        Tailwind is for <em>what</em> styles exist; React components are for <em>where and how</em> styles are reused.
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Quick recap</h2>
+      <ul>
+        <li>🧩 Move repeated Tailwind classes into reusable React components (best practice).</li>
+        <li>🔗 Use LinkButton for link-like actions; optionally support <code>navigate(-1)</code> for “Go back”.</li>
+        <li>🧬 Let Button render a <code>&lt;Link&gt;</code> when it gets a <code>to</code> prop.</li>
+        <li>🧷 Use <code>@apply</code> sparingly for base styles like <code>.input</code>, and extend with extra utilities per screen.</li>
+      </ul>
+      <p class="subtitle">Next topic in the course: building variants and polishing UI details across the app.</p>
+    </section>
+
+  </main>
+</body>
+</html>

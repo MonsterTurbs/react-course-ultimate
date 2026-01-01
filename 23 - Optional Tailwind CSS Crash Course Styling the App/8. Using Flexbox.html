@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tailwind CSS Crash Course — Using Flexbox (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --ink: #111111;
+      --muted: #555555;
+      --soft: #f6f7f9;
+      --border: #e6e6e6;
+      --accent: #0b57d0;
+      --good: #0f7b2d;
+      --warn: #8a5a00;
+      --bad: #a61b1b;
+      --codebg: #0b1020;
+      --codeink: #e8eefc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 18px 14px;
+      background: #fff;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      font-size: 12.5px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 8px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.good { border-left-color: var(--good); background: #f2fbf4; }
+    .callout.warn { border-left-color: var(--warn); background: #fff8ee; }
+    .callout.bad  { border-left-color: var(--bad);  background: #fff3f3; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codeink);
+      overflow: auto;
+      border: 1px solid #111a33;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+
+    .table th, .table td {
+      text-align: left;
+      vertical-align: top;
+      padding: 8px 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .table th {
+      background: var(--soft);
+      border-top: none;
+      font-weight: 700;
+    }
+
+    .footer {
+      color: var(--muted);
+      font-size: 12.5px;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    /* Print */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { box-shadow: none; }
+
+      /* Avoid awkward splits */
+      header, section, pre { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      /* Do NOT print URL after links */
+      a[href]:after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧱 Tailwind CSS — Using Flexbox (Layout Utilities)</h1>
+      <p class="sub">Reviewer / study guide based on the lecture transcript (single-column, print-ready A4).</p>
+      <div class="meta">
+        <span class="chip">🎯 Focus: Flexbox layout with Tailwind utilities</span>
+        <span class="chip">🧠 Level: Beginner-friendly</span>
+        <span class="chip">🖨️ Print: A4 clean output</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>✅ What you will learn</h2>
+        <ul>
+          <li>How Tailwind enables Flexbox layouts using short utility classes (no custom CSS).</li>
+          <li>How to align items vertically and distribute space horizontally using Flexbox.</li>
+          <li>How to do responsive Flexbox changes using breakpoints like <span class="inline-code">md:</span>.</li>
+          <li>How to combine spacing + typography + layout utilities to improve UI quickly.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Key idea 🧩</strong>
+          <p>In Tailwind, most Flexbox setup is a predictable trio: <span class="inline-code">flex</span> + <span class="inline-code">items-center</span> + <span class="inline-code">justify-between</span>.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Flexbox mental model (super simple)</h2>
+        <div class="grid">
+          <div class="callout good">
+            <strong>1) Make the parent a Flex container</strong>
+            <p>Flexbox works on the <em>parent</em>. The children become flex items.</p>
+            <pre><code>&lt;div className=&quot;flex&quot;&gt;
+  ...children...
+&lt;/div&gt;</code></pre>
+          </div>
+
+          <div class="callout good">
+            <strong>2) Align vertically (cross-axis)</strong>
+            <p>Most common: center items vertically with <span class="inline-code">items-center</span>.</p>
+            <pre><code>&lt;div className=&quot;flex items-center&quot;&gt;...&lt;/div&gt;</code></pre>
+          </div>
+
+          <div class="callout good">
+            <strong>3) Distribute horizontally (main axis)</strong>
+            <p>Most common: push left and right with <span class="inline-code">justify-between</span> (space-between).</p>
+            <pre><code>&lt;div className=&quot;flex items-center justify-between&quot;&gt;...&lt;/div&gt;</code></pre>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <strong>Reminder ⚠️</strong>
+          <p>Flexbox is usually used for aligning items in a row (or a small layout). For bigger page layouts, CSS Grid often becomes the better tool.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 From the lecture: CartOverview layout (left/right)</h2>
+        <p><strong>Goal:</strong> show the “items/price” on the left and a “link” on the right — side by side.</p>
+
+        <h3>Before (typical stacked layout)</h3>
+        <pre><code>&lt;div className=&quot;...&quot;&gt;
+  &lt;p&gt;...cart info...&lt;/p&gt;
+  &lt;Link to=&quot;/cart&quot;&gt;Open cart →&lt;/Link&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3>After (Flexbox with Tailwind)</h3>
+        <pre><code>&lt;div className=&quot;flex items-center justify-between ...&quot;&gt;
+  &lt;p&gt;...cart info...&lt;/p&gt;
+  &lt;Link to=&quot;/cart&quot;&gt;Open cart →&lt;/Link&gt;
+&lt;/div&gt;</code></pre>
+
+        <div class="callout">
+          <strong>Why this works ✅</strong>
+          <ul>
+            <li><span class="inline-code">flex</span> puts children in a row (by default).</li>
+            <li><span class="inline-code">items-center</span> vertically centers them.</li>
+            <li><span class="inline-code">justify-between</span> pushes them to opposite sides.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧭 Header layout: logo left, search/user right</h2>
+        <p><strong>Goal:</strong> header content in one row, spaced nicely.</p>
+
+        <pre><code>&lt;header className=&quot;flex items-center justify-between px-4 py-3 ...&quot;&gt;
+  &lt;Link to=&quot;/&quot; className=&quot;...&quot;&gt;Fast React Pizza Co.&lt;/Link&gt;
+
+  &lt;div className=&quot;flex items-center gap-3&quot;&gt;
+    &lt;SearchOrder /&gt;
+    &lt;Username /&gt;
+  &lt;/div&gt;
+&lt;/header&gt;</code></pre>
+
+        <div class="callout">
+          <strong>Tip 💡</strong>
+          <p>If you want extra spacing between items in a row, use <span class="inline-code">gap-*</span> (e.g., <span class="inline-code">gap-3</span>) on the flex container holding them.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>📱 Responsive Flexbox: hide/show Username</h2>
+        <p><strong>Goal:</strong> hide the username on small screens, show it starting at medium breakpoint.</p>
+
+        <table class="table" aria-label="Responsive display example">
+          <thead>
+            <tr>
+              <th>Requirement</th>
+              <th>Tailwind utilities</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Hide on small screens</td>
+              <td><span class="inline-code">hidden</span></td>
+              <td>display: none</td>
+            </tr>
+            <tr>
+              <td>Show at md and above</td>
+              <td><span class="inline-code">md:block</span></td>
+              <td>display: block when width ≥ md breakpoint</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <pre><code>&lt;Username className=&quot;hidden md:block&quot; /&gt;</code></pre>
+
+        <div class="callout warn">
+          <strong>Common mistake ⚠️</strong>
+          <p>Do not interpret <span class="inline-code">md:</span> as “for mobile.” Tailwind is mobile-first. <span class="inline-code">md:block</span> means “apply from medium screens and up.”</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🔤 Responsive typography: bigger logo on larger screens</h2>
+        <p><strong>Goal:</strong> keep text compact on small screens, then scale it up at <span class="inline-code">md</span>.</p>
+
+        <pre><code>&lt;Link
+  to=&quot;/&quot;
+  className=&quot;uppercase tracking-widest text-base md:text-3xl&quot;
+&gt;
+  Fast React Pizza Co.
+&lt;/Link&gt;</code></pre>
+
+        <div class="callout">
+          <strong>Reading the class list 👀</strong>
+          <ul>
+            <li><span class="inline-code">text-base</span> is the default (mobile).</li>
+            <li><span class="inline-code">md:text-3xl</span> overrides it on medium screens and up.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>📦 Quick Flexbox utilities cheat sheet</h2>
+        <table class="table" aria-label="Flexbox cheat sheet">
+          <thead>
+            <tr>
+              <th>What you want</th>
+              <th>Tailwind</th>
+              <th>CSS idea</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Make parent flex</td>
+              <td><span class="inline-code">flex</span></td>
+              <td>display: flex</td>
+            </tr>
+            <tr>
+              <td>Center vertically</td>
+              <td><span class="inline-code">items-center</span></td>
+              <td>align-items: center</td>
+            </tr>
+            <tr>
+              <td>Space left/right</td>
+              <td><span class="inline-code">justify-between</span></td>
+              <td>justify-content: space-between</td>
+            </tr>
+            <tr>
+              <td>Push everything right</td>
+              <td><span class="inline-code">justify-end</span></td>
+              <td>justify-content: flex-end</td>
+            </tr>
+            <tr>
+              <td>Control direction</td>
+              <td><span class="inline-code">flex-col</span>, <span class="inline-code">flex-row</span></td>
+              <td>flex-direction</td>
+            </tr>
+            <tr>
+              <td>Space between children</td>
+              <td><span class="inline-code">gap-2</span>, <span class="inline-code">gap-4</span>, …</td>
+              <td>gap</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>🧪 Mini practice (quick exercises)</h2>
+        <ol style="margin: 8px 0 8px 20px;">
+          <li>
+            <strong>CartOverview:</strong> make items left + link right.
+            <div class="callout good"><span class="kbd">flex</span> + <span class="kbd">items-center</span> + <span class="kbd">justify-between</span></div>
+          </li>
+          <li>
+            <strong>Header:</strong> place logo left, right-side controls in a row.
+            <div class="callout"><span class="kbd">flex</span> + <span class="kbd">justify-between</span> + optional <span class="kbd">gap-*</span></div>
+          </li>
+          <li>
+            <strong>Responsive:</strong> hide username on mobile, show at <span class="kbd">md</span>.
+            <div class="callout warn"><span class="kbd">hidden md:block</span></div>
+          </li>
+          <li>
+            <strong>Responsive typography:</strong> logo becomes bigger on tablets.
+            <div class="callout"><span class="kbd">text-base md:text-3xl</span></div>
+          </li>
+        </ol>
+
+        <div class="callout">
+          <strong>Checkpoint ✅</strong>
+          <p>If you can read a Tailwind class list and explain which part is “mobile default” vs “breakpoint override,” you are on track.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>❓ Quick review questions</h2>
+        <ul>
+          <li>What does <span class="inline-code">flex</span> do, and where should you apply it (parent or child)?</li>
+          <li>What is the difference between <span class="inline-code">items-center</span> and <span class="inline-code">justify-between</span>?</li>
+          <li>In Tailwind, what does <span class="inline-code">md:block</span> mean exactly?</li>
+          <li>Why is “long className strings” a common Tailwind complaint—and why does it become manageable?</li>
+        </ul>
+      </section>
+
+      <p class="footer">End of study guide — Tailwind Flexbox utilities. Next topic in the course: CSS Grid.</p>
+    </main>
+  </div>
+</body>
+</html>

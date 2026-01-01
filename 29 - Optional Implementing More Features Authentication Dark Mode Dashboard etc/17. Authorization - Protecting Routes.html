@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Authorization (Protecting Routes) — Supabase + React Query (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --ok: #0a7a2f;
+      --warn: #9a5b00;
+      --bad: #b00020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      padding: 18px 18px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: #222;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 16px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 14px 0 8px 0;
+      font-size: 15px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 8px 18px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.bad { border-left-color: var(--bad); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #e7eaff;
+      border-radius: 10px;
+      overflow: auto;
+      border: 1px solid #0b1020;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .checklist li { list-style: "✅ "; }
+
+    .steps li { list-style: "🧩 "; }
+
+    .note li { list-style: "📝 "; }
+
+    .danger li { list-style: "⚠️ "; }
+
+    footer {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 10px 2px;
+    }
+
+    /* Print: clean A4 output */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; max-width: none; }
+      header, section { border-color: #ddd; box-shadow: none; }
+      pre { page-break-inside: avoid; }
+      section { page-break-inside: avoid; }
+      a, a:visited { color: inherit; text-decoration: none; }
+      a[href]:after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🔐 Authorization — Protecting Routes (Supabase + React Query)</h1>
+      <p class="subtitle">
+        Reviewer / study guide (beginner-friendly): implement <strong>Protected Routes</strong> so only logged-in users can access the app.
+      </p>
+      <div class="meta">
+        <span class="chip">Topic: Authorization (Routes)</span>
+        <span class="chip">Stack: React Router</span>
+        <span class="chip">Auth: Supabase</span>
+        <span class="chip">Caching: React Query</span>
+        <span class="chip">Goal: Redirect unauthenticated → Login</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 What you’re building</h2>
+        <ul class="checklist">
+          <li>A <span class="inline-code">&lt;ProtectedRoute&gt;</span> component that wraps your app layout.</li>
+          <li>Load the currently logged-in user from Supabase (using a dedicated API function).</li>
+          <li>While loading → show a centered spinner.</li>
+          <li>If not logged in → redirect to <span class="inline-code">/login</span>.</li>
+          <li>If logged in → render the app.</li>
+        </ul>
+
+        <div class="callout ok">
+          <strong>Key idea:</strong> Your routes are children of your <span class="inline-code">AppLayout</span>. If you wrap <span class="inline-code">AppLayout</span> with <span class="inline-code">ProtectedRoute</span>, then <em>all child routes become protected</em> automatically.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Authentication vs Authorization (quick clarity)</h2>
+        <div class="grid">
+          <div class="callout">
+            <p><strong>Authentication</strong> = “Who are you?” (log in ✅)</p>
+            <p class="subtitle">Example: Supabase creates a session and returns a user + tokens.</p>
+          </div>
+          <div class="callout">
+            <p><strong>Authorization</strong> = “Are you allowed here?” (protect pages ✅)</p>
+            <p class="subtitle">Example: If no user session → block access and redirect to Login.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Step-by-step implementation</h2>
+
+        <h3>1) Wrap the app layout route</h3>
+        <p>
+          Your <span class="inline-code">AppLayout</span> is the parent layout for many child routes. Wrap it:
+        </p>
+        <pre><code>// App routes (concept)
+// &lt;Route element={
+//   &lt;ProtectedRoute&gt;
+//     &lt;AppLayout /&gt;
+//   &lt;/ProtectedRoute&gt;
+// }&gt;
+//   ...child routes...
+// &lt;/Route&gt;
+</code></pre>
+
+        <div class="callout warn">
+          <strong>Why wrap the layout?</strong> Because every page renders inside the layout. Protecting the layout automatically protects the children.
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>2) Create <span class="inline-code">ProtectedRoute.jsx</span> (basic skeleton)</h3>
+        <ul class="steps">
+          <li>Receive <span class="inline-code">children</span>.</li>
+          <li>For now, return children (so nothing breaks).</li>
+        </ul>
+
+        <pre><code>// ui/ProtectedRoute.jsx (starter)
+export default function ProtectedRoute({ children }) {
+  return children;
+}
+</code></pre>
+
+        <div class="divider"></div>
+
+        <h3>3) Load the current user from Supabase (server truth)</h3>
+        <p>
+          Even if you logged in yesterday, after a refresh you still want to remain logged in.
+          Supabase stores session data (usually in localStorage) and you can re-hydrate the user.
+        </p>
+
+        <p><strong>Approach:</strong></p>
+        <ul class="note">
+          <li>First check if there is an active session.</li>
+          <li>If no session → return <span class="inline-code">null</span>.</li>
+          <li>If session exists → call <span class="inline-code">supabase.auth.getUser()</span> and return the user.</li>
+        </ul>
+
+        <pre><code>// services/apiAuth.js
+export async function getCurrentUser() {
+  const { data: sessionData } = await supabase.auth.getSession();
+
+  if (!sessionData?.session) return null;
+
+  const { data, error } = await supabase.auth.getUser();
+  if (error) throw new Error(error.message);
+
+  return data?.user ?? null;
+}
+</code></pre>
+
+        <div class="callout ok">
+          <strong>Security note:</strong> You could read the user from the session, but refetching via <span class="inline-code">getUser()</span> is a safer “source of truth.”
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>4) Create <span class="inline-code">useUser</span> hook (React Query)</h3>
+        <p>
+          Use React Query so you get:
+          <span class="inline-code">isLoading</span> state, caching, and fewer repeated calls.
+        </p>
+
+        <pre><code>// features/authentication/useUser.js
+export function useUser() {
+  const { data: user, isLoading } = useQuery({
+    queryKey: ["user"],
+    queryFn: getCurrentUser,
+  });
+
+  const isAuthenticated = user?.role === "authenticated";
+
+  return { user, isLoading, isAuthenticated };
+}
+</code></pre>
+
+        <div class="callout">
+          <strong>Important check:</strong> Supabase users often have <span class="inline-code">role: "authenticated"</span> when logged in.
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>5) Implement the ProtectedRoute logic (4 rules)</h3>
+        <p><strong>ProtectedRoute rules:</strong></p>
+        <ol>
+          <li>Load the user.</li>
+          <li>While loading → show a full-page spinner.</li>
+          <li>If not authenticated (and loading finished) → redirect to login.</li>
+          <li>If authenticated → render children.</li>
+        </ol>
+
+        <pre><code>// ui/ProtectedRoute.jsx (core logic)
+export default function ProtectedRoute({ children }) {
+  const { isLoading, isAuthenticated } = useUser();
+  const navigate = useNavigate();
+
+  useEffect(() =&gt; {
+    if (!isAuthenticated &amp;&amp; !isLoading) navigate("/login");
+  }, [isAuthenticated, isLoading, navigate]);
+
+  if (isLoading)
+    return (
+      &lt;FullPage&gt;
+        &lt;Spinner /&gt;
+      &lt;/FullPage&gt;
+    );
+
+  if (isAuthenticated) return children;
+
+  return null; // fallback (redirect will run)
+}
+</code></pre>
+
+        <div class="callout bad">
+          <strong>Common bug:</strong> Don’t redirect while still loading.
+          Otherwise, you’ll send users to Login even though their session is still being fetched.
+        </div>
+
+        <div class="callout warn">
+          <strong>React Hooks rule:</strong> You can’t call hooks conditionally.
+          That’s why the redirect happens inside <span class="inline-code">useEffect</span> instead of “if (…) navigate()” at the top level.
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>6) Nice UX: Center the spinner (FullPage wrapper)</h3>
+        <p>
+          A full-page spinner looks cleaner than a small spinner stuck at the top.
+        </p>
+        <pre><code>// ui/ProtectedRoute.jsx (styled component idea)
+const FullPage = styled.div`
+  height: 100vh;
+  background-color: var(--color-grey-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+</code></pre>
+
+        <div class="divider"></div>
+
+        <h3>7) Optimization: Put the logged-in user into React Query cache on login</h3>
+        <p>
+          After login, you may briefly see the spinner because <span class="inline-code">getCurrentUser</span> runs again.
+          You can make login feel faster by setting the user immediately in the cache.
+        </p>
+
+        <pre><code>// features/authentication/useLogin.js (onSuccess)
+const queryClient = useQueryClient();
+
+onSuccess: (data) =&gt; {
+  // data may include user/session depending on your login function
+  queryClient.setQueryData(["user"], data.user);
+  navigate("/dashboard");
+}
+</code></pre>
+
+        <div class="callout">
+          <strong>Concept:</strong> <span class="inline-code">setQueryData</span> manually primes the cache, so <span class="inline-code">useUser()</span> can read instantly.
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>8) UX fix: Clear email/password on failed login</h3>
+        <p>
+          On invalid credentials, it’s cleaner to reset inputs.
+          You can pass mutation callbacks to the individual <span class="inline-code">mutate</span> call.
+        </p>
+        <pre><code>// LoginForm.jsx (example)
+login({ email, password }, {
+  onSettled: () =&gt; {
+    setEmail("");
+    setPassword("");
+  },
+});
+</code></pre>
+      </section>
+
+      <section>
+        <h2>🧪 Quick self-check (mini quiz)</h2>
+        <ul>
+          <li><strong>Q:</strong> Why do we call <span class="inline-code">getSession()</span> first? <br />
+              <strong>A:</strong> To quickly detect if any session exists; if not, we can return <span class="inline-code">null</span> without unnecessary user calls.</li>
+          <li><strong>Q:</strong> Why is redirect inside <span class="inline-code">useEffect</span>? <br />
+              <strong>A:</strong> Because navigation is a side-effect, and hooks must not be called conditionally.</li>
+          <li><strong>Q:</strong> What makes all routes protected by wrapping the layout? <br />
+              <strong>A:</strong> Child routes render inside the layout, so blocking layout blocks children.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>✅ Practical checklist (when yours is correct)</h2>
+        <ul class="checklist">
+          <li>If you delete auth data in storage (logout simulation) and refresh, you get redirected to <span class="inline-code">/login</span>.</li>
+          <li>If you are logged in and refresh, you stay inside the app.</li>
+          <li>No redirect happens while user data is still loading.</li>
+          <li>You don’t see “Hook called conditionally” warnings in the console.</li>
+        </ul>
+      </section>
+
+      <footer>
+        <div class="divider"></div>
+        <p>
+          Next lecture preview: implement <strong>Logout</strong> (clear session + update cache) and improve overall auth UX.
+        </p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

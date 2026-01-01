@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Handling Errors With Error Elements — React Router (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #047857;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .soft { background: var(--soft); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #eef2ff;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7faff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #ecfdf5;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+    }
+
+    .danger {
+      border-left: 4px solid var(--danger);
+      background: #fef2f2;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+
+    .table th, .table td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    .table th {
+      background: var(--soft);
+      text-align: left;
+    }
+
+    /* Print styles (A4, clean margins, no URL after links) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Keep blocks from splitting awkwardly */
+      header, .card, pre, .note, .table { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Printer-friendly sizing */
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li, .table { font-size: 12.2px; }
+
+      /* Remove automatic URL printing */
+      a[href]::after { content: "" !important; }
+
+      /* Ensure code blocks print legibly */
+      pre {
+        color: #111 !important;
+        background: #f2f2f2 !important;
+        border: 1px solid #ddd;
+      }
+
+      .chip {
+        border-color: #ddd;
+        background: #f7f7f7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">🧯 React Router Data APIs — Error Handling</p>
+      <h1>🚨 Handling Errors With <code>errorElement</code> (React Router v6.4+)</h1>
+      <p class="subtitle">
+        Learn how React Router catches errors from loaders, actions, and rendering, and how to show a friendly error UI using
+        <code>errorElement</code> + <code>useRouteError()</code>.
+      </p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">🧩 errorElement</span>
+        <span class="chip">🪝 useRouteError()</span>
+        <span class="chip">📥 loader errors</span>
+        <span class="chip">📤 action errors</span>
+        <span class="chip">🧱 layout vs child errors</span>
+        <span class="chip">⬆️ error bubbling</span>
+      </div>
+    </header>
+
+    <section class="card soft">
+      <h2>🎯 What this lecture is about</h2>
+      <p>
+        Error handling is unavoidable in real apps. In React Router’s <strong>data router</strong> (createBrowserRouter),
+        you can define an <strong><code>errorElement</code></strong> for a route.
+      </p>
+      <p>
+        When an error happens in:
+      </p>
+      <ul>
+        <li>📥 a <strong>loader</strong> (data fetching)</li>
+        <li>📤 an <strong>action</strong> (form submission)</li>
+        <li>🧩 the <strong>rendering</strong> of a component</li>
+      </ul>
+      <p>
+        React Router can render the <code>errorElement</code> instead of the normal page element.
+      </p>
+      <div class="note">
+        ✅ Goal: show a user-friendly error screen and display the real error message.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧩 The core API: <code>errorElement</code></h2>
+      <p>
+        In your router configuration, you can provide an error UI for a route using the <code>errorElement</code> property.
+      </p>
+
+      <h3>Where should you place it?</h3>
+      <p>
+        Errors in nested routes usually <strong>bubble up</strong> to the parent route. So, if you put an <code>errorElement</code>
+        on the parent route, it can catch errors from its child routes.
+      </p>
+
+      <div class="note warn">
+        ⚠️ “Bubble up” means: if the child route does not handle the error, React Router looks up the route tree for the nearest
+        ancestor that has an <code>errorElement</code>.
+      </div>
+
+      <h3>Conceptual example (layout route handles child errors)</h3>
+      <pre>const router = createBrowserRouter([
+  {
+    element: <AppLayout />,
+    errorElement: <Error />,
+    children: [
+      { path: "/", element: <Home /> },
+      { path: "/menu", element: <Menu />, loader: menuLoader },
+      // ...
+    ],
+  },
+]);</pre>
+    </section>
+
+    <section class="card soft">
+      <h2>🧪 Test #1: visit a route that doesn’t exist</h2>
+      <p>
+        When you navigate to a non-existing path, React Router can render the error element.
+        In the lecture, this immediately shows the <code>Error</code> component.
+      </p>
+      <div class="note good">
+        ✅ This proves the error boundary UI is wired correctly.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🪝 Display the real error message with <code>useRouteError()</code></h2>
+      <p>
+        The error UI component (the one used as <code>errorElement</code>) can access details about the error using
+        <strong><code>useRouteError()</code></strong>.
+      </p>
+
+      <h3>Conceptual example</h3>
+      <pre>import { useRouteError, useNavigate } from "react-router-dom";
+
+export default function Error() {
+  const error = useRouteError();
+  const navigate = useNavigate();
+
+  const message = error?.data || error?.message || "Something went wrong";
+
+  return (
+    <div>
+      <h1>Something went wrong</h1>
+      <p>{message}</p>
+      <button onClick={() => navigate(-1)}>⬅️ Go back</button>
+    </div>
+  );
+}</pre>
+
+      <div class="note">
+        ✅ Practical pattern: show <code>error.data</code> if it exists, otherwise fall back to <code>error.message</code>.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🧪 Test #2: force a loader error (failed fetch)</h2>
+      <p>
+        The lecture intentionally breaks the API URL (or otherwise causes a fetch failure) to trigger an error in the menu loader.
+        Then when navigating to <code>/menu</code>, the loader throws and React Router renders the error UI.
+      </p>
+
+      <div class="note warn">
+        ⚠️ Fetch failures often produce messages like “Failed to fetch”. This commonly ends up in <code>error.message</code>.
+      </div>
+
+      <h3>Use a safe fallback message selection</h3>
+      <pre>const message = error?.data || error?.message;</pre>
+    </section>
+
+    <section class="card">
+      <h2>🧱 Layout vs Child route error UI (important UX detail)</h2>
+      <p>
+        If you define <code>errorElement</code> on the <strong>parent layout route</strong>, a child error can replace
+        the entire layout.
+      </p>
+
+      <div class="note danger">
+        🚫 UX issue: the user loses the header/cart layout, and only the error screen remains.
+      </div>
+
+      <p>
+        If you want the error to appear <strong>inside</strong> the layout (header/cart still visible), place the
+        <code>errorElement</code> on the specific child route where the error can happen.
+      </p>
+
+      <h3>Conceptual example (Menu route handles its own errors)</h3>
+      <pre>{
+  path: "/menu",
+  element: <Menu />,
+  loader: menuLoader,
+  errorElement: <Error />,
+}</pre>
+
+      <div class="note good">
+        ✅ Result: header + cart overview remain, and the error shows in the main content area.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>⬆️ Error bubbling rules (memorize)</h2>
+      <ul>
+        <li>✅ Errors in loaders/actions/rendering are caught by the nearest route with <code>errorElement</code>.</li>
+        <li>⬆️ If the current route doesn’t define an error element, the error bubbles to the parent.</li>
+        <li>🧱 Putting the error element too high can replace the whole app layout.</li>
+        <li>🎯 Putting it on the route that can fail keeps the rest of the UI visible.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>✅ Mini checklist</h2>
+      <ul>
+        <li>✅ Define <code>errorElement</code> on routes that can fail (especially routes with loaders/actions).</li>
+        <li>✅ In the error component, use <code>useRouteError()</code> to access details.</li>
+        <li>✅ Render a friendly message (use <code>error.data</code> or <code>error.message</code> fallback).</li>
+        <li>✅ Provide a “Go back” action (often <code>navigate(-1)</code>).</li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="card soft">
+      <h2>➡️ What’s next</h2>
+      <p>
+        Now that you can handle route errors cleanly, the next step is refining the user experience around data loading,
+        error recovery, and eventually form submissions with actions.
+      </p>
+    </section>
+
+    <footer class="muted" style="margin-top:16px; font-size:12px;">
+      Print format: A4, single-column, word-wrapped, clean margins.
+    </footer>
+  </main>
+</body>
+</html>

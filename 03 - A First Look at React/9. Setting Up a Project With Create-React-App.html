@@ -1,0 +1,512 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Setting Up a Project With Create React App (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 20px 44px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .muted { color: var(--muted); }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-right: 6px;
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+      margin: 8px 0 0;
+    }
+
+    .checklist li { margin: 8px 0; }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th { background: var(--soft); }
+
+    /* Screen links are fine, but never print URLs */
+    a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      .toolbar { display: none !important; }
+
+      /* Don’t print any URL after links */
+      a[href]:after { content: "" !important; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🍕 Setting Up a Project With Create React App — Reviewer</h1>
+      <p class="subtitle">How to scaffold, open, understand the file structure, and run your first CRA project (pizza-menu). Single-column, A4 print-ready.</p>
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Designed for clean A4 printing (no URLs printed).</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Table of Contents</strong>
+        <ol>
+          <li><a href="#goal">Goal of this lecture</a></li>
+          <li><a href="#terminal-basics">Terminal basics (cd, ls/dir)</a></li>
+          <li><a href="#create">Create the app with CRA (pinned version)</a></li>
+          <li><a href="#open">Open the project in VS Code</a></li>
+          <li><a href="#structure">Understand the CRA file structure</a></li>
+          <li><a href="#root">Where React mounts: #root + index.js</a></li>
+          <li><a href="#run">Run the app (npm start)</a></li>
+          <li><a href="#edit">Quick test: edit App.js and see live updates</a></li>
+          <li><a href="#tips">Common tips & troubleshooting</a></li>
+          <li><a href="#self-check">Quick self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="goal">
+      <h2>🎯 Goal of this lecture</h2>
+      <p>
+        You will create your first “real” React project using <strong>Create React App</strong> (CRA). CRA is a command-line tool (CLI)
+        that scaffolds a complete React starter project, so you can start coding fast.
+      </p>
+      <div class="callout">
+        <p><strong>Why CRA here?</strong> ✅</p>
+        <p class="muted">
+          For small course projects, CRA is still a convenient way to get up and running quickly (no tooling setup headaches).
+        </p>
+      </div>
+    </section>
+
+    <section id="terminal-basics">
+      <h2>💻 Terminal basics (cd, ls/dir)</h2>
+      <p>
+        CRA is run from the terminal (Mac/Linux) or command prompt (Windows). The key idea:
+        <strong>you are always “inside” a folder</strong> (a directory).
+      </p>
+
+      <h3>See what’s inside the current folder 👀</h3>
+      <ul>
+        <li><span class="pill">Mac/Linux</span> <code>ls</code></li>
+        <li><span class="pill">Windows</span> <code>dir</code></li>
+      </ul>
+
+      <h3>Move to another folder 🧭</h3>
+      <p class="muted">Use <code>cd</code> (same command on Windows and Mac).</p>
+      <pre><code>cd Desktop</code></pre>
+
+      <div class="callout">
+        <p><strong>Beginner-friendly mental model</strong> 🧠</p>
+        <p class="muted">
+          Terminal commands affect the folder you are currently in. So first navigate (cd) to where you want to create the project.
+        </p>
+      </div>
+    </section>
+
+    <section id="create">
+      <h2>🧰 Create the app with CRA (pinned version)</h2>
+      <p>
+        CRA is executed using <code>npx</code>. The course pins CRA to version 5 to avoid future breaking changes.
+      </p>
+
+      <h3>Command (example project name: pizza-menu) 🍕</h3>
+      <pre><code>npx create-react-app@5 pizza-menu</code></pre>
+
+      <ul>
+        <li>⌛ It can take a while (downloads many packages)</li>
+        <li>❓ If asked to proceed, type <code>y</code> then press Enter</li>
+        <li>📁 A folder with the project name will be created</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Why “@5” matters</strong> ✅</p>
+        <p class="muted">
+          Tools evolve. Pinning a version makes the course steps more predictable.
+          For your own projects later, you can run CRA without pinning.
+        </p>
+      </div>
+
+      <p class="muted">
+        Optional: The instructor renames folders to keep them ordered (e.g., adding numbers). This is not required.
+      </p>
+    </section>
+
+    <section id="open">
+      <h2>🧑‍💻 Open the project in VS Code</h2>
+      <p>
+        Once the project is created, open it as a project folder in VS Code.
+      </p>
+      <ul>
+        <li>🖱️ Drag-and-drop the folder onto the VS Code icon</li>
+        <li>📂 Or open VS Code → “Open Folder…”</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Why not use the VS Code terminal at the beginning?</strong> 🤔</p>
+        <p class="muted">
+          Before the project exists, the VS Code integrated terminal is often tied to whatever folder VS Code currently opened.
+          So for project creation, using your system terminal is simplest.
+        </p>
+      </div>
+    </section>
+
+    <section id="structure">
+      <h2>🗂️ Understand the CRA file structure</h2>
+      <p>
+        A CRA project is a standard Node/npm project. The important pieces:
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>package.json 📦 <span class="pill">Project config</span></h3>
+          <ul>
+            <li>Project metadata (name, version)</li>
+            <li>Dependencies (libraries your app needs)</li>
+            <li>Scripts (commands like start/build/test)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>node_modules 🧱 <span class="pill">Installed packages</span></h3>
+          <ul>
+            <li>Contains all installed dependencies</li>
+            <li>Can be very large (hundreds/thousands of files)</li>
+            <li>Includes React and ReactDOM packages</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>src ✅ <span class="pill">Where you code</span></h3>
+          <ul>
+            <li>Main development happens here</li>
+            <li>CRA includes starter files you will later clean up</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>public 🌐 <span class="pill">Static assets</span></h3>
+          <ul>
+            <li>Contains <code>index.html</code> and assets like icons</li>
+            <li>Holds the <code>&lt;div id="root"&gt;</code> mount point</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Beginner-friendly note</strong> 🧠</p>
+        <p class="muted">
+          You don’t need to fully understand npm internals right now. Just know this structure is extremely common in modern JavaScript projects.
+        </p>
+      </div>
+
+      <h3>React doesn’t “care” about your folders 📁</h3>
+      <p class="muted">
+        CRA’s structure is a convention chosen by its authors. React can work with many structures (pure React proved that).
+      </p>
+    </section>
+
+    <section id="root">
+      <h2>🌱 Where React mounts: #root + index.js</h2>
+      <p>
+        CRA’s <code>public/index.html</code> includes a root div, just like the pure React lecture:
+      </p>
+      <pre><code>&lt;div id="root"&gt;&lt;/div&gt;</code></pre>
+
+      <p>
+        Then the app entry file (commonly <code>src/index.js</code>) selects that element and renders the React app into it.
+      </p>
+
+      <div class="callout">
+        <p><strong>Connection to “Pure React”</strong> 🔗</p>
+        <p class="muted">
+          This is the same core idea: select <code>#root</code>, create a React root, then render <code>&lt;App /&gt;</code> into it.
+          CRA just sets it up for you.
+        </p>
+      </div>
+    </section>
+
+    <section id="run">
+      <h2>▶️ Run the app (npm start)</h2>
+      <p>
+        Now that VS Code is opened inside the project folder, you can use the integrated terminal.
+      </p>
+
+      <h3>Start the dev server 🚀</h3>
+      <pre><code>npm start</code></pre>
+
+      <ul>
+        <li>🌐 The app opens in your browser</li>
+        <li>🏠 It runs on your machine (localhost)</li>
+        <li>🔌 CRA commonly uses port <strong>3000</strong> by default</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Where does “npm start” come from?</strong> ✅</p>
+        <p class="muted">
+          It’s an npm script defined in <code>package.json</code>. When you run it, CRA starts a dev server and supports fast refresh.
+        </p>
+      </div>
+    </section>
+
+    <section id="edit">
+      <h2>✍️ Quick test: edit App.js and see live updates</h2>
+      <p>
+        Open <code>src/App.js</code> and try replacing content with a simple heading.
+      </p>
+      <pre><code>function App() {
+  return &lt;h1&gt;Hello React! 👋⚛️&lt;/h1&gt;;
+}
+
+export default App;</code></pre>
+
+      <p class="muted">
+        Save the file and your browser should update automatically. This is one big improvement vs pure React.
+      </p>
+
+      <div class="callout">
+        <p><strong>What you just experienced</strong> 🔁</p>
+        <p class="muted">
+          The dev server watches your files. When you save, the page refreshes quickly so you can see changes immediately.
+        </p>
+      </div>
+    </section>
+
+    <section id="tips">
+      <h2>🛠️ Common tips & troubleshooting</h2>
+
+      <h3>1) “npx” takes forever ⌛</h3>
+      <ul>
+        <li>📶 Internet speed matters (many packages download)</li>
+        <li>💾 First-time installs are always slower</li>
+      </ul>
+
+      <h3>2) Node version issues 🧩</h3>
+      <p class="muted">If something fails unexpectedly, confirm your Node version:</p>
+      <pre><code>node -v</code></pre>
+      <p class="muted">
+        The course setup recommends Node version 18 or higher.
+      </p>
+
+      <h3>3) Port already in use 🔌</h3>
+      <p class="muted">
+        If port 3000 is busy, CRA usually asks to use another port. Choose yes and continue.
+      </p>
+
+      <h3>4) “node_modules” is huge 😅</h3>
+      <p class="muted">
+        Normal. Modern tooling uses many packages. Focus on <code>src</code> and your React components.
+      </p>
+    </section>
+
+    <section id="self-check">
+      <h2>📝 Quick self-check</h2>
+      <ol>
+        <li>What does <code>cd</code> do in the terminal?</li>
+        <li>What command shows files in a folder on Mac? On Windows?</li>
+        <li>What does CRA generate for you automatically?</li>
+        <li>Where will you write most of your code (<code>src</code> or <code>public</code>)?</li>
+        <li>What is the purpose of <code>&lt;div id="root"&gt;</code>?</li>
+        <li>What command starts the CRA development server?</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>✅ If you can answer these, you’re ready for the next section (React fundamentals).</strong> 😄</p>
+      </div>
+
+      <ul class="checklist">
+        <li>✅ I can create a CRA project</li>
+        <li>✅ I understand the basic folder structure</li>
+        <li>✅ I can run the dev server and see live updates</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>
+        Reviewer generated from the provided transcript. Designed for clean A4 printing (single column, word-wrapped).
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

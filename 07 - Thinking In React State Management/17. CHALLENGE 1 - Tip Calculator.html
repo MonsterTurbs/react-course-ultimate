@@ -1,0 +1,476 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — Challenge 1: Tip Calculator (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --code-bg: #f6f8fa;
+      --accent: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px 64px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      margin: 22px 0 10px;
+      padding-top: 6px;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin: 16px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol { margin: 8px 0 10px 22px; }
+    li { margin: 6px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px 12px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kvs {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .kv {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .kv b { display: block; margin-bottom: 4px; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92em;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .small { color: var(--muted); font-size: 0.95rem; }
+
+    /* Print-specific styling (A4) */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 12px; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; } /* do not print URLs */
+      .chip { background: #fff; }
+      pre { white-space: pre-wrap; overflow: visible; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>React — Challenge 1: Tip Calculator</h1>
+      <p class="subtitle">Reviewer / Study Guide (State • Props • Controlled Inputs • Lifting State Up • Derived State)</p>
+      <div class="meta">
+        🧩 Goal: Build a small app that calculates a tip based on a bill amount and two satisfaction ratings, then shows the final total — with a Reset button.
+      </div>
+      <div class="chip-row" aria-label="Topics">
+        <span class="chip">🧠 Thinking in React</span>
+        <span class="chip">🎛️ Controlled Elements</span>
+        <span class="chip">⬆️ Lifting State Up</span>
+        <span class="chip">🧮 Derived State</span>
+        <span class="chip">🧱 Component Design</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) What you will build</h2>
+      <div class="card">
+        <ul>
+          <li>✅ Input for <b>Bill amount</b> (e.g., 100)</li>
+          <li>✅ Two dropdowns (<b>you</b> + <b>friend</b>) to select tip percentage (0%, 5%, 10%, 20%)</li>
+          <li>✅ Output that updates automatically: <b>total = bill + tip</b></li>
+          <li>✅ Reset button that returns everything to initial values</li>
+          <li>✅ Output + Reset only show when there is a bill amount (&gt; 0)</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        💡 Key React idea: When the UI changes because of user actions, you usually need <b>state</b>.
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Component breakdown (recommended)</h2>
+      <div class="kvs">
+        <div class="kv">
+          <b>TipCalculator</b>
+          <div class="small">Parent container (owns the state)</div>
+        </div>
+        <div class="kv">
+          <b>BillInput</b>
+          <div class="small">Controlled input for bill</div>
+        </div>
+        <div class="kv">
+          <b>SelectPercentage</b>
+          <div class="small">Reusable dropdown component (used twice)</div>
+        </div>
+        <div class="kv">
+          <b>Output</b>
+          <div class="small">Displays: “You pay …”</div>
+        </div>
+        <div class="kv">
+          <b>Reset</b>
+          <div class="small">Button to reset state</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        🧒 Beginner-friendly rule: Start building a <b>static UI</b> first (no state), then add state + interactivity.
+      </div>
+    </section>
+
+    <section>
+      <h2>3) State plan</h2>
+      <div class="card">
+        <h3>✅ The 3 pieces of state you need</h3>
+        <ul>
+          <li><code>bill</code> (string or number) — value of the bill input</li>
+          <li><code>percentage1</code> (number) — your satisfaction %</li>
+          <li><code>percentage2</code> (number) — friend’s satisfaction %</li>
+        </ul>
+
+        <h3>⬆️ Where should state live?</h3>
+        <p>
+          Even if inputs are inside child components, you will need these values in the parent to compute the output.
+          So the state should live in <b>TipCalculator</b>.
+        </p>
+      </div>
+
+      <div class="callout">
+        ⬆️ Lifting state up means: move state to the <b>closest common parent</b> that needs the data.
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Controlled inputs recipe (always the same)</h2>
+      <div class="card">
+        <ol>
+          <li>🧠 <b>Define state</b> in the parent: <code>const [bill, setBill] = useState("")</code></li>
+          <li>📦 <b>Pass value down</b> as a prop: <code>&lt;BillInput bill={bill} /&gt;</code></li>
+          <li>🔁 <b>Pass setter (or handler) down</b> so child can update parent state</li>
+          <li>🎯 Child uses <code>value={bill}</code> and <code>onChange={...}</code></li>
+        </ol>
+      </div>
+
+      <div class="callout">
+        ⚠️ Common bug: <code>event.target.value</code> is a <b>string</b>. If you need numbers, convert with <code>Number(...)</code>.
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Derived state (tip is NOT state)</h2>
+      <div class="card">
+        <p>
+          🧮 Tip can be computed from existing state (<code>bill</code>, <code>percentage1</code>, <code>percentage2</code>), so you should NOT store tip in its own <code>useState</code>.
+        </p>
+        <pre><code>// Derived state (computed values)
+const tip = bill * ((percentage1 + percentage2) / 2 / 100);
+const total = bill + tip;
+</code></pre>
+
+        <ul>
+          <li>✅ No extra syncing work</li>
+          <li>✅ No extra renders from updating multiple related state variables</li>
+          <li>✅ Single source of truth: <code>bill</code> + percentages</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) children prop use-case (nice touch)</h2>
+      <div class="card">
+        <p>
+          🧩 You can reuse <code>SelectPercentage</code> twice and pass the label text as <code>children</code>.
+          That means you can write:
+        </p>
+        <pre><code>&lt;SelectPercentage percentage={percentage1} onSelect={setPercentage1}&gt;
+  How did you like the service?
+&lt;/SelectPercentage&gt;
+
+&lt;SelectPercentage percentage={percentage2} onSelect={setPercentage2}&gt;
+  How did your friend like the service?
+&lt;/SelectPercentage&gt;
+</code></pre>
+        <p class="small">The content inside the tags becomes <code>children</code> inside the component.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Reset + conditional rendering</h2>
+      <div class="card">
+        <h3>Reset handler</h3>
+        <pre><code>function handleReset() {
+  setBill("");
+  setPercentage1(0);
+  setPercentage2(0);
+}
+</code></pre>
+
+        <h3>Only show Output + Reset when it makes sense</h3>
+        <pre><code>{bill &gt; 0 &amp;&amp; (
+  &lt;&gt;
+    &lt;Output bill={bill} tip={tip} /&gt;
+    &lt;Reset onReset={handleReset} /&gt;
+  &lt;/&gt;
+)}
+</code></pre>
+
+        <p class="small">🧠 Why a fragment (<code>&lt;&gt;...&lt;/&gt;</code>)? Because JSX needs one parent wrapper.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>8) Complete example solution (reference)</h2>
+      <div class="callout">
+        ✅ Use this as a reference after trying on your own.
+        If your solution differs but works, that is fine.
+      </div>
+
+      <pre><code>import { useState } from "react";
+
+export default function TipCalculator() {
+  const [bill, setBill] = useState("");
+  const [percentage1, setPercentage1] = useState(0);
+  const [percentage2, setPercentage2] = useState(0);
+
+  const numericBill = Number(bill);
+  const tip = numericBill * ((percentage1 + percentage2) / 2 / 100);
+
+  function handleReset() {
+    setBill("");
+    setPercentage1(0);
+    setPercentage2(0);
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;BillInput bill={bill} onSetBill={setBill} /&gt;
+
+      &lt;SelectPercentage percentage={percentage1} onSelect={setPercentage1}&gt;
+        How did you like the service?
+      &lt;/SelectPercentage&gt;
+
+      &lt;SelectPercentage percentage={percentage2} onSelect={setPercentage2}&gt;
+        How did your friend like the service?
+      &lt;/SelectPercentage&gt;
+
+      {numericBill &gt; 0 &amp;&amp; (
+        &lt;&gt;
+          &lt;Output bill={numericBill} tip={tip} /&gt;
+          &lt;Reset onReset={handleReset} /&gt;
+        &lt;/&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+
+function BillInput({ bill, onSetBill }) {
+  return (
+    &lt;div&gt;
+      &lt;label&gt;How much was the bill? &lt;/label&gt;
+      &lt;input
+        type="text"
+        placeholder="Bill value"
+        value={bill}
+        onChange={(e) =&gt; onSetBill(e.target.value)}
+      /&gt;
+    &lt;/div&gt;
+  );
+}
+
+function SelectPercentage({ percentage, onSelect, children }) {
+  return (
+    &lt;div&gt;
+      &lt;label&gt;{children} &lt;/label&gt;
+      &lt;select
+        value={percentage}
+        onChange={(e) =&gt; onSelect(Number(e.target.value))}
+      &gt;
+        &lt;option value={0}&gt;Dissatisfied (0%)&lt;/option&gt;
+        &lt;option value={5}&gt;It was okay (5%)&lt;/option&gt;
+        &lt;option value={10}&gt;It was good (10%)&lt;/option&gt;
+        &lt;option value={20}&gt;Absolutely amazing (20%)&lt;/option&gt;
+      &lt;/select&gt;
+    &lt;/div&gt;
+  );
+}
+
+function Output({ bill, tip }) {
+  const total = bill + tip;
+
+  return (
+    &lt;h3&gt;
+      You pay ${total.toFixed(2)} (${bill.toFixed(2)} + ${tip.toFixed(2)} tip)
+    &lt;/h3&gt;
+  );
+}
+
+function Reset({ onReset }) {
+  return &lt;button onClick={onReset}&gt;Reset&lt;/button&gt;;
+}
+</code></pre>
+
+      <div class="card">
+        <h3>🧪 Quick self-check</h3>
+        <ul>
+          <li>Type a bill: Output appears and updates live ✅</li>
+          <li>Change either dropdown: Tip + total update ✅</li>
+          <li>Reset returns bill to blank and percentages to 0 ✅</li>
+          <li>No extra <code>useState</code> for tip ✅</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>9) Common beginner mistakes (so you can avoid them)</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>⚠️ Storing derived values as state</h3>
+          <p class="small">Don’t do <code>const [tip, setTip] = useState(...)</code> if it can be computed from existing state.</p>
+        </div>
+        <div class="card">
+          <h3>⚠️ Forgetting number conversion</h3>
+          <p class="small"><code>e.target.value</code> is a string. Use <code>Number(...)</code> when needed.</p>
+        </div>
+        <div class="card">
+          <h3>⚠️ Mutating props/state</h3>
+          <p class="small">Update state immutably; never directly change props.</p>
+        </div>
+        <div class="card">
+          <h3>⚠️ Calling handlers immediately</h3>
+          <p class="small">Use <code>onClick={() =&gt; ...}</code> when you need to pass arguments.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>10) Mini summary</h2>
+      <div class="callout">
+        ✅ Build static UI → add controlled inputs → lift state up → compute derived values → conditionally render output → add reset.
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

@@ -1,0 +1,500 @@
+
+
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wild Oasis — Deploying to Netlify (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codefg: #e6edf3;
+      --accent: #1a73e8;
+      --ok: #137333;
+      --warn: #b06000;
+      --bad: #b00020;
+
+      --page-max: 820px;
+      --fs: 12pt;
+      --lh: 1.55;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: var(--fs);
+      line-height: var(--lh);
+      overflow-wrap: anywhere;
+      word-break: normal;
+      hyphens: auto;
+    }
+
+    .page {
+      max-width: var(--page-max);
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, var(--soft));
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 20pt;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11.5pt;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 10.5pt;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 14px; }
+
+    section {
+      margin: 14px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px 0;
+      font-size: 14.5pt;
+      letter-spacing: -0.1px;
+    }
+
+    h3 {
+      margin: 14px 0 8px 0;
+      font-size: 12.5pt;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 5px solid var(--accent);
+      background: #f7fbff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .ok {
+      border-left-color: var(--ok);
+      background: #f3fbf5;
+    }
+
+    .warn {
+      border-left-color: var(--warn);
+      background: #fff7ee;
+    }
+
+    .bad {
+      border-left-color: var(--bad);
+      background: #fff3f5;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 10.5pt;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      overflow: auto;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 10.5pt;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .grid1 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini {
+      font-size: 11pt;
+      color: var(--muted);
+    }
+
+    .checklist {
+      list-style: none;
+      margin-left: 0;
+    }
+
+    .checklist li {
+      margin: 8px 0;
+      padding-left: 28px;
+      position: relative;
+    }
+
+    .checklist li::before {
+      content: "☐";
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-size: 14pt;
+      line-height: 1;
+      color: #333;
+    }
+
+    .muted { color: var(--muted); }
+
+    details {
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      :root { --page-max: 100%; }
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 11.5pt;
+        line-height: 1.5;
+      }
+
+      .page { padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Don’t print link URLs */
+      a[href]::after { content: "" !important; }
+
+      /* Keep colors readable on printers */
+      header, section { box-shadow: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🚀 Deploying to Netlify (Wild Oasis) — Reviewer / Study Guide</h1>
+      <p class="subtitle">Goal: Build a production bundle with Vite, then deploy the <span class="kbd">dist</span> output to Netlify (manual deploy) — including the required SPA redirect config.</p>
+      <div class="meta">
+        <span class="chip">Single-column</span>
+        <span class="chip">A4 print-ready</span>
+        <span class="chip">Vite build → dist</span>
+        <span class="chip">Netlify manual deploy</span>
+        <span class="chip">SPA redirect (netlify.toml)</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🧠 Big Picture (What you are doing and why)</h2>
+        <div class="grid1">
+          <div class="callout">
+            <p><strong>Deploying a React SPA</strong> usually means: you ship the static build output (HTML/CSS/JS/assets) to a web host. The browser downloads that bundle and runs the app.</p>
+            <p class="mini">In this lecture, you do a <strong>manual</strong> deploy (drag-and-drop) to Netlify — fast and simple for demos/portfolios.</p>
+          </div>
+
+          <div class="callout warn">
+            <p><strong>Security reminder 🧹</strong> Before deploying, remove any hard-coded credentials or default values left in your login form. Otherwise, anyone who finds your site can log in.</p>
+          </div>
+
+          <div class="callout ok">
+            <p><strong>Key output</strong>: the <span class="kbd">dist</span> folder created by <span class="kbd">npm run build</span>. That folder is what you upload to Netlify.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>✅ Step-by-step Checklist (Do this in order)</h2>
+        <ol>
+          <li><strong>Clean login defaults</strong> (remove saved credentials / prefilled values).</li>
+          <li><strong>Create production build</strong>: run <span class="kbd">npm run build</span> (Vite bundles your app into the production output).</li>
+          <li><strong>Fix lint/build warnings</strong> if they block the build or are easy to clean:
+            <ul>
+              <li>Unused variables (example: set disabled state when creating).</li>
+              <li>Unused imports (example: remove unused date utilities / fake data if no longer needed).</li>
+            </ul>
+          </li>
+          <li><strong>Confirm build output</strong>: check <span class="kbd">dist/</span> contains:
+            <ul>
+              <li><span class="kbd">index.html</span></li>
+              <li><span class="kbd">assets/</span> (your JS bundle, CSS, etc.)</li>
+              <li>images/other static files if used</li>
+            </ul>
+          </li>
+          <li><strong>Add SPA redirect config</strong> (Netlify needs it for React Router routes).</li>
+          <li><strong>Netlify manual deploy</strong>: drag-and-drop the <span class="kbd">dist</span> folder into Netlify’s manual deploy UI.</li>
+          <li><strong>Open deployed URL</strong>, log in with your own credentials, and verify key flows.</li>
+          <li><strong>Optional</strong>: change Netlify site name to get a nicer URL.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>📦 Building the Production Bundle (Vite)</h2>
+        <p>Vite takes your development files and creates an optimized production build. You run:</p>
+        <pre><code>npm run build</code></pre>
+
+        <div class="callout">
+          <p><strong>Beginner-friendly explanation</strong> 🧩</p>
+          <ul>
+            <li>During development, Vite serves files quickly and supports hot reload.</li>
+            <li>For production, it <strong>bundles</strong> and <strong>optimizes</strong> your code into files the browser can load efficiently.</li>
+            <li>The result is a folder (usually <span class="kbd">dist</span>) containing static files you can host anywhere.</li>
+          </ul>
+        </div>
+
+        <div class="callout warn">
+          <p><strong>Large bundle warning ⚠️</strong> Vite may warn if your JS bundle is large. In this project, it’s acceptable because the app is behind login and has a small user base. In other apps, you might use <strong>code splitting</strong> to reduce initial load.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧹 Cleaning Common Build Issues (Examples)</h2>
+        <p>Typical issues you may see during build:</p>
+        <ul>
+          <li><strong>ESLint warnings</strong> about unused variables/imports.</li>
+          <li>Leftover <strong>fake data</strong> used during chart development.</li>
+        </ul>
+
+        <details>
+          <summary>Example fixes from the lecture (click to expand)</summary>
+          <div class="hr"></div>
+          <ul>
+            <li>Cabin row: unused variable → use it (e.g., disable button while creating) or remove it.</li>
+            <li>Sales chart: remove unused imports and delete fake chart data once real data is used.</li>
+          </ul>
+          <p class="mini">Tip: keep builds “quiet” to reduce risk and improve maintainability.</p>
+        </details>
+      </section>
+
+      <section>
+        <h2>🌐 Netlify Manual Deploy (Drag-and-Drop)</h2>
+        <p>Netlify can host static sites (including React SPA builds) very easily.</p>
+        <ol>
+          <li>Create a Netlify account and log in.</li>
+          <li>Choose <strong>Deploy manually</strong> (manual site deploy).</li>
+          <li>Drag-and-drop your <span class="kbd">dist</span> folder.</li>
+          <li>Open the production deploy URL and verify the app.</li>
+        </ol>
+
+        <div class="callout ok">
+          <p><strong>Reality check ✅</strong> If your app works locally in production preview/build and you upload the correct <span class="kbd">dist</span> folder, Netlify should serve it just like your local build.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧭 Important: Single Page App Redirects (React Router on Netlify)</h2>
+        <p>If your app uses client-side routing (React Router), Netlify needs to redirect all routes to <span class="kbd">index.html</span>, so React can handle the route in the browser.</p>
+
+        <div class="callout bad">
+          <p><strong>Symptom 😵</strong> If you refresh a deep route like <span class="kbd">/account</span> or open it directly, you might see a 404 on Netlify without proper redirects.</p>
+        </div>
+
+        <p>Create a file named <span class="kbd">netlify.toml</span> with this redirect rule:</p>
+        <pre><code>[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200</code></pre>
+
+        <div class="callout">
+          <p><strong>Where should this file live?</strong> 📁</p>
+          <ul>
+            <li><strong>Best option</strong>: put it in <span class="kbd">public/</span> so it gets copied into <span class="kbd">dist/</span> on every build.</li>
+            <li>If you place it directly in <span class="kbd">dist/</span>, it may be deleted next time you rebuild.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🔗 Shareable URL + Site Name</h2>
+        <p>Netlify gives you a generated URL, but you can rename your site to get a nicer subdomain.</p>
+        <ul>
+          <li>Go to <strong>Site settings</strong> → change the <strong>site name</strong>.</li>
+          <li>Optional: attach a custom domain you own.</li>
+        </ul>
+
+        <div class="callout warn">
+          <p><strong>Sharing access 🔐</strong> Remember: since the app is behind login, your friends/employers can only explore it if you provide credentials (or if you build a public demo mode later).</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>♻️ Updating the Deployment (Manual)</h2>
+        <p>If you change the code later:</p>
+        <ol>
+          <li>Update the code locally.</li>
+          <li>Run <span class="kbd">npm run build</span> again.</li>
+          <li>Ensure <span class="kbd">netlify.toml</span> is still included (ideally via <span class="kbd">public/</span>).</li>
+          <li>Drag-and-drop the new <span class="kbd">dist</span> folder into Netlify again (Deploys page).</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🏗️ Next Step Preview: Continuous Deployment (Why GitHub matters)</h2>
+        <p>Manual deploy is perfect for quick demos. A more “real-world” workflow is <strong>continuous deployment</strong>:</p>
+        <ul>
+          <li>Push code to a GitHub repository.</li>
+          <li>Connect the repo to a host (Netlify or Vercel).</li>
+          <li>Every push automatically triggers a new build + deploy.</li>
+        </ul>
+        <div class="callout ok">
+          <p><strong>Benefit ✅</strong> No more drag-and-drop. Your deploy always matches your repository history.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 Quick Glossary</h2>
+        <ul>
+          <li><strong>Build</strong>: Creating optimized static files for production (Vite output).</li>
+          <li><strong>Bundle</strong>: Combined JS/CSS output produced by the build tool.</li>
+          <li><strong>SPA</strong>: Single Page Application — routes are handled in the browser.</li>
+          <li><strong>Redirect to index.html</strong>: Host-level rule so React Router can resolve routes.</li>
+          <li><strong>Continuous Deployment</strong>: Auto-deploy on every push to Git.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>📄 Transcript (Reference)</h2>
+        <p class="mini">This is the original lecture text, kept for review and cross-checking.</p>
+        <div class="hr"></div>
+        <p>
+          So let's start with a very easy way of deploying our application by simply uploading it to a free service called Netlify.
+          But first of all, we actually need to first go back to our login form, so right here in the authentication folder,
+          because here we actually left our credentials in the default state. So let's of course clean this. Otherwise everyone could just log into our application.
+          So very important step here first, but now with that step done it is time to build our actual application bundle.
+          Remember how we learned earlier that our development tool, so in this case, that Vite will take all the files that we have created here during development and will all bundle them into one single file.
+          And so that file is what we then deploy to production. So not just that file but really the output that we will get here.
+          So with Vite, that command, and instead of just telling you we can actually read that here. And so we have it right here.
+          So in our terminal, let's run NPM run build.
+          And we actually already did this earlier with the World Wise application, right?
+          And now here we have a few issues. So like all of these ES lint warnings.
+          So maybe let's go check this out.
+          So in the cabin row we have something, so apparently we have this variable that we're not using so maybe we should.
+          So let's see where we use this function actually.
+          And so down here there's probably some button, yeah, this one right here.
+          So since we are already here let's just simply disable it whenever we are creating.
+          All right, so we fixed that and there is something in our sales chart so we can actually click there with command or control.
+          And so let's see. So here we are importing this function we don't need.
+          So let's clear that and we can also actually remove this fake data that we no longer need.
+          Then let's see if we have something else and apparently not.
+          So let's clear this and let's run NPM build again.
+          And there we go.
+          Now, okay, so we have this one bundle here which is indeed pretty huge, as we can see in this warning here from Vite.
+          Now, in an earlier project, and I think it was in the World Wise Project, we actually did code splitting in order to avoid this problem.
+          However, this application will be fully hidden behind a login, and also only a few users will ever use this application.
+          And so in this situation, this is actually perfectly fine.
+          And also we already learned how to do this.
+          So let's close all of this and let's see what we actually got.
+          So the folder that was created is this dist folder right here.
+          So here we have the assets which is that huge JavaScript bundle.
+          And then we have the HTML and all the images that are necessary.
+          All right, and so now we are ready to take this folder and deploy it to that service that I mentioned earlier called Netlify.
+          So let's go to netlify.com.
+          Now, this website here changes all the time but what you need to do is just to sign up for your own account.
+          So here you can sign up with any of these services.
+          And then once you're done doing that, I meet you back here.
+          So as soon as you're logged into Netlify your dashboard should look something like this.
+          But basically all we need to do is to come here or also we can select this site options here, and then we can create a new site simply with this option of deploying manually.
+          And now all we have to do is really drag and drop that folder that Vite built for us earlier.
+          So that's this dist folder right here.
+          But actually there is something that we still need to do.
+          Our single page application is not going to work on Netlify without a redirect config.
+          So create a new file called netlify.toml with redirects from /* to /index.html with status 200.
+          Put it in public so it is copied into dist on every build.
+          Then drag-and-drop the dist folder to Netlify and open the production deploy.
+          Log in and verify the app.
+          You can rename the site to get a nicer Netlify subdomain and optionally connect a custom domain.
+          To update later, rebuild and redeploy.
+          Next lecture: set up GitHub and continuous deployment.
+        </p>
+      </section>
+
+      <section>
+        <h2>📝 Personal Notes (Fill-in)</h2>
+        <ul class="checklist">
+          <li>My deployed Netlify site name: ________________________________</li>
+          <li>My build command: <span class="kbd">npm run build</span> (confirmed) ☐</li>
+          <li>I placed <span class="kbd">netlify.toml</span> in <span class="kbd">public/</span> ☐</li>
+          <li>Deep route refresh works (no 404) ☐</li>
+          <li>Login defaults removed before deploy ☐</li>
+        </ul>
+        <p class="mini">Tip: If you plan to show this to employers, consider a separate “demo account” and rotate credentials.</p>
+      </section>
+    </main>
+  </div>
+</body>
+
+</html>

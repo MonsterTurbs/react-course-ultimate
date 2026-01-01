@@ -1,0 +1,508 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Query + Supabase — Updating Application Settings (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --callout: #f7f7ff;
+      --callout-border: #d8d8ff;
+      --ok: #0f7b2d;
+      --warn: #8a5200;
+      --bad: #9b1c1c;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      margin: 18px 0 10px;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 15.5px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 10px;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .toc {
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin: 14px 0 0;
+    }
+
+    .toc-title {
+      margin: 0 0 6px;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bbb;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      font-size: 12.5px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .callout {
+      background: var(--callout);
+      border: 1px solid var(--callout-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .good { color: var(--ok); font-weight: 700; }
+    .warn { color: var(--warn); font-weight: 700; }
+    .bad { color: var(--bad); font-weight: 700; }
+
+    .rule {
+      border: 0;
+      border-top: 1px solid var(--border);
+      margin: 16px 0;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: #0b0b0b;
+      color: #f2f2f2;
+      border-radius: 10px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.55;
+      white-space: pre;
+    }
+
+    code {
+      font-family: var(--mono);
+      font-size: 0.95em;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: var(--soft);
+      font-family: var(--mono);
+      font-size: 12px;
+      vertical-align: middle;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    .box-title {
+      margin: 0 0 6px;
+      font-weight: 700;
+    }
+
+    .qa {
+      border-left: 4px solid #ddd;
+      padding-left: 12px;
+      margin: 10px 0;
+    }
+
+    /* Print settings */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+
+      /* Avoid awkward page breaks */
+      header, .toc, .callout, .box, pre { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      /* Do NOT print link URLs */
+      a[href]:after { content: "" !important; }
+
+      /* Ensure consistent print color handling */
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>⚙️ Updating Application Settings (React Query + Supabase)</h1>
+      <p class="subtitle">
+        Reviewer / Study Guide — Update each setting value individually using <code>onBlur</code> + a React Query mutation.
+      </p>
+
+      <div class="chips" aria-label="key-topics">
+        <span class="chip">📦 Supabase (settings table)</span>
+        <span class="chip">🧠 React Query v4 (TanStack Query)</span>
+        <span class="chip">🔁 invalidateQueries</span>
+        <span class="chip">🖊️ onBlur auto-save UX</span>
+        <span class="chip">🔒 RLS Policies</span>
+      </div>
+
+      <nav class="toc" aria-label="Table of contents">
+        <div class="toc-title">Contents</div>
+        <ol>
+          <li><a href="#goal">Goal of this lecture</a></li>
+          <li><a href="#concept">Key concept: update only one column</a></li>
+          <li><a href="#hook">Custom hook: <code>useUpdateSetting</code></a></li>
+          <li><a href="#form">UI trick: update on <code>onBlur</code></a></li>
+          <li><a href="#why">Why invalidate “settings” after updating?</a></li>
+          <li><a href="#notes">Common mistakes & pro tips</a></li>
+          <li><a href="#quick">Quick self-check</a></li>
+        </ol>
+      </nav>
+    </header>
+
+    <section id="goal">
+      <h2>🎯 Goal of this lecture</h2>
+      <p>
+        We want a clean, modern UX: the user edits one number (like <em>Breakfast price</em>), and as soon as they leave the input
+        (blur), the value automatically saves to the database — no “Save” button needed.
+      </p>
+      <div class="callout">
+        <strong>✨ What you build</strong>
+        <ul>
+          <li>✅ A mutation hook that updates a single setting field</li>
+          <li>✅ Inputs that auto-save via <code>onBlur</code></li>
+          <li>✅ React Query cache invalidation so UI stays consistent</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="concept">
+      <h2>🧩 Key concept: update only one column</h2>
+      <p>
+        In Supabase, you can update a row by passing only the fields you want to change.
+        For settings, we usually only have <strong>one row</strong> (often <code>id = 1</code>), so:
+      </p>
+      <ul>
+        <li>✅ We <strong>don’t need to pass an id</strong> from the UI (the service updates row #1 internally).</li>
+        <li>✅ We send only <strong>one field</strong>, e.g. <code>{ breakfastPrice: 25 }</code>.</li>
+      </ul>
+
+      <div class="qa">
+        <p><strong>🧠 Beginner mental model:</strong></p>
+        <p class="mini">“Instead of replacing the whole settings object, I’m patching just one property.”</p>
+      </div>
+
+      <div class="callout">
+        <strong>🔒 Reminder: RLS is required</strong>
+        <p class="mini">
+          To update settings from the client, you must create the correct Row Level Security policy for the <code>settings</code>
+          table (e.g., allow <code>UPDATE</code> temporarily while you don’t have auth yet).
+        </p>
+      </div>
+    </section>
+
+    <section id="hook">
+      <h2>🪝 Custom hook: <code>useUpdateSetting</code></h2>
+      <p>
+        Best practice is to keep React Query logic (mutation + invalidation + toasts) inside a custom hook.
+        This keeps the UI component clean and easy to read.
+      </p>
+
+      <div class="box">
+        <p class="box-title">✅ Example: <code>useUpdateSetting.js</code></p>
+        <pre><code>import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+
+import { updateSetting as updateSettingApi } from "../../services/apiSettings";
+
+export function useUpdateSetting() {
+  const queryClient = useQueryClient();
+
+  const { isLoading: isUpdating, mutate: updateSetting } = useMutation({
+    mutationFn: updateSettingApi,
+    onSuccess: () =&gt; {
+      toast.success("Setting successfully updated");
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
+    },
+    onError: (err) =&gt; toast.error(err.message),
+  });
+
+  return { isUpdating, updateSetting };
+}
+</code></pre>
+        <p class="mini">
+          ✅ Note: your query key MUST match your settings query key exactly (usually <code>["settings"]</code>).
+        </p>
+      </div>
+
+      <div class="callout">
+        <strong>🧠 Why this works</strong>
+        <ul>
+          <li>React Query calls <code>updateSettingApi</code> (your Supabase service function).</li>
+          <li>On success, you invalidate <code>["settings"]</code> so fresh data is refetched.</li>
+          <li>Toasts provide user feedback (success/error).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="form">
+      <h2>🖊️ UI trick: update on <code>onBlur</code> (auto-save)</h2>
+      <p>
+        <strong>onBlur</strong> fires when the user leaves an input. That’s perfect for “small settings” screens.
+        The reusable trick is: one handler function updates different fields.
+      </p>
+
+      <div class="box">
+        <p class="box-title">✅ Example: UpdateSettingsForm snippet</p>
+        <pre><code>import Spinner from "../../ui/Spinner";
+import { useSettings } from "./useSettings";
+import { useUpdateSetting } from "./useUpdateSetting";
+
+function UpdateSettingsForm() {
+  const { isLoading, settings = {} } = useSettings();
+  const { isUpdating, updateSetting } = useUpdateSetting();
+
+  const {
+    minBookingLength,
+    maxBookingLength,
+    maxGuestsPerBooking,
+    breakfastPrice,
+  } = settings;
+
+  function handleUpdate(e, field) {
+    const value = e.target.value;
+
+    // Optional: ignore empty
+    if (!value) return;
+
+    // Patch update: update only ONE column
+    updateSetting({ [field]: Number(value) });
+  }
+
+  if (isLoading) return &lt;Spinner /&gt;;
+
+  return (
+    &lt;&gt;
+      &lt;label&gt;Min booking length&lt;/label&gt;
+      &lt;input
+        type="number"
+        defaultValue={minBookingLength}
+        disabled={isUpdating}
+        onBlur={(e) =&gt; handleUpdate(e, "minBookingLength")}
+      /&gt;
+
+      &lt;label&gt;Max booking length&lt;/label&gt;
+      &lt;input
+        type="number"
+        defaultValue={maxBookingLength}
+        disabled={isUpdating}
+        onBlur={(e) =&gt; handleUpdate(e, "maxBookingLength")}
+      /&gt;
+
+      &lt;label&gt;Max guests per booking&lt;/label&gt;
+      &lt;input
+        type="number"
+        defaultValue={maxGuestsPerBooking}
+        disabled={isUpdating}
+        onBlur={(e) =&gt; handleUpdate(e, "maxGuestsPerBooking")}
+      /&gt;
+
+      &lt;label&gt;Breakfast price&lt;/label&gt;
+      &lt;input
+        type="number"
+        defaultValue={breakfastPrice}
+        disabled={isUpdating}
+        onBlur={(e) =&gt; handleUpdate(e, "breakfastPrice")}
+      /&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+        <p class="mini">
+          ✅ Notice the dynamic object: <code>{ [field]: value }</code> — this is the “clever trick”.
+        </p>
+      </div>
+
+      <div class="callout">
+        <strong>💡 UX note</strong>
+        <p class="mini">
+          Users often expect settings to save automatically, especially when each setting is a small number.
+          For larger forms (like cabins CRUD), a “Save” button still makes sense.
+        </p>
+      </div>
+    </section>
+
+    <section id="why">
+      <h2>🔁 Why invalidate “settings” after updating?</h2>
+      <p>
+        After a successful mutation, the UI should reflect the server truth.
+        Invalidating forces React Query to refetch the latest settings.
+      </p>
+      <ul>
+        <li>✅ Prevents stale values across components</li>
+        <li>✅ Ensures consistency if another user/admin also changes settings</li>
+        <li>✅ Keeps your app’s “single source of truth” aligned with Supabase</li>
+      </ul>
+
+      <div class="qa">
+        <p><strong>🧠 Simple analogy:</strong></p>
+        <p class="mini">“I edited the value. Now I’m telling React Query: please re-check what the server says.”</p>
+      </div>
+    </section>
+
+    <section id="notes">
+      <h2>🛠️ Common mistakes & pro tips</h2>
+      <div class="grid2">
+        <div class="box">
+          <p class="box-title">❗ Mistake: wrong queryKey</p>
+          <p class="mini">
+            If your settings query uses <code>["settings"]</code> but you invalidate <code>["setting"]</code>, nothing refreshes.
+            Result: UI doesn’t update.
+          </p>
+          <p class="mini"><span class="good">Fix:</span> keep keys consistent everywhere.</p>
+        </div>
+
+        <div class="box">
+          <p class="box-title">⚠️ Tip: convert numeric inputs</p>
+          <p class="mini">
+            <code>e.target.value</code> is a string. Convert to number if the DB column is numeric.
+          </p>
+          <p class="mini"><span class="good">Example:</span> <code>Number(value)</code></p>
+        </div>
+
+        <div class="box">
+          <p class="box-title">🔒 Mistake: missing UPDATE policy (RLS)</p>
+          <p class="mini">
+            Without an UPDATE policy, Supabase will reject the mutation.
+          </p>
+          <p class="mini"><span class="warn">Fix:</span> add the policy (temporarily allow all; later restrict to auth users).</p>
+        </div>
+
+        <div class="box">
+          <p class="box-title">✨ Pro UX: disable inputs during update</p>
+          <p class="mini">
+            Disabling inputs using <code>disabled={isUpdating}</code> prevents double updates.
+          </p>
+        </div>
+
+        <div class="box">
+          <p class="box-title">🧪 Debug helper</p>
+          <p class="mini">
+            Use React Query DevTools to confirm:
+            <span class="kbd">settings</span> query refetches after update.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="quick">
+      <h2>✅ Quick self-check</h2>
+      <ol>
+        <li>Why can we update settings without passing an id? 🤔</li>
+        <li>What does <code>onBlur</code> do, and why is it useful here? 👀</li>
+        <li>Why do we invalidate <code>["settings"]</code> after a successful update? 🔁</li>
+        <li>What happens if RLS doesn’t allow UPDATE? 🔒</li>
+      </ol>
+
+      <hr class="rule" />
+
+      <div class="callout">
+        <strong>🏁 What’s next?</strong>
+        <p class="mini">
+          React Query will continue to manage your remote state throughout the project.
+          Later, you’ll learn more advanced patterns that make your codebase feel “senior-level”. 🚀
+        </p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

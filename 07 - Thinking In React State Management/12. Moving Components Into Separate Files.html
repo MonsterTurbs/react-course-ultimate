@@ -1,0 +1,421 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Moving Components Into Separate Files</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --codebg:#0b1020;
+      --codefg:#e8eefc;
+      --accent:#0b57d0;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 44px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(0deg, var(--soft), #fff);
+      padding: 18px 18px 14px;
+      border-radius: 12px;
+    }
+    h1{
+      margin:0;
+      font-size: 24px;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+      color: var(--muted);
+      font-size: 13px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 16px;
+    }
+    .chip{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 10px;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+
+    main{ margin-top: 18px; }
+
+    h2{
+      margin: 22px 0 10px;
+      font-size: 18px;
+    }
+
+    p{ margin: 10px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--accent);
+      background: #fff;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout strong{ display:block; margin-bottom: 6px; }
+
+    ul,ol{ margin: 8px 0 12px 22px; padding: 0; }
+    li{ margin: 6px 0; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .card h3{
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 10px;
+      overflow: auto;
+      border: 1px solid #1b2a55;
+      font-size: 12.5px;
+      line-height: 1.55;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .inline-code{
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--soft);
+      font-size: 0.95em;
+    }
+
+    .muted{ color: var(--muted); }
+
+    .divider{
+      border:0;
+      border-top:1px solid var(--border);
+      margin: 18px 0;
+    }
+
+    /* Print settings for A4 */
+    @page { size: A4; margin: 14mm; }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header, .card, .callout{ break-inside: avoid; }
+      pre{ break-inside: avoid; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]::after{ content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>📦 Moving Components Into Separate Files (React)</h1>
+      <p class="subtitle">Reviewer / study guide based on your lecture transcript — focused on splitting <span class="inline-code">App.js</span> into multiple component files, exports/imports, and folder organization.</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Thinking in React (State Management)</span>
+        <span class="chip">🧩 Skill: Code organization</span>
+        <span class="chip">🛠️ Tools: VS Code refactor</span>
+        <span class="chip">✅ Output: One component per file</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="callout">
+        <strong>🎯 Goal of this lecture</strong>
+        <div class="muted">
+          Take multiple components that are currently defined inside <span class="inline-code">App.js</span> (e.g., <span class="inline-code">Logo</span>, <span class="inline-code">Form</span>, <span class="inline-code">PackingList</span>, <span class="inline-code">Item</span>, <span class="inline-code">Stats</span>) and move each into its own file in <span class="inline-code">src/</span> (or <span class="inline-code">src/components/</span>), then fix exports/imports so the app still runs.
+        </div>
+      </section>
+
+      <h2>🧱 Why split components into separate files?</h2>
+      <ul>
+        <li>📉 Less scrolling in one huge file (easier to read and debug).</li>
+        <li>🧩 Each component becomes isolated (you can focus on one at a time).</li>
+        <li>🧼 Cleaner structure as the app grows (scales better to real projects).</li>
+        <li>🤝 Easier collaboration (multiple people can work on different files).</li>
+      </ul>
+
+      <hr class="divider" />
+
+      <h2>✅ Step-by-step: Move a component into its own file</h2>
+      <ol>
+        <li>✂️ Cut the component code from <span class="inline-code">App.js</span>.</li>
+        <li>📄 Create a new file in <span class="inline-code">src/</span> (e.g., <span class="inline-code">Logo.js</span>).</li>
+        <li>📌 Paste the component in the new file.</li>
+        <li>🚚 Export the component from that file (usually default export).</li>
+        <li>📥 Import the component back into <span class="inline-code">App.js</span>.</li>
+        <li>🧠 If the component uses hooks (like <span class="inline-code">useState</span>), import them inside the component’s file.</li>
+      </ol>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Example: <span class="inline-code">Logo.js</span> with a default export ✅</h3>
+          <pre>// src/Logo.js
+export default function Logo() {
+  return (
+    <h1>
+      Far Away 🏝️🧳
+    </h1>
+  );
+}
+</pre>
+          <pre>// src/App.js
+import Logo from "./Logo";
+
+export default function App() {
+  return (
+    <div className="app">
+      <Logo />
+      {/* other components... */}
+    </div>
+  );
+}
+</pre>
+          <p class="muted">📝 With default exports, you can technically rename on import, but best practice is to keep the same name for clarity.</p>
+        </div>
+
+        <div class="card">
+          <h3>Named export vs default export (quick comparison)</h3>
+          <pre>// Named export
+export function Logo() { /* ... */ }
+
+// Import must match the name
+import { Logo } from "./Logo";
+</pre>
+          <pre>// Default export
+export default function Logo() { /* ... */ }
+
+// Import name can be any identifier (but keep it consistent)
+import Logo from "./Logo";
+</pre>
+          <p class="muted">✅ Lecture preference: default export for components (common in many React codebases).</p>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <h2>🪝 Important: Hooks must be imported per file</h2>
+      <p>
+        If <span class="inline-code">Form</span> uses <span class="inline-code">useState</span>, moving it to <span class="inline-code">Form.js</span> means <strong>the hook import must move too</strong>.
+        Imports do not “carry over” from other files.
+      </p>
+
+      <div class="card">
+        <h3>Example: <span class="inline-code">Form.js</span> needs its own hook import</h3>
+        <pre>// src/Form.js
+import { useState } from "react";
+
+export default function Form({ onAddItems }) {
+  const [description, setDescription] = useState("");
+  const [quantity, setQuantity] = useState(1);
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!description) return;
+
+    const newItem = {
+      id: Date.now(),
+      description,
+      quantity,
+      packed: false,
+    };
+
+    onAddItems(newItem);
+    setDescription("");
+    setQuantity(1);
+  }
+
+  return (
+    <form className="add-form" onSubmit={handleSubmit}>
+      {/* select + input + button */}
+      <button>Add</button>
+    </form>
+  );
+}
+</pre>
+      </div>
+
+      <hr class="divider" />
+
+      <h2>🛠️ VS Code shortcut: Refactor → Move to a new file</h2>
+      <ul>
+        <li>✅ You can select a component function in <span class="inline-code">App.js</span>.</li>
+        <li>🖱️ Right click → <strong>Refactor</strong> → <strong>Move to a new file</strong>.</li>
+        <li>📄 VS Code creates a new file and moves the function there.</li>
+        <li>🧩 It may also auto-add imports used in that function (e.g., <span class="inline-code">useState</span>).</li>
+      </ul>
+
+      <div class="callout">
+        <strong>⚠️ Small gotcha</strong>
+        <div class="muted">
+          If you move <span class="inline-code">PackingList</span> first but it depends on <span class="inline-code">Item</span>, VS Code might create imports that you will need to adjust after you extract <span class="inline-code">Item</span> into its own file.
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <h2>📁 Optional: Put components in a <span class="inline-code">components/</span> folder</h2>
+      <p>
+        Once each component has its own file, you can move them into a folder:
+        <span class="inline-code">src/components/</span>.
+        This keeps <span class="inline-code">src/</span> clean.
+      </p>
+
+      <div class="card">
+        <h3>Example folder structure</h3>
+        <pre>src/
+  components/
+    App.js
+    Logo.js
+    Form.js
+    PackingList.js
+    Item.js
+    Stats.js
+  index.js
+  index.css
+</pre>
+      </div>
+
+      <div class="card">
+        <h3>Fix import paths after moving files</h3>
+        <pre>// src/index.js
+import App from "./components/App";
+</pre>
+        <pre>// src/components/App.js
+import Logo from "./Logo";
+import Form from "./Form";
+import PackingList from "./PackingList";
+import Stats from "./Stats";
+</pre>
+        <p class="muted">🧠 Rule of thumb: update imports in any file that can no longer “see” the old path.</p>
+      </div>
+
+      <hr class="divider" />
+
+      <h2>🧯 Common mistakes (and how to avoid them)</h2>
+      <ul>
+        <li>
+          ❌ <strong>“Component is not defined”</strong>
+          <div class="muted">✅ You forgot to import it back into the file where you use it.</div>
+        </li>
+        <li>
+          ❌ <strong>Hook error after moving code</strong>
+          <div class="muted">✅ You moved the component but forgot <span class="inline-code">import { useState } from "react";</span> (or other hooks) inside the new file.</div>
+        </li>
+        <li>
+          ❌ <strong>Wrong import syntax</strong>
+          <div class="muted">✅ Named exports require curly braces; default exports do not.</div>
+        </li>
+        <li>
+          ❌ <strong>Broken paths after moving into <span class="inline-code">components/</span></strong>
+          <div class="muted">✅ Update <span class="inline-code">index.js</span> to import <span class="inline-code">./components/App</span> and verify relative imports inside <span class="inline-code">App.js</span>.</div>
+        </li>
+      </ul>
+
+      <hr class="divider" />
+
+      <h2>🧩 Mini reviewer: Key terms</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>📦 Default export</h3>
+          <p class="muted">One “main” export per file. Import without braces.</p>
+          <pre>export default function Stats() {}
+import Stats from "./Stats";
+</pre>
+        </div>
+        <div class="card">
+          <h3>🏷️ Named export</h3>
+          <p class="muted">Multiple exports per file. Import with braces.</p>
+          <pre>export function Stats() {}
+import { Stats } from "./Stats";
+</pre>
+        </div>
+        <div class="card">
+          <h3>🪝 Hook imports are local</h3>
+          <p class="muted">Each file must import the hooks it uses.</p>
+          <pre>import { useState } from "react";
+</pre>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <h2>✅ Quick checklist (self-test)</h2>
+      <ul>
+        <li>☑️ Each component is in its own file (one component per file).</li>
+        <li>☑️ Each file exports the component (default or named) consistently.</li>
+        <li>☑️ <span class="inline-code">App.js</span> imports and renders the components correctly.</li>
+        <li>☑️ Any file using hooks imports them from <span class="inline-code">react</span>.</li>
+        <li>☑️ If using <span class="inline-code">src/components</span>, paths in <span class="inline-code">index.js</span> are updated.</li>
+        <li>☑️ App runs without console errors.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>🚀 What’s next in the course?</strong>
+        <div class="muted">
+          After organizing components, you’ll build an accordion exercise and learn an important React feature: the <span class="inline-code">children</span> prop.
+        </div>
+      </div>
+
+      <p class="muted" style="margin-top:16px;">
+        End of reviewer.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

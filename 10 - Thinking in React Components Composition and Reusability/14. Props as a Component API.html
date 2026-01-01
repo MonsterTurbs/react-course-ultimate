@@ -1,0 +1,431 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — Props as a Component API (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --soft: #f6f7f9;
+      --border: #e6e6e6;
+      --accent: #1a73e8;
+      --good: #137333;
+      --warn: #b05a00;
+      --bad: #b00020;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px;
+    }
+
+    header {
+      padding: 18px 16px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 14px; }
+
+    section {
+      margin-top: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    h3 {
+      margin: 12px 0 6px;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 0 20px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #ffffff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .good { border-left-color: var(--good); }
+    .warn { border-left-color: var(--warn); }
+    .bad  { border-left-color: var(--bad); }
+
+    .label {
+      font-weight: 700;
+      margin-right: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .box {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    code, pre {
+      font-family: var(--mono);
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .kbd {
+      font-family: var(--mono);
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-radius: 0; box-shadow: none; }
+      .chip { background: #fff; }
+      a { color: inherit; text-decoration: none; }
+      pre { page-break-inside: avoid; }
+      section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 React — Props as a Component API</h1>
+      <p class="subtitle">Reviewer / study guide • Beginner-friendly explanations • Single-column, A4 print-ready</p>
+      <div class="meta">
+        <span class="chip">🎯 Topic: Component design</span>
+        <span class="chip">🧠 Focus: Props = Public API</span>
+        <span class="chip">⚖️ Goal: Balance flexibility vs simplicity</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) Core Mindset: “Creator” vs “Consumer”</h2>
+        <p>
+          When building reusable components, imagine two roles—even if you’re working alone:
+        </p>
+        <ul>
+          <li><strong>👩‍💻 Creator</strong>: builds the component and decides which props it accepts.</li>
+          <li><strong>🧑‍💻 Consumer</strong>: uses the component in the app and passes values for those props.</li>
+        </ul>
+
+        <div class="callout good">
+          <span class="label">✅ Key idea:</span>
+          Props are the <strong>public interface</strong> (public API) of your component.
+          If someone can’t configure something via props, they can’t access it—so your prop choices matter.
+        </div>
+
+        <p>
+          Think of a component as an <strong>abstraction</strong> (a “black box”) that hides details.
+          The consumer shouldn’t need to understand the internal implementation—only how to use it.
+        </p>
+      </section>
+
+      <section>
+        <h2>2) Props = “Public API” (What you expose, what you hide)</h2>
+        <p>
+          As the creator, every prop you add is a design decision:
+        </p>
+        <ul>
+          <li>What options should the consumer be able to change? 🎛️</li>
+          <li>What complexity should stay hidden inside the component? 🔒</li>
+          <li>How easy should the component be to use correctly? 🧭</li>
+        </ul>
+
+        <div class="callout warn">
+          <span class="label">⚠️ Design warning:</span>
+          More props can make a component more flexible—but it can also make it harder to use and harder to maintain.
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>Mini mental model</h3>
+        <div class="grid">
+          <div class="box">
+            <p><strong>Creator’s responsibility</strong> ✅</p>
+            <ul>
+              <li>Offer the right controls (props) for real use cases.</li>
+              <li>Provide safe defaults so the component works “out of the box”.</li>
+              <li>Protect consumers from internal complexity.</li>
+            </ul>
+          </div>
+          <div class="box">
+            <p><strong>Consumer’s responsibility</strong> ✅</p>
+            <ul>
+              <li>Pass correct prop values.</li>
+              <li>Use the component as intended (based on its API).</li>
+              <li>Rely on defaults when they don’t need customization.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) The Balance Problem: Too Few vs Too Many Props</h2>
+        <p>
+          You want an API that’s <strong>useful</strong> but not <strong>overwhelming</strong>.
+          A common example is a weather component.
+        </p>
+
+        <h3>Option A: Too strict (too few props) 🧱</h3>
+        <p>
+          Only one prop, like <code>location</code>. Easy to use… but might be too limited.
+        </p>
+        <pre><code>// Consumer usage
+&lt;Weather location="Manila" /&gt;
+
+// What if the consumer needs:
+// - hourly vs daily
+// - Celsius vs Fahrenheit
+// - number of days
+// - which data to show</code></pre>
+
+        <div class="callout bad">
+          <span class="label">❌ Risk:</span>
+          Component may become “not flexible enough” or even unusable for real needs.
+        </div>
+
+        <h3>Option B: Too flexible (too many props) 🧠💥</h3>
+        <p>
+          Many configuration props can expose too much complexity.
+        </p>
+        <pre><code>// Consumer usage (over-configured)
+&lt;Weather
+  location="Manila"
+  dataUrl="..."
+  mode="hourly"
+  days={7}
+  unit="C"
+  showWind
+  showHumidity
+  showFeelsLike
+  showSunrise
+  showSunset
+  theme="compact"
+  refreshMs={30000}
+  /* imagine 10+ more props... */
+/&gt;</code></pre>
+
+        <div class="callout warn">
+          <span class="label">⚠️ Risks:</span>
+          <ul>
+            <li>Harder to understand and harder to use correctly.</li>
+            <li>More edge cases → more code → more bugs.</li>
+            <li>Harder for the creator to maintain over time.</li>
+          </ul>
+        </div>
+
+        <h3>The practical sweet spot ⚖️</h3>
+        <ul>
+          <li>Expose props that reflect <strong>real user needs</strong>.</li>
+          <li>Prefer <strong>simple props</strong> that cover most scenarios.</li>
+          <li>Offer <strong>defaults</strong> so usage stays clean.</li>
+        </ul>
+
+        <div class="callout good">
+          <span class="label">✅ Guideline:</span>
+          Aim for a component that is easy to use with <strong>0–2 props</strong>,
+          but can be customized with a few more when needed.
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Defaults: Your best friend for reusable components</h2>
+        <p>
+          If you must expose many options, defaults prevent “configuration overload”.
+          In React, a common pattern is default values via destructuring.
+        </p>
+
+        <pre><code>function Weather({
+  location,
+  unit = "C",
+  days = 5,
+  mode = "daily",
+  showWind = false,
+}) {
+  // ...
+}</code></pre>
+
+        <p>
+          This means the consumer can write a clean usage:
+        </p>
+        <pre><code>&lt;Weather location="Manila" /&gt;</code></pre>
+        <p>
+          And only customize when needed:
+        </p>
+        <pre><code>&lt;Weather location="Manila" unit="F" days={7} mode="hourly" /&gt;</code></pre>
+      </section>
+
+      <section>
+        <h2>5) Quick Checklist: Designing a good prop API</h2>
+        <ul>
+          <li>✅ Does the component solve a clear problem for the consumer?</li>
+          <li>✅ Are prop names clear and descriptive (don’t fear long names)?</li>
+          <li>✅ Can the consumer use it easily with minimal props?</li>
+          <li>✅ Are defaults provided for optional behavior?</li>
+          <li>⚠️ Are there props that expose internal implementation details?</li>
+          <li>⚠️ Are there too many props that can conflict with each other?</li>
+        </ul>
+
+        <div class="callout">
+          <span class="label">🧠 Rule of thumb:</span>
+          If you feel you need 10–15 props to make a component usable,
+          consider splitting responsibilities or offering a simpler API.
+        </div>
+      </section>
+
+      <section>
+        <h2>6) Apply it to your StarRating component ⭐</h2>
+        <p>
+          You are building a reusable component. Think like the creator and the consumer.
+          Example prop ideas (not all are required):
+        </p>
+        <ul>
+          <li>⭐ <code>maxRating</code> (how many stars)</li>
+          <li>📏 <code>size</code> (star size)</li>
+          <li>🎨 <code>color</code> (star color)</li>
+          <li>📝 <code>messages</code> (labels per rating)</li>
+          <li>🔁 <code>defaultRating</code> (initial selected rating)</li>
+          <li>📤 <code>onSetRating</code> (callback to notify parent)</li>
+        </ul>
+
+        <div class="callout good">
+          <span class="label">✅ Goal:</span>
+          Provide a simple default experience (works immediately),
+          then allow customization for real use cases.
+        </div>
+
+        <div class="callout warn">
+          <span class="label">⚠️ Avoid:</span>
+          Props that make the consumer think about how your component is implemented internally.
+          Props should describe <strong>what</strong> the consumer wants, not <strong>how</strong> you implemented it.
+        </div>
+      </section>
+
+      <section>
+        <h2>7) Quick Practice (1–2 minutes) ✍️</h2>
+        <p>
+          Imagine you are the <strong>creator</strong> of a component <code>&lt;StarRating /&gt;</code>.
+          Write two versions of its API:
+        </p>
+        <ul>
+          <li>Version A: Minimal, only essential props (keep it simple)</li>
+          <li>Version B: Flexible, but still reasonable (with good defaults)</li>
+        </ul>
+        <p>
+          Then act as the <strong>consumer</strong> and ask:
+          “Is this easy to use?” and “Can it handle my real needs?”
+        </p>
+      </section>
+
+      <section>
+        <h2>Summary ✅</h2>
+        <ul>
+          <li>Props are the <strong>public API</strong> of a component 🧩</li>
+          <li>Think in terms of <strong>creator</strong> vs <strong>consumer</strong> 👩‍💻↔️🧑‍💻</li>
+          <li>Too few props → not flexible enough 🧱</li>
+          <li>Too many props → too complex to use and maintain 🧠💥</li>
+          <li>Defaults keep components friendly and reusable 🎁</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

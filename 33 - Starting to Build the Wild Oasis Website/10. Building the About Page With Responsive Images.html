@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js — Cabins Overview + About Page (Responsive Images) — Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f8fa;
+      --soft2: #fbfbfc;
+      --accent: #0b57d0;
+      --good: #0f766e;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --codebg: #0b1020;
+      --codetext: #e7eefc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 22px 18px 56px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      margin: 0 0 8px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    h2 {
+      font-size: 1.18rem;
+      margin: 20px 0 10px;
+    }
+
+    h3 {
+      font-size: 1.02rem;
+      margin: 16px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .chiprow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: #eef5ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #ecfeff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    ul { margin: 8px 0 8px 20px; }
+    li { margin: 6px 0; }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .kpi .box {
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #ffffff;
+    }
+
+    .kpi .label {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .kpi .value {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    /* Links: readable on screen; clean in print */
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Print styling (A4) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #ffffff; }
+      .page { max-width: none; padding: 0; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; }
+      pre { white-space: pre-wrap; overflow: visible; }
+      .card, .note, .warn, .good { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>📘 Next.js — Cabins Overview + About Page (Responsive Images)</h1>
+      <p class="subtitle">Reviewer / Study Guide — focuses on building the cabins overview UI and implementing truly responsive images on the About page using <code>next/image</code>.</p>
+      <div class="chiprow">
+        <span class="chip">🧭 Pages: <code>app/cabins/page.js</code>, <code>app/about/page.js</code></span>
+        <span class="chip">🧩 Component: <code>CabinCard</code></span>
+        <span class="chip">🖼️ Next Image: static import vs <code>fill</code></span>
+        <span class="chip">🧱 Layout: grid + responsive columns</span>
+      </div>
+    </header>
+
+    <section class="note">
+      <strong>Goal for this lecture ✅</strong>
+      <ul>
+        <li>Build the <strong>cabins overview page</strong> structure (list of cabins → each cabin becomes a card).</li>
+        <li>Build the <strong>About page</strong> and replace regular <code>&lt;img&gt;</code> tags with the <strong>Next.js Image component</strong>.</li>
+        <li>Learn the core technique for <strong>fluid / responsive images</strong> when you <em>cannot</em> set fixed width &amp; height.</li>
+      </ul>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>1) Cabins Overview Page (High-level Plan) 🏡</h2>
+      <p>This page is an overview/list screen: it will show all cabins as cards. Later, each card links to a <strong>single cabin detail page</strong>.</p>
+
+      <div class="card">
+        <h3>What you implement now</h3>
+        <ul>
+          <li>Replace the old <code>cabins</code> page content with starter UI (heading + layout container).</li>
+          <li>Prepare an array (temporarily empty) for cabins: later it will be fetched from Supabase.</li>
+          <li>Render one <strong>CabinCard</strong> per cabin (placeholder now; real data later).</li>
+        </ul>
+      </div>
+
+      <div class="good">
+        <strong>Why this matters 🎯</strong>
+        <ul>
+          <li>This builds the <strong>UI skeleton</strong> first: layout + components → then you plug real data in later.</li>
+          <li>It keeps your code modular: cards are reusable, the page just maps data → UI.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) About Page: Replacing <code>&lt;img&gt;</code> with <code>next/image</code> 🖼️</h2>
+      <p>The About page contains images that look responsive in the layout, but the raw images are large (e.g., ~2000px wide), which increases page weight. Next.js helps by optimizing images automatically.</p>
+
+      <div class="card">
+        <h3>Quick refresher: why use <code>next/image</code>?</h3>
+        <ul>
+          <li>🚀 Serves <strong>correctly sized</strong> images (responsive <code>srcset</code>)</li>
+          <li>🧠 Can output modern formats (like WebP) when appropriate</li>
+          <li>🧱 Prevents layout shifts (when dimensions are known)</li>
+          <li>🛌 Lazy loads images by default when off-screen</li>
+        </ul>
+      </div>
+
+      <h3>2.1 The “easy mode”: static image import ✅</h3>
+      <p>If your image is local in <code>/public</code> (or available at build time), you can import it. Next.js can then infer the image dimensions automatically.</p>
+
+      <pre><code>// About page (server component)
+import Image from "next/image";
+
+import about1 from "@/public/about-1.jpeg";
+import about2 from "@/public/about-2.jpeg";
+
+export default function Page() {
+  return (
+    &lt;div&gt;
+      &lt;Image src={about1} alt="About photo 1" placeholder="blur" /&gt;
+      &lt;Image src={about2} alt="About photo 2" placeholder="blur" /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <div class="good">
+        <strong>Why this works well 👍</strong>
+        <ul>
+          <li>No need to manually set <code>width</code> and <code>height</code> (Next can infer them).</li>
+          <li>You can use <code>placeholder="blur"</code> (blur-up preview) for nicer UX.</li>
+        </ul>
+      </div>
+
+      <h3>2.2 The “real-world” problem: you only have a URL ⚠️</h3>
+      <p>Often, images come from a database (e.g., Supabase) as URLs. In that case, you may not know the image dimensions at build time. If you use:</p>
+
+      <pre><code>&lt;Image src="/about-1.jpeg" alt="..." /&gt;
+</code></pre>
+
+      <p>Next.js will typically require you to provide <code>width</code> and <code>height</code> (or use another strategy) to prevent layout shifts.</p>
+    </section>
+
+    <section>
+      <h2>3) Key Technique: Responsive Image without Fixed Dimensions (Using <code>fill</code>) 🧱</h2>
+      <p>When you want an image to <strong>fluidly fill a grid column</strong> and you don’t want fixed dimensions, use this pattern:</p>
+
+      <div class="kpi">
+        <div class="box">
+          <div class="label">Step 1</div>
+          <div class="value">Wrap the image in a parent container</div>
+        </div>
+        <div class="box">
+          <div class="label">Step 2</div>
+          <div class="value">Make the parent <code>position: relative</code></div>
+        </div>
+        <div class="box">
+          <div class="label">Step 3</div>
+          <div class="value">Give the parent a size (often via <code>aspect-ratio</code>)</div>
+        </div>
+        <div class="box">
+          <div class="label">Step 4</div>
+          <div class="value">Use <code>fill</code> + <code>object-fit: cover</code> on the Image</div>
+        </div>
+      </div>
+
+      <pre><code>import Image from "next/image";
+
+export default function AboutImageBlock() {
+  return (
+    &lt;div className="relative aspect-square"&gt;
+      &lt;Image
+        src="/about-1.jpeg"        // imagine this came from a DB URL
+        alt="About photo"
+        fill
+        className="object-cover"
+      /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <div class="note">
+        <strong>What this achieves 🧠</strong>
+        <ul>
+          <li>The parent defines the layout box (size + ratio).</li>
+          <li>The image “fills” that box and stays responsive.</li>
+          <li><code>object-cover</code> ensures the image crops nicely without distortion.</li>
+        </ul>
+      </div>
+
+      <h3>Useful variations</h3>
+      <ul>
+        <li><strong>Stick the crop to the top</strong> (similar to <code>object-position: top</code>): <code>className="object-cover object-top"</code></li>
+        <li><strong>Video-like ratio</strong> (16:9): <code>aspect-video</code></li>
+        <li><strong>Square ratio</strong> (1:1): <code>aspect-square</code></li>
+      </ul>
+
+      <div class="warn">
+        <strong>Common gotcha 🚧</strong>
+        <p>If the parent has no height, the image will appear “broken” (often height = 0). Using <code>aspect-*</code> or an explicit height fixes that.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) “Blur placeholder” and “quality” limitations (Important!) 🧩</h2>
+      <p>The Image component has a powerful API, but some options only work under certain conditions.</p>
+
+      <div class="card">
+        <h3>✅ Works best with static imports</h3>
+        <ul>
+          <li><code>placeholder="blur"</code> is straightforward for statically imported images.</li>
+          <li><code>quality={80}</code> is easy to tune for background/large images.</li>
+        </ul>
+      </div>
+
+      <div class="warn">
+        <h3>⚠️ When you only have a URL</h3>
+        <ul>
+          <li><code>placeholder="blur"</code> may not be available unless you also provide a <code>blurDataURL</code> (depends on how the image is provided).</li>
+          <li>Some optimizations are easiest when Next can analyze the image at build-time.</li>
+        </ul>
+        <p><strong>Practical takeaway:</strong> if the image comes from a DB, you often rely on the <code>fill</code> + parent container technique, and you may need extra steps for blur placeholders.</p>
+      </div>
+
+      <div class="good">
+        <strong>SEO note 🔍</strong>
+        <p>Reducing layout shift and improving image loading improves user experience and can contribute to better SEO signals. Next.js pushes you toward these best practices.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Mental Model: Static Import vs <code>fill</code> (When to Use Which) 🧠</h2>
+
+      <div class="card">
+        <h3>Option A — Static import (preferred for local images)</h3>
+        <ul>
+          <li>Use when you have images in <code>/public</code> (or otherwise local/known at build time).</li>
+          <li>Easy dimensions + blur placeholder.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Option B — URL + <code>fill</code> (common for DB-driven images)</h3>
+        <ul>
+          <li>Use when you only have a URL and want a fluid, responsive layout.</li>
+          <li>Requires a parent container that defines size (often with <code>aspect-ratio</code>).</li>
+          <li>Use <code>object-cover</code> to avoid distortion.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Mini Practice Tasks 🧪</h2>
+      <ol>
+        <li><strong>Cabins page:</strong> render 3 dummy cabin cards using a hard-coded array (id, name, maxCapacity).</li>
+        <li><strong>About page:</strong> convert both <code>&lt;img&gt;</code> tags to <code>&lt;Image&gt;</code> using <em>static imports</em>.</li>
+        <li><strong>Challenge:</strong> pretend the about image is a URL from a DB — switch to <code>fill</code> + <code>relative aspect-square</code>.</li>
+        <li><strong>Bonus:</strong> try <code>aspect-video</code> and observe how cropping changes.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>7) Quick Self-Test ✅</h2>
+      <div class="card">
+        <ol>
+          <li>Why does Next.js often require <code>width</code> and <code>height</code> for <code>&lt;Image&gt;</code>?</li>
+          <li>What does <code>fill</code> do, and what must the parent container provide?</li>
+          <li>What is the purpose of <code>object-cover</code>?</li>
+          <li>When is static importing an image the better choice?</li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>Answer key (short) 🗝️</strong>
+        <ul>
+          <li>To prevent layout shifts by knowing image dimensions early.</li>
+          <li><code>fill</code> makes the image fill the parent; parent must be <code>relative</code> and have size (e.g., via <code>aspect-ratio</code>).</li>
+          <li>It preserves aspect ratio while filling the box; it crops instead of stretching.</li>
+          <li>When the image is local/known at build time: simpler, more features (like blur placeholder) work out-of-the-box.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="hr"></footer>
+    <p class="subtitle">End of reviewer — Next: continue building pages and reuse the <code>fill</code> + container technique for DB-driven cabin images.</p>
+  </main>
+</body>
+</html>

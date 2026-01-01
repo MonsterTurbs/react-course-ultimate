@@ -1,0 +1,413 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Next.js Static Site Generation (SSG Export) — Study Guide</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+      --warnbg:#fff7ed;
+      --warnborder:#fed7aa;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, var(--panel));
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+      margin-bottom: 16px;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color:#222;
+    }
+
+    main{ margin-top: 14px; }
+
+    section{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    h2{
+      margin:0 0 10px 0;
+      font-size: 16px;
+    }
+    h3{
+      margin:14px 0 8px 0;
+      font-size: 14px;
+    }
+
+    p{ margin: 8px 0; }
+    ul, ol{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid #111;
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .warn{
+      border: 1px solid var(--warnborder);
+      background: var(--warnbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .key{ font-weight:700; }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px 12px;
+      border-radius: 12px;
+      overflow:auto;
+      border:1px solid #1b2547;
+      white-space: pre-wrap; /* important for printing */
+      word-break: break-word;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 12px 0;
+    }
+
+    .mini{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .table{
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    .table th, .table td{
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+    .table th{
+      text-align: left;
+      background: var(--panel);
+    }
+
+    /* Print styles: A4, clean margins, no cut-off */
+    @media print{
+      @page{
+        size: A4;
+        margin: 14mm;
+      }
+      body{
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .page{
+        max-width: none;
+        padding: 0;
+      }
+      header, section{
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      pre, table{
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #000;
+      }
+      .chip, .table th, .table td{ border-color:#000; }
+      .callout{ border-left-color:#000; }
+      .warn{ border-color:#000; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>📦 Next.js Static Site Generation (Static Export)</h1>
+      <p class="sub">
+        Reviewer / study guide: exporting a fully-static Next.js site (no server) and deploying it to any static hosting provider.
+      </p>
+      <div class="meta">
+        <span class="chip">🧱 Topic: SSG / Static Export</span>
+        <span class="chip">⚙️ Command: <code>npm run build</code></span>
+        <span class="chip">🗂️ Output: <code>out/</code> (or <code>dist/</code>)</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>✅ What you will accomplish</h2>
+        <p>
+          Now that the app is <span class="key">completely static</span>, you can export it as a static website.
+          That means the deployment becomes extremely simple: upload the exported folder to any host that supports static files.
+        </p>
+
+        <div class="callout">
+          <p><span class="key">Key idea:</span> Static export produces only <span class="key">static assets</span> (HTML, JS, CSS, images, etc.). There is <span class="key">no server-side code</span> running after deployment.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 When static export works (and when it fails)</h2>
+        <p>
+          Static export only works if every route can be pre-rendered ahead of time.
+        </p>
+
+        <table class="table" aria-label="Static export requirements">
+          <thead>
+            <tr>
+              <th>Scenario</th>
+              <th>What happens</th>
+              <th>Why</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>🟢 All routes are static</td>
+              <td>Export succeeds</td>
+              <td>All pages can be generated at build time</td>
+            </tr>
+            <tr>
+              <td>🟣 Any route is dynamic (e.g., unknown params)</td>
+              <td>Export may error</td>
+              <td>Next.js can’t generate all required HTML upfront</td>
+            </tr>
+            <tr>
+              <td>🧩 Dynamic routes + <code>generateStaticParams</code></td>
+              <td>Export can succeed</td>
+              <td>You told Next.js the finite set of params</td>
+            </tr>
+            <tr>
+              <td>🍪 Uses cookies/headers/search params forcing dynamic rendering</td>
+              <td>Export may error</td>
+              <td>Page output depends on per-request data</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="warn">
+          <p>⚠️ Practical warning: If you skip <code>generateStaticParams</code> where it’s possible, or you introduce per-request behavior (cookies/headers), your “static” route can switch to dynamic rendering and break static export.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🛠️ Step-by-step: How to export a static site</h2>
+        <p>
+          You will still run <code>npm run build</code>, but first you must configure Next.js to export.
+        </p>
+
+        <h3>1) Update <code>next.config.js</code></h3>
+        <pre><code>// next.config.js (conceptual)
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'export',
+};
+
+module.exports = nextConfig;
+</code></pre>
+
+        <p class="mini">
+          Setting <code>output: 'export'</code> tells Next.js to produce a fully-exported static site.
+        </p>
+
+        <h3>2) Build (this creates the exported folder)</h3>
+        <pre><code>npm run build
+</code></pre>
+
+        <h3>3) Find the output folder</h3>
+        <ul>
+          <li>By default, Next.js creates a folder named <code>out/</code>.</li>
+          <li>You can rename it or configure a different folder name (some teams prefer <code>dist/</code>), but <code>out/</code> is fine.</li>
+        </ul>
+
+        <div class="callout">
+          <p>📁 Deployment unit: The folder you deploy is the export folder (for example: <code>out/</code>).</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🚀 Deploying is now easy</h2>
+        <p>
+          Because the export contains only static assets, you can deploy it to almost any provider:
+        </p>
+        <ul>
+          <li>GitHub Pages</li>
+          <li>Netlify</li>
+          <li>Render static sites</li>
+          <li>Most shared hosting / static hosting services</li>
+        </ul>
+
+        <div class="callout">
+          <p>🧲 Typical workflow: upload or drag-and-drop the export folder to the hosting provider.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Testing the exported site locally</h2>
+        <p>
+          If you double-click <code>index.html</code> directly, you might see something, but it often won’t behave correctly.
+          A static site still benefits from being served via a simple local server.
+        </p>
+
+        <h3>Option A: VS Code Live Server extension</h3>
+        <ol>
+          <li>Open the exported folder (e.g., <code>out/</code>) in a new VS Code window.</li>
+          <li>Click <span class="key">Go Live</span> (Live Server).</li>
+          <li>Navigate around; links should work.</li>
+        </ol>
+
+        <div class="callout">
+          <p>🧭 Why it still feels like an SPA: Next.js includes JavaScript that enables client-side navigation, so clicking links feels smooth even though pages were exported.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 What are those extra files? (RSC payload + <code>_next</code>)</h2>
+        <p>
+          In the exported output, you’ll notice more than just HTML files.
+        </p>
+        <ul>
+          <li>📁 <code>_next/</code> contains bundled JavaScript/CSS chunks that make the site work.</li>
+          <li>📄 You may see additional payload files per route (for example, text files) that carry React Server Components (RSC) data.</li>
+        </ul>
+
+        <div class="callout">
+          <p>🧠 Simple explanation: Next.js exports both the HTML and the “supporting files” needed for fast client-side navigation.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🖼️ Common issue: Images don’t work after static export</h2>
+        <p>
+          In the lecture, the site works after export, but optimized images do not.
+          The key point is that the Next.js <code>&lt;Image /&gt;</code> optimization typically relies on a server-side image optimization pipeline.
+          If you export a site with <span class="key">no server</span>, that optimization step can’t run.
+        </p>
+
+        <h3>✅ Two practical fixes</h3>
+        <ol>
+          <li>
+            <p><span class="key">Fix 1:</span> Don’t optimize images (use normal images)</p>
+            <ul>
+              <li>Use a regular <code>&lt;img&gt;</code> tag for purely static hosting.</li>
+              <li>Or configure Next.js to skip optimization during export.</li>
+            </ul>
+            <pre><code>// next.config.js (conceptual)
+const nextConfig = {
+  output: 'export',
+  images: {
+    unoptimized: true,
+  },
+};
+
+module.exports = nextConfig;
+</code></pre>
+          </li>
+          <li>
+            <p><span class="key">Fix 2:</span> Use an external image optimization service (custom loader)</p>
+            <ul>
+              <li>Example: Cloudinary (or similar services).</li>
+              <li>Create a loader that points image requests to that service.</li>
+            </ul>
+            <pre><code>// Conceptual idea (not full implementation)
+// Use a custom loader that builds Cloudinary URLs
+
+// Then your exported site loads optimized images from Cloudinary
+</code></pre>
+          </li>
+        </ol>
+
+        <div class="warn">
+          <p>⚠️ Rule of thumb: If you want “static export” + “image optimization,” you must either disable optimization or move optimization to an external service.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 Summary (memorize this)</h2>
+        <ul>
+          <li>🧱 Static export is possible once all routes are fully static.</li>
+          <li>⚙️ Set <code>output: 'export'</code> in <code>next.config.js</code>.</li>
+          <li>🏗️ Run <code>npm run build</code> → generates <code>out/</code>.</li>
+          <li>🚀 Deploy the export folder to any static hosting provider.</li>
+          <li>🧪 Test locally using a simple static server (e.g., VS Code Live Server).</li>
+          <li>🖼️ Next Image optimization may break without a server → disable it or use an external loader/service.</li>
+        </ul>
+      </section>
+
+      <p class="mini" style="margin-top:12px;">
+        End of reviewer. Print tip: Use your browser’s Print dialog and set paper to A4 (margins are already configured in CSS).
+      </p>
+    </main>
+  </div>
+</body>
+</html>

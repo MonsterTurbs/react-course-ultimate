@@ -1,0 +1,507 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Quiz — Loading Questions from a Fake API (json-server) | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 22px 20px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 16px 16px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: .2px;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: .85rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.1rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol { margin: 8px 0 8px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid #111;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout .title {
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 760px) {
+      .two { grid-template-columns: 1fr; }
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: .88rem;
+      line-height: 1.45;
+      white-space: pre;
+    }
+
+    code {
+      font-family: var(--mono);
+      font-size: .95em;
+    }
+
+    .kbd {
+      font-family: var(--mono);
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      padding: 1px 6px;
+      white-space: nowrap;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: .95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th { background: var(--soft); }
+
+    .muted { color: var(--muted); }
+
+    .avoid-break {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .checklist li { list-style: none; margin-left: 0; }
+    .checklist li::before { content: "✅"; margin-right: 8px; }
+
+    .warn li::before { content: "⚠️"; margin-right: 8px; }
+
+    /* Print */
+    @page { size: A4; margin: 14mm 14mm 16mm 14mm; }
+
+    @media print {
+      body { font-size: 11pt; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-radius: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      pre { font-size: 9.5pt; }
+      .chip { border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="avoid-break">
+      <h1>📚 React Quiz — Loading Questions from a Fake API (json-server)</h1>
+      <p class="subtitle">Reviewer / study guide (beginner-friendly) • Single-column • Print-ready (A4)</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: <strong>useEffect + useReducer</strong></span>
+        <span class="chip">🧪 Tool: <strong>json-server</strong> (fake API)</span>
+        <span class="chip">🧩 Pattern: <strong>Status state machine</strong></span>
+      </div>
+    </header>
+
+    <main>
+      <section class="avoid-break">
+        <h2>🎯 Goal of this lecture</h2>
+        <ul>
+          <li>Create a <strong>fake API</strong> (fake web server) to serve quiz questions.</li>
+          <li>Fetch questions on <strong>mount</strong> using <code>useEffect</code>.</li>
+          <li>Store questions + app status in state using <code>useReducer</code>.</li>
+          <li>Handle both success and failure cleanly using <strong>actions</strong>.</li>
+        </ul>
+        <div class="callout">
+          <p class="title">💡 Big idea</p>
+          <p>
+            Instead of scattering state updates across multiple places, we will <strong>centralize</strong>
+            them in the reducer. One fetch success can update <em>multiple</em> pieces of state at once.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧱 Step 1 — Create a fake API with json-server</h2>
+
+        <h3>1) Install the package</h3>
+        <p class="muted">Keep your React dev server running in one terminal tab, and use another tab for the API.</p>
+        <pre><code>npm install json-server</code></pre>
+
+        <h3>2) Add the data file</h3>
+        <p>
+          Create a <code>data</code> folder at the project root and move <code>questions.json</code> into it.
+          The JSON file should contain a <code>questions</code> array.
+        </p>
+        <pre><code>react-quiz/
+  data/
+    questions.json
+  src/
+  package.json
+  ...</code></pre>
+
+        <div class="callout">
+          <p class="title">📦 What does questions.json look like?</p>
+          <p class="muted">Conceptually (simplified):</p>
+          <pre><code>{
+  "questions": [
+    {
+      "question": "...",
+      "options": ["...", "...", "...", "..."],
+      "correctOption": 2,
+      "points": 10
+    }
+  ]
+}</code></pre>
+        </div>
+
+        <h3>3) Add an npm script to run the server</h3>
+        <p>
+          In <code>package.json</code>, add a script named <code>server</code> that runs json-server,
+          watches the JSON file, and uses a port (e.g., <code>8000</code> or <code>9000</code>).
+        </p>
+        <pre><code>{
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+
+    "server": "json-server --watch data/questions.json --port 8000"
+  }
+}</code></pre>
+
+        <h3>4) Run the fake API</h3>
+        <pre><code>npm run server</code></pre>
+
+        <div class="callout">
+          <p class="title">🧩 Common port problem (address already in use)</p>
+          <p>
+            If port <code>8000</code> is busy, pick another port (e.g., <code>9000</code>) and re-run.
+          </p>
+          <p class="muted">Tip: stop a running process with <span class="kbd">Ctrl</span> + <span class="kbd">C</span>.</p>
+        </div>
+
+        <h3>5) Understand the endpoint</h3>
+        <p>
+          json-server creates endpoints based on top-level keys.
+          With <code>"questions"</code>, your endpoint becomes:
+        </p>
+        <pre><code>http://localhost:8000/questions</code></pre>
+        <p class="muted">
+          The response is the <em>array</em> of questions (not the wrapper object), which is exactly what we want.
+        </p>
+      </section>
+
+      <section>
+        <h2>🌐 Step 2 — Fetch data on mount with useEffect</h2>
+        <p>
+          We fetch once when the App mounts. Using an empty dependency array (<code>[]</code>) means:
+          “run on first render only”.
+        </p>
+
+        <pre><code>useEffect(function () {
+  fetch("http://localhost:8000/questions")
+    .then((res) =&gt; res.json())
+    .then((data) =&gt; {
+      // Later: store in state
+      console.log(data);
+    })
+    .catch((err) =&gt; console.error(err));
+}, []);</code></pre>
+
+        <div class="callout">
+          <p class="title">🙂 Why use .then() here?</p>
+          <p>
+            You can also use <code>async/await</code>, but chaining <code>.then()</code> keeps this example minimal.
+            Both approaches are valid.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Step 3 — Store questions with useReducer</h2>
+        <p>
+          Now we switch from logging to actually storing data in state.
+          We’ll manage state using a reducer with an <strong>initial state</strong> and a <strong>status</strong>.
+        </p>
+
+        <h3>Why a “status” instead of many booleans?</h3>
+        <p>
+          Instead of <code>isLoading</code>, <code>isError</code>, <code>isReady</code>, etc., we track:
+          <code>status</code> = one of these strings.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Meaning</th>
+              <th>What UI usually shows</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>"loading"</code></td>
+              <td>Fetching questions</td>
+              <td>Spinner / “Loading…”</td>
+            </tr>
+            <tr>
+              <td><code>"error"</code></td>
+              <td>Fetch failed</td>
+              <td>Error message</td>
+            </tr>
+            <tr>
+              <td><code>"ready"</code></td>
+              <td>Questions loaded</td>
+              <td>Start screen</td>
+            </tr>
+            <tr>
+              <td><code>"active"</code></td>
+              <td>Quiz running</td>
+              <td>Questions + progress + timer</td>
+            </tr>
+            <tr>
+              <td><code>"finished"</code></td>
+              <td>Quiz ended</td>
+              <td>Score summary</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <p class="title">🔁 Think of it like a state machine</p>
+          <p>
+            Your app can only be in <em>one</em> status at a time — that prevents conflicting UI states.
+          </p>
+        </div>
+
+        <h3>Initial state + reducer (skeleton)</h3>
+        <pre><code>const initialState = {
+  questions: [],
+  status: "loading", // or "" if you prefer, but "loading" is common here
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "dataReceived":
+      return {
+        ...state,
+        questions: action.payload,
+        status: "ready",
+      };
+
+    case "dataFailed":
+      return {
+        ...state,
+        status: "error",
+      };
+
+    default:
+      throw new Error("Unknown action: " + action.type);
+  }
+}</code></pre>
+
+        <h3>Using useReducer in the component</h3>
+        <pre><code>const [state, dispatch] = useReducer(reducer, initialState);
+const { questions, status } = state;</code></pre>
+
+        <h3>Dispatch actions from the fetch</h3>
+        <pre><code>useEffect(function () {
+  fetch("http://localhost:8000/questions")
+    .then((res) =&gt; res.json())
+    .then((data) =&gt; {
+      dispatch({ type: "dataReceived", payload: data });
+    })
+    .catch(() =&gt; {
+      dispatch({ type: "dataFailed" });
+    });
+}, []);</code></pre>
+
+        <div class="callout">
+          <p class="title">✅ Why reducers feel powerful here</p>
+          <p>
+            One successful fetch updates <strong>two related pieces of state</strong> at once:
+            <code>questions</code> and <code>status</code>. The logic stays centralized in the reducer.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Debugging & sanity checks</h2>
+        <div class="two">
+          <div class="callout avoid-break">
+            <p class="title">🔎 Check your API is running</p>
+            <ul class="checklist">
+              <li><code>npm run server</code> is running in a terminal tab</li>
+              <li>Your URL uses the correct port</li>
+              <li>You visit <code>/questions</code> endpoint (not just the root)</li>
+            </ul>
+          </div>
+          <div class="callout avoid-break">
+            <p class="title">🧯 If fetch fails…</p>
+            <ul class="warn">
+              <li>Wrong port (8000 vs 9000) or API process stopped</li>
+              <li>Endpoint typo (missing <code>/questions</code>)</li>
+              <li>Port already in use → change port in script</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Quick mental model</h3>
+        <ol>
+          <li>App mounts → <code>useEffect</code> runs once.</li>
+          <li>Fetch request resolves…</li>
+          <li>Success → dispatch <code>dataReceived</code> with payload (questions array).</li>
+          <li>Reducer updates <code>questions</code> + <code>status</code> → UI can now show “Ready”.</li>
+          <li>Failure → dispatch <code>dataFailed</code> → UI can show “Error”.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>📝 Mini reviewer (fast recall)</h2>
+        <h3>Key terms</h3>
+        <ul>
+          <li>🧩 <strong>json-server</strong>: Creates a REST-ish API from a JSON file.</li>
+          <li>🧠 <strong>useReducer</strong>: Returns <code>state</code> + <code>dispatch</code>; updates state via actions.</li>
+          <li>📦 <strong>action</strong>: Object describing what happened (commonly <code>{ type, payload }</code>).</li>
+          <li>🔁 <strong>reducer</strong>: Pure function that returns next state (no mutations, no side effects).</li>
+          <li>🚦 <strong>status</strong>: One string that represents the app “mode”.</li>
+        </ul>
+
+        <h3>Self-check questions (answer in your head 😉)</h3>
+        <ol>
+          <li>Why is the endpoint <code>/questions</code> and not <code>/data</code>?</li>
+          <li>What two state fields are updated in <code>dataReceived</code>?</li>
+          <li>Why is <code>status</code> often nicer than multiple booleans?</li>
+          <li>What should the reducer do in the <code>default</code> case, and why?</li>
+        </ol>
+      </section>
+
+      <section class="avoid-break">
+        <h2>✅ Checklist you can follow next time</h2>
+        <ul class="checklist">
+          <li>Install <code>json-server</code></li>
+          <li>Create <code>data/questions.json</code></li>
+          <li>Add <code>"server"</code> script in <code>package.json</code></li>
+          <li>Run <code>npm run server</code> on a free port</li>
+          <li>Fetch on mount with <code>useEffect</code></li>
+          <li>Dispatch <code>dataReceived</code>/<code>dataFailed</code> into <code>useReducer</code></li>
+          <li>Use <code>status</code> later for conditional UI rendering</li>
+        </ul>
+        <p class="muted">End of lecture notes.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

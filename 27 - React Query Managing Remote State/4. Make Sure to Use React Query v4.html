@@ -1,0 +1,287 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Query — Make Sure to Use v4 (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --chip:#f3f4f6;
+      --code:#0b1020;
+      --accent:#1a73e8;
+      --warn:#b45309;
+      --ok:#166534;
+
+      --page-w: 210mm; /* A4 */
+      --page-h: 297mm;
+      --print-m: 14mm;
+
+      --font: Arial, Helvetica, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background:var(--bg);
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    header{
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+    h1{
+      margin: 0 0 6px;
+      font-size: 28px;
+      line-height: 1.2;
+      letter-spacing: -0.2px;
+    }
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 8px;
+    }
+    .chip{
+      display:inline-block;
+      padding: 6px 10px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    main{ margin-top: 16px; }
+
+    h2{
+      margin: 18px 0 8px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      border-left-width: 5px;
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+      margin: 12px 0;
+    }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.ok{ border-left-color: var(--ok); }
+
+    .kicker{
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    code, pre{
+      font-family: var(--mono);
+      font-size: 12.5px;
+    }
+
+    pre{
+      background: var(--code);
+      color: #e6edf3;
+      border-radius: 12px;
+      padding: 12px 12px;
+      overflow: hidden;
+      border: 1px solid #0f1733;
+      white-space: pre-wrap; /* allow wrapping for print */
+      word-break: break-word;
+      margin: 10px 0;
+    }
+
+    .table{
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    .table th, .table td{
+      border: 1px solid var(--border);
+      padding: 10px 10px;
+      vertical-align: top;
+    }
+    .table th{
+      background: var(--soft);
+      text-align: left;
+    }
+
+    .hr{
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    /* Print styles: A4, clean margins, hide non-essential UI */
+    @page{ size: A4; margin: var(--print-m); }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header{ break-inside: avoid; }
+      h2, h3, pre, .callout, table{ break-inside: avoid; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Make Sure to Use React Query v4</h1>
+      <p class="subtitle">Reviewer / Study Guide — keep your project aligned with the course version</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: React Query versioning</span>
+        <span class="chip">⚙️ Focus: v4 install + v5 tiny changes</span>
+        <span class="chip">🖨️ A4 Print-ready • Single column</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>Big Idea (What the lecturer wants you to do)</h2>
+      <p>
+        React Query recently released <strong>v5</strong>, but the course project is built using <strong>v4</strong>.
+        To avoid mismatches (errors or different APIs), you should install <strong>React Query v4</strong> exactly as shown in the course.
+      </p>
+
+      <div class="callout warn">
+        <strong>⚠️ Course compatibility rule:</strong>
+        <div class="kicker">Follow the project steps with <strong>React Query v4</strong>. Using v5 is possible, but you must rename a couple of APIs.</div>
+      </div>
+
+      <h2>Install React Query v4</h2>
+      <p>Use this exact install command (note the <strong>@4</strong>):</p>
+      <pre>npm i @tanstack/react-query@4</pre>
+
+      <h2>If you decide to use v5 anyway</h2>
+      <p>
+        The lecturer says the changes needed are small.
+        Here are the <strong>two renames</strong> you must apply.
+      </p>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>In v4</th>
+            <th>In v5</th>
+            <th>Where you’ll see it</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>isLoading</code></td>
+            <td><code>isPending</code></td>
+            <td>Query/mutation result flags (e.g., <code>useQuery</code>, <code>useMutation</code>)</td>
+          </tr>
+          <tr>
+            <td><code>cacheTime</code></td>
+            <td><code>gcTime</code></td>
+            <td>QueryClient default options and per-query config</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Example: <code>isLoading</code> → <code>isPending</code></h3>
+      <p>
+        If your code checks loading state like this in v4, update it for v5:
+      </p>
+      <pre>// v4
+const { data, isLoading, error } = useQuery({
+  queryKey: ["cabins"],
+  queryFn: getCabins,
+});
+
+if (isLoading) return &lt;Spinner /&gt;;</pre>
+      <pre>// v5 (rename)
+const { data, isPending, error } = useQuery({
+  queryKey: ["cabins"],
+  queryFn: getCabins,
+});
+
+if (isPending) return &lt;Spinner /&gt;;</pre>
+
+      <h3>Example: <code>cacheTime</code> → <code>gcTime</code></h3>
+      <p>
+        If you configure cache cleanup time, rename the option in v5:
+      </p>
+      <pre>// v4
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+      cacheTime: 5 * 60 * 1000,
+    },
+  },
+});</pre>
+      <pre>// v5 (rename)
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+      gcTime: 5 * 60 * 1000,
+    },
+  },
+});</pre>
+
+      <div class="callout ok">
+        <strong>✅ Practical takeaway:</strong>
+        <div class="kicker">
+          If you want the smoothest experience while following the course, install v4. If you switch to v5, fix the two renames and you’ll be aligned.
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>Quick Self-Check (1 minute)</h2>
+      <ul>
+        <li>✅ Did I install <code>@tanstack/react-query@4</code> for course parity?</li>
+        <li>✅ If using v5: did I rename <code>isLoading → isPending</code>?</li>
+        <li>✅ If using v5: did I rename <code>cacheTime → gcTime</code>?</li>
+      </ul>
+
+      <p class="kicker">End of lecture note.</p>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js — SSR Rendering Types: Static vs Dynamic (Study Guide)</title>
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #111111;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      hyphens: auto;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 16px 16px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      letter-spacing: -0.2px;
+    }
+
+    h3 {
+      margin: 12px 0 8px;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0;
+      padding-left: 18px;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .two { grid-template-columns: 1fr; }
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--soft);
+      text-align: left;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    code {
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 6px;
+    }
+
+    pre {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 10px 12px;
+      overflow: auto;
+      margin: 10px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    a { color: inherit; text-decoration: underline; }
+
+    /* Print (A4) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; max-width: none; }
+      header, section { border-radius: 0; box-shadow: none; }
+      .chip { border: 1px solid #ddd; background: #fff; }
+      a, a:visited { color: #000; text-decoration: none; }
+      a[href]:after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧠 Next.js SSR Rendering Types: Static vs Dynamic</h1>
+      <p class="subtitle">Print-friendly reviewer / study guide (App Router context). Focus: what “static” and “dynamic” mean, when Next.js switches modes, and the key deployment terms (CDN, serverless, edge, ISR).</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Rendering Strategy</span>
+        <span class="chip">⚙️ Next.js: per-route rendering</span>
+        <span class="chip">🚀 Goal: performance + correct data</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) Big picture: how SSR works in Next.js</h2>
+        <p>✅ Next.js is a React framework. React does the rendering work (Server Components model). On the <strong>initial page load</strong>, both:</p>
+        <ul>
+          <li>🧩 <strong>Server Components</strong> are rendered on the server.</li>
+          <li>🧩 <strong>Client Components</strong> are also rendered on the server initially (then hydrated on the client later).</li>
+        </ul>
+        <div class="callout">
+          <p><strong>Key idea:</strong> Next.js renders <strong>route-by-route</strong> (per URL route). Each route can be rendered <strong>statically</strong> or <strong>dynamically</strong>—it’s not “one mode for the whole app.”</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) Static rendering (a.k.a. pre-rendered)</h2>
+        <p>🧱 <strong>Static rendering</strong> means the HTML for a route is generated at <strong>build time</strong> (when the developer runs <code>next build</code>).</p>
+        <div class="two">
+          <div class="callout">
+            <h3>✅ Best for</h3>
+            <ul>
+              <li>Pages where data changes rarely</li>
+              <li>Pages that are <strong>not personalized</strong> to the user</li>
+              <li>Marketing pages, product pages, docs, etc.</li>
+            </ul>
+          </div>
+          <div class="callout">
+            <h3>⚡ Why it’s fast</h3>
+            <ul>
+              <li>HTML is already generated → no per-request rendering cost</li>
+              <li>Can be cached and served via <strong>CDN</strong> easily</li>
+            </ul>
+          </div>
+        </div>
+        <p>🧠 Memorize this: <strong>Static = built once (usually)</strong>.</p>
+      </section>
+
+      <section>
+        <h2>3) Dynamic rendering</h2>
+        <p>🔁 <strong>Dynamic rendering</strong> means the HTML is generated at <strong>request time</strong>. The server renders a fresh version for each request.</p>
+        <div class="two">
+          <div class="callout">
+            <h3>✅ Best for</h3>
+            <ul>
+              <li>Personalized pages (e.g., cart, account, dashboard)</li>
+              <li>Data changes constantly</li>
+              <li>Route needs request info (cookies/headers/search params)</li>
+            </ul>
+          </div>
+          <div class="callout">
+            <h3>👤 Who triggers rendering?</h3>
+            <ul>
+              <li>Static: developer triggers at build</li>
+              <li>Dynamic: user triggers by requesting the page</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Quick comparison table</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Aspect</th>
+              <th>Static Rendering</th>
+              <th>Dynamic Rendering</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>⏱️ When HTML is generated</td>
+              <td>Build time</td>
+              <td>Request time</td>
+            </tr>
+            <tr>
+              <td>🧍 Personalization</td>
+              <td>Usually no</td>
+              <td>Yes (often)</td>
+            </tr>
+            <tr>
+              <td>🚀 Performance</td>
+              <td>Very fast (CDN-friendly)</td>
+              <td>Depends (server work per request)</td>
+            </tr>
+            <tr>
+              <td>📦 Hosting shape (Vercel)</td>
+              <td>Static assets on CDN</td>
+              <td>Serverless function per route</td>
+            </tr>
+            <tr>
+              <td>🧠 Typical examples</td>
+              <td>Home page, product listing, docs</td>
+              <td>Cart, account, search results</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>5) Default behavior in Next.js</h2>
+        <p>📌 By default, Next.js tries to render routes <strong>statically</strong>, even when your Server Components fetch data.</p>
+        <div class="callout">
+          <p><strong>Why?</strong> Static pages are typically faster and cheaper to serve because they can be cached and delivered via CDN.</p>
+        </div>
+        <p>But Next.js will switch a route to <strong>dynamic</strong> under certain conditions.</p>
+      </section>
+
+      <section>
+        <h2>6) When does Next.js switch a route to dynamic?</h2>
+        <p>✅ Next.js may automatically decide a route must be dynamic if it depends on request-time info.</p>
+        <div class="grid">
+          <div class="callout">
+            <h3>1) Dynamic route segment (params)</h3>
+            <p>🧩 Example: <code>/cabins/[cabinId]</code> → page reads <code>params</code>.</p>
+            <p>Reason: Next.js can’t know all possible values at build time (unless you pre-generate explicitly).</p>
+          </div>
+          <div class="callout">
+            <h3>2) Reads search params (query string)</h3>
+            <p>🔎 Example: <code>/search?query=shoes&amp;perPage=23</code></p>
+            <p>Reason: query params come from the incoming request.</p>
+          </div>
+          <div class="callout">
+            <h3>3) Reads headers or cookies</h3>
+            <p>🍪 Reason: headers/cookies are request-specific and unknown at build time.</p>
+          </div>
+          <div class="callout">
+            <h3>4) Uncached data request in the route tree</h3>
+            <p>🧠 If a Server Component makes a request that Next.js treats as <em>uncached</em>, it can force the route to be dynamic.</p>
+            <p>Good to know: you can influence caching behavior (and therefore rendering strategy) via Next.js caching controls.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>7) Key terms (very likely to appear in docs & interviews)</h2>
+
+        <h3>🌍 CDN (Content Delivery Network)</h3>
+        <p>A CDN is a network of servers around the world that cache and serve static content (HTML/CSS/JS/images) from a location close to the user → faster delivery.</p>
+
+        <h3>🧩 Serverless function</h3>
+        <p>“Run code without managing servers.” A serverless function spins up only when needed (per request/event), unlike a traditional Node server that runs continuously.</p>
+
+        <h3>⚡ Edge (edge network / edge computing)</h3>
+        <p>“Run as close as possible to the user.” Like a CDN but for code: serverless functions can run in a distributed network to reduce latency.</p>
+
+        <h3>♻️ ISR (Incremental Static Regeneration)</h3>
+        <p>A Next.js feature that allows a <strong>static page</strong> to be <strong>updated in the background</strong> after deployment (re-fetch data after a time interval). Users can get fresh content without full rebuilds.</p>
+      </section>
+
+      <section>
+        <h2>8) Practical mental model (easy to remember)</h2>
+        <ul>
+          <li>🧱 <strong>Static</strong>: “Bake the page once, serve everywhere.”</li>
+          <li>🔁 <strong>Dynamic</strong>: “Cook the page per visitor/request.”</li>
+          <li>⚙️ Next.js decides <strong>per route</strong>, based on whether request-time info is required.</li>
+        </ul>
+        <div class="callout">
+          <p><strong>Rule of thumb:</strong> If the route needs <em>user-specific</em> or <em>request-specific</em> data, it tends to become dynamic.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>9) Quick self-check (mini quiz)</h2>
+        <ol>
+          <li>❓ If a route reads cookies to show a user’s name, static or dynamic?</li>
+          <li>❓ A marketing “About” page that rarely changes, static or dynamic?</li>
+          <li>❓ Why are static pages usually faster on Vercel?</li>
+        </ol>
+        <div class="callout">
+          <p><strong>Answers (no cheating):</strong></p>
+          <ul>
+            <li>1) Dynamic (request-specific cookies)</li>
+            <li>2) Static</li>
+            <li>3) Pre-generated + CDN delivery (no per-request server rendering)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>10) Key takeaways</h2>
+        <ul>
+          <li>✅ Next.js rendering is <strong>per route</strong>, not necessarily “per app.”</li>
+          <li>🧱 Static = build time; 🔁 Dynamic = request time.</li>
+          <li>🔎 Dynamic triggers: <code>params</code>, search params, cookies/headers, and uncached data requests.</li>
+          <li>🌍 Static routes are great for CDN; dynamic routes often become serverless functions on platforms like Vercel.</li>
+          <li>♻️ ISR lets static pages update in the background after deployment.</li>
+        </ul>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

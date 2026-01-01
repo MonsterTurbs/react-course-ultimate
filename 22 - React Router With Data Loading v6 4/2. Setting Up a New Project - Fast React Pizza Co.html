@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Setting Up a New Project — Fast React Pizza Co. (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #047857;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .soft { background: var(--soft); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #eef2ff;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7faff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #ecfdf5;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+    }
+
+    .danger {
+      border-left: 4px solid var(--danger);
+      background: #fef2f2;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print styles (A4, clean margins, no URL after links) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Keep blocks from splitting awkwardly */
+      header, .card, pre, .note { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Printer-friendly sizing */
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li { font-size: 12.2px; }
+
+      /* Remove automatic URL printing */
+      a[href]::after { content: "" !important; }
+
+      /* Ensure code blocks print legibly */
+      pre {
+        color: #111 !important;
+        background: #f2f2f2 !important;
+        border: 1px solid #ddd;
+      }
+
+      .chip {
+        border-color: #ddd;
+        background: #f7f7f7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">📘 React Router (Data Loading) — Project Setup</p>
+      <h1>🍕 Setting Up a New Project: Fast React Pizza Co.</h1>
+      <p class="subtitle">
+        Step-by-step setup using <strong>Vite</strong> (not Create React App), plus ESLint configuration and a quick sanity check.
+      </p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">⚡ Vite</span>
+        <span class="chip">📦 npm install</span>
+        <span class="chip">🧹 Clean template</span>
+        <span class="chip">✅ ESLint</span>
+        <span class="chip">🧪 Sanity check</span>
+        <span class="chip">🧭 npm run dev</span>
+      </div>
+    </header>
+
+    <section class="card soft">
+      <h2>🎯 Goal of this lecture</h2>
+      <p>
+        Set up the next project from scratch, using a modern “professional” workflow.
+        In Part 4, the course uses <strong>Vite</strong> to scaffold projects (instead of Create React App).
+      </p>
+      <ul>
+        <li>✅ Scaffold a new React app with Vite (specific version used in the course)</li>
+        <li>✅ Install dependencies (<code>node_modules</code> is not created until you install)</li>
+        <li>✅ Configure ESLint (recommended for better developer feedback)</li>
+        <li>✅ Clean up starter template files</li>
+        <li>✅ Run the dev server with <code>npm run dev</code></li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>1) 📁 Go to your projects folder</h2>
+      <p>
+        Open a terminal (or Command Prompt on Windows) and navigate to the folder where you keep your projects
+        (e.g., Desktop, or any folder you prefer).
+      </p>
+      <div class="note">
+        ✅ Tip: choose one “projects” folder and keep all course projects there to stay organized.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2) ⚡ Scaffold the app with Vite (React + JavaScript)</h2>
+      <p>
+        The instructor runs Vite and selects a React template with JavaScript.
+        The project name used in this section is <strong>Fast React Pizza</strong>.
+      </p>
+
+      <div class="note warn">
+        ⚠️ The lecture mentions using a specific major version (Vite v4) so the setup matches the video exactly.
+        If you use a newer version, it may still work, but small differences can happen.
+      </div>
+
+      <pre># Run the Vite scaffolding command
+# (Exact command may vary by npm version; follow the course instructions)
+
+# You will be prompted for:
+# - Project name: Fast React Pizza
+# - Framework: React
+# - Variant: JavaScript</pre>
+
+      <p class="muted">
+        If it’s your first time, npm may ask permission to install Vite. That is normal.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>3) 🧑‍💻 Open in VS Code and install dependencies</h2>
+      <p>
+        With Vite, the <code>node_modules</code> folder doesn’t exist until you run an install.
+        So after opening the project, run:
+      </p>
+      <pre>npm install</pre>
+      <div class="note">
+        ✅ This installs React, React DOM, and all package dependencies declared in <code>package.json</code>.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>4) ✅ Configure ESLint (recommended)</h2>
+      <p>
+        ESLint is a linter that catches common issues and helps you write correct React code.
+        The lecture frames ESLint as “coding with headlights on,” especially for hooks.
+      </p>
+
+      <h3>Install ESLint + plugins (dev dependencies)</h3>
+      <pre>npm install -D eslint vite-plugin-eslint eslint-config-react-app</pre>
+
+      <div class="note warn">
+        ⚠️ Make sure you have the ESLint extension installed in VS Code so warnings show in the editor.
+      </div>
+
+      <h3>Create <code>.eslintrc.json</code></h3>
+      <p class="muted">Minimal config from the lecture:</p>
+      <pre>{
+  "extends": "react-app"
+}</pre>
+
+      <h3>Update <code>vite.config.js</code> to use the ESLint plugin</h3>
+      <p>
+        Import ESLint from <code>vite-plugin-eslint</code> and add it to the plugins array.
+      </p>
+      <pre>// vite.config.js (conceptual)
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import eslint from 'vite-plugin-eslint';
+
+export default defineConfig({
+  plugins: [react(), eslint()],
+});</pre>
+
+      <div class="note good">
+        ✅ Benefit: ESLint warnings appear in both the editor and the terminal output.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>5) 🧹 Clean up the starter template</h2>
+      <p>
+        The lecture removes files that are not needed for this project:
+      </p>
+      <ul>
+        <li>🗑️ Delete extra CSS files from the template (if you won’t use them)</li>
+        <li>🗑️ Remove the <code>assets</code> folder (template assets)</li>
+        <li>✂️ Simplify <code>main.jsx</code> and <code>App.jsx</code> (start clean)</li>
+      </ul>
+      <p class="muted">
+        Then they render a simple “Hello, Vite.” to confirm everything still works.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>6) ▶️ Run the dev server</h2>
+      <p>
+        With Vite, you typically run:
+      </p>
+      <pre>npm run dev</pre>
+
+      <div class="note warn">
+        ⚠️ Unlike Create React App, Vite may not auto-open the browser.
+        You usually click the local dev URL printed in the terminal.
+        In VS Code, you can Ctrl/Command-click the link.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🧪 Sanity check: confirm ESLint is working</h2>
+      <p>
+        A quick test: declare a variable and don’t use it.
+        ESLint should warn you (in editor and terminal).
+      </p>
+      <div class="note">
+        ✅ If you see the warning, you’re correctly configured.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="card">
+      <h2>➡️ What’s next</h2>
+      <p>
+        There is no demo app provided for this section.
+        You will build the entire application from scratch like it’s for a real client.
+        Next lecture: <strong>plan the application</strong> before coding.
+      </p>
+    </section>
+
+    <footer class="muted" style="margin-top:16px; font-size:12px;">
+      Print format: A4, single-column, word-wrapped, clean margins.
+    </footer>
+  </main>
+</body>
+</html>

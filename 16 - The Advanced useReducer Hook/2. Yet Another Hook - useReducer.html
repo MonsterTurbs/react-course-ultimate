@@ -1,0 +1,422 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Yet Another Hook: useReducer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --accent:#1a73e8;
+      --accent2:#0b57d0;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--accent);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .tip{
+      border-left: 4px solid var(--ok);
+      background: #f4fff7;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .warn{
+      border-left: 4px solid var(--warn);
+      background: #fffaf2;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .danger{
+      border-left: 4px solid var(--danger);
+      background: #fff5f6;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px 12px 10px;
+      background:#fff;
+    }
+
+    .card-title{
+      font-weight:700;
+      margin:0 0 6px;
+    }
+
+    .muted{ color:var(--muted); }
+
+    code, pre{
+      font-family: var(--mono);
+      font-size: 12.5px;
+    }
+
+    code{
+      background:#f3f4f6;
+      border:1px solid #e5e7eb;
+      padding: 1px 5px;
+      border-radius: 6px;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: #0b0f19;
+      color: #e6edf3;
+      overflow:auto;
+      border:1px solid #111827;
+      page-break-inside: avoid;
+    }
+
+    .k{ color:#9cdcfe; }
+    .s{ color:#ce9178; }
+    .n{ color:#dcdcdc; }
+    .c{ color:#8b949e; }
+
+    a{ color: var(--accent2); text-decoration: underline; }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    th, td{
+      border:1px solid var(--border);
+      padding: 8px 10px;
+      text-align:left;
+      vertical-align: top;
+    }
+    th{ background: var(--panel); }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section, .card{ border-color:#cfcfcf; }
+      a{ color: inherit; text-decoration: none; }
+      code{ background: transparent; border: none; padding:0; }
+      pre{ border-color:#222; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🪝 Yet Another Hook — <code>useReducer</code> (High-level overview)</h1>
+      <p class="subtitle">This lecture starts the advanced <code>useReducer</code> section by refactoring an existing <strong>DateCounter</strong> from <code>useState</code> to <code>useReducer</code>.</p>
+      <div class="meta">
+        <span class="chip">🧠 Reducer mindset</span>
+        <span class="chip">📩 Actions + dispatch</span>
+        <span class="chip">🧪 Refactor practice</span>
+        <span class="chip">🏗️ React Quiz setup</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Goals of this lecture</h2>
+      <ul>
+        <li>📦 Create a new project: <strong>React Quiz</strong> (Create React App v5)</li>
+        <li>🧱 Start with a familiar component: <strong>DateCounter</strong></li>
+        <li>🔁 Replace one <code>useState</code> (the <code>count</code>) with <code>useReducer</code></li>
+        <li>🧩 Understand the core concepts: <strong>reducer</strong>, <strong>dispatch</strong>, <strong>action</strong>, and <strong>action.type / action.payload</strong></li>
+      </ul>
+
+      <div class="warn">
+        <strong>Important:</strong> Before refactoring, be sure you understand the original DateCounter logic (event handlers, how state updates, and how state values interact).
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 What is <code>useReducer</code> (in plain language)</h2>
+      <p>
+        <code>useReducer</code> is an alternative to <code>useState</code> for managing state.
+        It’s especially helpful when updates become more complex than “set a value.”
+      </p>
+      <div class="callout">
+        <p><strong>Reducer idea:</strong> instead of calling <code>setState(newValue)</code>, you <strong>dispatch an action</strong> that describes what happened, and a <strong>reducer function</strong> decides how state changes.</p>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Meaning</th>
+            <th>Simple analogy</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>State</strong></td>
+            <td>Current data snapshot</td>
+            <td>📸 “What the app currently knows”</td>
+          </tr>
+          <tr>
+            <td><strong>Action</strong></td>
+            <td>Object describing what happened</td>
+            <td>📩 “A message/event”</td>
+          </tr>
+          <tr>
+            <td><strong>Dispatch</strong></td>
+            <td>Function to send an action to the reducer</td>
+            <td>📮 “Send the message”</td>
+          </tr>
+          <tr>
+            <td><strong>Reducer</strong></td>
+            <td>Pure function that computes next state</td>
+            <td>🧮 “Rules engine”</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>🧰 Basic syntax you used in the lecture</h2>
+      <p>
+        In the component, you replaced:
+        <code>const [count, setCount] = useState(0)</code>
+        with:
+        <code>const [count, dispatch] = useReducer(reducer, 0)</code>
+      </p>
+
+      <pre><span class="k">import</span> { <span class="n">useReducer</span> } <span class="k">from</span> <span class="s">"react"</span>;
+
+<span class="k">function</span> <span class="n">reducer</span>(<span class="n">state</span>, <span class="n">action</span>) {
+  <span class="c">// Decide next state based on action</span>
+  <span class="k">return</span> state;
+}
+
+<span class="k">export</span> <span class="k">default</span> <span class="k">function</span> <span class="n">DateCounter</span>() {
+  <span class="k">const</span> [<span class="n">count</span>, <span class="n">dispatch</span>] = <span class="n">useReducer</span>(<span class="n">reducer</span>, <span class="n">0</span>);
+
+  <span class="k">return</span> <span class="n">/* JSX */</span>;
+}</pre>
+
+      <div class="tip">
+        <strong>Key point:</strong> <code>useReducer</code> returns <strong>[state, dispatch]</strong> (not <code>[state, setState]</code>).
+      </div>
+    </section>
+
+    <section>
+      <h2>📩 Step-by-step: From “number actions” to “object actions”</h2>
+      <h3>1) First experiment: dispatching a number</h3>
+      <p>
+        You started by dispatching simple numbers like <code>1</code> and <code>-1</code>.
+        That number becomes the <code>action</code> in the reducer.
+      </p>
+
+      <pre><span class="c">// Event handler</span>
+<span class="n">dispatch</span>(<span class="n">1</span>);
+
+<span class="c">// Reducer</span>
+<span class="k">function</span> <span class="n">reducer</span>(<span class="n">state</span>, <span class="n">action</span>) {
+  <span class="k">return</span> state + action;
+}</pre>
+
+      <p class="muted">
+        This works, but it becomes confusing when you need different kinds of updates (increment vs set-to-value).
+      </p>
+
+      <h3>2) The standard approach: action objects</h3>
+      <p>
+        You then switched to the common pattern:
+        <code>{ type: "...", payload: ... }</code>
+      </p>
+
+      <pre><span class="c">// Dispatch actions</span>
+<span class="n">dispatch</span>({ <span class="n">type</span>: <span class="s">"inc"</span> });
+<span class="n">dispatch</span>({ <span class="n">type</span>: <span class="s">"dec"</span> });
+<span class="n">dispatch</span>({ <span class="n">type</span>: <span class="s">"setCount"</span>, <span class="n">payload</span>: <span class="n">valueFromInput</span> });
+
+<span class="c">// Reducer decides how to handle each type</span>
+<span class="k">function</span> <span class="n">reducer</span>(<span class="n">state</span>, <span class="n">action</span>) {
+  <span class="k">if</span> (action.<span class="n">type</span> === <span class="s">"inc"</span>) <span class="k">return</span> state + <span class="n">1</span>;
+  <span class="k">if</span> (action.<span class="n">type</span> === <span class="s">"dec"</span>) <span class="k">return</span> state - <span class="n">1</span>;
+  <span class="k">if</span> (action.<span class="n">type</span> === <span class="s">"setCount"</span>) <span class="k">return</span> action.<span class="n">payload</span>;
+  <span class="k">return</span> state;
+}</pre>
+
+      <div class="callout">
+        <strong>Why this is better:</strong> The reducer becomes the single place that contains the “rules” for state changes.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 Why <code>payload</code> is optional</h2>
+      <p>
+        For actions like <code>inc</code> and <code>dec</code>, the reducer already knows what to do (±1), so payload is unnecessary.
+        But for <code>setCount</code>, you must send the value somehow — that’s what <code>payload</code> is for.
+      </p>
+
+      <div class="tip">
+        <strong>Rule of thumb:</strong> Use <code>payload</code> only when the reducer needs extra data to compute the next state.
+      </div>
+
+      <div class="danger">
+        <strong>Common gotcha:</strong> <code>e.target.value</code> from an input is a <em>string</em> by default.
+        If you need a number, convert it (e.g., <code>Number(e.target.value)</code>).
+        <br />
+        (The lecture focuses on the reducer workflow first; conversion details can vary by implementation.)
+      </div>
+    </section>
+
+    <section>
+      <h2>🔁 What happens after dispatch (the flow)</h2>
+      <ol style="margin: 8px 0 10px 22px;">
+        <li>🖱️ User does something (clicks, types, etc.)</li>
+        <li>📮 You call <code>dispatch(action)</code></li>
+        <li>🧮 React calls <code>reducer(currentState, action)</code></li>
+        <li>✅ Reducer returns the <strong>next state</strong></li>
+        <li>🔄 React re-renders the component with the new state</li>
+      </ol>
+
+      <div class="callout">
+        <strong>Reducer must be pure:</strong> no fetch calls, no random numbers, no DOM changes.
+        It should only compute the next state.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Mini recap (what you achieved)</h2>
+      <ul>
+        <li>✅ Replaced the <code>count</code> state from <code>useState</code> to <code>useReducer</code></li>
+        <li>✅ Learned that <code>useReducer</code> returns <code>[state, dispatch]</code></li>
+        <li>✅ Understood “action objects” (<code>type</code> + optional <code>payload</code>)</li>
+        <li>✅ Implemented <code>inc</code>, <code>dec</code>, and <code>setCount</code> action types</li>
+      </ul>
+
+      <div class="warn">
+        <strong>Next video:</strong> you will incorporate the <code>step</code> state into the reducer flow as well.
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Quick self-check</h2>
+      <ul>
+        <li>Can you explain the difference between <code>dispatch</code> and <code>setState</code>?</li>
+        <li>Can you describe what an “action” is without looking at the code?</li>
+        <li>Can you explain why the reducer needs both <code>state</code> and <code>action</code>?</li>
+        <li>Do you know when you need a <code>payload</code>?</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

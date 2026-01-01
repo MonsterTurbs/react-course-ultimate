@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced React Patterns — Render Props for Table.Body (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --callout: #f6f7ff;
+      --codebg: #0b1020;
+      --codetext: #e8ecff;
+      --chip: #f3f4f6;
+      --ok: #0f766e;
+      --warn: #b45309;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px 60px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul { margin: 8px 0 0 18px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--callout);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 10px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 6px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kbd {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-size: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      border: 1px solid #1f2a52;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .mini {
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .check {
+      border-left: 4px solid var(--ok);
+      padding-left: 10px;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      padding-left: 10px;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    /* Print */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-radius: 0; }
+
+      /* Don’t print link URLs */
+      a[href]:after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+
+      /* Avoid awkward page breaks */
+      header, section, pre { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 Render Props for <code>Table.Body</code> — Study Guide</h1>
+      <p class="subtitle">Advanced React Patterns • Render Props Pattern (small but powerful use case) • Single-column A4 print-ready notes</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Render Props</span>
+        <span class="chip">📦 Use case: Reusable Table Body</span>
+        <span class="chip">🧱 Pattern combo: Compound Components + Render</span>
+        <span class="chip">🖨️ Print: A4, word-wrap, clean margins</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Learning Goals</h2>
+        <ul>
+          <li>Understand why <code>children</code> is not the cleanest API for a reusable <code>Table.Body</code>.</li>
+          <li>Use a <strong>render prop</strong> to tell <code>Table.Body</code> how to render each row item.</li>
+          <li>Add a friendly <strong>empty state</strong> when there’s no data to show.</li>
+          <li>Build a UI API that looks clean and reads like a sentence.</li>
+        </ul>
+
+        <div class="callout check">
+          <strong>✅ The big idea</strong>
+          <p>
+            A reusable component can accept <strong>data</strong> plus a <strong>render function</strong>.
+            The component owns the looping; the consumer owns <em>what each item looks like</em>.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 What problem are we solving?</h2>
+        <p>
+          We already made a reusable table using the <strong>compound component pattern</strong>.
+          Now we want the <code>Table.Body</code> to be reusable too.
+        </p>
+
+        <div class="grid">
+          <div class="callout warn">
+            <strong>😕 “Works, but ugly” approach</strong>
+            <p class="mini">Using <code>children</code> directly makes the consumer responsible for mapping and markup.</p>
+            <pre><code>&lt;Table.Body&gt;
+  {cabins.map(cabin =&gt; (
+    &lt;CabinRow cabin={cabin} key={cabin.id} /&gt;
+  ))}
+&lt;/Table.Body&gt;</code></pre>
+          </div>
+
+          <div class="callout check">
+            <strong>😎 Cleaner approach (Render Props)</strong>
+            <p class="mini">Make <code>Table.Body</code> self-closing and pass instructions via <code>render</code>.</p>
+            <pre><code>&lt;Table.Body
+  data={cabins}
+  render={(cabin) =&gt; &lt;CabinRow cabin={cabin} key={cabin.id} /&gt;}
+/&gt;</code></pre>
+          </div>
+        </div>
+
+        <p>
+          In the second version, <code>Table.Body</code> can remain generic: it knows how to loop and wrap layout,
+          but it does not know anything about <code>CabinRow</code>.
+        </p>
+      </section>
+
+      <section>
+        <h2>🧩 Render Props Pattern in 1 minute</h2>
+        <p>
+          A <strong>render prop</strong> is simply a prop that is a function.
+          The component calls that function to decide what JSX to render.
+        </p>
+        <ul>
+          <li>📦 <code>data</code> = the array (e.g., <code>cabins</code>)</li>
+          <li>🧾 <code>render</code> = “How do I render one item?”</li>
+          <li>🔁 The component does <code>data.map(render)</code></li>
+        </ul>
+
+        <div class="callout">
+          <strong>🔄 Inversion of Control (simple version)</strong>
+          <p class="mini">
+            The reusable component gives control of “what each item looks like” to the consumer,
+            while still keeping the shared UI/layout and looping logic inside itself.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🛠️ How <code>Table.Body</code> is implemented</h2>
+        <p>
+          Instead of accepting <code>children</code>, <code>Table.Body</code> accepts <code>data</code> and <code>render</code>.
+          Then it:
+        </p>
+        <ol>
+          <li>Checks for empty data (show an empty message).</li>
+          <li>Otherwise maps through the array and calls <code>render(item)</code> per row.</li>
+        </ol>
+
+        <pre><code>function Body({ data, render }) {
+  if (!data?.length)
+    return (
+      &lt;Empty&gt;No data to show at the moment.&lt;/Empty&gt;
+    );
+
+  return (
+    &lt;StyledBody&gt;
+      {data.map(render)}
+    &lt;/StyledBody&gt;
+  );
+}</code></pre>
+
+        <div class="callout warn">
+          <strong>⚠️ Important: keys still matter</strong>
+          <p class="mini">
+            <code>render</code> should return elements with stable <code>key</code>s.
+            Typically, you set the key inside the render function:
+          </p>
+          <pre><code>&lt;Table.Body
+  data={cabins}
+  render={(cabin) =&gt; (
+    &lt;CabinRow key={cabin.id} cabin={cabin} /&gt;
+  )}
+/&gt;</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Quick Mental Model</h2>
+        <p>
+          Think of <code>Table.Body</code> as a “loop + wrapper” component:
+        </p>
+        <ul>
+          <li>🧱 Wrapper: applies padding/spacing (e.g., <code>&lt;StyledBody&gt;</code>)</li>
+          <li>🔁 Loop: iterates items (the “data”)</li>
+          <li>🎨 Render: delegates row JSX to the consumer</li>
+        </ul>
+
+        <div class="hr"></div>
+
+        <p class="mini">
+          If you inspect the DOM, you’ll often see something like:
+          <strong>Header row</strong> (role=row) + <strong>Body section</strong> (role=group/section) + multiple rows.
+          The body being a <code>section</code> is fine because this table is built with CSS grid and ARIA roles.
+        </p>
+      </section>
+
+      <section>
+        <h2>🧷 Common Bugs and Fixes</h2>
+        <ul>
+          <li>
+            🐛 <strong>Nothing renders</strong> → Make sure you passed both <code>data</code> and <code>render</code>, and that <code>render</code> returns JSX.
+          </li>
+          <li>
+            🐛 <strong>“Each child should have a unique key”</strong> → Add <code>key</code> inside <code>render</code>.
+          </li>
+          <li>
+            🐛 <strong>Crash when data is undefined</strong> → Use optional chaining like <code>!data?.length</code>.
+          </li>
+          <li>
+            🐛 <strong>Empty UI looks broken</strong> → Provide a proper empty state message/component.
+          </li>
+        </ul>
+
+        <div class="callout check">
+          <strong>✅ A nice default empty state</strong>
+          <p class="mini">User-friendly and helps debugging (you instantly know “no rows” vs “UI broken”).</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>📝 Mini Reviewer (Quick Questions)</h2>
+        <ol>
+          <li>Why is using <code>children</code> for <code>Table.Body</code> less clean for reusability?</li>
+          <li>What does <code>render</code> represent in the render props pattern?</li>
+          <li>Where should the <code>key</code> be placed in this approach?</li>
+          <li>What should <code>Table.Body</code> do when <code>data</code> is empty?</li>
+        </ol>
+
+        <div class="callout">
+          <strong>💡 Tip</strong>
+          <p class="mini">
+            Render props don’t have to be “big”. Even <code>data.map(render)</code> is already a real render prop use case.
+            The goal is clean APIs and reusable logic.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>✅ Summary</h2>
+        <ul>
+          <li>📌 Use <code>children</code> when you just want to pass content.</li>
+          <li>📌 Use <strong>render props</strong> when the component needs <em>instructions</em> on how to render items.</li>
+          <li>🧱 For <code>Table.Body</code>: accept <code>data</code> + <code>render</code>, then <code>data.map(render)</code>.</li>
+          <li>🧼 This keeps the table reusable and keeps consumer code clean.</li>
+        </ul>
+        <p class="mini">
+          Next topic in your course: building a reusable menu/context menu component using compound components.
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

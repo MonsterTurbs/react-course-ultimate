@@ -1,0 +1,423 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Reviewer — Loading Movie Details (useEffect, Dependencies, Loading State)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --codebg:#0b1020;
+      --codefg:#e8eefc;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Page container (single-column) */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--soft2);
+      padding:16px 16px 12px;
+      border-radius:10px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 22px;
+      line-height:1.25;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      font-size:12px;
+      color:#222;
+      border:1px solid var(--border);
+      background:var(--soft);
+      padding:4px 10px;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+
+    nav{
+      margin:18px 0;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:14px 16px;
+      background:#fff;
+    }
+    nav h2{
+      margin:0 0 8px;
+      font-size: 14px;
+      letter-spacing: .2px;
+      text-transform: uppercase;
+      color:#333;
+    }
+    nav ol{margin:0; padding-left:18px;}
+    nav li{margin:6px 0;}
+    nav a{color:inherit; text-decoration:none; border-bottom:1px dotted #bbb;}
+
+    section{
+      margin: 14px 0;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding: 14px 16px;
+      background:#fff;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      margin:0 0 10px;
+      font-size: 17px;
+    }
+
+    h3{
+      margin:14px 0 8px;
+      font-size: 14.5px;
+    }
+
+    p{margin:8px 0;}
+    ul{margin:8px 0; padding-left: 20px;}
+    li{margin:6px 0;}
+
+    .callout{
+      border:1px solid var(--border);
+      background:var(--soft2);
+      padding:10px 12px;
+      border-radius:10px;
+      margin:10px 0;
+    }
+    .callout strong{display:block; margin-bottom:4px;}
+
+    .callout.tip{background:#f6fbff;}
+    .callout.warn{background:#fff7f2;}
+    .callout.note{background:#f7fff6;}
+
+    pre{
+      margin:10px 0;
+      padding:12px 12px;
+      background:var(--codebg);
+      color:var(--codefg);
+      border-radius:10px;
+      overflow:auto;
+      border:1px solid rgba(255,255,255,.08);
+      white-space:pre;
+      tab-size: 2;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .kbd{font-family:inherit; font-size: 12px; padding:1px 6px; border:1px solid var(--border); border-bottom-width:2px; border-radius:6px; background:var(--soft);}
+    .divider{height:1px; background:var(--border); margin:10px 0;}
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+    @media print {
+      body{ background:#fff; }
+      .page{ padding:0; }
+      nav a{ border-bottom: none; }
+      a[href]:after{ content: ""; }
+      pre{ overflow: visible; white-space: pre-wrap; word-break: break-word; }
+      section, header, nav{ box-shadow:none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🎬 React Reviewer: Loading Movie Details</h1>
+      <p class="subtitle">Focus: <strong>useEffect</strong> for fetching details, dependency arrays, component lifecycle behavior, and a loading indicator.</p>
+      <div class="meta">
+        <span class="chip">Single-column</span>
+        <span class="chip">A4 print-ready</span>
+        <span class="chip">Beginner-friendly</span>
+        <span class="chip">With code examples</span>
+      </div>
+    </header>
+
+    <nav>
+      <h2>Table of Contents</h2>
+      <ol>
+        <li><a href="#goal">Goal of the lecture</a></li>
+        <li><a href="#plan">Big picture implementation plan</a></li>
+        <li><a href="#fetch">Fetch movie details on mount</a></li>
+        <li><a href="#state">Store fetched data in state</a></li>
+        <li><a href="#render">Render details (and why you see undefined first)</a></li>
+        <li><a href="#deps">Fix: useEffect dependency array (selectedId)</a></li>
+        <li><a href="#loading">Add a loading indicator</a></li>
+        <li><a href="#checklist">Quick checklist + common pitfalls</a></li>
+      </ol>
+    </nav>
+
+    <section id="goal">
+      <h2>1) ✅ Goal of the lecture</h2>
+      <p>When a user selects a movie from the list, your app should:</p>
+      <ul>
+        <li>📌 Know <strong>which movie is selected</strong> (store its <code>imdbID</code> in state like <code>selectedId</code>)</li>
+        <li>🌐 Fetch <strong>full movie details</strong> from the API using that <code>selectedId</code></li>
+        <li>🖼️ Display details (poster, title, runtime, plot, etc.) in the right panel</li>
+        <li>⏳ Show a <strong>loading indicator</strong> while the details request is in progress</li>
+      </ul>
+      <div class="callout note">
+        <strong>Key idea 🧠</strong>
+        <p>This fetch should happen <em>when the MovieDetails component mounts</em> <strong>and</strong> whenever the <code>selectedId</code> changes (because the component may not remount).</p>
+      </div>
+    </section>
+
+    <section id="plan">
+      <h2>2) 🧭 Big picture plan</h2>
+      <ol>
+        <li>Create a <code>MovieDetails</code> component that receives <code>selectedId</code> as a prop.</li>
+        <li>Inside <code>MovieDetails</code>, use <code>useEffect</code> to fetch details from the API.</li>
+        <li>Store the result in state (e.g., <code>movie</code> object).</li>
+        <li>Render the details UI using the state.</li>
+        <li>Fix the “not updating when clicking another movie” issue by adding <code>selectedId</code> to the dependency array.</li>
+        <li>Add <code>isLoading</code> state and render <code>&lt;Loader /&gt;</code> while waiting.</li>
+      </ol>
+    </section>
+
+    <section id="fetch">
+      <h2>3) 🌐 Fetch movie details on mount</h2>
+      <p>You want to request details using the movie ID. Conceptually, your URL will look like:</p>
+      <ul>
+        <li><code>?apikey=YOUR_KEY</code></li>
+        <li><code>&amp;i=SELECTED_IMDB_ID</code> (notice <code>i</code> for ID)</li>
+      </ul>
+
+      <div class="callout warn">
+        <strong>Important ⚠️: Don’t make useEffect callback async</strong>
+        <p><code>useEffect(async () =&gt; ...)</code> is discouraged because it returns a Promise. Instead, define an inner async function and call it.</p>
+      </div>
+
+      <pre><code>// MovieDetails.jsx (inside component)
+useEffect(function () {
+  async function getMovieDetails() {
+    const res = await fetch(`YOUR_URL_WITH_SELECTED_ID`);
+    const data = await res.json();
+    console.log(data);
+  }
+
+  getMovieDetails();
+}, []);</code></pre>
+
+      <p>With an empty dependency array (<code>[]</code>), the effect runs only on the initial mount.</p>
+    </section>
+
+    <section id="state">
+      <h2>4) 🧺 Store fetched data in state</h2>
+      <p>Instead of logging to the console, store details in state so you can render them:</p>
+
+      <pre><code>const [movie, setMovie] = useState({});
+
+useEffect(function () {
+  async function getMovieDetails() {
+    const res = await fetch(`YOUR_URL_WITH_SELECTED_ID`);
+    const data = await res.json();
+    setMovie(data);
+  }
+
+  getMovieDetails();
+}, []);</code></pre>
+
+      <div class="callout tip">
+        <strong>Why default is {} 💡</strong>
+        <p>The API returns an object with properties like <code>Title</code>, <code>Year</code>, <code>Poster</code>, etc. Starting with <code>{}</code> matches that shape.</p>
+      </div>
+    </section>
+
+    <section id="render">
+      <h2>5) 🧩 Render details (and why undefined appears first)</h2>
+      <p>The API returns keys in uppercase (e.g., <code>Title</code>). Many developers prefer destructuring into nicer variable names:</p>
+
+      <pre><code>const {
+  Title: title,
+  Year: year,
+  Poster: poster,
+  Runtime: runtime,
+  imdbRating,
+  Plot: plot,
+  Released: released,
+  Actors: actors,
+  Director: director,
+  Genre: genre,
+} = movie;</code></pre>
+
+      <div class="callout note">
+        <strong>Why you see “undefined” first 🧠</strong>
+        <p>On the first render, <code>movie</code> is still <code>{}</code>. Reading <code>Title</code> from an empty object gives <code>undefined</code>. After the fetch finishes, <code>setMovie</code> triggers a re-render, and values become available.</p>
+      </div>
+
+      <p>Example JSX structure:</p>
+      <pre><code>return (
+  &lt;div className="details"&gt;
+    &lt;header&gt;
+      &lt;img src={poster} alt={`Poster of ${title}`} /&gt;
+
+      &lt;div className="details-overview"&gt;
+        &lt;h2&gt;{title}&lt;/h2&gt;
+        &lt;p&gt;{released} &bull; {runtime}&lt;/p&gt;
+        &lt;p&gt;{genre}&lt;/p&gt;
+        &lt;p&gt;⭐ {imdbRating} IMDb rating&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/header&gt;
+
+    &lt;section&gt;
+      &lt;p&gt;&lt;em&gt;{plot}&lt;/em&gt;&lt;/p&gt;
+      &lt;p&gt;Starring {actors}&lt;/p&gt;
+      &lt;p&gt;Directed by {director}&lt;/p&gt;
+    &lt;/section&gt;
+  &lt;/div&gt;
+);</code></pre>
+
+      <div class="callout tip">
+        <strong>Bonus: Reuse your StarRating ⭐</strong>
+        <p>IMDB ratings are out of 10, so pass <code>maxRating={10}</code>. You can also adjust size.</p>
+      </div>
+
+      <pre><code>&lt;div className="rating"&gt;
+  &lt;StarRating maxRating={10} size={24} /&gt;
+&lt;/div&gt;</code></pre>
+    </section>
+
+    <section id="deps">
+      <h2>6) 🔁 Fix: useEffect dependency array (selectedId)</h2>
+      <p>Problem you observed:</p>
+      <ul>
+        <li>Click a movie ➜ details load ✅</li>
+        <li>Click another movie while details are open ➜ details do <strong>not</strong> update ❌</li>
+      </ul>
+
+      <div class="callout warn">
+        <strong>Why this happens ⚠️</strong>
+        <p><code>MovieDetails</code> is still the same component instance in the same position in the tree. It does <em>not</em> remount; only its <code>selectedId</code> prop changes. With <code>[]</code>, your effect runs only once.</p>
+      </div>
+
+      <p><strong>Solution:</strong> add <code>selectedId</code> to the dependency array so the effect runs again whenever that prop changes.</p>
+
+      <pre><code>useEffect(function () {
+  async function getMovieDetails() {
+    const res = await fetch(`YOUR_URL_WITH_SELECTED_ID`);
+    const data = await res.json();
+    setMovie(data);
+  }
+
+  getMovieDetails();
+}, [selectedId]);</code></pre>
+
+      <div class="callout note">
+        <strong>Mental model 🧠</strong>
+        <p>The dependency array behaves like an event listener: “Run this effect when <code>selectedId</code> changes.”</p>
+      </div>
+    </section>
+
+    <section id="loading">
+      <h2>7) ⏳ Add a loading indicator</h2>
+      <p>Because fetching details takes time, add a loading state:</p>
+
+      <pre><code>const [isLoading, setIsLoading] = useState(false);
+
+useEffect(function () {
+  async function getMovieDetails() {
+    setIsLoading(true);
+
+    const res = await fetch(`YOUR_URL_WITH_SELECTED_ID`);
+    const data = await res.json();
+    setMovie(data);
+
+    setIsLoading(false);
+  }
+
+  getMovieDetails();
+}, [selectedId]);</code></pre>
+
+      <div class="callout warn">
+        <strong>Practical note ⚠️</strong>
+        <p>In production code, also handle errors (try/catch) and ensure <code>setIsLoading(false)</code> runs in <code>finally</code>.</p>
+      </div>
+
+      <p>Conditional rendering: always return the wrapper div, then choose what to show inside:</p>
+
+      <pre><code>return (
+  &lt;div className="details"&gt;
+    {isLoading ? (
+      &lt;Loader /&gt;
+    ) : (
+      &lt;&gt;
+        &lt;header&gt;...&lt;/header&gt;
+        &lt;section&gt;...&lt;/section&gt;
+      &lt;/&gt;
+    )}
+  &lt;/div&gt;
+);</code></pre>
+
+      <div class="callout tip">
+        <strong>Why the fragment is needed 💡</strong>
+        <p>JSX must return a single parent. If you want to return <code>&lt;header&gt;</code> and <code>&lt;section&gt;</code> together, wrap them in a fragment <code>&lt;&gt;...&lt;/&gt;</code>.</p>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <h2>8) ✅ Quick checklist + common pitfalls</h2>
+      <h3>Checklist</h3>
+      <ul>
+        <li>✅ <code>MovieDetails</code> receives <code>selectedId</code> as a prop</li>
+        <li>✅ Fetch inside <code>useEffect</code>, using an inner async function</li>
+        <li>✅ Store details in state (<code>movie</code>)</li>
+        <li>✅ Dependency array includes <code>selectedId</code></li>
+        <li>✅ Add <code>isLoading</code> and render <code>&lt;Loader /&gt;</code></li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h3>Common pitfalls (and fixes)</h3>
+      <ul>
+        <li><strong>❌ Effect never reruns when selecting another movie</strong> → add <code>[selectedId]</code></li>
+        <li><strong>❌ ESLint warning: “Effect callbacks are synchronous”</strong> → define inner <code>async function</code></li>
+        <li><strong>❌ “undefined” flashes</strong> → expected on first render; optionally show loading UI</li>
+        <li><strong>❌ Multiple root elements in JSX</strong> → wrap with fragment <code>&lt;&gt;...&lt;/&gt;</code></li>
+        <li><strong>❌ Loading stuck forever on error</strong> → use <code>try/catch/finally</code></li>
+      </ul>
+
+      <div class="callout note">
+        <strong>Next up 🎯</strong>
+        <p>Make the rating interactive and add the movie to a watch list (using state + effects where appropriate).</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

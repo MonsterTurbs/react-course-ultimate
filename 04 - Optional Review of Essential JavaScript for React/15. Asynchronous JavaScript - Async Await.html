@@ -1,0 +1,398 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Essential JavaScript for React — Async/Await (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --chip:#f3f4f6;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header{
+      padding: 18px 16px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-block;
+      padding: 6px 10px;
+      border:1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 12px;
+      color:#222;
+    }
+
+    section{
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background:#fff;
+    }
+
+    h2{
+      margin:0 0 10px 0;
+      font-size: 16.5px;
+    }
+
+    h3{
+      margin: 14px 0 8px 0;
+      font-size: 14.5px;
+    }
+
+    p{ margin: 8px 0; }
+
+    ul{ margin: 8px 0 0 20px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid #111;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout p{ margin: 6px 0; }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12.5px;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      white-space: pre-wrap;      /* wrap long code */
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      font-size: 12.5px;
+      line-height: 1.55;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.96em;
+    }
+
+    .twoCol{
+      display:block; /* keep single-column layout */
+    }
+
+    .divider{
+      height:1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .checklist li{ list-style: none; margin-left: -20px; }
+
+    .checklist li::before{
+      content:"✅ ";
+    }
+
+    .warn li::before{
+      content:"⚠️ ";
+    }
+
+    footer{
+      color: var(--muted);
+      font-size: 12px;
+      padding: 10px 2px 22px;
+    }
+
+    /* Print styles */
+    @page{
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print{
+      :root{ --bg:#fff; }
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header, section{ border-color:#ddd; box-shadow:none; }
+      .chip{ background:#fff; }
+      a, a:visited{ color: inherit; text-decoration: none; }
+      a[href]::after{ content: ""; } /* do not print URLs */
+      pre{ page-break-inside: avoid; }
+      section{ break-inside: avoid-page; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 Essential JavaScript for React — Async/Await</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) • Single-column • A4 print-ready</p>
+      <div class="meta">
+        <span class="chip">Topic: Async JavaScript</span>
+        <span class="chip">Focus: async/await</span>
+        <span class="chip">Related: Promises, fetch()</span>
+        <span class="chip">Use case: Data fetching (React)</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Learning goals</h2>
+      <ul class="checklist">
+        <li>Understand why <code>async/await</code> exists and what problem it solves.</li>
+        <li>Convert a <code>.then()</code>-based fetch into an <code>async</code> function using <code>await</code>.</li>
+        <li>Know the #1 rule: <strong>an async function always returns a Promise</strong>.</li>
+        <li>Avoid common mistakes (forgetting <code>await</code>, returning promises, error handling).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧠 Key idea</h2>
+      <p>
+        <strong>Promises do not go away.</strong> <code>async/await</code> is just a cleaner syntax on top of Promises.
+        What changes is the code style: instead of chaining <code>.then()</code>, you can write code that <em>looks</em>
+        more like normal step-by-step (synchronous) JavaScript.
+      </p>
+
+      <div class="callout">
+        <p><strong>Important:</strong> <code>await</code> only “pauses” execution <em>inside the async function</em>.</p>
+        <p>Outside the function, JavaScript still continues running and does not wait automatically.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🔁 The Promise version (review)</h2>
+      <p>
+        With Promises, the typical flow is:
+        fetch → then (get response) → response.json() → then (get data)
+      </p>
+
+      <pre><code>// Fetching with Promises (.then chaining)
+const URL = "(your API endpoint here)";
+
+fetch(URL)
+  .then(res =&gt; res.json())
+  .then(data =&gt; {
+    console.log("✅ Data:", data);
+  });
+
+console.log("🟦 This logs first (JS does not wait)");</code></pre>
+
+      <div class="callout">
+        <p>✅ Works, but many people find it harder to read when logic becomes longer or nested.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>✨ The async/await version (cleaner syntax)</h2>
+      <p>
+        The same logic can be written using an <code>async</code> function and the <code>await</code> keyword.
+        This makes the code easier to follow because it reads top-to-bottom.
+      </p>
+
+      <pre><code>// Fetching with async/await
+const URL = "(your API endpoint here)";
+
+async function getTodos() {
+  const response = await fetch(URL);
+  const data = await response.json();
+  console.log("✅ Data:", data);
+}
+
+getTodos();
+
+console.log("🟦 This logs first (outside does not wait)");</code></pre>
+
+      <h3>What changed?</h3>
+      <ul>
+        <li>✅ No more <code>.then()</code> handlers in the main flow.</li>
+        <li>✅ You can store intermediate results in variables: <code>response</code>, <code>data</code>.</li>
+        <li>✅ <code>await</code> pauses <em>inside</em> <code>getTodos()</code> until each Promise settles.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📌 Rule you must remember</h2>
+      <div class="callout">
+        <p><strong>Any <code>async</code> function returns a Promise.</strong> Always.</p>
+      </div>
+
+      <p>
+        That means if you do this:
+      </p>
+
+      <pre><code>async function getTodos() {
+  const response = await fetch(URL);
+  const data = await response.json();
+  return data;
+}
+
+const todos = getTodos();
+console.log(todos); // ❗ Promise, not the actual array</code></pre>
+
+      <p>
+        Why? Because <code>getTodos()</code> needs time to fetch data. JavaScript can’t instantly return the final value,
+        so it returns a Promise that will eventually resolve to the data.
+      </p>
+
+      <h3>How do you get the real value?</h3>
+      <ul>
+        <li>Option A: Use <code>await</code> inside another async function.</li>
+        <li>Option B: Use <code>.then()</code> on the returned Promise.</li>
+      </ul>
+
+      <pre><code>// Option A: await it
+async function main() {
+  const todos = await getTodos();
+  console.log("✅ Todos:", todos);
+}
+main();
+
+// Option B: then it
+getTodos().then(todos =&gt; console.log("✅ Todos:", todos));</code></pre>
+
+      <div class="callout">
+        <p>🧠 React tip: in many React cases, you don’t return the data. You fetch it and set state inside the async flow.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🛠 Common mistakes and fixes</h2>
+
+      <h3>1) Forgetting <code>await</code></h3>
+      <pre><code>// ❌ Wrong: data becomes a Promise
+const data = response.json();
+
+// ✅ Right
+const data = await response.json();</code></pre>
+
+      <h3>2) Typos: <code>json()</code> not <code>jsn()</code></h3>
+      <pre><code>// ✅ Correct
+const data = await response.json();</code></pre>
+
+      <h3>3) Not handling errors</h3>
+      <p>
+        If the network fails or the server returns an error, your Promise can reject.
+        With async/await, the clean way is <code>try/catch</code>.
+      </p>
+
+      <pre><code>async function getTodosSafe() {
+  try {
+    const response = await fetch(URL);
+    const data = await response.json();
+    console.log("✅ Data:", data);
+  } catch (err) {
+    console.log("❌ Fetch failed:", err);
+  }
+}</code></pre>
+
+      <h3>4) Expecting the outer code to wait automatically</h3>
+      <ul class="warn">
+        <li>Calling an async function does not block the next lines outside it.</li>
+        <li>If you need ordering outside, you must await (inside another async function) or use then.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>⚡ Bonus: Doing multiple awaits efficiently</h2>
+      <p>
+        If you need multiple independent requests, doing them one-by-one can be slow.
+        You can run them in parallel using <code>Promise.all</code>.
+      </p>
+
+      <pre><code>async function loadInParallel() {
+  const [a, b] = await Promise.all([
+    fetch("(endpoint A)").then(r =&gt; r.json()),
+    fetch("(endpoint B)").then(r =&gt; r.json()),
+  ]);
+
+  console.log("✅ A:", a);
+  console.log("✅ B:", b);
+}</code></pre>
+
+      <p class="subtitle">Note: This is still Promises under the hood — <code>async/await</code> just makes it nicer to write.</p>
+    </section>
+
+    <section>
+      <h2>📝 Quick self-check</h2>
+      <ol>
+        <li>What does an <code>async</code> function always return?</li>
+        <li>Where does <code>await</code> actually pause execution?</li>
+        <li>If you do <code>const x = getTodos()</code>, what is <code>x</code>?</li>
+        <li>How do you handle errors in async/await?</li>
+      </ol>
+
+      <div class="divider"></div>
+      <p><strong>Answer key (short):</strong></p>
+      <ul>
+        <li>1) A Promise</li>
+        <li>2) Only inside the async function (where await is used)</li>
+        <li>3) A Promise (eventually resolves to data)</li>
+        <li>4) <code>try/catch</code> (or handle the returned Promise)</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>
+        Print tip: Use A4 paper size, margins default, and enable “Background graphics” only if you want the light boxes.
+        URLs are suppressed in print output.
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,412 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Challenge 2 (Profile Card v2) Reviewer</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --hint: #eef6ff;
+      --warn: #fff3cd;
+      --ok: #eaffea;
+      --codebg: #fcfcfc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.hint { border-left-color: #90caf9; background: var(--hint); }
+    .callout.warn { border-left-color: #ffe08a; background: var(--warn); }
+    .callout.ok { border-left-color: #7ad27a; background: var(--ok); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--codebg);
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .chip {
+      display: inline-block;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.9em;
+      white-space: nowrap;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 Challenge 2 — Developer Profile Card v2 (Reviewer)</h1>
+      <p class="subtitle">Study guide for: skills array → <code>map</code> list rendering → props destructuring → conditional emoji by level. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: Use A4 paper size for clean printing.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#goal">Goal of the challenge</a></li>
+          <li><a href="#data">Create a skills array (objects)</a></li>
+          <li><a href="#render">Render skills using <code>map</code> (list)</a></li>
+          <li><a href="#props">Pass + destructure props</a></li>
+          <li><a href="#emoji">Conditional emoji by level</a></li>
+          <li><a href="#keys">Keys (avoid React warning)</a></li>
+          <li><a href="#mistakes">Common beginner mistakes</a></li>
+          <li><a href="#checklist">Quick checklist</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="goal">
+      <h2>🎯 1) Goal of the challenge</h2>
+      <p>
+        You will finish the Developer Profile Card by upgrading the skills section:
+      </p>
+      <ul>
+        <li>🧱 Store skills in an <strong>array</strong> (one object per skill)</li>
+        <li>🔁 Render the skills dynamically using <strong><code>map</code></strong></li>
+        <li>📦 Pass props (<span class="chip">skill</span>, <span class="chip">color</span>, <span class="chip">level</span>) into <code>&lt;Skill /&gt;</code></li>
+        <li>🎭 Show an emoji depending on level: <strong>beginner / intermediate / advanced</strong></li>
+      </ul>
+
+      <div class="callout hint">
+        <p><strong>Why this matters 🧠</strong></p>
+        <p class="muted">This challenge combines the core patterns you’ll use constantly in React: arrays → map → props → small conditional UI.</p>
+      </div>
+    </section>
+
+    <section id="data">
+      <h2>🗃️ 2) Create a skills array (objects)</h2>
+      <p>
+        Create an array where each item is an object describing one skill.
+        The required fields are typically:
+        <span class="chip">skill</span>, <span class="chip">level</span>, <span class="chip">color</span>.
+      </p>
+
+      <pre><code>const skills = [
+  { skill: "React", level: "advanced", color: "#61dafb" },
+  { skill: "JavaScript", level: "intermediate", color: "#f7df1e" },
+  { skill: "HTML + CSS", level: "advanced", color: "orange" },
+  { skill: "Node.js", level: "intermediate", color: "#3c873a" },
+  { skill: "SQL", level: "advanced", color: "#0b57d0" },
+  { skill: "GraphQL", level: "beginner", color: "#e535ab" },
+];</code></pre>
+
+      <div class="callout ok">
+        <p><strong>Tip ✅</strong></p>
+        <p class="muted">Colors can be simple names (<code>"orange"</code>) or hex values (<code>"#ff8800"</code>). Both work.</p>
+      </div>
+    </section>
+
+    <section id="render">
+      <h2>🔁 3) Render skills using <code>map</code> (list)</h2>
+      <p>
+        Instead of writing <code>&lt;Skill /&gt;</code> repeatedly, loop over the array and render one component per object.
+      </p>
+
+      <pre><code>function SkillList() {
+  return (
+    &lt;div className="skill-list"&gt;
+      {skills.map((s) =&gt; (
+        &lt;Skill
+          key={s.skill}
+          skill={s.skill}
+          color={s.color}
+          level={s.level}
+        /&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout hint">
+        <p><strong>What changed vs v1 🧠</strong></p>
+        <p class="muted">In v1 you manually created each <code>&lt;Skill /&gt;</code>. In v2 you render from data, so adding/removing a skill is just editing the array.</p>
+      </div>
+    </section>
+
+    <section id="props">
+      <h2>📦 4) Pass + destructure props</h2>
+      <p>
+        The instructor’s approach here is to pass props <strong>one-by-one</strong> (instead of passing the whole object).
+        Then, in the <code>Skill</code> component, destructure for cleaner code.
+      </p>
+
+      <pre><code>function Skill({ skill, color, level }) {
+  return (
+    &lt;div className="skill" style={{ backgroundColor: color }}&gt;
+      &lt;span&gt;{skill}&lt;/span&gt;
+      &lt;span&gt;{/* emoji goes here */}&lt;/span&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout ok">
+        <p><strong>Why destructuring helps ✅</strong></p>
+        <ul>
+          <li>🧼 Cleaner JSX (no repeated <code>props.</code>)</li>
+          <li>👀 The function signature tells you exactly what props are expected</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="emoji">
+      <h2>🎭 5) Conditional emoji by level (3 choices)</h2>
+      <p>
+        Because there are <strong>three</strong> possible levels, the instructor uses <code>&&</code> multiple times to conditionally set the emoji text.
+        Only one condition will match.
+      </p>
+
+      <pre><code>function Skill({ skill, color, level }) {
+  return (
+    &lt;div className="skill" style={{ backgroundColor: color }}&gt;
+      &lt;span&gt;{skill}&lt;/span&gt;
+      &lt;span&gt;
+        {level === "beginner" && "👶"}
+        {level === "intermediate" && "👍"}
+        {level === "advanced" && "💪"}
+      &lt;/span&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout hint">
+        <p><strong>Alternative approach 🧠</strong></p>
+        <p class="muted">You could also use an object map (dictionary) like <code>const emoji = { beginner: "👶", ... }</code>. Either is acceptable.</p>
+      </div>
+    </section>
+
+    <section id="keys">
+      <h2>🗝️ 6) Keys (avoid React warning)</h2>
+      <p>
+        When rendering lists with <code>map</code>, React expects a unique <code>key</code> per item.
+        Using the skill name is fine if it’s unique.
+      </p>
+      <pre><code>{skills.map((s) =&gt; (
+  &lt;Skill key={s.skill} skill={s.skill} color={s.color} level={s.level} /&gt;
+))}</code></pre>
+
+      <div class="callout warn">
+        <p><strong>Warning ⚠️</strong></p>
+        <p class="muted">Don’t use array index as a key unless you truly have no better option. A stable unique value is preferred.</p>
+      </div>
+    </section>
+
+    <section id="mistakes">
+      <h2>🚫 7) Common beginner mistakes</h2>
+      <ul>
+        <li>❌ Forgetting to return JSX from <code>map</code> (especially if you use <code>{}</code> instead of <code>()</code> in the callback)</li>
+        <li>❌ Missing <code>key</code> on list items → React warning in console</li>
+        <li>❌ Using <code>class</code> instead of <code>className</code> in JSX</li>
+        <li>❌ Writing inline styles as a string (JSX expects an object): <code>style={{ backgroundColor: color }}</code></li>
+        <li>❌ Comparing wrong values (e.g., <code>level === "Advanced"</code> vs <code>"advanced"</code>)</li>
+      </ul>
+
+      <div class="callout ok">
+        <p><strong>Debug tip ✅</strong></p>
+        <p class="muted">If emojis don’t appear, first check the exact string values in your skills array (case-sensitive).</p>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <h2>✅ Quick checklist (before you move on)</h2>
+      <ul>
+        <li>☑️ I created a <code>skills</code> array with objects: <code>{ skill, level, color }</code></li>
+        <li>☑️ I rendered skills with <code>skills.map(...)</code></li>
+        <li>☑️ Each rendered <code>&lt;Skill /&gt;</code> has a unique <code>key</code></li>
+        <li>☑️ I destructured props in <code>Skill({ skill, color, level })</code></li>
+        <li>☑️ Emoji changes correctly for: beginner / intermediate / advanced</li>
+      </ul>
+
+      <div class="callout hint">
+        <p><strong>Next section preview 🧠</strong></p>
+        <p class="muted">After this, you’ll learn <strong>state</strong> and <strong>event handling</strong> so your apps become truly interactive (not just displaying data).</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

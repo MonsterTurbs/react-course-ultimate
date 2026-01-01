@@ -1,0 +1,422 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WorldWise — Finishing the City View (Context + Params + Loading + Back Button)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codetext: #e7eefc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 18px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    main { margin-top: 16px; }
+
+    h2 {
+      margin: 18px 0 10px;
+      font-size: 16.5px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14.5px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .chiprow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12.5px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    .callout {
+      border-left: 5px solid #111;
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+    }
+
+    .callout p { margin: 6px 0; }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      background: var(--codebg);
+      color: var(--codetext);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #101a33;
+      overflow: hidden;
+      white-space: pre-wrap; /* wrap long lines for print */
+      word-break: break-word;
+      margin: 10px 0;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .kbd {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    .twoCol {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    /* Links should not print as URLs */
+    a { color: inherit; text-decoration: underline; }
+
+    /* Print-specific */
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { padding: 0; max-width: none; }
+      header, .card, .callout { break-inside: avoid; }
+      pre { break-inside: avoid; }
+      a[href]::after { content: "" !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🗺️ WorldWise: Finishing the City View</h1>
+      <p class="subtitle">
+        Reviewer / Study Guide — Context API + React Router Params + Loading UX + “Active city” highlighting + Reusable Back button
+      </p>
+      <div class="chiprow">
+        <span class="chip">⚛️ React</span>
+        <span class="chip">🧭 React Router</span>
+        <span class="chip">🧠 Context API</span>
+        <span class="chip">🔁 useEffect</span>
+        <span class="chip">🔎 useParams</span>
+        <span class="chip">⏳ Loading Spinner</span>
+        <span class="chip">↩️ useNavigate</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>🎯 What you build in this lecture</h2>
+        <ul>
+          <li>✅ When you click a city, the <strong>City</strong> page fetches and displays <strong>full city data</strong> (not only the ID).</li>
+          <li>✅ The app remembers the <strong>current/last visited city</strong> so the corresponding CityItem gets a <strong>green border</strong>.</li>
+          <li>✅ While fetching, the City page shows a <strong>spinner</strong> instead of briefly showing stale city data.</li>
+          <li>✅ Add a reusable <strong>BackButton</strong> component to navigate back without manually clicking “Cities”.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>🧠 Key idea: “Current City” is global UI state</h2>
+        <p>
+          At first, it’s tempting to fetch the city data inside <code>City.jsx</code> and store it in local state:
+          <span class="muted">currentCity + setCurrentCity</span>.
+          That works… but we also need the same “current city” in <code>CityItem.jsx</code> to show the active border.
+        </p>
+        <div class="callout">
+          <p><strong>Rule of thumb 🧩</strong></p>
+          <p>
+            If multiple components (in different parts of the tree) need the same state, it’s a strong signal
+            that the state should live in a shared/global place (e.g., Context).
+          </p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🧱 Step-by-step implementation</h2>
+
+        <h3>1) Add <code>currentCity</code> to the Cities context</h3>
+        <p>
+          We move “current city” into <code>CitiesProvider</code> alongside <code>cities</code> and <code>isLoading</code>.
+          Then we expose it to the app through the context <code>value</code>.
+        </p>
+
+        <pre><code>// /context/CitiesContext.jsx (conceptual example)
+import { createContext, useContext, useEffect, useState } from "react";
+
+const CitiesContext = createContext();
+const BASE_URL = "http://localhost:9000";
+
+function CitiesProvider({ children }) {
+  const [cities, setCities] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // ✅ NEW: global UI state
+  const [currentCity, setCurrentCity] = useState({});
+
+  async function getCity(id) {
+    try {
+      setIsLoading(true);
+      const res = await fetch(`${BASE_URL}/cities/${id}`);
+      const data = await res.json();
+      setCurrentCity(data);
+    } catch {
+      alert("There was an error loading the city...");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  return (
+    &lt;CitiesContext.Provider value={{ cities, isLoading, currentCity, getCity }}&gt;
+      {children}
+    &lt;/CitiesContext.Provider&gt;
+  );
+}
+
+function useCities() {
+  const context = useContext(CitiesContext);
+  if (context === undefined)
+    throw new Error("CitiesContext was used outside the CitiesProvider");
+  return context;
+}
+
+export { CitiesProvider, useCities };
+</code></pre>
+
+        <div class="callout">
+          <p><strong>Why still fetch if city already exists in <code>cities</code>? 🤔</strong></p>
+          <p>
+            In real apps, list endpoints often return a “summary” version of objects, while detail endpoints
+            return richer data. So this pattern is realistic even if this demo could avoid the extra request.
+          </p>
+        </div>
+
+        <h3>2) Read the city ID from the URL using <code>useParams</code></h3>
+        <p>
+          Your route looks like: <code>cities/:id</code>. When you click a city, the URL becomes something like
+          <code>/app/cities/739</code>. The City page reads that ID from the URL.
+        </p>
+
+        <pre><code>// City.jsx (core idea)
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useCities } from "../context/CitiesContext";
+import Spinner from "./Spinner";
+import BackButton from "./BackButton";
+
+export default function City() {
+  const { id } = useParams();
+  const { getCity, currentCity, isLoading } = useCities();
+
+  useEffect(() =&gt; {
+    getCity(id);
+  }, [id]);
+
+  // ✅ Important: don’t return BEFORE calling hooks.
+  if (isLoading) return &lt;Spinner /&gt;;
+
+  return (
+    &lt;div&gt;
+      &lt;BackButton /&gt;
+      {/* render currentCity fields here */}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+        <h3>3) Avoid the “stale city flash” with a spinner</h3>
+        <p>
+          Without a loading UI, you’ll see the previous city (e.g., Lisbon) for a moment when clicking Madrid,
+          because <code>currentCity</code> still holds the old value until the fetch finishes.
+        </p>
+        <p>
+          ✅ Fix: show <code>&lt;Spinner /&gt;</code> whenever <code>isLoading</code> is true.
+        </p>
+
+        <div class="callout">
+          <p><strong>Rule of Hooks warning ⚠️</strong></p>
+          <p>
+            You cannot put an early <code>return</code> before a hook call, because hooks must be called in the
+            same order every render. Place the conditional return <em>after</em> all hooks.
+          </p>
+        </div>
+
+        <h3>4) Highlight the active city in <code>CityItem</code></h3>
+        <p>
+          The active city is simply: <code>city.id === currentCity.id</code>. If true, add the special CSS module
+          class (often named like <code>cityItem--active</code>).
+        </p>
+
+        <pre><code>// CityItem.jsx (core idea)
+import { Link } from "react-router-dom";
+import { useCities } from "../context/CitiesContext";
+import styles from "./CityItem.module.css";
+
+export default function CityItem({ city }) {
+  const { currentCity } = useCities();
+
+  return (
+    &lt;li&gt;
+      &lt;Link
+        className={`${styles.cityItem} ${
+          city.id === currentCity.id ? styles["cityItem--active"] : ""
+        }`}
+        to={`${city.id}?lat=${city.position.lat}&amp;lng=${city.position.lng}`}
+      &gt;
+        {/* city display */}
+      &lt;/Link&gt;
+    &lt;/li&gt;
+  );
+}
+</code></pre>
+
+        <p class="muted">
+          Note: CSS module class names with dashes require bracket notation: <code>styles["cityItem--active"]</code>.
+        </p>
+
+        <h3>5) Add a reusable <code>BackButton</code> component (programmatic navigation)</h3>
+        <p>
+          Instead of relying on the user to click “Cities”, create a component that does:
+          <code>navigate(-1)</code> to go back in browser history.
+        </p>
+
+        <pre><code>// BackButton.jsx (core idea)
+import { useNavigate } from "react-router-dom";
+import Button from "./Button";
+
+export default function BackButton() {
+  const navigate = useNavigate();
+
+  return (
+    &lt;Button
+      type="back"
+      onClick={(e) =&gt; {
+        // If used inside a &lt;form&gt;, prevent unintended submit reload
+        e.preventDefault?.();
+        navigate(-1);
+      }}
+    &gt;
+      &larr; Back
+    &lt;/Button&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout">
+          <p><strong>Why extract it? 🧩</strong></p>
+          <p>
+            You now use the same back behavior on the Form and City views without copy-pasting logic.
+            This improves reuse and keeps components smaller.
+          </p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>✅ Quick checklist</h2>
+        <ul>
+          <li>📌 <code>currentCity</code> state lives in <code>CitiesProvider</code>, not in <code>City.jsx</code>.</li>
+          <li>🧠 <code>getCity(id)</code> is also defined in context and exposed via <code>value</code>.</li>
+          <li>🧭 <code>City.jsx</code> reads <code>id</code> via <code>useParams()</code>.</li>
+          <li>🔁 <code>useEffect</code> calls <code>getCity(id)</code> whenever <code>id</code> changes.</li>
+          <li>⏳ City UI shows <code>&lt;Spinner /&gt;</code> when loading.</li>
+          <li>🟩 <code>CityItem</code> conditionally adds <code>styles["cityItem--active"]</code>.</li>
+          <li>↩️ City page uses <code>&lt;BackButton /&gt;</code> for easy navigation.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>🧾 Recap (plain English)</h2>
+        <ol>
+          <li>🧭 Clicking a city changes the URL to include the city ID (route param).</li>
+          <li>🧲 The City page reads that ID and asks the context to fetch the city.</li>
+          <li>🌍 Context stores the fetched city as <code>currentCity</code> so any component can use it.</li>
+          <li>🟩 CityItem compares IDs and highlights the last visited city.</li>
+          <li>⏳ While fetching, we show a spinner to avoid showing the previous city briefly.</li>
+          <li>↩️ We add a reusable back button for a smoother UX.</li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <h2>Next up</h2>
+        <p>
+          Next lecture focuses on adding the actual interactive map inside the map container.
+          Keep this page handy because the “state in URL + context” pattern will keep showing up.
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

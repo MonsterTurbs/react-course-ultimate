@@ -1,0 +1,458 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Global Styles With Styled Components — The Wild Oasis | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f7f7f9;
+      --chip: #f3f4f6;
+      --link: #0b57d0;
+      --ok: #0b7a2a;
+      --warn: #8a4b00;
+      --danger: #b00020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column, print-safe container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.danger { border-left-color: var(--danger); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 900px) {
+      .grid2 { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Print rules */
+    @page { size: A4; margin: 18mm; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      pre { overflow: visible; white-space: pre-wrap; word-break: break-word; }
+      .chip { border-color: #dcdcdc; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🌍 Global Styles With Styled Components</h1>
+      <p class="subtitle">
+        Reviewer / study guide: how to add global CSS (tokens, resets, base styles) using <code>createGlobalStyle</code>,
+        plus practical patterns for design tokens, component extraction, and pseudo-classes like <code>:hover</code>.
+      </p>
+      <div class="meta">
+        <span class="chip">🧩 createGlobalStyle</span>
+        <span class="chip">🎛️ CSS variables (design tokens)</span>
+        <span class="chip">🧼 CSS reset</span>
+        <span class="chip">🗂️ UI primitives (Button/Input)</span>
+        <span class="chip">🪄 :hover in styled-components</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>✅ Goal of this lesson</h2>
+        <p>
+          Instead of using a traditional global CSS file (like <code>index.css</code>) directly, we’ll apply global styling
+          in the <strong>styled-components way</strong>. That includes:
+        </p>
+        <ul>
+          <li>🎨 <strong>Design tokens</strong> (CSS variables) in <code>:root</code></li>
+          <li>🧼 A <strong>CSS reset</strong> (remove default margins/paddings, normalize base styles)</li>
+          <li>🔠 Base typography (fonts, line-height)</li>
+          <li>🌙 Preparation for dark mode variables later</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧱 Step 1: Create a GlobalStyles component</h2>
+        <p>
+          With styled-components, you don’t write global styles using <code>styled.*</code>. Instead, you create a special
+          global component using <code>createGlobalStyle</code>.
+        </p>
+
+        <div class="callout ok">
+          <strong>Key idea:</strong> <code>createGlobalStyle</code> returns a React component that injects global CSS into the app.
+        </div>
+
+        <h3>📄 File: <code>styles/GlobalStyles.js</code></h3>
+        <pre><code>import { createGlobalStyle } from "styled-components";
+
+const GlobalStyles = createGlobalStyle`
+  /* 1) Design tokens */
+  :root {
+    /* Colors (often inspired by Tailwind palettes) */
+    --color-brand-500: #4f46e5;
+    --color-brand-50: #eef2ff;
+
+    --color-grey-0: #ffffff;
+    --color-grey-300: #d1d5db;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+    /* Border radius */
+    --border-radius-sm: 5px;
+    --border-radius-md: 7px;
+    --border-radius-lg: 9px;
+  }
+
+  /* 2) CSS reset + base */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    line-height: 1.5;
+  }
+`;
+
+export default GlobalStyles;
+</code></pre>
+
+        <p class="note">
+          In the transcript, you copy/paste an existing <code>index.css</code> into the template literal so it becomes global CSS.
+        </p>
+      </section>
+
+      <section>
+        <h2>🧩 Step 2: Apply GlobalStyles in the component tree</h2>
+        <p>
+          The <code>GlobalStyles</code> component must be rendered in your app (usually near the top), but it:
+        </p>
+        <ul>
+          <li>🚫 <strong>does not accept children</strong></li>
+          <li>✅ is typically a <strong>sibling</strong> of your app layout wrapper (e.g., <code>StyledApp</code>)</li>
+        </ul>
+
+        <h3>📌 Example: <code>App.jsx</code></h3>
+        <pre><code>import GlobalStyles from "./styles/GlobalStyles";
+import styled from "styled-components";
+
+const StyledApp = styled.div`
+  padding: 20px;
+`;
+
+export default function App() {
+  return (
+    &lt;&gt;
+      &lt;GlobalStyles /&gt;
+      &lt;StyledApp&gt;
+        {/* Your UI */}
+      &lt;/StyledApp&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout ok">
+          As soon as this renders, your reset + base styles take effect (e.g., default margins disappear, fonts update).
+        </div>
+      </section>
+
+      <section>
+        <h2>🔠 Step 3: Add web fonts in <code>index.html</code></h2>
+        <p>
+          GlobalStyles handles CSS, but <strong>font imports</strong> (like Google Fonts) often belong in the HTML document.
+          The transcript shows copying font <code>&lt;link&gt;</code> tags into <code>index.html</code>.
+        </p>
+
+        <pre><code>&lt;!-- index.html --&gt;
+&lt;link rel="preconnect" href="https://fonts.googleapis.com" /&gt;
+&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /&gt;
+&lt;link
+  href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap"
+  rel="stylesheet"
+/&gt;
+</code></pre>
+
+        <p class="note">
+          After adding this, the UI font changes immediately (e.g., to <strong>Poppins</strong>).
+        </p>
+      </section>
+
+      <section>
+        <h2>🎛️ Design tokens: use CSS variables inside styled-components</h2>
+        <p>
+          A major reason for global styles is to centralize your design tokens (colors, spacing, shadows, radii).
+          Then any component can reference them using <code>var(--token-name)</code>.
+        </p>
+
+        <div class="grid2">
+          <div>
+            <h3>🟦 Button using tokens</h3>
+            <pre><code>import styled from "styled-components";
+
+const Button = styled.button`
+  font-size: 1.4rem;
+  padding: 1.2rem 1.6rem;
+  font-weight: 500;
+
+  border: none;
+  border-radius: var(--border-radius-md);
+
+  background-color: var(--color-brand-500);
+  color: var(--color-brand-50);
+
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+`;
+
+export default Button;
+</code></pre>
+          </div>
+
+          <div>
+            <h3>⬜ Input using tokens</h3>
+            <pre><code>import styled from "styled-components";
+
+const Input = styled.input`
+  border: 1px solid var(--color-grey-300);
+  border-radius: var(--border-radius-sm);
+  padding: 0.8rem 1.2rem;
+
+  background-color: var(--color-grey-0);
+  box-shadow: var(--shadow-sm);
+`;
+
+export default Input;
+</code></pre>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          The transcript notes that tokens may change for dark mode. Keeping them in one place makes theme changes easier.
+        </div>
+      </section>
+
+      <section>
+        <h2>🎭 CSS variables vs Styled Components “Themes”</h2>
+        <p>
+          Styled-components provides a <strong>ThemeProvider</strong> system (access values via <code>props.theme</code>), but the transcript
+          recommends sticking with <strong>native CSS variables</strong> for tokens.
+        </p>
+
+        <div class="callout ok">
+          <strong>Why prefer CSS variables?</strong> They’re native, lightweight, and the modern standard. ThemeProvider was more important
+          before CSS variables were widely supported.
+        </div>
+
+        <h3>ThemeProvider (concept only)</h3>
+        <pre><code>// Example idea (not required here)
+// &lt;ThemeProvider theme={theme}&gt;...&lt;/ThemeProvider&gt;
+
+// Inside a styled component:
+// color: ${props =&gt; props.theme.colors.brand};
+</code></pre>
+
+        <p class="note">
+          If you want to explore, check the styled-components docs for “theming”.
+        </p>
+      </section>
+
+      <section>
+        <h2>🗂️ Step 4: Move UI primitives into the UI folder</h2>
+        <p>
+          Once Button and Input are stable, they should live as reusable components (not inside <code>App.jsx</code>).
+          The transcript shows creating/moving:
+        </p>
+        <ul>
+          <li>📄 <code>ui/Button.jsx</code> (default export)</li>
+          <li>📄 <code>ui/Input.jsx</code> (default export)</li>
+        </ul>
+
+        <div class="callout ok">
+          ✅ Practical note from the transcript: sometimes it’s easier to create the files manually than relying on auto-refactor moves.
+        </div>
+      </section>
+
+      <section>
+        <h2>🪄 Step 5: Add hover state in styled-components</h2>
+        <p>
+          You can write pseudo-classes in styled-components similarly to SCSS/Sass.
+          The special selector <code>&amp;</code> means “this component itself”.
+        </p>
+
+        <pre><code>const Button = styled.button`
+  background-color: var(--color-brand-600);
+  color: var(--color-brand-50);
+
+  &amp;:hover {
+    background-color: var(--color-brand-700);
+  }
+`;
+</code></pre>
+
+        <div class="callout ok">
+          If you already have a global <code>transition</code> on all elements, the hover animation feels smooth “for free”.
+        </div>
+
+        <p class="note">
+          Conceptually, <code>&amp;:hover</code> is like writing <code>button:hover</code>, but scoped to this specific styled component.
+        </p>
+      </section>
+
+      <section>
+        <h2>🧠 Key takeaways</h2>
+        <ul>
+          <li>🌍 Use <code>createGlobalStyle</code> to define global CSS in styled-components.</li>
+          <li>🧼 Put tokens + reset + base styles in one central place (<code>GlobalStyles</code>).</li>
+          <li>🧩 Render <code>&lt;GlobalStyles /&gt;</code> at the top of your component tree (no children).</li>
+          <li>🎛️ Prefer CSS variables for design tokens; use them via <code>var(--token)</code>.</li>
+          <li>🗂️ Extract UI primitives (Button/Input) into reusable files.</li>
+          <li>🪄 Use <code>&amp;:hover</code> for pseudo-classes scoped to the component.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>📝 Mini-quiz</h2>
+        <ol>
+          <li>What does <code>createGlobalStyle</code> return?</li>
+          <li>Why must <code>GlobalStyles</code> be a sibling (not a parent) of your layout wrapper?</li>
+          <li>What are “design tokens” and why are CSS variables useful for them?</li>
+          <li>What does <code>&amp;</code> mean inside styled-components CSS?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>➡️ What’s next</h2>
+        <div class="callout ok">
+          Next: you’ll keep building real UI components with these tokens and global styles as the foundation.
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

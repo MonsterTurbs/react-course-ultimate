@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Supabase — Creating Tables (Cabins, Guests, Settings)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f9;
+      --soft2: #fbfbfc;
+      --accent: #1a73e8;
+      --accent2: #0b57d0;
+      --ok: #0f766e;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column printable layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px;
+    }
+
+    header {
+      padding: 14px 14px 10px;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 26px;
+      letter-spacing: -0.2px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      font-size: 12px;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      color: var(--muted);
+    }
+
+    main { margin-top: 16px; }
+
+    h2 {
+      margin: 18px 0 8px;
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    h3 {
+      margin: 14px 0 6px;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol { margin: 8px 0 8px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .box {
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout {
+      border-left: 5px solid var(--accent);
+      background: #f3f7ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout strong { color: var(--accent2); }
+
+    .warn {
+      border-left-color: var(--warn);
+      background: #fff7ed;
+    }
+
+    .danger {
+      border-left-color: var(--danger);
+      background: #fef2f2;
+    }
+
+    .ok {
+      border-left-color: var(--ok);
+      background: #ecfeff;
+    }
+
+    .mono {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: #0b1220;
+      color: #e5e7eb;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #1f2937;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      table-layout: fixed;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+      word-wrap: break-word;
+    }
+
+    th {
+      background: var(--soft);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    td { font-size: 13px; }
+
+    .mini {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, .box, .callout { break-inside: avoid; }
+      h2, h3 { break-after: avoid; }
+      table, pre { break-inside: avoid; }
+
+      /* Do not show URLs after links */
+      a[href]::after { content: "" !important; }
+
+      /* Keep colors light for print */
+      .mono {
+        background: #ffffff;
+        color: #111111;
+        border-color: var(--border);
+      }
+    }
+
+    /* Links (if any) should look like normal text, especially for printing */
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🏨 Supabase Crash Course — Creating Tables</h1>
+      <p class="subtitle">
+        Reviewer / Study Guide: building the first database tables for <strong>The Wild Oasis</strong> backend (Cabins, Guests, Settings)
+      </p>
+      <div class="meta">
+        <span class="chip">Single-column</span>
+        <span class="chip">A4 print-ready</span>
+        <span class="chip">Beginner-friendly</span>
+        <span class="chip">Supabase + Postgres</span>
+      </div>
+    </header>
+
+    <main>
+      <div class="callout ok">
+        <strong>Goal 🎯</strong>
+        <div class="mini">Create the foundational tables that power the app features, then add a little test data so the UI has something to display.</div>
+      </div>
+
+      <h2>1) What you’re building (big picture) 🧠</h2>
+      <ul>
+        <li><strong>Cabins table</strong> 🏡 → stores each cabin’s details (capacity, price, discount, description, image URL).</li>
+        <li><strong>Guests table</strong> 👤 → stores customer identity and contact info (full name, email, nationality, etc.).</li>
+        <li><strong>Settings table</strong> ⚙️ → stores global hotel rules (min/max booking length, breakfast price, etc.).</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Row Level Security (RLS) 🔐</strong>
+        <p class="mini">
+          While creating each table, you enable <strong>Row Level Security</strong>. Later, you will add <em>policies</em> that define who can read/write data.
+          Think of it as “database-level permissions” to protect your tables when your app starts using authentication.
+        </p>
+      </div>
+
+      <h2>2) Cabins table 🏡</h2>
+      <div class="box">
+        <h3>Why these fields exist</h3>
+        <ul>
+          <li><strong>name</strong> → cabin label (often numbered like <code>001</code> to <code>008</code>).</li>
+          <li><strong>maxCapacity</strong> → maximum number of guests allowed (number).</li>
+          <li><strong>regularPrice</strong> → base price per night (number).</li>
+          <li><strong>discount</strong> → discount amount (number; commonly 0 when no discount).</li>
+          <li><strong>description</strong> → long text for marketing / UI display.</li>
+          <li><strong>image</strong> → URL string pointing to an uploaded image in Supabase Storage.</li>
+        </ul>
+      </div>
+
+      <h3>Column design (recommended)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 22%">Column</th>
+            <th style="width: 18%">Type</th>
+            <th style="width: 60%">Meaning / Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>id</strong></td>
+            <td>UUID / int</td>
+            <td>Auto-created primary key. Supabase adds this by default (do not remove).</td>
+          </tr>
+          <tr>
+            <td><strong>created_at</strong></td>
+            <td>timestamp</td>
+            <td>Auto-created. Keep it so you can track when rows were added.</td>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>text</td>
+            <td>Cabin name like <code>001</code>, <code>002</code>…</td>
+          </tr>
+          <tr>
+            <td>maxCapacity</td>
+            <td>integer</td>
+            <td>How many guests can stay.</td>
+          </tr>
+          <tr>
+            <td>regularPrice</td>
+            <td>integer</td>
+            <td>Base price (often stored as whole currency units; you can also use numeric).</td>
+          </tr>
+          <tr>
+            <td>discount</td>
+            <td>integer</td>
+            <td>Discount amount. If none, store <code>0</code>.</td>
+          </tr>
+          <tr>
+            <td>description</td>
+            <td>text</td>
+            <td>Long description shown in UI.</td>
+          </tr>
+          <tr>
+            <td>image</td>
+            <td>text</td>
+            <td>URL string to storage bucket image.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Mini example row ✍️</h3>
+      <div class="mono">Cabins row example
+- name: "001"
+- maxCapacity: 2
+- regularPrice: 250
+- discount: 50
+- description: "Small luxury cabin in the woods."
+- image: "" (for now)</div>
+
+      <div class="callout warn">
+        <strong>Naming tip 📝</strong>
+        <p class="mini">
+          In databases, many people prefer <code>snake_case</code> (e.g., <code>regular_price</code>). In this course, camelCase is used because it maps nicely into JavaScript.
+          Either works—just be consistent.
+        </p>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>3) Guests table 👤</h2>
+      <div class="box">
+        <h3>Why these fields exist</h3>
+        <ul>
+          <li><strong>fullName</strong> → what the staff sees in bookings and check-in.</li>
+          <li><strong>email</strong> → contact + unique-ish identifier.</li>
+          <li><strong>nationality</strong> → useful for greeting / reporting.</li>
+          <li><strong>countryFlag</strong> → visual cue in UI (can be emoji or image URL).</li>
+          <li><strong>nationalID</strong> → government ID / passport number stored as text (different formats per country).</li>
+        </ul>
+      </div>
+
+      <h3>Column design (recommended)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 22%">Column</th>
+            <th style="width: 18%">Type</th>
+            <th style="width: 60%">Meaning / Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>id</strong></td>
+            <td>UUID / int</td>
+            <td>Auto-created primary key.</td>
+          </tr>
+          <tr>
+            <td><strong>created_at</strong></td>
+            <td>timestamp</td>
+            <td>Auto-created audit field.</td>
+          </tr>
+          <tr>
+            <td>fullName</td>
+            <td>text</td>
+            <td>Full name (e.g., “Jonas Schmedtmann”).</td>
+          </tr>
+          <tr>
+            <td>email</td>
+            <td>text</td>
+            <td>Email address (often validated at the UI level).</td>
+          </tr>
+          <tr>
+            <td>nationality</td>
+            <td>text</td>
+            <td>Nationality label (e.g., “German”).</td>
+          </tr>
+          <tr>
+            <td>countryFlag</td>
+            <td>text</td>
+            <td>Emoji like 🇩🇪 or an image URL (your choice).</td>
+          </tr>
+          <tr>
+            <td>nationalID</td>
+            <td>text</td>
+            <td>Stored as text to support both numbers and letters.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Mini example row ✍️</h3>
+      <div class="mono">Guests row example
+- fullName: "Test Guest"
+- email: "test@email.com"
+- nationality: "German"
+- countryFlag: "" (or "🇩🇪")
+- nationalID: "A123-456-XYZ"</div>
+
+      <div class="callout danger">
+        <strong>Data handling note ⚠️</strong>
+        <p class="mini">
+          Guest records can contain sensitive data (IDs, contact info). Enabling RLS is a good default, but you must later add correct policies so only authorized users can access it.
+        </p>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>4) Settings table ⚙️</h2>
+      <div class="box">
+        <h3>What this table is for</h3>
+        <p>
+          This table stores <strong>global hotel rules</strong> that rarely change. Unlike cabins or guests, you typically want <strong>only one row</strong>.
+        </p>
+        <ul>
+          <li><strong>minBookingLength</strong> → minimum nights allowed (integer).</li>
+          <li><strong>maxBookingLength</strong> → maximum nights allowed (integer).</li>
+          <li><strong>maxGuestsPerBooking</strong> → upper limit (integer).</li>
+          <li><strong>breakfastPrice</strong> → can be decimal (float/numeric).</li>
+        </ul>
+      </div>
+
+      <h3>Column design (recommended)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 28%">Column</th>
+            <th style="width: 18%">Type</th>
+            <th style="width: 54%">Meaning / Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>id</strong></td>
+            <td>UUID / int</td>
+            <td>Auto-created primary key (even if only one row).</td>
+          </tr>
+          <tr>
+            <td><strong>created_at</strong></td>
+            <td>timestamp</td>
+            <td>Audit field.</td>
+          </tr>
+          <tr>
+            <td>minBookingLength</td>
+            <td>integer</td>
+            <td>Example: 3 nights minimum.</td>
+          </tr>
+          <tr>
+            <td>maxBookingLength</td>
+            <td>integer</td>
+            <td>Example: 90 nights maximum.</td>
+          </tr>
+          <tr>
+            <td>maxGuestsPerBooking</td>
+            <td>integer</td>
+            <td>Example: up to 8 guests.</td>
+          </tr>
+          <tr>
+            <td>breakfastPrice</td>
+            <td>float / numeric</td>
+            <td>Example: 9.99 (not always a whole number).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Mini example row ✍️</h3>
+      <div class="mono">Settings row example (single row)
+- minBookingLength: 3
+- maxBookingLength: 90
+- maxGuestsPerBooking: 8
+- breakfastPrice: 15</div>
+
+      <div class="callout">
+        <strong>Why “only one row”? 🤔</strong>
+        <p class="mini">
+          These are not per-guest or per-booking values. They describe the business rules for the whole hotel.
+          If you had multiple settings rows, you’d have conflicting rules.
+        </p>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>5) Quick workflow checklist ✅</h2>
+      <ol>
+        <li>Create table → name it (e.g., <code>cabins</code>, <code>guests</code>, <code>settings</code>).</li>
+        <li>Enable <strong>Row Level Security</strong> 🔐 (policies will come later).</li>
+        <li>Keep default columns: <strong>id</strong> and <strong>created_at</strong> (helpful for tracking).</li>
+        <li>Add your own columns with correct types (text vs integer vs float).</li>
+        <li>Insert a few dummy rows so the frontend has data to render.</li>
+      </ol>
+
+      <h2>6) Common mistakes (and fixes) 🧯</h2>
+      <ul>
+        <li><strong>Storing an image file in the table</strong> → store only the <em>URL</em> in the table; upload the actual file to Storage.</li>
+        <li><strong>Using integer for money with decimals</strong> → use <em>float/numeric</em> when you need values like 9.99 (e.g., breakfast price).</li>
+        <li><strong>Using “number” type for national IDs</strong> → use <em>text</em> because IDs can contain letters and leading zeros.</li>
+        <li><strong>Forgetting RLS</strong> → enable it early; later, add policies for safe access.</li>
+      </ul>
+
+      <h2>7) Mini self-test 🧩</h2>
+      <div class="box">
+        <ol>
+          <li>Why is <code>image</code> in <code>cabins</code> stored as text?</li>
+          <li>Which table usually has only one row, and why?</li>
+          <li>Why is <code>nationalID</code> better as text than integer?</li>
+          <li>What does enabling RLS prepare you for later?</li>
+        </ol>
+      </div>
+
+      <div class="callout ok">
+        <strong>Next step ➡️</strong>
+        <p class="mini">
+          After these “simple” tables, you will create the more complex <strong>bookings</strong> table, which will connect guests and cabins.
+        </p>
+      </div>
+
+    </main>
+  </div>
+</body>
+</html>

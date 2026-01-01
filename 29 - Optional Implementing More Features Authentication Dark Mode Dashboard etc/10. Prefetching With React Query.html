@@ -1,0 +1,430 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Query Prefetching (Pagination) — Reviewer / Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --accent:#0b57d0;
+      --accent2:#0f766e;
+      --code-bg:#0b1020;
+      --code-text:#e6edf3;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column print-friendly layout */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, var(--soft));
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1{
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 8px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background:#fff;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main{ margin-top: 18px; }
+
+    h2{
+      margin: 18px 0 8px;
+      font-size: 16.5px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3{
+      margin: 14px 0 6px;
+      font-size: 14.5px;
+    }
+
+    p{ margin: 8px 0; }
+
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      background: #fff;
+      border-left: 5px solid var(--accent);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.green{ border-left-color: var(--accent2); }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow: auto;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .inline-code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .toc{
+      margin-top: 14px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .toc h2{
+      border-bottom: none;
+      padding-bottom: 0;
+      margin: 0 0 6px;
+      font-size: 14px;
+    }
+
+    .toc a{
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .toc a:hover{ text-decoration: underline; }
+
+    .two-col{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .box{
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .box h3{ margin-top: 0; }
+
+    footer{
+      margin-top: 18px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* Make links readable on screen */
+    a{ color: var(--accent); }
+
+    /* Print styles */
+    @page { size: A4; margin: 16mm; }
+
+    @media print{
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; padding: 0; }
+      header, .callout, .box, pre{ break-inside: avoid; page-break-inside: avoid; }
+      h2, h3{ break-after: avoid; page-break-after: avoid; }
+
+      /* Do NOT print URL previews after links */
+      a[href]:after{ content: "" !important; }
+
+      /* Remove hover-only visuals */
+      .toc a{ text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Prefetching with React Query (Pagination)</h1>
+      <p class="subtitle">Reviewer / Study Guide — beginner-friendly notes, examples, and key takeaways.</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Prefetching</span>
+        <span class="chip">📦 Library: React Query</span>
+        <span class="chip">📄 Use case: Server-side pagination</span>
+        <span class="chip">⚡ Goal: Faster UX (less spinners)</span>
+      </div>
+
+      <div class="toc" aria-label="Table of contents">
+        <h2>🧭 Contents</h2>
+        <ul>
+          <li><a href="#concept">What is Prefetching?</a></li>
+          <li><a href="#why">Why it matters for Pagination</a></li>
+          <li><a href="#how">How to Implement with React Query</a></li>
+          <li><a href="#guards">Important Guards (Last/First Page)</a></li>
+          <li><a href="#mentalmodel">Mental Model: Cache + Query Keys</a></li>
+          <li><a href="#alternatives">Alternative: Infinite Queries</a></li>
+        </ul>
+      </div>
+    </header>
+
+    <main>
+      <section id="concept">
+        <h2>1) ✅ What is Prefetching?</h2>
+        <p>
+          <strong>Prefetching</strong> means fetching data <em>before</em> the user actually needs it on the UI.
+          Think: “Advance loading.”
+        </p>
+
+        <div class="callout">
+          <p><strong>💡 Simple idea:</strong> If the user is on <span class="inline-code">page 7</span>, we can already fetch <span class="inline-code">page 8</span> in the background and store it in the cache. Then when they click “Next”, the UI can render instantly from cache.</p>
+        </div>
+
+        <p>
+          In pagination, the most common prefetch targets are:
+        </p>
+        <ul>
+          <li>➡️ <strong>Next page</strong> (page + 1)</li>
+          <li>⬅️ <strong>Previous page</strong> (page − 1)</li>
+        </ul>
+      </section>
+
+      <section id="why">
+        <h2>2) 🎯 Why it matters for Pagination</h2>
+        <p>
+          Without prefetching, when the user clicks <strong>Next</strong>, the app must:
+          (1) request data → (2) wait → (3) show spinner → (4) render.
+        </p>
+
+        <div class="two-col">
+          <div class="box">
+            <h3>😬 Without Prefetching</h3>
+            <ul>
+              <li>User clicks next page</li>
+              <li>React Query fetches on-demand</li>
+              <li>Spinner appears</li>
+              <li>Data renders after network delay</li>
+            </ul>
+          </div>
+          <div class="box">
+            <h3>😎 With Prefetching</h3>
+            <ul>
+              <li>While on current page, app preloads nearby pages</li>
+              <li>When user navigates, data is already in cache</li>
+              <li>Minimal to no spinner</li>
+              <li>Feels “instant”</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout green">
+          <p><strong>⚡ Result:</strong> The app feels fast even if pagination is truly server-side, because React Query serves cached pages immediately.</p>
+        </div>
+      </section>
+
+      <section id="how">
+        <h2>3) 🧩 How to Implement with React Query</h2>
+        <p>
+          You implement prefetching where you already fetch the paginated data — commonly inside a hook like
+          <span class="inline-code">useBookings()</span>.
+        </p>
+
+        <h3>Step A — Get the Query Client</h3>
+        <p>
+          React Query provides <span class="inline-code">useQueryClient()</span> so we can manually prefetch.
+        </p>
+
+        <pre><code>import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+const queryClient = useQueryClient();</code></pre>
+
+        <h3>Step B — Prefetch the next page</h3>
+        <p>
+          The prefetch call looks like <span class="inline-code">useQuery</span>: it needs a <strong>queryKey</strong> and a <strong>queryFn</strong>.
+        </p>
+
+        <pre><code>// Example variables (these typically come from URL search params)
+// page, filter, sortBy, etc.
+
+queryClient.prefetchQuery({
+  queryKey: ["bookings", filter, sortBy, page + 1],
+  queryFn: () =&gt; getBookings({ filter, sortBy, page: page + 1 }),
+});</code></pre>
+
+        <div class="callout">
+          <p><strong>🧠 Key point:</strong> Prefetch uses the same key structure as the real query. That’s how React Query knows “this cached data belongs to page 8 (not page 7).”</p>
+        </div>
+
+        <h3>Step C — Prefetch the previous page</h3>
+        <pre><code>queryClient.prefetchQuery({
+  queryKey: ["bookings", filter, sortBy, page - 1],
+  queryFn: () =&gt; getBookings({ filter, sortBy, page: page - 1 }),
+});</code></pre>
+      </section>
+
+      <section id="guards">
+        <h2>4) 🛡️ Important Guards (Avoid useless fetches)</h2>
+        <p>
+          You should only prefetch pages that actually exist.
+          Otherwise, you might fetch “page 999” which returns empty data and wastes requests.
+        </p>
+
+        <h3>Compute pageCount</h3>
+        <p>
+          If you have <span class="inline-code">count</span> (total results) and <span class="inline-code">PAGE_SIZE</span>, then:
+        </p>
+
+        <pre><code>const pageCount = Math.ceil(count / PAGE_SIZE);</code></pre>
+
+        <h3>Guard conditions</h3>
+        <pre><code>// Prefetch next page only if not on the last page
+if (page &lt; pageCount) {
+  queryClient.prefetchQuery({
+    queryKey: ["bookings", filter, sortBy, page + 1],
+    queryFn: () =&gt; getBookings({ filter, sortBy, page: page + 1 }),
+  });
+}
+
+// Prefetch previous page only if not on the first page
+if (page &gt; 1) {
+  queryClient.prefetchQuery({
+    queryKey: ["bookings", filter, sortBy, page - 1],
+    queryFn: () =&gt; getBookings({ filter, sortBy, page: page - 1 }),
+  });
+}</code></pre>
+
+        <div class="callout">
+          <p><strong>✅ Outcome:</strong> The user can move back/forward without seeing spinners (most of the time), because nearby pages are already cached.</p>
+        </div>
+      </section>
+
+      <section id="mentalmodel">
+        <h2>5) 🧠 Mental Model: Cache + Query Keys</h2>
+        <p>
+          React Query caches results by <strong>queryKey</strong>. You can treat the query key like a “cache address.”
+        </p>
+        <ul>
+          <li>Same key → React Query reuses cached data</li>
+          <li>Different key → React Query stores a separate cache entry</li>
+        </ul>
+
+        <div class="box">
+          <h3>Example key structure</h3>
+          <p>We include every “state” that changes the data:</p>
+          <ul>
+            <li>Resource name: <span class="inline-code">"bookings"</span></li>
+            <li>Filter object: <span class="inline-code">filter</span></li>
+            <li>Sort object: <span class="inline-code">sortBy</span></li>
+            <li>Page number: <span class="inline-code">page</span></li>
+          </ul>
+          <p>
+            So the key becomes:
+            <span class="inline-code">["bookings", filter, sortBy, page]</span>
+          </p>
+        </div>
+
+        <div class="callout">
+          <p><strong>🔎 Tip:</strong> Open React Query Devtools to visually see how many cache entries you’re creating as you change filter/sort/page.</p>
+        </div>
+      </section>
+
+      <section id="alternatives">
+        <h2>6) 🔁 Alternative: Infinite Queries (Infinite Scroll)</h2>
+        <p>
+          Instead of classic pagination + prefetching, you can implement infinite scrolling using React Query’s
+          <span class="inline-code">useInfiniteQuery</span>.
+        </p>
+        <ul>
+          <li>✅ Great for feeds (social apps, timelines)</li>
+          <li>✅ User keeps scrolling; you load the next chunk automatically</li>
+          <li>⚠️ Not always best for admin tables (where jumping to page 12 matters)</li>
+        </ul>
+
+        <div class="callout green">
+          <p><strong>📌 Practical takeaway:</strong> Prefetching is one of the best improvements for classic pagination UX.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Quick self-check (mini quiz) ✅</h2>
+        <ol>
+          <li>🧠 What is prefetching in one sentence?</li>
+          <li>🔑 Why must the prefetch queryKey match the real queryKey structure?</li>
+          <li>🛡️ What two guard checks prevent useless prefetch requests?</li>
+          <li>⚡ In pagination, what pages are most worth prefetching?</li>
+        </ol>
+      </section>
+
+      <footer>
+        <p>
+          Print tip: In the browser print dialog, choose <span class="kbd">A4</span>, set margins to <span class="kbd">Default</span> (or <span class="kbd">None</span> if your printer clips), and enable “Background graphics” if you want the callout styling.
+        </p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

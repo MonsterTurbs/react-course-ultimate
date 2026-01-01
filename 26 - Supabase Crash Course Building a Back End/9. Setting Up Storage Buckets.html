@@ -1,0 +1,487 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Supabase Crash Course — Setting Up Storage Buckets (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --soft2: #fbfbfb;
+      --ink: #0f172a;
+      --accent: #1a73e8;
+      --good: #0f766e;
+      --warn: #b45309;
+      --bad: #b91c1c;
+
+      --page-w: 210mm; /* A4 */
+      --page-h: 297mm; /* A4 */
+      --pad: 16mm;
+
+      --font: Arial, Helvetica, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      --h1: 22px;
+      --h2: 16px;
+      --h3: 14px;
+      --p: 12px;
+      --lh: 1.55;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: var(--lh);
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column printable page */
+    .page {
+      width: min(var(--page-w), 100%);
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .sheet {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .title {
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      font-size: var(--h1);
+      margin: 0;
+      color: var(--ink);
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: var(--p);
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 999px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    h2 {
+      font-size: var(--h2);
+      margin: 18px 0 10px;
+      color: var(--ink);
+    }
+
+    h3 {
+      font-size: var(--h3);
+      margin: 14px 0 8px;
+      color: var(--ink);
+    }
+
+    p {
+      margin: 8px 0;
+      font-size: var(--p);
+    }
+
+    ul, ol {
+      margin: 8px 0 10px 20px;
+      padding: 0;
+      font-size: var(--p);
+    }
+
+    li { margin: 6px 0; }
+
+    .callouts {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 12px;
+    }
+
+    .box .label {
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .box.good { border-color: rgba(15, 118, 110, 0.35); }
+    .box.good .label { color: var(--good); }
+
+    .box.warn { border-color: rgba(180, 83, 9, 0.35); }
+    .box.warn .label { color: var(--warn); }
+
+    .box.bad { border-color: rgba(185, 28, 28, 0.35); }
+    .box.bad .label { color: var(--bad); }
+
+    code, pre {
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #ffffff;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .mini {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .kbd {
+      font-family: var(--mono);
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 6px;
+      padding: 0 6px;
+      font-size: 11px;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 900px) {
+      .page { padding: 28px; }
+      .two { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* PRINT SETTINGS */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        width: auto;
+        margin: 0;
+        padding: 0;
+      }
+      .sheet {
+        border: none;
+        border-radius: 0;
+        padding: 0;
+      }
+      a[href]:after { content: ""; }
+      .chip { background: #fff; }
+      pre { page-break-inside: avoid; }
+      h2, h3 { page-break-after: avoid; }
+      .box { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <article class="sheet">
+      <header>
+        <div class="title">
+          <h1>🗄️ Supabase Storage Buckets — Reviewer / Study Guide</h1>
+        </div>
+        <p class="subtitle">
+          Topic: Setting up Storage Buckets (avatars + cabin images), understanding “public bucket” behavior, and using file URLs in your app.
+        </p>
+        <div class="meta">
+          <span class="chip">🧩 Single-column • Print-ready (A4)</span>
+          <span class="chip">📦 Supabase Storage</span>
+          <span class="chip">🔐 RLS Policies still apply</span>
+          <span class="chip">🖼️ Images via public URLs</span>
+        </div>
+      </header>
+
+      <section>
+        <h2>🎯 Learning goals</h2>
+        <ul>
+          <li>Understand what a <strong>Storage Bucket</strong> is and why we use it for large files (images, avatars, PDFs, etc.).</li>
+          <li>Create <strong>two buckets</strong>:
+            <ul>
+              <li><strong>avatars</strong> — user profile pictures</li>
+              <li><strong>cabin-images</strong> — images for each cabin</li>
+            </ul>
+          </li>
+          <li>Know what <strong>Public bucket</strong> means (read access to URLs) and why <strong>upload/delete</strong> still need security policies.</li>
+          <li>Use the uploaded file’s <strong>public URL</strong> inside your UI and store that URL in your database table.</li>
+        </ul>
+      </section>
+
+      <section class="callouts">
+        <div class="box good">
+          <div class="label">✅ Key idea</div>
+          <p>
+            Your database tables store <strong>text URLs</strong> to files (images) — not the files themselves.
+            The actual files live in <strong>Supabase Storage</strong>.
+          </p>
+        </div>
+        <div class="box warn">
+          <div class="label">⚠️ Important clarification</div>
+          <p>
+            Making a bucket <strong>Public</strong> means: “Anyone can <strong>read</strong> files using their URLs.”
+            It does <strong>not</strong> automatically allow anyone to <strong>upload</strong>, <strong>update</strong>, or <strong>delete</strong>.
+            Those operations still require <strong>Storage policies</strong> (similar concept to RLS for tables).
+          </p>
+        </div>
+      </section>
+
+      <div class="hr"></div>
+
+      <section>
+        <h2>🧠 Concepts (beginner-friendly)</h2>
+
+        <h3>1) What is a Storage Bucket?</h3>
+        <p>
+          A bucket is like a <strong>folder in the cloud</strong> that holds files. Instead of saving images inside your database rows,
+          you upload the image to a bucket and then save the image’s <strong>URL</strong> in the database.
+        </p>
+
+        <h3>2) Why buckets (and not the database) for images?</h3>
+        <ul>
+          <li>Images are <strong>large</strong> and not ideal to store directly as table columns.</li>
+          <li>Storage is optimized for serving files quickly (especially images).</li>
+          <li>In the UI, you only need a URL to show an image: <code>&lt;img src="..." /&gt;</code>.</li>
+        </ul>
+
+        <h3>3) What does “Public bucket” mean?</h3>
+        <p>
+          Public bucket = users can <strong>view/download</strong> the file if they have the URL. This is useful for images that must be displayed
+          on a web page (avatars, cabin photos). Security still matters for writing operations.
+        </p>
+      </section>
+
+      <div class="hr"></div>
+
+      <section>
+        <h2>🛠️ Step-by-step: Create the buckets in Supabase</h2>
+        <ol>
+          <li>Open Supabase Dashboard → go to <strong>Storage</strong>.</li>
+          <li>Click <strong>Create a new bucket</strong>.</li>
+          <li>Create bucket #1:
+            <ul>
+              <li>Name: <strong>avatars</strong></li>
+              <li>Set as <strong>Public bucket</strong> ✅</li>
+            </ul>
+          </li>
+          <li>Create bucket #2:
+            <ul>
+              <li>Name: <strong>cabin-images</strong> (or similar naming like <code>cabins</code>)</li>
+              <li>Set as <strong>Public bucket</strong> ✅</li>
+            </ul>
+          </li>
+          <li>Wait for creation to finish.</li>
+        </ol>
+
+        <div class="box">
+          <div class="label">🧩 Naming tip</div>
+          <p>
+            Use consistent names and avoid spaces. Common patterns: <code>avatars</code>, <code>cabin-images</code>, <code>cabins</code>, <code>guest-files</code>.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>📤 Uploading images (drag-and-drop)</h2>
+        <ol>
+          <li>Open the bucket (e.g., <strong>cabin-images</strong>).</li>
+          <li>Drag your cabin images from your local folder into the upload area.</li>
+          <li>Wait until all uploads finish (it may take time depending on file sizes and connection).</li>
+          <li>Click an uploaded file to view details (size, upload time, preview).</li>
+        </ol>
+
+        <div class="box good">
+          <div class="label">✅ Result</div>
+          <p>
+            You should see one image per cabin uploaded into the bucket.
+          </p>
+        </div>
+      </section>
+
+      <div class="hr"></div>
+
+      <section>
+        <h2>🔗 Getting the public URL and testing it in React</h2>
+        <p>
+          Once a file is uploaded, you can copy its URL (e.g., via right click → <strong>Get URL</strong>) and then test it in your UI.
+        </p>
+
+        <h3>Example: Quick test in a page/component</h3>
+        <pre><code>// Example usage in React
+function CabinImagePreview() {
+  const url = "PASTE_PUBLIC_IMAGE_URL_HERE";
+
+  return (
+    &lt;div&gt;
+      &lt;h3&gt;🏡 Cabin image preview&lt;/h3&gt;
+      &lt;img
+        src={url}
+        alt="Cabin"
+        style={{ maxWidth: "360px", borderRadius: "10px" }}
+      /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+        <div class="box">
+          <div class="label">💡 Practical note</div>
+          <p>
+            This quick test is only to confirm that the image URL works.
+            Later, you will pull the URL dynamically from your <strong>cabins</strong> table (e.g., <code>image</code> column) and render it.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🗃️ Save the image URL into the database table</h2>
+        <p>
+          After confirming the URL works, you typically store it in your table — for example in <strong>cabins.image</strong>.
+        </p>
+        <ol>
+          <li>Supabase → <strong>Table Editor</strong></li>
+          <li>Open the <strong>cabins</strong> table</li>
+          <li>Find the row you want to update</li>
+          <li>Paste the image URL into the <strong>image</strong> column</li>
+          <li>Save</li>
+        </ol>
+
+        <div class="box good">
+          <div class="label">✅ Outcome</div>
+          <p>
+            When you fetch cabins from the API, each cabin row can include its image URL — and your UI can render it.
+          </p>
+        </div>
+      </section>
+
+      <div class="hr"></div>
+
+      <section>
+        <h2>🔐 Security: Public bucket vs policies</h2>
+
+        <div class="two">
+          <div class="box">
+            <div class="label">🌍 Public bucket (Read)</div>
+            <ul>
+              <li>Anyone with the link can <strong>view</strong> the file.</li>
+              <li>Perfect for assets you must display (cabin images, avatars).</li>
+              <li>Still safe if you control what can be uploaded/deleted.</li>
+            </ul>
+          </div>
+          <div class="box warn">
+            <div class="label">🛡️ Policies (Write)</div>
+            <ul>
+              <li>Uploading/deleting files should be restricted.</li>
+              <li>Supabase uses policies (similar concept to RLS) to control these operations.</li>
+              <li>Later, you will typically restrict writes to <strong>authenticated users</strong> (hotel staff).</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="mini">
+          📝 Reminder: Even if a URL is public, your app can remain secure because the ability to change data/files is controlled by policies.
+        </p>
+      </section>
+
+      <section>
+        <h2>🧪 Quick self-check (mini quiz)</h2>
+        <ol>
+          <li>Why do we store <em>URLs</em> in the database instead of storing the image itself?</li>
+          <li>What does it mean when a bucket is marked as <strong>Public</strong>?</li>
+          <li>Can anyone delete files in a public bucket by default?</li>
+          <li>Where do you paste the image URL so it shows up in your UI after fetching data?</li>
+        </ol>
+
+        <div class="box good">
+          <div class="label">✅ Expected answers (short)</div>
+          <ul>
+            <li>Because files are large; storage is built for files; DB stores references (URLs).</li>
+            <li>Anyone can read/view files via URL.</li>
+            <li>No — delete/upload requires policies.</li>
+            <li>In your table column (e.g., <code>cabins.image</code>) then fetch and render.</li>
+          </ul>
+        </div>
+      </section>
+
+      <div class="hr"></div>
+
+      <section>
+        <h2>✅ Key takeaways</h2>
+        <ul>
+          <li>🗄️ Create buckets for file storage (avatars + cabin images).</li>
+          <li>🖼️ Public bucket is great for images you need to render in the UI.</li>
+          <li>🔐 Public read access does not mean public write access — policies still protect uploads/deletions.</li>
+          <li>🔗 Use the public URL in <code>&lt;img src="..." /&gt;</code> and store that URL in your DB.</li>
+          <li>🚀 Next step: manage server state cleanly in React using <strong>React Query</strong>.</li>
+        </ul>
+      </section>
+
+      <footer class="mini" style="margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px;">
+        Printed study guide • Single-column layout • A4-ready
+      </footer>
+    </article>
+  </main>
+</body>
+</html>

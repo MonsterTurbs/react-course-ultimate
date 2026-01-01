@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WorldWise — Implementing the Cities List (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b0f14;
+      --codetext: #e6edf3;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 18px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.65rem;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 16px 12px;
+      margin-top: 14px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.25rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 10px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong { color: #000; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      background: #fff;
+      border-radius: 6px;
+      font-size: 0.92em;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      border: 1px solid #1f2a36;
+      overflow: hidden;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92em;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      text-align: left;
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+
+    th { background: var(--soft); }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    footer {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* Print settings (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; } /* do not print URLs */
+      pre { break-inside: avoid; }
+      .chip { border-color: #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🗺️ WorldWise — Implementing the Cities List</h1>
+      <p class="subtitle">Reviewer / Study Guide (React Router + Fetching + Component Rendering)</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Load cities from a fake API (json-server)</span>
+        <span class="chip">🧩 Components: CityList, CityItem, Spinner, Message</span>
+        <span class="chip">🔁 Data flow: App state ➜ props ➜ nested routes</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>✅ Goal of this lecture</h2>
+        <div class="grid">
+          <p>We want to:</p>
+          <ul>
+            <li>📥 Fetch <strong>cities</strong> from a <strong>fake API</strong> (json-server).</li>
+            <li>🧱 Store them in <strong>global state</strong> (in <span class="inline-code">App</span>) so multiple parts of the UI can reuse the same data.</li>
+            <li>🧭 Pass the data into <strong>nested routes</strong> (cities/countries) using <span class="inline-code">element</span> props.</li>
+            <li>🧾 Render the cities in the UI with <span class="inline-code">CityList</span> + <span class="inline-code">CityItem</span>.</li>
+            <li>⏳ Show <span class="inline-code">Spinner</span> while loading and <span class="inline-code">Message</span> when the list is empty.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Big picture mental model</h2>
+        <p>Think of it as a pipeline:</p>
+        <ol>
+          <li>🌐 <strong>json-server</strong> serves <span class="inline-code">/cities</span></li>
+          <li>⚛️ <strong>App</strong> fetches cities on mount and stores them in state</li>
+          <li>🧭 App passes <span class="inline-code">cities</span> + <span class="inline-code">isLoading</span> into route elements</li>
+          <li>📋 <strong>CityList</strong> decides what to show (spinner/message/list)</li>
+          <li>🏙️ <strong>CityItem</strong> renders each city row</li>
+        </ol>
+        <div class="callout">
+          <strong>Key idea:</strong> the UI shouldn’t guess whether data exists. It should render based on <em>state</em> (loading / empty / filled).
+        </div>
+      </section>
+
+      <section>
+        <h2>1) Build the CityList component</h2>
+        <p>We create <span class="inline-code">CityList.jsx</span> and attach a CSS Module class to an unordered list.</p>
+
+        <pre><code>// CityList.jsx (skeleton)
+import styles from "./CityList.module.css";
+
+export default function CityList() {
+  return (
+    &lt;ul className={styles.cityList}&gt;
+      {/* items go here */}
+    &lt;/ul&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout">
+          <strong>Common mistake:</strong> using <span class="inline-code">class</span> instead of <span class="inline-code">className</span> in JSX. ✅ Always <span class="inline-code">className</span>.
+        </div>
+      </section>
+
+      <section>
+        <h2>2) Set up the fake API with json-server</h2>
+        <p>We install <span class="inline-code">json-server</span>, then add a script in <span class="inline-code">package.json</span>.</p>
+
+        <h3>📦 Install</h3>
+        <pre><code>npm i json-server</code></pre>
+
+        <h3>🧾 Add script</h3>
+        <pre><code>// package.json
+{
+  "scripts": {
+    "server": "json-server --watch data/cities.json --port 9000 --delay 500"
+  }
+}
+</code></pre>
+
+        <h3>▶️ Run the server</h3>
+        <pre><code>npm run server</code></pre>
+
+        <p>Then test in the browser:</p>
+        <ul>
+          <li>✅ <span class="inline-code">http://localhost:9000/cities</span> should return an array of city objects.</li>
+          <li>⏳ <span class="inline-code">--delay 500</span> simulates a slower network (half a second), so the spinner is visible.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Port already in use?</strong> Change from <span class="inline-code">8000</span> to <span class="inline-code">9000</span> (or any free port).
+        </div>
+      </section>
+
+      <section>
+        <h2>3) Fetch cities in App (global state)</h2>
+        <p>We keep the fetched data in the <span class="inline-code">App</span> component because:</p>
+        <ul>
+          <li>🏙️ Cities are needed in multiple places (CityList, CountryList, Map markers).</li>
+          <li>🔁 Having one source of truth avoids duplicate requests and messy state.</li>
+        </ul>
+
+        <h3>🧩 State + effect pattern (standard)</h3>
+        <pre><code>// App.jsx (core idea)
+import { useEffect, useState } from "react";
+
+const BASE_URL = "http://localhost:9000";
+
+export default function App() {
+  const [cities, setCities] = useState([]); // ✅ array, not {}
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(function () {
+    async function fetchCities() {
+      try {
+        setIsLoading(true);
+        const res = await fetch(`${BASE_URL}/cities`);
+        const data = await res.json();
+        setCities(data);
+      } catch {
+        alert("There was an error loading data...");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchCities();
+  }, []);
+
+  // ...routes here
+}
+</code></pre>
+
+        <div class="callout">
+          <strong>Why start with []?</strong> Because you will do <span class="inline-code">cities.map(...)</span>. If you start with <span class="inline-code">{}</span>, you’ll get: <strong>cities.map is not a function</strong>.
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Pass cities into nested routes (Route element props)</h2>
+        <p>Because routes use the <span class="inline-code">element</span> prop, we can pass props easily:</p>
+
+        <pre><code>// App.jsx (routes example)
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AppLayout from "./pages/AppLayout";
+import CityList from "./components/CityList";
+import CountryList from "./components/CountryList";
+
+// ...inside App return
+&lt;BrowserRouter&gt;
+  &lt;Routes&gt;
+    &lt;Route path="app" element={&lt;AppLayout /&gt;}&gt;
+      &lt;Route index element={&lt;CityList cities={cities} isLoading={isLoading} /&gt;} /&gt;
+      &lt;Route path="cities" element={&lt;CityList cities={cities} isLoading={isLoading} /&gt;} /&gt;
+      &lt;Route path="countries" element={&lt;CountryList cities={cities} isLoading={isLoading} /&gt;} /&gt;
+    &lt;/Route&gt;
+  &lt;/Routes&gt;
+&lt;/BrowserRouter&gt;
+</code></pre>
+
+        <div class="callout">
+          <strong>Note:</strong> This duplicates props in two routes (index + cities). That’s acceptable for now, and later you’ll reduce prop drilling using Context.
+        </div>
+      </section>
+
+      <section>
+        <h2>5) CityList rendering logic (loading, empty, filled)</h2>
+        <p>The component should follow a clean priority order:</p>
+        <ol>
+          <li>⏳ If loading → show <span class="inline-code">Spinner</span></li>
+          <li>📭 If no cities → show <span class="inline-code">Message</span></li>
+          <li>🏙️ Otherwise → render list</li>
+        </ol>
+
+        <pre><code>// CityList.jsx (logic)
+import Spinner from "./Spinner";
+import Message from "./Message";
+import CityItem from "./CityItem";
+import styles from "./CityList.module.css";
+
+export default function CityList({ cities, isLoading }) {
+  if (isLoading) return &lt;Spinner /&gt;;
+
+  if (!cities.length)
+    return (
+      &lt;Message message="Add your first city by clicking on a city on the map." /&gt;
+    );
+
+  return (
+    &lt;ul className={styles.cityList}&gt;
+      {cities.map((city) =&gt; (
+        &lt;CityItem city={city} key={city.id} /&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+</code></pre>
+      </section>
+
+      <section>
+        <h2>6) CityItem UI (emoji, name, formatted date, delete button)</h2>
+        <p>Each city row is one <span class="inline-code">li</span> item. We render:</p>
+        <ul>
+          <li>🌍 country emoji</li>
+          <li>🏙️ city name</li>
+          <li>📅 formatted date</li>
+          <li>🗑️ delete button (no logic yet)</li>
+        </ul>
+
+        <h3>🗓️ Date formatting helper</h3>
+        <pre><code>// CityItem.jsx
+const formatDate = (date) =&gt;
+  new Intl.DateTimeFormat("en", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(date));
+</code></pre>
+
+        <h3>🏙️ Component structure</h3>
+        <pre><code>// CityItem.jsx
+import styles from "./CityItem.module.css";
+
+export default function CityItem({ city }) {
+  const { cityName, emoji, date } = city;
+
+  return (
+    &lt;li className={styles.cityItem}&gt;
+      &lt;span className={styles.emoji}&gt;{emoji}&lt;/span&gt;
+      &lt;h3 className={styles.name}&gt;{cityName}&lt;/h3&gt;
+
+      &lt;time className={styles.date}&gt;({formatDate(date)})&lt;/time&gt;
+
+      &lt;button className={styles.deleteBtn}&gt;&amp;times;&lt;/button&gt;
+    &lt;/li&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout">
+          <strong>Reminder:</strong> The delete button exists for UI completeness now. Functionality comes later.
+        </div>
+      </section>
+
+      <section>
+        <h2>🐛 Common errors and quick fixes</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Symptom</th>
+              <th>Likely Cause</th>
+              <th>Fix</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>cities.map is not a function</strong></td>
+              <td><span class="inline-code">cities</span> initialized as <span class="inline-code">{}</span></td>
+              <td>Initialize with <span class="inline-code">useState([])</span></td>
+            </tr>
+            <tr>
+              <td>Styles not applying</td>
+              <td>Used <span class="inline-code">class</span> instead of <span class="inline-code">className</span></td>
+              <td>Use <span class="inline-code">className={styles.x}</span></td>
+            </tr>
+            <tr>
+              <td>Spinner shows too quickly / no delay</td>
+              <td>Wrong delay flag format</td>
+              <td>Use <span class="inline-code">--delay 500</span> (double dash)</td>
+            </tr>
+            <tr>
+              <td>Port already in use</td>
+              <td>Another service uses that port</td>
+              <td>Switch to <span class="inline-code">9000</span> (or another free port)</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>🧾 Mini-checklist (self-review)</h2>
+        <ul>
+          <li>✅ <span class="inline-code">npm run server</span> returns data at <span class="inline-code">/cities</span></li>
+          <li>✅ <span class="inline-code">cities</span> state starts as an <strong>array</strong></li>
+          <li>✅ <span class="inline-code">useEffect</span> fetches data and toggles <span class="inline-code">isLoading</span></li>
+          <li>✅ Routes pass <span class="inline-code">cities</span> and <span class="inline-code">isLoading</span> into <span class="inline-code">CityList</span></li>
+          <li>✅ CityList renders: Spinner → Message → List</li>
+          <li>✅ CityItem renders emoji, name, formatted date, delete button</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>📌 Quick recap</h2>
+        <ul>
+          <li>🧠 Centralize shared data in a higher component (App) when multiple features need it.</li>
+          <li>🧭 Passing props through <span class="inline-code">Route element={...}</span> is convenient, but can cause prop drilling.</li>
+          <li>⏳ Loading + empty states make the UI feel professional and predictable.</li>
+          <li>🧩 Small components (<span class="inline-code">CityList</span>, <span class="inline-code">CityItem</span>) keep code readable and reusable.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Next:</strong> You’ll use the same city data to implement <em>countries list</em> and other parts of the app UI.
+        </div>
+      </section>
+
+      <footer>
+        <div class="hr"></div>
+        <p><strong>Print tip:</strong> In your browser, choose <span class="kbd">Print</span> → <span class="kbd">Save as PDF</span> → Paper size <span class="kbd">A4</span>. URLs are suppressed in print output.</p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

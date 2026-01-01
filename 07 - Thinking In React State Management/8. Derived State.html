@@ -1,0 +1,315 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Derived State (Compute from State/Props) | React Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background: #fef2f2; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 900px){
+      .grid2{ grid-template-columns: 1fr 1fr; }
+    }
+
+    .label{
+      display:inline-block;
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      background:#ffffff;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, pre{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn, .callout.danger{ background:#ffffff; }
+      .card, pre, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Derived State in React 🧠➕</h1>
+      <p class="subtitle">
+        Derived state means computing values from existing <strong>state</strong> or <strong>props</strong> instead of storing duplicate state.
+        This avoids bugs (out-of-sync data) and avoids unnecessary re-renders.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">📌 Single source of truth</span>
+        <span class="chip">🧮 Compute from state/props</span>
+        <span class="chip">🚫 Avoid duplicate state</span>
+        <span class="chip">⚡ Fewer re-renders</span>
+        <span class="chip">🛒 Cart example</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) What “Derived State” Means</h2>
+      <div class="card">
+        <p>
+          <strong>Derived state</strong> is a value you can compute from other data you already have (state or props).
+          Instead of creating a new <code>useState</code> for it, you compute it with normal JavaScript.
+        </p>
+        <ul>
+          <li>✅ Good: <strong>compute</strong> <code>numItems</code> from <code>cart</code></li>
+          <li>❌ Bad: store <code>cart</code>, <code>numItems</code>, and <code>totalPrice</code> as separate state and try to keep them synchronized</li>
+        </ul>
+      </div>
+
+      <div class="callout ok">
+        <p>
+          Key idea: prefer <strong>one source of truth</strong>. If <code>cart</code> already contains all the data,
+          make <code>cart</code> the source of truth and derive everything else from it.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Why Duplicate State is Problematic 🚧</h2>
+      <div class="card">
+        <ol>
+          <li><strong>Out-of-sync bugs</strong>: you must remember to update multiple states together.</li>
+          <li><strong>Unnecessary re-renders</strong>: updating multiple state variables can trigger multiple renders (or at least extra work).</li>
+          <li><strong>More code, more mental load</strong>: extra handlers, extra edge cases.</li>
+        </ol>
+      </div>
+
+      <div class="callout warn">
+        <p>
+          Beginner mistake: creating <strong>two or three state variables</strong> when you only need one.
+          If one value can be computed from another, it usually should not be state.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Cart Example: Bad vs Good</h2>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="label">❌ BAD (Duplicate State)</div>
+          <p class="mini">
+            Here, <code>numItems</code> and <code>totalPrice</code> depend entirely on <code>cart</code>,
+            but they are still stored as separate state.
+          </p>
+          <pre><code>function Checkout() {
+  const [cart, setCart] = useState([]);
+  const [numItems, setNumItems] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+
+  function addToCart(newItem) {
+    setCart((c) =&gt; [...c, newItem]);
+
+    // Now you ALSO have to keep these in sync...
+    setNumItems((n) =&gt; n + 1);
+    setTotalPrice((t) =&gt; t + newItem.price);
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Items: {numItems}&lt;/p&gt;
+      &lt;p&gt;Total: {totalPrice}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+        </div>
+
+        <div class="card">
+          <div class="label">✅ GOOD (Derived State)</div>
+          <p class="mini">
+            Only <code>cart</code> is state. Everything else is computed.
+          </p>
+          <pre><code>function Checkout() {
+  const [cart, setCart] = useState([]);
+
+  // Derived values (regular variables)
+  const numItems = cart.length;
+  const totalPrice = cart.reduce((sum, item) =&gt; sum + item.price, 0);
+
+  function addToCart(newItem) {
+    setCart((c) =&gt; [...c, newItem]);
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Items: {numItems}&lt;/p&gt;
+      &lt;p&gt;Total: {totalPrice}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p>
+          Why does this work? Updating <code>cart</code> causes a re-render. On each render, the component function runs again,
+          so <code>numItems</code> and <code>totalPrice</code> are recalculated automatically.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Rules of Thumb ✅</h2>
+      <div class="card">
+        <ul>
+          <li>Use <code>useState</code> when the value is <strong>independent</strong> and changes over time.</li>
+          <li>If the value can be computed from existing <strong>state/props</strong>, derive it instead.</li>
+          <li>Derived state should be a <strong>const variable</strong> (not a state variable).</li>
+          <li>Keep a <strong>single source of truth</strong> for related data.</li>
+        </ul>
+      </div>
+
+      <div class="callout ok">
+        <p>
+          Mental model: “Don’t store what you can calculate.” 🧮
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>If you already have <code>items</code> as an array, should you store <code>numItems</code> in state too?</li>
+          <li>Why is duplicate state risky?</li>
+          <li>What JavaScript methods commonly help derive state from arrays?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li>No. Derive: <code>const numItems = items.length</code>.</li>
+          <li>Because you can forget to update one of them → values drift out of sync.</li>
+          <li><code>length</code>, <code>reduce()</code>, <code>filter()</code>, <code>map()</code>, <code>some()</code>, <code>every()</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <footer class="mini">
+      Print tip: In the browser Print dialog, set Paper Size = A4. Code blocks wrap to avoid cut-off when printing.
+    </footer>
+  </main>
+</body>
+</html>

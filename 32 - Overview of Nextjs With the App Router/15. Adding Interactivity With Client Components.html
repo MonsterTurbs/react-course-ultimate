@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js (App Router) — Adding Interactivity with Client Components (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 18px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px 0;
+      font-size: 24px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    nav {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: #fff;
+    }
+
+    nav h2 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+    }
+
+    nav ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    main {
+      margin-top: 16px;
+    }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 14px 0 8px 0;
+      font-size: 15px;
+    }
+
+    p { margin: 8px 0; }
+
+    .callout {
+      border-left: 5px solid var(--border);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .list-tight {
+      margin: 8px 0;
+      padding-left: 18px;
+    }
+
+    .list-tight li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b0b0c;
+      color: #f5f5f5;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .kbd {
+      font-family: inherit;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    /* Keep single column even on wide screens for print-like reading */
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { padding: 0; max-width: none; }
+      header, nav, section { border-radius: 0; }
+      header, nav, section { break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      a[href]:after { content: ""; }
+      pre { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>⚙️ Next.js (App Router) — Adding Interactivity with Client Components</h1>
+      <p class="subtitle">Reviewer / Study Guide: turning a server-rendered page into an interactive React UI using <code>"use client"</code> + hydration.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Client Components</span>
+        <span class="chip">🧠 Core idea: Server ↔ Client boundary</span>
+        <span class="chip">💧 Keyword: Hydration</span>
+        <span class="chip">✅ Goal: Add a Counter button that actually clicks</span>
+      </div>
+    </header>
+
+    <nav>
+      <h2>📚 Quick Table of Contents</h2>
+      <ul>
+        <li><a href="#big-picture">Big Picture</a></li>
+        <li><a href="#why-hooks-fail">Why Hooks Fail in Server Components</a></li>
+        <li><a href="#use-client">Client Components and the <code>"use client"</code> Directive</a></li>
+        <li><a href="#hydration">Hydration: Why Buttons Don’t Work at First</a></li>
+        <li><a href="#bridge">Crossing the Boundary: Passing Data as Props</a></li>
+        <li><a href="#debugging">Debugging: Where Console Logs Go</a></li>
+        <li><a href="#pitfalls">Common Mistakes & Fixes</a></li>
+        <li><a href="#checklist">Practical Checklist</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <section id="big-picture">
+        <h2>🧭 Big Picture</h2>
+        <p>
+          In the <strong>Next.js App Router</strong>, your <strong>pages</strong> are <strong>Server Components by default</strong>. That means they render on the server,
+          and their HTML is sent to the browser.
+        </p>
+        <div class="callout">
+          <strong>Key rule ✅</strong>
+          <p>
+            If your UI needs <strong>interactivity</strong> (click handlers, <code>useState</code>, effects, etc.),
+            that part must be a <strong>Client Component</strong>.
+          </p>
+        </div>
+        <p>
+          This lecture adds the first interactive feature: a simple <strong>Counter</strong> button.
+        </p>
+      </section>
+
+      <section id="why-hooks-fail">
+        <h2>🚫 Why Hooks Fail in Server Components</h2>
+        <p>
+          Server Components run on the server and do not run in the browser, so they can’t hold browser-side state.
+          If you try to use <code>useState</code> inside a Server Component, Next.js will show an error like:
+        </p>
+        <div class="callout">
+          <strong>Typical error ⚠️</strong>
+          <p>
+            “You’re importing a component that needs <code>useState</code>. It only works in a Client Component.
+            None of its parents are marked with <code>use client</code>.”
+          </p>
+        </div>
+        <p>
+          In short: <strong>Hooks (like <code>useState</code>) are for Client Components</strong>.
+          So we move interactive logic into a dedicated Client Component file.
+        </p>
+      </section>
+
+      <section id="use-client">
+        <h2>🧩 Client Components and the <code>"use client"</code> Directive</h2>
+        <p>
+          To turn a component into a Client Component, add this at the very top of the file:
+          <code>"use client"</code>
+        </p>
+        <div class="callout">
+          <strong>Think of it like this 🙂</strong>
+          <p>
+            <code>"use client"</code> draws a line (a boundary). Everything inside that component tree is allowed
+            to run in the browser and use hooks.
+          </p>
+        </div>
+
+        <h3>Example: Counter Client Component</h3>
+        <pre><code>"use client";
+
+import { useState } from "react";
+
+export default function Counter({ users }) {
+  const [count, setCount] = useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;
+        Count: {count}
+      &lt;/button&gt;
+
+      &lt;p&gt;There are {users.length} users.&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+        <p>
+          That’s the entire “unlock.” Once the component is client-side, <code>useState</code> and click handlers work.
+        </p>
+      </section>
+
+      <section id="hydration">
+        <h2>💧 Hydration: Why Buttons Don’t Work at First</h2>
+        <p>
+          When the page loads, the browser first receives <strong>HTML</strong> (already rendered on the server).
+          At that moment, the UI might look complete… but it can still be <strong>non-interactive</strong>.
+        </p>
+        <div class="callout">
+          <strong>Hydration in one sentence ✅</strong>
+          <p>
+            Hydration is the step where React’s JavaScript attaches event handlers to the already-rendered HTML,
+            making it interactive.
+          </p>
+        </div>
+
+        <h3>Slow network example 🐢</h3>
+        <ul class="list-tight">
+          <li>On <strong>Slow 3G</strong>, you may see the button immediately (HTML arrived).</li>
+          <li>Clicking does nothing at first (JS bundle still downloading).</li>
+          <li>Once hydration finishes, clicking works (event handlers attached).</li>
+        </ul>
+
+        <p>
+          This is the main win: users can see content early, then interactivity arrives shortly after.
+        </p>
+      </section>
+
+      <section id="bridge">
+        <h2>🌉 Crossing the Boundary: Passing Data as Props</h2>
+        <p>
+          A common pattern in Next.js App Router is:
+        </p>
+        <ul class="list-tight">
+          <li>Fetch data in a <strong>Server Component</strong> (close to the data source).</li>
+          <li>Pass that data into a <strong>Client Component</strong> as props (to make UI interactive).</li>
+        </ul>
+
+        <h3>Server Page Fetches, Client Component Uses</h3>
+        <pre><code>// app/cabins/page.js (Server Component by default)
+import Counter from "../components/Counter";
+
+export default async function Page() {
+  const res = await fetch("https://jsonplaceholder.typicode.com/users");
+  const users = await res.json();
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Cabins&lt;/h1&gt;
+      &lt;Counter users={users} /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          <strong>Important constraint ⚠️</strong>
+          <p>
+            Props passed from server to client must be <strong>serializable</strong> (can be converted into data).
+            Avoid passing functions, class instances, or non-serializable objects across the boundary.
+          </p>
+        </div>
+      </section>
+
+      <section id="debugging">
+        <h2>🧪 Debugging: Where Console Logs Go</h2>
+        <p>
+          A simple way to tell where your code ran:
+        </p>
+        <ul class="list-tight">
+          <li><strong>Server logs</strong> appear in your terminal where <code>npm run dev</code> is running.</li>
+          <li><strong>Client logs</strong> appear in the browser DevTools console.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Mini mental test 🙂</strong>
+          <p>
+            If you <code>console.log(users)</code> in a Server Component page, you’ll see it in the terminal.
+            If you <code>console.log(users)</code> inside <code>Counter</code> (Client Component), you’ll see it in the browser.
+          </p>
+        </div>
+
+        <h3>Why you can “see” Client Component UI before hydration</h3>
+        <p>
+          Even Client Components can be included in the server-rendered HTML output on initial load.
+          The HTML can show up early, while interactivity waits for hydration.
+        </p>
+      </section>
+
+      <section id="pitfalls">
+        <h2>⚠️ Common Mistakes & Fixes</h2>
+        <ul class="list-tight">
+          <li>
+            <strong>Problem:</strong> “Hooks don’t work.”<br />
+            <strong>Fix:</strong> Move hook logic into a Client Component and add <code>"use client"</code>.
+          </li>
+          <li>
+            <strong>Problem:</strong> Passing a function as a prop from server to client.<br />
+            <strong>Fix:</strong> Pass data only (arrays, objects, strings, numbers). Keep functions inside the client.
+          </li>
+          <li>
+            <strong>Problem:</strong> Button renders but doesn’t click right away on slow network.<br />
+            <strong>Fix:</strong> That’s expected until hydration. Keep critical content readable without JS.
+          </li>
+          <li>
+            <strong>Problem:</strong> Logging but “nothing shows.”<br />
+            <strong>Fix:</strong> Check the correct place: terminal for server logs, DevTools console for client logs.
+          </li>
+        </ul>
+      </section>
+
+      <section id="checklist">
+        <h2>✅ Practical Checklist</h2>
+        <ul class="list-tight">
+          <li>Interactive UI? → Put it in a <strong>Client Component</strong>.</li>
+          <li>Add <code>"use client"</code> at the top of that file.</li>
+          <li>Keep data fetching in Server Components when possible.</li>
+          <li>Pass fetched data to client as <strong>serializable props</strong>.</li>
+          <li>Expect non-interactive HTML during the hydration window on slow networks.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Remember 🙂</strong>
+          <p>
+            Server Components make pages fast and data-friendly.
+            Client Components make pages interactive.
+            Next.js lets you combine both in one app.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>📝 Quick Self-Quiz</h2>
+        <ol class="list-tight">
+          <li>Why does <code>useState</code> fail in a Server Component?</li>
+          <li>What does <code>"use client"</code> actually change?</li>
+          <li>Why might a button appear but not work on Slow 3G?</li>
+          <li>Where do you expect logs from Server Components vs Client Components?</li>
+          <li>What kind of props can cross the server → client boundary?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🏁 Summary</h2>
+        <ul class="list-tight">
+          <li>App Router pages are Server Components by default.</li>
+          <li>Hooks and event handlers require Client Components.</li>
+          <li><code>"use client"</code> enables browser-side React features.</li>
+          <li>Hydration attaches interactivity after the JS bundle loads.</li>
+          <li>Server → Client data sharing happens via serializable props.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

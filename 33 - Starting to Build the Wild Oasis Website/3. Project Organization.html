@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Project Organization — Reviewer / Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #5a5a5a;
+      --border: #e8e8e8;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --ok: #0f766e;
+      --warn: #b45309;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 18px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    nav {
+      margin: 18px 0 0;
+      border-top: 1px dashed var(--border);
+      padding-top: 12px;
+    }
+
+    .toc-title {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .toc {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 14px;
+    }
+
+    .toc li { margin: 4px 0; }
+
+    section {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #f6f9ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+    }
+
+    .callout.ok {
+      border-left-color: var(--ok);
+      background: #f0fdfa;
+    }
+
+    .callout.warn {
+      border-left-color: var(--warn);
+      background: #fffbeb;
+    }
+
+    ul { margin: 8px 0 8px 18px; }
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #e8eefc;
+      border-radius: 12px;
+      overflow: auto;
+      border: 1px solid #111a33;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 6px;
+      font-size: 12px;
+      vertical-align: baseline;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .rule {
+      height: 1px;
+      background: var(--border);
+      border: 0;
+      margin: 12px 0;
+    }
+
+    .small {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover { text-decoration: underline; }
+
+    /* Print settings */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-color: #dcdcdc; box-shadow: none; }
+      a { color: var(--text); text-decoration: none; }
+      a[href]::after { content: ""; } /* Do not print URLs */
+      pre { page-break-inside: avoid; }
+      section { break-inside: avoid-page; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧱 Next.js Project Organization (App Router) — Reviewer / Study Guide</h1>
+      <p class="subtitle">Goal: learn practical folder structure conventions for a small/medium Next.js App Router project, and avoid accidental routes + messy imports.</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Project structure</span>
+        <span class="chip">⚙️ Stack: Next.js + App Router</span>
+        <span class="chip">🗂️ Focus: components, private folders, lib/styles, import aliases</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+      </div>
+
+      <nav>
+        <p class="toc-title">📌 Table of Contents</p>
+        <ol class="toc">
+          <li><a href="#big-idea">Big idea: organize early</a></li>
+          <li><a href="#components">Organizing components: options</a></li>
+          <li><a href="#routes">Important Next.js rule: folders can become routes</a></li>
+          <li><a href="#underscore">Solution: private folders using underscore</a></li>
+          <li><a href="#public-styles-lib">Public, styles, lib: where things should live</a></li>
+          <li><a href="#aliases">Import aliases: cleaner imports with @</a></li>
+          <li><a href="#cleanup">Cleanup steps mentioned in the lecture</a></li>
+          <li><a href="#checklist">Practical checklist</a></li>
+          <li><a href="#quiz">Quick quiz (self-check)</a></li>
+          <li><a href="#glossary">Mini glossary</a></li>
+        </ol>
+      </nav>
+    </header>
+
+    <section id="big-idea">
+      <h2>1) 🎯 Big idea: organize early</h2>
+      <p>
+        As soon as your project starts growing, folder structure becomes part of your “developer experience.”
+        The point is not to find the one “perfect” structure — it’s to pick a simple structure that:
+      </p>
+      <ul>
+        <li>✅ keeps files easy to find,</li>
+        <li>✅ prevents accidental routes,</li>
+        <li>✅ keeps imports readable, and</li>
+        <li>✅ scales with new pages/components.</li>
+      </ul>
+      <div class="callout">
+        💡 In Next.js App Router, your structure strongly influences routing — so organization is not just “cleanliness”; it can affect behavior.
+      </div>
+    </section>
+
+    <section id="components">
+      <h2>2) 🧩 Organizing components: options</h2>
+      <p>In the lecture, two common strategies are discussed:</p>
+
+      <h3>Option A: Co-locate components next to the page (only if truly page-specific)</h3>
+      <p class="small">Idea: if a component is used only by one page, put it in the same folder as that page.</p>
+      <pre>app/
+  cabins/
+    page.js
+    Counter.js   ← co-located (page-only)
+</pre>
+      <div class="callout warn">
+        ⚠️ Why the instructor doesn’t like this for bigger apps:
+        <ul>
+          <li>You’ll still need a shared <code>components/</code> folder for reusable components anyway.</li>
+          <li>Page folders can get crowded quickly if a page needs multiple components.</li>
+          <li>You end up with “some components here, some components there,” which is inconsistent.</li>
+        </ul>
+      </div>
+
+      <h3>Option B: Dedicated components folder (recommended for small/medium apps)</h3>
+      <p class="small">Idea: keep reusable UI/logic in one place. Pages stay focused on routing and composition.</p>
+      <pre>app/
+  cabins/
+    page.js
+  _components/
+    Navigation.js
+    Counter.js
+</pre>
+      <div class="callout ok">
+        ✅ This tends to scale better and keeps the app folder from becoming messy.
+      </div>
+    </section>
+
+    <section id="routes">
+      <h2>3) 🛣️ Important Next.js rule: folders can become routes</h2>
+      <p>
+        In the App Router, Next.js creates routes based on folder structure.
+        The key point from the lecture:
+      </p>
+      <div class="callout warn">
+        ⚠️ If you create a folder like <code>app/components</code>, it may look like a “normal” folder… but it is still under <code>app/</code>.
+        If someone accidentally adds a <code>page.js</code> inside it, you can create a real route like <code>/components</code>.
+      </div>
+
+      <p>
+        Example of the “secret page” mistake shown in the lecture:
+      </p>
+      <pre>app/
+  components/
+    page.js   ← if this exists, route /components exists
+</pre>
+      <p class="small">Result: visiting <code>/components</code> would render whatever is in that <code>page.js</code> (even if it was meant to be private).</p>
+    </section>
+
+    <section id="underscore">
+      <h2>4) 🔒 Solution: “private” folders using an underscore</h2>
+      <p>
+        Next.js lets you “opt out” a folder from routing by starting the folder name with an underscore.
+        The lecture uses this to prevent <code>components</code> from becoming routable.
+      </p>
+      <pre>app/
+  _components/
+    Navigation.js
+    Counter.js
+</pre>
+
+      <div class="callout ok">
+        ✅ Benefit #1: no route will be created for <code>_components</code>
+        <br />
+        ✅ Benefit #2: private folders tend to sort at the top in VS Code (because underscore).
+      </div>
+
+      <p class="small">Quick mental model: “Anything under <code>app/</code> might be a route — unless you explicitly make it private.”</p>
+    </section>
+
+    <section id="public-styles-lib">
+      <h2>5) 🗃️ Public, styles, lib: where things should live</h2>
+
+      <div class="grid">
+        <div>
+          <h3>🖼️ <code>public/</code></h3>
+          <p>
+            Static assets (images, icons, etc.) that should be directly accessible.
+            In the lecture, the logo is referenced from <code>public/</code>.
+          </p>
+          <pre>public/
+  logo.png
+</pre>
+          <p class="small">In Next.js, assets in <code>public/</code> are served from the root path (e.g., <code>/logo.png</code>).</p>
+        </div>
+
+        <div>
+          <h3>🎨 <code>_styles/</code></h3>
+          <p>
+            The instructor creates a folder for global styles and makes it private:
+          </p>
+          <pre>app/
+  _styles/
+    globals.css
+</pre>
+          <div class="callout">
+            💡 Why underscore here too? Same reason: avoid accidental routing and keep the folder grouped with other “private” directories.
+          </div>
+        </div>
+
+        <div>
+          <h3>📚 <code>lib/</code></h3>
+          <p>
+            A common place for non-component helper code: API clients, utility functions, data service (e.g., Supabase calls).
+          </p>
+          <pre>app/
+  _lib/
+    data-service.js
+</pre>
+          <p class="small">Naming note: the lecture uses <code>lib</code> as a “library” folder for code that doesn’t belong to components.</p>
+        </div>
+      </div>
+
+      <hr class="rule" />
+
+      <h3>🧭 Navigation links: use <code>Link</code>, not <code>&lt;a&gt;</code></h3>
+      <p>
+        The instructor fixes a navigation issue by switching from <code>&lt;a href="..."&gt;</code> to Next.js’ <code>Link</code> component.
+      </p>
+      <pre>import Link from "next/link";
+
+export default function Navigation() {
+  return (
+    &lt;ul&gt;
+      &lt;li&gt;&lt;Link href="/"&gt;Home&lt;/Link&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;Link href="/cabins"&gt;Cabins&lt;/Link&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  );
+}
+</pre>
+      <div class="callout ok">
+        ✅ <code>Link</code> gives SPA-like navigation, prefetching (in production), and caching benefits.
+      </div>
+    </section>
+
+    <section id="aliases">
+      <h2>6) 🧼 Import aliases: cleaner imports with <code>@</code></h2>
+      <p>
+        Deep relative imports can get ugly fast:
+      </p>
+      <pre>// ❌ messy (deep nesting)
+import Navigation from "../../../../_components/Navigation";
+</pre>
+      <p>
+        Next.js supports import aliases so <code>@</code> can represent your project root (or configured base).
+        Then imports stay clean regardless of depth:
+      </p>
+      <pre>// ✅ cleaner
+import Navigation from "@/_components/Navigation";
+</pre>
+
+      <div class="callout">
+        💡 If you ever see “module not found” with <code>@</code>, check your alias config (commonly in <code>jsconfig.json</code> or <code>tsconfig.json</code>).
+      </div>
+    </section>
+
+    <section id="cleanup">
+      <h2>7) 🧹 Cleanup steps mentioned in the lecture</h2>
+      <ul>
+        <li>🧩 Keep reusable components inside a private <code>_components</code> folder (instead of mixing with pages).</li>
+        <li>🔒 Prevent accidental routes by using underscores for folders that should never become URLs.</li>
+        <li>🎨 Move global CSS into a private styles folder (e.g., <code>app/_styles/globals.css</code>).</li>
+        <li>📚 Put data/API helpers into a <code>lib</code> folder (often private as well).</li>
+        <li>🔁 Update imports to use <code>@</code> aliases for readability.</li>
+        <li>🧭 Fix navigation to use <code>Link</code> (SPA feel) instead of <code>&lt;a&gt;</code> (full reload).</li>
+        <li>🧪 Remove demo-only code (temporary fetching/counter/test routes) to prepare for real page content.</li>
+      </ul>
+      <div class="callout warn">
+        ⚠️ Reminder from the lecture: the global <code>loading.js</code> might not “make sense” if nothing is loading yet — but it’s fine to keep for later.
+      </div>
+    </section>
+
+    <section id="checklist">
+      <h2>8) ✅ Practical checklist (copy/paste for your project)</h2>
+      <ul>
+        <li>☐ Create private folders under <code>app/</code> for non-routes: <code>_components</code>, <code>_styles</code>, <code>_lib</code></li>
+        <li>☐ Keep pages focused: each route folder contains only route-related files (like <code>page.js</code>, <code>layout.js</code>, <code>loading.js</code>, etc.)</li>
+        <li>☐ Use <code>public/</code> for images/icons you want to reference by path</li>
+        <li>☐ Use Next.js <code>Link</code> for navigation</li>
+        <li>☐ Convert deep relative imports to <code>@</code> aliases</li>
+        <li>☐ Delete demo-only routes/components after learning (keep your repo clean)</li>
+      </ul>
+    </section>
+
+    <section id="quiz">
+      <h2>9) 🧪 Quick quiz (self-check)</h2>
+      <ol>
+        <li>
+          <strong>Why can a folder named <code>components</code> under <code>app/</code> be risky?</strong>
+          <ul>
+            <li class="small">Answer: because it can become a route if a <code>page.js</code> exists inside it (accidentally or on purpose).</li>
+          </ul>
+        </li>
+        <li>
+          <strong>What does naming a folder <code>_components</code> achieve?</strong>
+          <ul>
+            <li class="small">Answer: it opts the folder out of routing, preventing any URL route from being created for it.</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Where should Supabase/data-service helper functions go?</strong>
+          <ul>
+            <li class="small">Answer: in a <code>lib</code> (or similar) folder — code that isn’t a component.</li>
+          </ul>
+        </li>
+        <li>
+          <strong>What problem does <code>@</code> import alias solve?</strong>
+          <ul>
+            <li class="small">Answer: avoids deeply nested <code>../../..</code> imports and makes code easier to read/refactor.</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Why use <code>Link</code> instead of <code>&lt;a&gt;</code> for internal navigation?</strong>
+          <ul>
+            <li class="small">Answer: it avoids full-page reloads and enables Next.js optimizations (SPA-like navigation).</li>
+          </ul>
+        </li>
+      </ol>
+    </section>
+
+    <section id="glossary">
+      <h2>10) 📖 Mini glossary</h2>
+      <ul>
+        <li><strong>App Router</strong> — Next.js routing system using the <code>app/</code> directory and file conventions.</li>
+        <li><strong>Routable file</strong> — a file like <code>page.js</code> that defines a route’s UI.</li>
+        <li><strong>Private folder (underscore)</strong> — folder prefixed with <code>_</code> to opt it out of routing.</li>
+        <li><strong>Import alias</strong> — shortcut like <code>@</code> to represent a base directory and simplify imports.</li>
+        <li><strong>Link component</strong> — Next.js component for client-side navigation between routes.</li>
+      </ul>
+
+      <hr class="rule" />
+      <p class="small">
+        ✅ Key takeaway: In Next.js, good organization is part of correctness. Use private folders for non-routes, keep routes clean, and keep imports readable.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

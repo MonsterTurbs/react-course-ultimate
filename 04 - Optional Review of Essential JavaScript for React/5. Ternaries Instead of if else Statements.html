@@ -1,0 +1,457 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Ternary Operator (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 20px 44px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .muted { color: var(--muted); }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-right: 6px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th { background: var(--soft); }
+
+    /* Screen links are fine, but never print URLs */
+    a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      .toolbar { display: none !important; }
+
+      /* Don’t print any URL after links */
+      a[href]:after { content: "" !important; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🔀 Ternary Operator (?:) — Reviewer / Study Guide</h1>
+      <p class="subtitle">In React you often need conditional values where <em>if/else</em> can’t be used (e.g., inside JSX or template literals). The ternary returns a value. A4 print-ready.</p>
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Single-column, word-wrapped, designed for clean A4 printing (no URLs printed).</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Table of Contents</strong>
+        <ol>
+          <li><a href="#what">What is a ternary operator?</a></li>
+          <li><a href="#pattern">The pattern: condition ? A : B</a></li>
+          <li><a href="#pages">Example: pages range (from the lecture)</a></li>
+          <li><a href="#template">Using ternary inside a template literal</a></li>
+          <li><a href="#jsx">Using ternary in React JSX</a></li>
+          <li><a href="#when">When to use ternary vs if/else</a></li>
+          <li><a href="#mistakes">Common mistakes & best practices</a></li>
+          <li><a href="#practice">Practice drills</a></li>
+          <li><a href="#self-check">Quick self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="what">
+      <h2>🧠 What is a ternary operator?</h2>
+      <p>
+        The <strong>ternary operator</strong> is a JavaScript operator used to choose between two values based on a condition.
+        It’s called “ternary” because it has <strong>three parts</strong>:
+      </p>
+      <ul>
+        <li>1️⃣ A condition</li>
+        <li>2️⃣ Value if the condition is true</li>
+        <li>3️⃣ Value if the condition is false</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Most important fact</strong> ✅</p>
+        <p class="muted">A ternary is an <strong>expression</strong>, so it returns a value. That’s why it works inside template literals and JSX.</p>
+      </div>
+    </section>
+
+    <section id="pattern">
+      <h2>🧩 The pattern: <code>condition ? A : B</code></h2>
+      <pre><code>const result = condition ? valueIfTrue : valueIfFalse;</code></pre>
+
+      <p class="muted">
+        Think of it like: <span class="pill">IF condition</span> choose <span class="pill">A</span> else choose <span class="pill">B</span> — but written as an expression.
+      </p>
+
+      <h3>Mini example 🧪</h3>
+      <pre><code>const age = 17;
+const label = age &gt;= 18 ? "Adult" : "Minor";
+// label → "Minor"</code></pre>
+    </section>
+
+    <section id="pages">
+      <h2>📚 Example: pages range (from the lecture)</h2>
+      <p>
+        The lecture uses <code>pages</code> to produce a label depending on whether the book has more than 1000 pages.
+      </p>
+
+      <pre><code>const pagesRange = pages &gt; 1000 ? "over 1,000" : "less than 1,000";
+console.log(pagesRange);</code></pre>
+
+      <p>
+        If <code>pages</code> is 1210 ➜ result is <strong>"over 1,000"</strong> ✅
+        <br />
+        If <code>pages</code> is 295 ➜ result is <strong>"less than 1,000"</strong> ✅
+      </p>
+
+      <h3>Combine it with a template literal 🧾</h3>
+      <pre><code>const msg = `The book has ${pagesRange} pages.`;
+console.log(msg);</code></pre>
+    </section>
+
+    <section id="template">
+      <h2>🧾 Using ternary inside a template literal</h2>
+      <p>
+        In the lecture, we build a sentence like:
+        <span class="pill">The book has been adapted as a movie.</span>
+        or
+        <span class="pill">The book has not been adapted as a movie.</span>
+      </p>
+
+      <p class="muted">
+        We cannot use <code>if/else</code> directly inside <code>${...}</code> because <code>if</code> is a <strong>statement</strong> (no returned value).
+        Ternary is the correct tool.
+      </p>
+
+      <pre><code>const sentence = `The book has ${hasMovieAdaptation ? "" : "not "}been adapted as a movie.`;
+console.log(sentence);</code></pre>
+
+      <div class="callout">
+        <p><strong>Small readability upgrade</strong> ✨</p>
+        <p class="muted">Notice the trailing space in <code>"not "</code> so the final sentence has correct spacing.</p>
+      </div>
+    </section>
+
+    <section id="jsx">
+      <h2>⚛️ Using ternary in React JSX</h2>
+      <p>
+        JSX expects expressions inside <code>{ }</code>. That makes ternaries very common for conditional UI.
+      </p>
+
+      <h3>Example: render a label ✅</h3>
+      <pre><code>function BookBadge({ pages }) {
+  return (
+    &lt;span&gt;
+      {pages &gt; 1000 ? "📚 Long book" : "📖 Short book"}
+    &lt;/span&gt;
+  );
+}</code></pre>
+
+      <h3>Example: choose between two components 🧩</h3>
+      <pre><code>function MovieStatus({ hasMovieAdaptation }) {
+  return (
+    &lt;p&gt;
+      {hasMovieAdaptation ? "🎬 Has a movie" : "🙅 No movie"}
+    &lt;/p&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>React reality</strong> ✅</p>
+        <p class="muted">
+          This is why the lecture says: "many times we cannot use if/else" — because JSX needs expressions.
+        </p>
+      </div>
+    </section>
+
+    <section id="when">
+      <h2>🧭 When to use ternary vs if/else</h2>
+      <table aria-label="When to use ternary">
+        <thead>
+          <tr>
+            <th>Use this</th>
+            <th>When</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Ternary</strong> ✅</td>
+            <td>You need a value (expression), especially inside JSX / template literals</td>
+            <td><code>{isAdmin ? "Admin" : "User"}</code></td>
+          </tr>
+          <tr>
+            <td><strong>if/else</strong> ✅</td>
+            <td>You need multiple steps (statements), early returns, or complex branching</td>
+            <td>Multiple conditions + multiple statements</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <p><strong>Rule of thumb</strong> 🧠</p>
+        <p class="muted">If it’s simple and reads clearly → ternary. If it gets messy → use if/else (or extract a helper function).</p>
+      </div>
+    </section>
+
+    <section id="mistakes">
+      <h2>🛠️ Common mistakes & best practices</h2>
+
+      <table aria-label="Ternary mistakes">
+        <thead>
+          <tr>
+            <th>Mistake</th>
+            <th>What happens</th>
+            <th>Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Forgetting the <code>:</code></td>
+            <td>Syntax error</td>
+            <td>Always include both branches: <code>cond ? A : B</code></td>
+          </tr>
+          <tr>
+            <td>Returning complex JSX in a single line</td>
+            <td>Hard to read</td>
+            <td>Format it, or extract into variables/components</td>
+          </tr>
+          <tr>
+            <td>Nesting ternaries too much</td>
+            <td>Spaghetti logic 🥴</td>
+            <td>Use if/else or a helper function</td>
+          </tr>
+          <tr>
+            <td>Using <code>if</code> inside <code>${...}</code> or JSX</td>
+            <td>Doesn’t work (statement, not expression)</td>
+            <td>Use ternary, <code>&amp;&amp;</code>, or compute before rendering</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Readable formatting for JSX ✅</h3>
+      <pre><code>return (
+  &lt;div&gt;
+    {isLoading ? (
+      &lt;p&gt;⏳ Loading...&lt;/p&gt;
+    ) : (
+      &lt;p&gt;✅ Done!&lt;/p&gt;
+    )}
+  &lt;/div&gt;
+);</code></pre>
+    </section>
+
+    <section id="practice">
+      <h2>🏋️ Practice drills</h2>
+      <ol>
+        <li>
+          Create <code>pagesRange</code> using a ternary: &gt; 1000 ➜ "over 1,000" else "less than 1,000".
+        </li>
+        <li>
+          Build a sentence with a template literal that injects "not " only when <code>hasMovieAdaptation</code> is false.
+        </li>
+        <li>
+          In JSX, display <span class="pill">"✅ Active"</span> or <span class="pill">"⛔ Inactive"</span> based on <code>isActive</code>.
+        </li>
+        <li>
+          Refactor a nested ternary into an <code>if/else</code> block (just to practice choosing the right tool).
+        </li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>Tip</strong> 💡</p>
+        <p class="muted">If your ternary is more than ~1 line and hard to read, you’re allowed to switch to if/else.</p>
+      </div>
+    </section>
+
+    <section id="self-check">
+      <h2>📝 Quick self-check</h2>
+      <ol>
+        <li>What are the three parts of a ternary?</li>
+        <li>Why can’t we use <code>if/else</code> inside template literals or JSX?</li>
+        <li>Which branch wins if the condition is true?</li>
+        <li>When should you avoid nesting ternaries?</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>✅ If you can answer these, you can safely use ternaries in React.</strong> 😄</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>
+        Reviewer generated from the provided transcript. Designed for clean A4 printing (single column, word-wrapped).
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

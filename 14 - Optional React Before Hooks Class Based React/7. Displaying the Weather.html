@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Displaying the Weather (Class Components + Props + Lists)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+    .danger{ color: var(--danger); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🌦️ React Study Guide: Displaying the Weather</h1>
+      <p class="subtitle">We now <strong>render the fetched weather data</strong> by creating presentational class components (<code>Weather</code> and <code>Day</code>), passing props, looping arrays, and formatting values (dates, icons, temperatures).</p>
+      <div class="meta">
+        <span class="chip">🏛️ Class Components</span>
+        <span class="chip">📦 Props: <code>this.props</code></span>
+        <span class="chip">🧾 Lists + keys</span>
+        <span class="chip">🗓️ Date formatting</span>
+        <span class="chip">🌤️ Weather icons</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Goal</h2>
+      <p>Take the weather data stored in state and render it into the UI:</p>
+      <ul>
+        <li>✅ Show a heading like <strong>Weather in London</strong> (using <code>displayLocation</code>)</li>
+        <li>✅ Render a list of day forecasts (today + next days)</li>
+        <li>✅ Format raw values:
+          <ul>
+            <li>📅 Date → weekday (Mon, Tue, …) or “Today”</li>
+            <li>🌤️ Weather code → icon emoji</li>
+            <li>🌡️ Temperatures → rounded min/max</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧱 Step 1: Create a <code>Weather</code> component (inside the same file)</h2>
+      <p>The lecture creates a new class component in the same file. It extends <code>React.Component</code> and starts with a basic render:</p>
+
+      <pre><code>class Weather extends React.Component {
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;h2&gt;Weather&lt;/h2&gt;
+      &lt;/div&gt;
+    );
+  }
+}</code></pre>
+
+      <div class="callout">
+        <strong>Note:</strong> This component is <em>presentational</em> (no state, just displays received data).
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Step 2: Conditionally render <code>Weather</code> only when data exists</h2>
+      <p><code>this.state.weather</code> is an object even by default, so checking only that isn’t enough. Instead, check for a nested property that only exists after a successful fetch.</p>
+
+      <div class="rule">
+        <h3>Example condition</h3>
+        <pre><code>// ✅ Only render when a real array exists
+{this.state.weather.weathercode &amp;&amp; (
+  &lt;Weather
+    weather={this.state.weather}
+    location={this.state.displayLocation}
+  /&gt;
+)}</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Why this works:</strong> <code>weathercode</code> is an array produced by the API. If it exists, you know weather was fetched successfully.
+      </div>
+    </section>
+
+    <section>
+      <h2>📦 Step 3: Receive props in a class component</h2>
+      <p>In class components, you access props through <code>this.props</code>. You can log them for inspection:</p>
+      <pre><code>console.log(this.props);</code></pre>
+
+      <p>Then destructure inside the method that needs the props (usually <code>render()</code>):</p>
+      <pre><code>const { weather, location } = this.props;</code></pre>
+
+      <div class="callout">
+        <strong>Key difference vs function components:</strong> In function components you can destructure props in the parameter list. In class components, you typically destructure within each method.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 Step 4: Destructure weather arrays from <code>weather</code></h2>
+      <p>The API returns daily values as arrays, and we will map over them to render one forecast per day.</p>
+
+      <pre><code>// inside Weather.render()
+const {
+  temperature_2m_max: max,
+  temperature_2m_min: min,
+  time: dates,
+  weathercode: codes,
+} = this.props.weather;</code></pre>
+
+      <div class="callout">
+        <strong>What you now have:</strong> Four arrays (<code>dates</code>, <code>max</code>, <code>min</code>, <code>codes</code>) where the same index refers to the same day.
+      </div>
+    </section>
+
+    <section>
+      <h2>🔁 Step 5: Render a list of <code>Day</code> components using <code>map</code></h2>
+      <p>We loop over one array (the lecture uses <code>dates</code>), and use the index to pick values from the other arrays.</p>
+
+      <pre><code>// inside Weather.render()
+return (
+  &lt;div&gt;
+    &lt;h2&gt;Weather in {this.props.location}&lt;/h2&gt;
+
+    &lt;ul className="weather"&gt;
+      {dates.map((date, i) =&gt; (
+        &lt;Day
+          key={date}
+          date={date}
+          max={max.at(i)}
+          min={min.at(i)}
+          code={codes.at(i)}
+          isToday={i === 0}
+        /&gt;
+      ))}
+    &lt;/ul&gt;
+  &lt;/div&gt;
+);</code></pre>
+
+      <div class="callout">
+        <strong>Why <code>key={date}</code> works:</strong> dates are unique strings per day, so React can track list items reliably.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Step 6: Create the <code>Day</code> component</h2>
+      <p>Start simple to verify rendering, then add real data.</p>
+
+      <pre><code>class Day extends React.Component {
+  render() {
+    return (
+      &lt;li&gt;Day&lt;/li&gt;
+    );
+  }
+}</code></pre>
+
+      <p>Then destructure props and display formatted content:</p>
+      <pre><code>class Day extends React.Component {
+  render() {
+    const { date, max, min, code, isToday } = this.props;
+
+    return (
+      &lt;li className="day"&gt;
+        &lt;span&gt;{getWeatherIcon(code)}&lt;/span&gt;
+        &lt;p&gt;{isToday ? "Today" : formatDay(date)}&lt;/p&gt;
+        &lt;p&gt;
+          {Math.floor(min)}&amp;deg; &mdash; &lt;strong&gt;{Math.ceil(max)}&amp;deg;&lt;/strong&gt;
+        &lt;/p&gt;
+      &lt;/li&gt;
+    );
+  }
+}</code></pre>
+
+      <div class="callout">
+        <strong>Formatting helpers:</strong>
+        <ul>
+          <li><code>formatDay(date)</code> → converts date string to weekday label</li>
+          <li><code>getWeatherIcon(code)</code> → converts numeric weather code to an emoji</li>
+          <li><code>Math.floor/ceil</code> → rounds temperatures for nicer UI</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Why these components don’t need a constructor</h2>
+      <p><code>Weather</code> and <code>Day</code> do not define state and do not bind handlers. So they can omit <code>constructor()</code> entirely.</p>
+      <div class="callout">
+        <strong>Rule of thumb:</strong> Only add a constructor in class components when you need to:
+        <ul>
+          <li>Initialize state (<code>this.state = ...</code>)</li>
+          <li>Bind event handlers (<code>this.method = this.method.bind(this)</code>)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Common mistakes and quick fixes</h2>
+      <ul>
+        <li class="warn"><strong>Weather renders even when empty:</strong> check a real nested array like <code>weather.weathercode</code>, not the object itself.</li>
+        <li class="warn"><strong>Props undefined:</strong> remember <code>this.props</code> (not <code>props</code>).</li>
+        <li class="warn"><strong>Wrong location shown:</strong> pass <code>displayLocation</code>, not the raw <code>location</code> input.</li>
+        <li class="warn"><strong>List warnings:</strong> add a stable <code>key</code> (date is fine).</li>
+        <li class="warn"><strong>Array index mismatch:</strong> always use the same index <code>i</code> to grab max/min/code for the same day.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📌 Recap</h2>
+      <ul>
+        <li>✅ Created <code>Weather</code> and rendered it only when weather data exists.</li>
+        <li>✅ Passed data via props: <code>weather</code> and <code>displayLocation</code>.</li>
+        <li>✅ Destructured arrays from the API response and mapped them into <code>Day</code> components.</li>
+        <li>✅ Formatted output: icons, weekdays, rounded temperatures, and “Today” label for index 0.</li>
+        <li>✅ Kept <code>Weather</code> and <code>Day</code> presentational (no state, no constructor).</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Outcome:</strong> the app now displays the same multi-day forecast UI as the demo.
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

@@ -1,0 +1,404 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Supabase — Row Level Security (RLS) Policies (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codefg: #e8eefc;
+      --accent: #0b57d0;
+      --ok: #0f7b38;
+      --warn: #b45309;
+      --bad: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 18px 18px 14px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+      line-height: 1.25;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 16px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 0 18px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #f5f9ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .ok {
+      border-left-color: var(--ok);
+      background: #f1fbf4;
+    }
+
+    .warn {
+      border-left-color: var(--warn);
+      background: #fff7ed;
+    }
+
+    .bad {
+      border-left-color: var(--bad);
+      background: #fff1f2;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 6px;
+      padding: 2px 6px;
+      display: inline-block;
+    }
+
+    pre {
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px;
+      border-radius: 10px;
+      overflow: auto;
+      margin: 10px 0;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-size: 12.5px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Print (A4) */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      /* Never print URLs after links */
+      a[href]::after { content: "" !important; }
+      .chip { background: #fff; }
+      pre { break-inside: avoid; }
+    }
+
+    @media (min-width: 860px) {
+      .two { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Supabase — Row Level Security (RLS) Policies</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) • Focus: accessing Supabase data via API docs + why RLS blocks requests + how to allow safe reads</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Security</span>
+        <span class="chip">🗄️ Supabase Tables</span>
+        <span class="chip">🔐 RLS Policies</span>
+        <span class="chip">🧪 cURL Testing</span>
+        <span class="chip">⚙️ API Docs</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 What you will learn in this lecture</h2>
+        <ul>
+          <li>How Supabase auto-generates API docs for your tables (example: <span class="inline-code">cabins</span>).</li>
+          <li>How to test a table read using a <span class="inline-code">curl</span> request.</li>
+          <li>Why your request returns an empty array when Row Level Security (RLS) is enabled.</li>
+          <li>How to create an RLS policy to allow safe read access (from a template).</li>
+          <li>What will change later: restricting access to authenticated users only.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧩 Key concepts (easy explanations)</h2>
+
+        <div class="two">
+          <div class="callout">
+            <p><strong>Supabase API Docs</strong> 🧾</p>
+            <p class="note">Supabase creates ready-to-copy examples for each table. You can use them as:</p>
+            <ul>
+              <li><strong>JavaScript client</strong> calls (using Supabase library), or</li>
+              <li><strong>REST requests</strong> to a URL (what the lecture demonstrates with <span class="inline-code">curl</span>).</li>
+            </ul>
+          </div>
+
+          <div class="callout warn">
+            <p><strong>Anon (public) API key</strong> 🔑</p>
+            <p class="note">This is safe to use on the frontend <em>only if</em> RLS policies protect your tables.</p>
+            <ul>
+              <li>If someone has the anon key, they <em>still</em> should not be able to do dangerous actions unless a policy allows it.</li>
+              <li>That’s the entire point of RLS: <strong>the key alone should not grant power</strong>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout ok">
+          <p><strong>Row Level Security (RLS)</strong> 🛡️ (simple idea)</p>
+          <p class="note">Think of RLS like a security guard for each table row:</p>
+          <ul>
+            <li>Even if someone reaches the door (has the key), the guard checks: <em>“Are you allowed to see/change this data?”</em></li>
+            <li>If there is no policy allowing the action, Supabase blocks it.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Step-by-step flow from the transcript (what happens and why)</h2>
+        <ol>
+          <li>
+            <strong>Open Supabase API docs</strong> 📚
+            <ul>
+              <li>Choose a table (example: <span class="inline-code">cabins</span>).</li>
+              <li>Locate the example for “Read all rows”.</li>
+              <li>Reveal the <strong>public anon key</strong> (Supabase hides it until you toggle it).</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Copy the REST/cURL example</strong> 🧾
+            <ul>
+              <li>Paste into your terminal and run it.</li>
+              <li>You get <span class="inline-code">[]</span> (empty array) instead of data.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Reason: RLS is enabled</strong> 🔐
+            <ul>
+              <li>When RLS is enabled and <em>no policy exists</em>, Supabase won’t return rows.</li>
+              <li>This prevents random users (who can see anon key in frontend) from freely reading/changing your database.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Create a read policy</strong> ✅
+            <ul>
+              <li>Go to <span class="inline-code">Authentication → Policies</span>.</li>
+              <li>Select the <span class="inline-code">cabins</span> table.</li>
+              <li>Create a policy using a template: <em>“Enable read access for everyone”</em>.</li>
+              <li>Save it.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Run the cURL again</strong> 🎉
+            <ul>
+              <li>Now you should receive data (e.g., the cabin row you created).</li>
+            </ul>
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🧾 Example: What the REST request is doing (beginner-friendly)</h2>
+        <p class="note">Your exact URL/key will differ, but the structure is always similar:</p>
+
+        <pre><code>curl 'https://YOUR_PROJECT_REF.supabase.co/rest/v1/cabins?select=*' \
+  -H 'apikey: YOUR_ANON_KEY' \
+  -H 'Authorization: Bearer YOUR_ANON_KEY'</code></pre>
+
+        <div class="grid">
+          <div class="callout">
+            <p><strong>What each part means</strong> 🧠</p>
+            <ul>
+              <li><span class="inline-code">/rest/v1/cabins</span> → Supabase REST endpoint for the <span class="inline-code">cabins</span> table.</li>
+              <li><span class="inline-code">?select=*</span> → “Return all columns.”</li>
+              <li><span class="inline-code">apikey</span> header → identifies your project and public access context.</li>
+              <li><span class="inline-code">Authorization: Bearer</span> → used for auth; for anon requests it often repeats the anon key.</li>
+            </ul>
+          </div>
+
+          <div class="callout warn">
+            <p><strong>Important reminder</strong> ⚠️</p>
+            <ul>
+              <li>The anon key is meant to be used in the frontend, but only when RLS policies strictly limit what can happen.</li>
+              <li>If you accidentally allow too much (like delete/update for everyone), anyone could do damage.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🔐 RLS Policies: the practical takeaway</h2>
+
+        <div class="callout ok">
+          <p><strong>What you did now (development-friendly)</strong> ✅</p>
+          <ul>
+            <li>Allow <strong>read</strong> access for everyone (so your app can load public-ish data).</li>
+            <li>Keep <strong>write</strong> actions (insert/update/delete) locked down unless you explicitly create policies.</li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <p><strong>What you will do later (production-friendly)</strong> 🧭</p>
+          <ul>
+            <li>Change policies so only <strong>authenticated users</strong> can read/write most tables.</li>
+            <li>Typically: hotel employees log in → then policies allow them to manage cabins, bookings, guests, settings.</li>
+          </ul>
+        </div>
+
+        <div class="callout bad">
+          <p><strong>Common beginner mistake</strong> ❌</p>
+          <p class="note">Turning off RLS completely or allowing broad write access for everyone.</p>
+          <ul>
+            <li>This defeats the purpose of using an anon key in the frontend.</li>
+            <li>Best practice: <strong>RLS ON</strong> + narrowly scoped policies.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🛠️ Troubleshooting checklist</h2>
+        <ul>
+          <li><strong>You get an empty array</strong> <span class="inline-code">[]</span> → likely no “SELECT” policy exists while RLS is enabled.</li>
+          <li><strong>You get an error</strong> → confirm your URL/table name, and that headers include the anon key.</li>
+          <li><strong>Policy created but still no data</strong> → verify the policy is for the correct table and for the correct action (SELECT/READ).</li>
+          <li><strong>Data exists in table?</strong> → confirm you inserted at least one row (e.g., cabin 001).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧠 Quick recap (memorize this flow)</h2>
+        <ul>
+          <li>📚 Supabase gives you API docs → you can test with <span class="inline-code">curl</span>.</li>
+          <li>🔑 Using the anon key is normal for frontend apps.</li>
+          <li>🛡️ RLS blocks access until you create policies.</li>
+          <li>✅ Create a policy (template: read access) → your request returns data.</li>
+          <li>🔒 Later: restrict policies to authenticated users for real apps.</li>
+        </ul>
+
+        <div class="divider"></div>
+        <p class="note">Next lecture direction: use these API access capabilities inside the React app (likely via the Supabase JS client), now that policies allow safe reads.</p>
+      </section>
+
+      <section>
+        <h2>✍️ Mini practice (recommended)</h2>
+        <ul>
+          <li>Try creating a policy for <span class="inline-code">settings</span> to allow read access, then test with <span class="inline-code">curl</span>.</li>
+          <li>Think: which tables should be public-read (if any), and which should be employee-only?</li>
+          <li>Optional: write down your “ideal” access rules (who can read/write what) before implementing auth.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,394 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Router — Implementing Main Pages and Routes (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --code-bg: #f6f8fa;
+      --chip: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 20px 0 10px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 16px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol {
+      margin: 8px 0 12px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 6px; }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      overflow: auto;
+      margin: 10px 0 14px;
+      font-size: 12.5px;
+      line-height: 1.5;
+      tab-size: 2;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .kvs {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px;
+      font-size: 14px;
+    }
+
+    .kvs th, .kvs td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    .kvs th {
+      background: var(--soft);
+      text-align: left;
+      width: 28%;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      a { color: inherit; text-decoration: none; }
+      /* Prevent browsers from printing link URLs */
+      a[href]:after { content: "" !important; }
+      pre { page-break-inside: avoid; }
+      .callout, table { page-break-inside: avoid; }
+      h2, h3 { page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧭 React Router — Implementing Main Pages and Routes</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-Friendly) • Topic: Creating pages, installing React Router, and defining routes (v6 style)</p>
+      <ul class="chips" aria-label="tags">
+        <li class="chip">React Router DOM</li>
+        <li class="chip">BrowserRouter</li>
+        <li class="chip">Routes &amp; Route</li>
+        <li class="chip">element prop</li>
+        <li class="chip">PageNotFound (*)</li>
+      </ul>
+    </header>
+
+    <section>
+      <h2>🎯 What you’re building</h2>
+      <p>
+        You will set up <strong>main page routes</strong> so different URL paths render different React page components:
+        <code>/</code> (Home), <code>/product</code> (Product), <code>/pricing</code> (Pricing), and a catch-all <code>*</code> (Not Found).
+      </p>
+      <div class="callout">
+        <strong>✅ Key idea</strong>
+        <p>
+          With routing, you <strong>match a URL path</strong> to a <strong>React component</strong>. React Router watches the current URL and renders the matching route’s element.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Core concepts (simple explanations)</h2>
+      <table class="kvs" role="table" aria-label="key concepts">
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Meaning (Beginner-friendly)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th><code>BrowserRouter</code></th>
+            <td>
+              The “router wrapper” that enables client-side routing using the browser’s history + URL bar.
+              It should usually wrap your routes (often at the top level).
+            </td>
+          </tr>
+          <tr>
+            <th><code>Routes</code></th>
+            <td>
+              A container for multiple route definitions. React Router uses it to choose which single <code>Route</code> matches.
+            </td>
+          </tr>
+          <tr>
+            <th><code>Route</code></th>
+            <td>
+              One mapping: <strong>path → element</strong>. Example: <code>path="/product"</code> renders <code>&lt;Product /&gt;</code>.
+            </td>
+          </tr>
+          <tr>
+            <th><code>element</code> prop</th>
+            <td>
+              You pass a real React element (like <code>&lt;Product /&gt;</code>), not just the component name.
+              This makes it easy to pass props later if needed.
+            </td>
+          </tr>
+          <tr>
+            <th><code>path="*"</code></th>
+            <td>
+              Catch-all route. If nothing else matches, show a “Page Not Found” screen.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>🧱 Step-by-step setup</h2>
+
+      <h3>1) Create a <code>pages/</code> folder and page components</h3>
+      <p class="muted">
+        “Pages” are usually top-level screens matched to URLs (Home, Product, Pricing, etc.). Keep them in a dedicated folder.
+      </p>
+      <pre><code>// src/pages/Homepage.jsx
+export default function Homepage() {
+  return &lt;h1&gt;WorldWise&lt;/h1&gt;;
+}
+
+// src/pages/Product.jsx
+export default function Product() {
+  return &lt;h1&gt;Product&lt;/h1&gt;;
+}
+
+// src/pages/Pricing.jsx
+export default function Pricing() {
+  return &lt;h1&gt;Pricing&lt;/h1&gt;;
+}
+
+// src/pages/PageNotFound.jsx
+export default function PageNotFound() {
+  return &lt;h1&gt;Not found&lt;/h1&gt;;
+}
+</code></pre>
+
+      <h3>2) Install React Router DOM (v6)</h3>
+      <div class="callout">
+        <strong>📦 Install</strong>
+        <p>Use <code>react-router-dom</code> (not just <code>react-router</code>) because you’re routing in the browser (DOM).</p>
+      </div>
+      <pre><code>npm install react-router-dom@6</code></pre>
+
+      <h3>3) Define routes in your <code>App</code> component</h3>
+      <p>
+        Wrap your routes with <code>BrowserRouter</code>, then define each route with <code>Route</code> inside <code>Routes</code>.
+      </p>
+
+      <pre><code>import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Homepage from "./pages/Homepage";
+import Product from "./pages/Product";
+import Pricing from "./pages/Pricing";
+import PageNotFound from "./pages/PageNotFound";
+
+export default function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Homepage /&gt;} /&gt;
+        &lt;Route path="/product" element={&lt;Product /&gt;} /&gt;
+        &lt;Route path="/pricing" element={&lt;Pricing /&gt;} /&gt;
+        &lt;Route path="*" element={&lt;PageNotFound /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <strong>🧩 What happens at runtime?</strong>
+        <ol>
+          <li>React Router checks the current URL (example: <code>/product</code>).</li>
+          <li>It scans your route list and finds the best match (path <code>/product</code>).</li>
+          <li>It renders that route’s <code>element</code> (here: <code>&lt;Product /&gt;</code>).</li>
+          <li>All other routes are ignored for that render.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Quick examples to understand the behavior</h2>
+
+      <h3>Example A: “Static header + changing page content”</h3>
+      <p>
+        If you put markup outside <code>&lt;Routes&gt;</code>, it stays on every page.
+      </p>
+      <pre><code>export default function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;div&gt;
+        &lt;h1&gt;Hello Router&lt;/h1&gt;
+
+        &lt;Routes&gt;
+          &lt;Route path="/" element={&lt;Homepage /&gt;} /&gt;
+          &lt;Route path="/pricing" element={&lt;Pricing /&gt;} /&gt;
+        &lt;/Routes&gt;
+      &lt;/div&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}</code></pre>
+      <p class="muted">
+        Think of it as: the header stays, but the “page area” changes depending on the route.
+      </p>
+
+      <h3>Example B: “Not found page”</h3>
+      <p>
+        If the user types a URL you didn’t define (e.g., <code>/abc</code>), the catch-all <code>*</code> route displays.
+      </p>
+      <div class="callout">
+        <strong>✅ Best practice</strong>
+        <p>Always add a <code>*</code> route so users don’t see a blank screen or confusing errors.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>⚠️ Common mistakes (and fixes)</h2>
+      <ul>
+        <li>
+          <strong>Installing the wrong package:</strong> using <code>react-router</code> only.
+          <br /><span class="muted">Fix: install <code>react-router-dom</code> for browser apps.</span>
+        </li>
+        <li>
+          <strong>Forgetting imports:</strong> missing <code>Route</code> or <code>Routes</code> in the import line.
+          <br /><span class="muted">Fix: <code>import { BrowserRouter, Routes, Route } from "react-router-dom";</code></span>
+        </li>
+        <li>
+          <strong>Using <code>component</code> prop (old versions):</strong> in v6 you use <code>element</code>.
+          <br /><span class="muted">Fix: <code>&lt;Route element={&lt;MyPage /&gt;} /&gt;</code></span>
+        </li>
+        <li>
+          <strong>Missing the leading slash:</strong> writing <code>path="product"</code> instead of <code>"/product"</code>.
+          <br /><span class="muted">Fix: main routes usually start with <code>/</code>.</span>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>✅ Mini-checklist (self-review)</h2>
+      <ul>
+        <li>📁 Created <code>src/pages</code> folder with <code>Homepage</code>, <code>Product</code>, <code>Pricing</code>, <code>PageNotFound</code>.</li>
+        <li>📦 Installed <code>react-router-dom@6</code>.</li>
+        <li>🧭 Wrapped routes in <code>&lt;BrowserRouter&gt;</code>.</li>
+        <li>🧩 Defined routes inside <code>&lt;Routes&gt;</code> using <code>element={...}</code>.</li>
+        <li>🧯 Added <code>path="*"</code> Not Found route.</li>
+      </ul>
+
+      <div class="divider"></div>
+      <div class="callout">
+        <strong>➡️ What’s next?</strong>
+        <p>
+          Right now you can navigate by typing URLs manually. Next, you’ll add <strong>client-side navigation links</strong>
+          (so the app switches pages smoothly without reloading).
+        </p>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

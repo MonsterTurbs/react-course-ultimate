@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Git & GitHub — Print-Friendly Reviewer / Study Guide</title>
+
+  <style>
+    /* =========================
+       Base + Print-First Design
+       ========================= */
+    :root {
+      --text: #111;
+      --muted: #555;
+      --border: #dcdcdc;
+      --bg: #fff;
+      --panel: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.5;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Word wrapping: avoid print cut-offs from long hashes/paths/commands */
+    body, p, li, code, pre, a {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 820px;         /* readable on screen, still prints nicely */
+      margin: 0 auto;
+      padding: 18px 18px 28px;  /* screen padding */
+    }
+
+    header {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      line-height: 1.2;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12.5px;
+      cursor: pointer;
+    }
+
+    .btn:focus {
+      outline: 2px solid #999;
+      outline-offset: 2px;
+    }
+
+    nav {
+      margin: 14px 0 0;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+    }
+
+    nav h2 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .toc {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bbb;
+    }
+
+    .toc a:hover { border-bottom-style: solid; }
+
+    section {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 14px;
+    }
+
+    section h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    .tagline {
+      margin: 0 0 10px;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: var(--panel);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 13.5px;
+    }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    li { margin: 6px 0; }
+
+    .note {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 12.5px;
+      line-height: 1.45;
+      white-space: pre-wrap;   /* allow wrapping in print */
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+      margin: 8px 0 0;
+    }
+
+    .checklist li {
+      padding-left: 22px;
+      position: relative;
+      margin: 8px 0;
+    }
+
+    .checklist li::before {
+      content: "✅";
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    .warn li::before { content: "⚠️"; }
+
+    /* =========================
+       Print CSS
+       ========================= */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      .page { padding: 0; }
+      header, section { border-color: #bbb; }
+      .toolbar { display: none !important; }
+      a { text-decoration: none; color: inherit; }
+      /* Keep headings with next content */
+      h1, h2, h3 { page-break-after: avoid; }
+      /* Reduce risk of orphan lines */
+      p, li { orphans: 3; widows: 3; }
+    }
+  </style>
+
+  <script>
+    function doPrint() { window.print(); }
+    function jumpTo(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  </script>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Git & GitHub — Reviewer / Study Guide 🧠📌</h1>
+      <p class="subtitle">
+        Beginner-friendly notes + examples. Optimized for A4 printing (single column, strong word-wrapping, conservative margins).
+      </p>
+
+      <div class="toolbar" aria-label="Actions">
+        <button class="btn" onclick="doPrint()">🖨️ Print (A4)</button>
+        <button class="btn" onclick="jumpTo('quick-cheatsheet')">⚡ Jump to Cheat Sheet</button>
+        <button class="btn" onclick="jumpTo('mini-quiz')">🧩 Jump to Mini Quiz</button>
+      </div>
+
+      <nav>
+        <h2>Table of Contents 📚</h2>
+        <ol class="toc">
+          <li><a href="#github-stars">⭐ GitHub Stars (What they mean + how to use them)</a></li>
+          <li><a href="#profile-readme">👋 Profile README (quick note)</a></li>
+          <li><a href="#paths">🧭 Command Line Navigation: Absolute vs Relative Paths</a></li>
+          <li><a href="#prs">🔀 Pull Requests: Review → Merge → Pull latest</a></li>
+          <li><a href="#org-access">🏢 Organizations: Member vs Outside Collaborator</a></li>
+          <li><a href="#merging">🧬 Merging Strategies: Fast-forward vs Recursive vs Squash</a></li>
+          <li><a href="#switch">🌿 Branch Switching: git switch (Git 2.23+)</a></li>
+          <li><a href="#reflog">🛟 Recovery: git reflog (bring back “lost” commits/branches)</a></li>
+          <li><a href="#danger-zone">☢️ Danger Zone: reset --hard, force push, deleting branches</a></li>
+          <li><a href="#quick-cheatsheet">⚡ Quick Cheat Sheet</a></li>
+          <li><a href="#mini-quiz">🧩 Mini Quiz (self-check)</a></li>
+        </ol>
+      </nav>
+    </header>
+
+    <!-- ⭐ GitHub Stars -->
+    <section id="github-stars">
+      <h2>⭐ GitHub Stars — “Likes” for repositories</h2>
+      <p class="tagline">
+        Stars are quick feedback signals: “I like this repo” and sometimes “this project seems popular.”
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>What a Star means 😀</h3>
+          <ul>
+            <li>Stars are basically “likes” (similar to social platforms).</li>
+            <li>You can star a repo even if you never contribute code.</li>
+            <li>A lot of stars can suggest popularity, but it’s not guaranteed proof of quality.</li>
+          </ul>
+          <p class="note">Memory tip: ⭐ = “I like it” (not necessarily “I contributed”).</p>
+        </div>
+
+        <div class="card">
+          <h3>How to use Stars strategically 🎯</h3>
+          <ul>
+            <li>If you’re choosing a library/framework, stars can be one data point (not the only one).</li>
+            <li>For job-skills research: popular projects can hint what’s “in demand”.</li>
+            <li>But remember: starring is easy, so treat stars as a rough signal only.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Quick example 🧪</h3>
+          <pre><code>Open a GitHub repository →
+Look at the top-right corner →
+Click “Star” ⭐</code></pre>
+          <p class="note">If you click it again, you remove your star (toggle behavior).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 👋 Profile README -->
+    <section id="profile-readme">
+      <h2>👋 Profile README — A simple way to personalize your GitHub profile</h2>
+      <p class="tagline">GitHub can display a special README on your profile (a “landing page” for your account).</p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Why this matters 🧩</h3>
+          <ul>
+            <li>Good for beginners: it gives you a visible “home” for your intro.</li>
+            <li>Useful for: short bio, what you’re learning, links, projects, goals.</li>
+          </ul>
+          <p class="note">Keep it short and readable. A recruiter/teammate should understand it in 20 seconds.</p>
+        </div>
+
+        <div class="card">
+          <h3>Starter template ✍️</h3>
+          <pre><code># Hi there 👋
+I'm Reymond.
+
+## Currently learning 📚
+- Git & GitHub
+- React
+
+## Goals 🎯
+- Build consistent projects
+- Improve collaboration workflows</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🧭 Paths -->
+    <section id="paths">
+      <h2>🧭 Absolute vs Relative Paths (Command Prompt navigation)</h2>
+      <p class="tagline">
+        You can move around folders using <code>cd</code>. The key idea: where does the path start from?
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Relative path ✅</h3>
+          <ul>
+            <li>Starts from your <strong>current</strong> folder.</li>
+            <li>Useful when working inside a project because it’s portable (won’t break if usernames change).</li>
+          </ul>
+          <pre><code>dir
+cd Users
+cd YourUsername
+cd Desktop
+cd git-basics</code></pre>
+          <p class="note">Tip: Use <code>Tab</code> for autocompletion (avoids typos).</p>
+        </div>
+
+        <div class="card">
+          <h3>Absolute path ✅</h3>
+          <ul>
+            <li>Starts from the drive root (e.g., <code>C:\</code>).</li>
+            <li>Works “from anywhere” because it includes the full address.</li>
+          </ul>
+          <pre><code>cd C:\Users\YourUsername\Desktop\git-basics</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Helpful shortcuts ⚡</h3>
+          <ul class="checklist">
+            <li><code>cd \</code> goes to the drive root (e.g., <code>C:\</code>).</li>
+            <li><code>dir</code> lists folders/files.</li>
+            <li><code>cls</code> clears the screen.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Common beginner mistakes ⚠️</h3>
+          <ul class="checklist warn">
+            <li>Copy/paste the wrong part of a path and end up in an unexpected folder.</li>
+            <li>Using absolute paths inside a project: can break on other machines/usernames.</li>
+            <li>Paths with spaces: use quotes or rely on <code>Tab</code> completion.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🔀 PRs -->
+    <section id="prs">
+      <h2>🔀 Pull Requests (PRs) — Review → Merge → Pull latest</h2>
+      <p class="tagline">
+        A PR is a structured way to propose changes, review them, and merge safely.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Basic PR flow 🧠</h3>
+          <ol>
+            <li>Someone opens a PR with changes.</li>
+            <li>You review commits / “Files changed”.</li>
+            <li>You can comment or request changes.</li>
+            <li>If OK, merge the PR → a commit is created on the main branch.</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <h3>After merging: update your local repo ✅</h3>
+          <p class="note">Once the remote has a new commit, your local repo is behind until you pull.</p>
+          <pre><code># If you are working locally after merging a PR in GitHub:
+git pull origin main
+# (or: git pull origin master) depending on branch name</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Review mindset 👀</h3>
+          <ul>
+            <li>Check “Files changed” first to understand what really changed.</li>
+            <li>Look for accidental files (e.g., cache files) that should be ignored.</li>
+            <li>Keep comments actionable: say what to change and why.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🏢 Organization access -->
+    <section id="org-access">
+      <h2>🏢 GitHub Organizations — Member vs Outside Collaborator</h2>
+      <p class="tagline">
+        Same repository, different access models. Important for real-world teams.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Organization member 👤</h3>
+          <ul>
+            <li>Joins the organization (not just a single repo collaboration).</li>
+            <li>Access can be controlled by org settings (e.g., “member privileges”).</li>
+            <li>In the transcript example: default member access can be read-only unless changed.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Outside collaborator 🧑‍🤝‍🧑</h3>
+          <ul>
+            <li>Not a full org member.</li>
+            <li>Usually granted access to specific repositories only.</li>
+            <li>Useful for contractors or limited-scope contributors.</li>
+          </ul>
+          <p class="note">Practical tip: Use least privilege—give only what’s needed (read/write/admin).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🧬 Merging -->
+    <section id="merging">
+      <h2>🧬 Merging strategies — Fast-forward vs Recursive vs Squash</h2>
+      <p class="tagline">
+        Merging combines branch histories. Strategy affects your commit history readability.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Fast-forward merge 🚀</h3>
+          <ul>
+            <li>Happens when the target branch has no new commits since branching.</li>
+            <li>Git simply moves the branch pointer forward (no merge commit needed).</li>
+          </ul>
+          <p class="note">Result: very linear history.</p>
+        </div>
+
+        <div class="card">
+          <h3>Recursive merge 🧩</h3>
+          <ul>
+            <li>Used when both branches have new commits.</li>
+            <li>Creates a merge commit to combine histories.</li>
+          </ul>
+          <p class="note">Result: preserves detailed history of both branches.</p>
+        </div>
+
+        <div class="card">
+          <h3>Squash merge 🧼</h3>
+          <ul>
+            <li>Combines all feature-branch commits into <strong>one</strong> commit on the target branch.</li>
+            <li>Cleaner “story” on main/master, especially for small feature branches.</li>
+          </ul>
+          <pre><code># While on master/main:
+git merge --squash feature-branch
+git status
+git commit -m "Feature merged"</code></pre>
+          <p class="note">Key: Squash stages changes, but you still create the final commit yourself.</p>
+        </div>
+
+        <div class="card">
+          <h3>When to pick what? 🤔</h3>
+          <ul>
+            <li>Fast-forward: small/linear workflows; simple history.</li>
+            <li>Recursive: you want to preserve exact branch history and context.</li>
+            <li>Squash: you prefer clean main/master history and don’t need each micro-commit on main.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🌿 git switch -->
+    <section id="switch">
+      <h2>🌿 git switch — friendlier branch switching (Git 2.23+)</h2>
+      <p class="tagline">
+        Git introduced newer commands; <code>git switch</code> focuses specifically on branch switching/creation.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Why it exists 💡</h3>
+          <ul>
+            <li><code>git checkout</code> historically did many things (switch branches, restore files, etc.).</li>
+            <li><code>git switch</code> makes branch switching more explicit and beginner-friendly.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Common commands ✅</h3>
+          <pre><code># Switch to an existing branch
+git switch feature
+
+# Create and switch to a new branch
+git switch -c new-feature</code></pre>
+          <p class="note">You can check your Git version with <code>git --version</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🛟 reflog -->
+    <section id="reflog">
+      <h2>🛟 git reflog — recover “lost” commits & branches</h2>
+      <p class="tagline">
+        If you reset hard or delete something by mistake, <code>git reflog</code> can help you find prior HEAD states.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Key idea 🧠</h3>
+          <ul>
+            <li>A commit is a snapshot; reflog tracks movements of HEAD and other reference updates.</li>
+            <li>Reflog is typically a rolling history (often ~30 days), not permanent storage.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Recovery example ✅</h3>
+          <pre><code># Oops: you did a hard reset and lost a commit
+git reset --hard HEAD~1
+
+# Find the old commit hash
+git reflog
+
+# Reset back to the commit you want
+git reset --hard &lt;hash-from-reflog&gt;</code></pre>
+          <p class="note">This is one of the most valuable “panic recovery” tools in Git.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ☢️ Danger zone -->
+    <section id="danger-zone">
+      <h2>☢️ Danger Zone — commands that can rewrite history</h2>
+      <p class="tagline">
+        These are powerful tools. Use carefully, especially on shared branches.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>reset --hard ⚠️</h3>
+          <ul class="checklist warn">
+            <li>Moves HEAD and discards working-directory/staged changes.</li>
+            <li>Can make commits “disappear” from normal log (until recovered via reflog).</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>force push ⚠️</h3>
+          <ul class="checklist warn">
+            <li>If you rewrote local history and want remote to match, you may need <code>--force</code>.</li>
+            <li>This can disrupt teammates because it changes the remote history they based work on.</li>
+          </ul>
+          <pre><code># Example pattern (be careful):
+git push --force origin master
+# or:
+git push --force origin main</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Deleting branches 🧨</h3>
+          <ul class="checklist warn">
+            <li>Deleting a remote branch removes it from the remote; tracking branches become irrelevant.</li>
+            <li>Always confirm you don’t need the branch (or tag it) before deletion.</li>
+          </ul>
+          <pre><code># Delete remote branch
+git push origin --delete feature-remote</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Safety habits ✅</h3>
+          <ul class="checklist">
+            <li>Prefer feature branches; keep main/master stable.</li>
+            <li>Before rewriting history, confirm nobody else depends on it.</li>
+            <li>If something goes wrong: stop, run <code>git reflog</code>, recover calmly.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⚡ Cheat Sheet -->
+    <section id="quick-cheatsheet">
+      <h2>⚡ Quick Cheat Sheet (print this page and keep it nearby)</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Navigation (Windows CMD) 🧭</h3>
+          <pre><code>dir              # list files/folders
+cd folder        # go into folder (relative)
+cd \             # go to drive root (absolute shortcut)
+cd C:\Path\Here  # absolute navigation
+cls              # clear screen
+Tab              # autocomplete folder names</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Branching 🌿</h3>
+          <pre><code>git branch                 # list branches
+git switch feature         # switch (Git 2.23+)
+git switch -c new-feature  # create + switch
+git checkout -b feature    # older style (create + switch)</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Merging 🔀</h3>
+          <pre><code>git merge feature              # merge feature into current branch
+git merge --squash feature      # squash merge (stages changes)
+git commit -m "Merge feature"   # finalize squash merge</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Recovery 🛟</h3>
+          <pre><code>git reflog                      # find previous HEAD states
+git reset --hard &lt;hash&gt;          # restore to a reflog hash</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Remote sync 🌐</h3>
+          <pre><code>git pull origin main     # pull latest from remote main
+git pull origin master   # if your default branch is master
+git push origin main     # push to remote main</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🧩 Mini Quiz -->
+    <section id="mini-quiz">
+      <h2>🧩 Mini Quiz (self-check)</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>1) Stars ⭐</h3>
+          <ol>
+            <li>What does a GitHub star primarily represent?</li>
+            <li>Can stars be treated as proof of quality? Why/why not?</li>
+          </ol>
+          <p class="note">Expected idea: star ≈ like; easy to give; popularity signal only.</p>
+        </div>
+
+        <div class="card">
+          <h3>2) Paths 🧭</h3>
+          <ol>
+            <li>What’s the difference between an absolute and a relative path?</li>
+            <li>Why do relative paths often make more sense inside projects?</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <h3>3) Merging 🔀</h3>
+          <ol>
+            <li>What does <code>git merge --squash</code> do differently?</li>
+            <li>After squashing, why do you still need <code>git commit</code>?</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <h3>4) Recovery 🛟</h3>
+          <ol>
+            <li>You ran <code>git reset --hard HEAD~1</code> and lost a commit. What command helps you find it?</li>
+            <li>How do you restore the project back to that commit?</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <h3>5) PR workflow 🧑‍💻</h3>
+          <ol>
+            <li>After you merge a PR on GitHub, why should you run <code>git pull</code> locally?</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <p class="note">
+        Optional drill: Try creating a test repo, make a branch, create 2–3 commits, then try a squash merge. Then intentionally reset and recover using reflog (in a safe sandbox repo).
+      </p>
+    </section>
+
+    <p class="note" style="margin-top: 14px;">
+      End of reviewer. Print tip: If anything still looks tight, increase margins slightly or reduce scale to ~95% in the print dialog.
+    </p>
+  </main>
+</body>
+</html>

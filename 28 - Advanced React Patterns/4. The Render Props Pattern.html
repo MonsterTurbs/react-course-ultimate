@@ -1,0 +1,371 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced React Patterns — The Render Props Pattern (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px 48px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+    }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 0 20px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-left: 6px solid #c8c8c8;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px;
+      background: #0b0b0b;
+      color: #f2f2f2;
+      border-radius: 10px;
+      overflow: auto;
+      max-width: 100%;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .twoCol {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      html, body {
+        background: #fff !important;
+      }
+
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+
+      section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      pre {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      a[href]::after { content: "" !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 The Render Props Pattern — Study Guide</h1>
+      <p class="subtitle">Advanced React Patterns • Reusing UI + Stateful Logic (without duplicating layout)</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Render Props</span>
+        <span class="chip">🎯 Goal: Reuse list logic + UI</span>
+        <span class="chip">🧰 Tool: Function-as-prop</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) The Problem We’re Solving 🧠</h2>
+      <p>
+        You have a <strong>List</strong> component that already contains:
+        <strong>stateful logic</strong> (collapse/show fewer items) <em>and</em>
+        <strong>UI</strong> (title + buttons + layout).
+      </p>
+      <p>
+        You want to reuse that same List component for different item types:
+        <strong>products</strong> and <strong>companies</strong>.
+      </p>
+      <div class="callout">
+        <strong>Why not just use <code>children</code>? 😅</strong>
+        <p class="mini">
+          Because you don’t only need to “pass JSX content”. You need to pass
+          <strong>instructions</strong> on <em>how to render each item</em> (and you need access to the
+          list’s internal <code>displayItems</code> logic).
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Render Props in One Sentence ✅</h2>
+      <p>
+        <strong>Render props</strong> means you pass a prop (commonly named <code>render</code>) that is a
+        <strong>function</strong>. The component calls that function to know <strong>what to render</strong> and
+        <strong>how to render it</strong>.
+      </p>
+      <div class="callout">
+        <strong>Key idea: “Inversion of Control” 🔁</strong>
+        <p class="mini">
+          The List component no longer decides which component to render for each item.
+          The <em>user of the List</em> decides by passing the <code>render</code> function.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) How It Works (Step-by-Step) 🛠️</h2>
+      <ol>
+        <li>
+          <strong>Pass a <code>render</code> prop</strong> into <code>&lt;List /&gt;</code>.
+          <div class="mini">This function describes what to render for each item.</div>
+        </li>
+        <li>
+          <strong>Receive <code>render</code> inside List</strong> (alongside <code>title</code> and <code>items</code>).
+        </li>
+        <li>
+          <strong>Call <code>render(item)</code> inside <code>.map()</code></strong> instead of hardcoding a component.
+        </li>
+        <li>
+          Reuse the same List for different item types by changing only the <code>render</code> function.
+        </li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>4) Minimal Example Code 🧾</h2>
+      <p class="mini">This mirrors the lecture idea (products vs companies) but keeps it beginner-friendly.</p>
+
+      <h3>4.1 List component (generic) 📦</h3>
+      <pre><code>function List({ title, items, render }) {
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
+
+  // Example logic: show only first 3 when collapsed
+  const displayItems = isCollapsed ? items.slice(0, 3) : items;
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{title}&lt;/h2&gt;
+
+      &lt;ul&gt;
+        {displayItems.map((item) =&gt; (
+          &lt;li key={item.id}&gt;
+            {render(item)}
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+
+      &lt;button onClick={() =&gt; setIsCollapsed((c) =&gt; !c)}&gt;
+        {isCollapsed ? "Show all" : "Show less"}
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="divider"></div>
+
+      <h3>4.2 Using List for Products 🛒</h3>
+      <pre><code>&lt;List
+  title="Products"
+  items={products}
+  render={(product) =&gt; (
+    &lt;ProductItem product={product} /&gt;
+  )}
+/&gt;</code></pre>
+
+      <h3>4.3 Using List for Companies 🏢</h3>
+      <pre><code>&lt;List
+  title="Companies"
+  items={companies}
+  render={(company) =&gt; (
+    &lt;CompanyItem company={company} defaultVisibility={false} /&gt;
+  )}
+/&gt;</code></pre>
+
+      <div class="callout">
+        <strong>What changed? ✅</strong>
+        <p class="mini">
+          Only the <code>render</code> function. Everything else (collapse logic, buttons, layout) stays shared.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Why the Render Prop Must Be a Function 🧠</h2>
+      <p>
+        If you passed only a component (like <code>&lt;CompanyItem /&gt;</code>) without a function,
+        the List would have no idea:
+      </p>
+      <ul>
+        <li>Which item data to pass into that component</li>
+        <li>How to connect the item from <code>displayItems</code> to the UI element</li>
+        <li>How to produce one UI element per item</li>
+      </ul>
+      <p class="mini">
+        The function form <code>(item) =&gt; &lt;Component item={item} /&gt;</code> solves this by providing a clear mapping.
+      </p>
+    </section>
+
+    <section>
+      <h2>6) When to Use Render Props (Practical Rule) 📌</h2>
+      <div class="twoCol">
+        <div class="callout">
+          <strong>Use it when ✅</strong>
+          <ul>
+            <li>You must reuse <strong>logic + UI</strong> together</li>
+            <li>The parent needs control over <strong>how items render</strong></li>
+            <li><code>children</code> is too limited because you need “render instructions”</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <strong>Prefer custom hooks when ✅</strong>
+          <ul>
+            <li>You only need to reuse <strong>stateful logic</strong> (no shared layout)</li>
+            <li>You want the UI to be fully custom per feature</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Common Pitfalls & Tips ⚠️</h2>
+      <ul>
+        <li><strong>Key props:</strong> Your list items still need stable <code>key</code> values.</li>
+        <li><strong>Naming:</strong> <code>render</code> is common, but you might also see <code>children</code> used as a function (“function as children”).</li>
+        <li><strong>Don’t overuse:</strong> Hooks handle many sharing cases today. Render props shine when UI + logic must be reused together.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>8) Quick Self-Check (Mini Quiz) 📝</h2>
+      <ol>
+        <li>What problem does render props solve that normal <code>children</code> can’t solve well?</li>
+        <li>What does “inversion of control” mean in this List example?</li>
+        <li>In <code>render={(company) =&gt; &lt;CompanyItem company={company} /&gt;}</code>, what is <code>company</code>?</li>
+      </ol>
+      <div class="callout">
+        <strong>Answer key (short) ✅</strong>
+        <ul class="mini">
+          <li>It lets the parent specify <em>how each item renders</em> while the component owns the list logic + layout.</li>
+          <li>The List delegates rendering decisions to the component user via the <code>render</code> function.</li>
+          <li>It’s the current item from the array being mapped over.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>9) Recap 🎯</h2>
+      <ul>
+        <li>Render props = <strong>function prop</strong> that returns JSX</li>
+        <li>Great for reusing <strong>UI + stateful logic</strong> together</li>
+        <li>Enables <strong>inversion of control</strong> for rendering</li>
+        <li>Modern React uses hooks a lot, but render props still matter for certain UI+logic reuse cases</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

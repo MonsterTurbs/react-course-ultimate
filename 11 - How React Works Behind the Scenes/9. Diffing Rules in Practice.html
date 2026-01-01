@@ -1,0 +1,354 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — Diffing Rules in Practice (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codetext: #e9eefc;
+      --accent: #111111;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      hyphens: auto;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px 48px;
+    }
+
+    header {
+      padding: 18px 16px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    h2 {
+      font-size: 18px;
+      margin: 22px 0 10px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul {
+      margin: 10px 0 10px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .callout strong { color: var(--accent); }
+
+    .callout .title {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin: 0 0 6px;
+      font-weight: 700;
+    }
+
+    .callout .title span {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .small { color: var(--muted); font-size: 13px; }
+
+    pre {
+      margin: 12px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow: auto;
+      border: 1px solid #1b2442;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    /* Links (screen) */
+    a { color: inherit; text-decoration: underline; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, .callout, pre { break-inside: avoid; }
+      a { text-decoration: none; }
+      a[href]:after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🔁 Diffing Rules in Practice (React)</h1>
+      <p class="subtitle">A print-friendly reviewer on how React’s diffing rules show up in real apps (Tabs demo).</p>
+      <div class="meta">
+        <span class="chip">📘 Topic: Reconciliation & Diffing</span>
+        <span class="chip">🧩 Focus: State preservation vs reset</span>
+        <span class="chip">🛠️ Demo: TabContent vs DifferentContent</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 What this lecture is proving</h2>
+        <p>
+          You just learned React’s diffing rules. This lecture demonstrates that these rules are not “theory only”—they create
+          visible, practical behavior in real UI.
+        </p>
+
+        <div class="callout">
+          <p class="title">✅ Key takeaway <span>🙂</span></p>
+          <p>
+            If React sees the <strong>same element type</strong> in the <strong>same position</strong> in the tree, it keeps the
+            same component instance and <strong>preserves state</strong>. If the element type changes at that position,
+            React <strong>destroys the old instance</strong> and creates a new one, which <strong>resets state</strong>.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Quick recap: the diffing rule being tested</h2>
+        <ul>
+          <li>🧷 <strong>Same type + same position</strong> ➜ React reuses the existing instance ➜ <strong>state stays</strong>.</li>
+          <li>🧨 <strong>Different type at same position</strong> ➜ React removes the old subtree ➜ <strong>state resets</strong>.</li>
+        </ul>
+
+        <div class="callout">
+          <p class="title">🔍 Why this matters</p>
+          <p>
+            Many “React bugs” are actually diffing behavior: state unexpectedly sticking around (when you wanted a reset)
+            or resetting unexpectedly (when you expected it to persist).
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Demo walkthrough: Tabs + TabContent state</h2>
+        <p>
+          In the demo app, each tab click changes which content object is passed into <code>TabContent</code>. Inside
+          <code>TabContent</code>, there is local state like:
+        </p>
+        <ul>
+          <li>🙈 show/hide details (a paragraph)</li>
+          <li>❤️ likes counter (increments with a button)</li>
+        </ul>
+
+        <h3>1) Switch between Tab 1, Tab 2, Tab 3</h3>
+        <p>
+          When you click different tabs (that still render <code>TabContent</code>), you’ll notice:
+        </p>
+        <ul>
+          <li>🙈 If you hid the details, it stays hidden across tabs.</li>
+          <li>❤️ If likes is 4, it stays 4 across tabs.</li>
+        </ul>
+
+        <div class="callout">
+          <p class="title">✅ What React is doing here</p>
+          <p>
+            <strong>It is the same component type</strong> (<code>TabContent</code>) in the <strong>same position</strong> in the component tree.
+            React keeps the same instance and only updates the <strong>props</strong>.
+          </p>
+          <p class="small">In other words: “new tab” ≠ “new component instance” if the element type stays the same.</p>
+        </div>
+
+        <h3>2) Switch to Tab 4 (DifferentContent)</h3>
+        <p>
+          The app is coded so that when the tab number is 3 (the 4th tab), it renders <code>DifferentContent</code>
+          instead of <code>TabContent</code>.
+        </p>
+        <p>
+          When you go to Tab 4 and then return to Tab 1–3, the previously hidden text and likes count are reset.
+        </p>
+
+        <div class="callout">
+          <p class="title">🧨 What React is doing here</p>
+          <p>
+            React sees a <strong>different element type</strong> at the same position:
+            <code>TabContent</code> ➜ <code>DifferentContent</code>. So React destroys the old subtree (including its state)
+            and mounts a new one.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 The mental model (easy version)</h2>
+        <p>
+          Think about the UI tree like a set of “slots.” React uses the slot position + element type to decide whether to:
+        </p>
+        <ul>
+          <li>♻️ <strong>Reuse</strong> the old instance (state preserved), or</li>
+          <li>🗑️ <strong>Throw away</strong> the old instance and recreate it (state reset).</li>
+        </ul>
+
+        <pre><code>// Same position (same slot), different behavior:
+
+// Case A: same element type ➜ state preserved
+return &lt;TabContent item={content[activeTab]} /&gt;;
+
+// Case B: different element type ➜ state resets
+return &lt;DifferentContent /&gt;
+</code></pre>
+
+        <div class="callout">
+          <p class="title">🧠 Important nuance</p>
+          <p>
+            “Re-render” does not mean “remount.” You can re-render a component many times while keeping the same instance.
+            Remount happens when the element type/identity changes.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>⚠️ Practical implication: sometimes you want a reset</h2>
+        <p>
+          The lecture points out a common UX expectation:
+        </p>
+        <ul>
+          <li>When switching to a new tab, you might expect details to be open again by default.</li>
+          <li>But React will preserve state if it’s the same component type in the same position.</li>
+        </ul>
+
+        <div class="callout">
+          <p class="title">🛠️ Typical solution preview (next lecture)</p>
+          <p>
+            You can force React to treat it as a “new instance” using a <strong>key</strong> (stable but intentionally changed
+            when you want a reset). Example idea:
+          </p>
+          <pre><code>// Example concept (not necessarily your exact code)
+&lt;TabContent key={activeTab} item={content[activeTab]} /&gt;;
+
+// When key changes, React remounts TabContent ➜ state resets
+</code></pre>
+          <p class="small">You’ll cover key-based resets right after this.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>📝 Mini-checklist for exams/interviews</h2>
+        <ul>
+          <li>🧠 React preserves component state when the same element type stays at the same position in the tree.</li>
+          <li>🧨 Changing element type at a position removes the old subtree (state is lost).</li>
+          <li>🔑 Keys are the “identity tool” React uses, especially for lists and intentional remounts.</li>
+          <li>🧩 Switching tabs often changes props, not necessarily the component instance.</li>
+        </ul>
+
+        <div class="callout">
+          <p class="title">❓ Quick self-test</p>
+          <ul>
+            <li>If a component’s props change but it stays the same type and position—does state reset? <strong>No</strong>.</li>
+            <li>If you swap <code>&lt;TabContent /&gt;</code> with <code>&lt;DifferentContent /&gt;</code> in the same slot—what happens? <strong>Remount</strong> and state resets.</li>
+            <li>What’s the usual tool to force remount? <strong>key</strong>.</li>
+          </ul>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section>
+        <p class="small">
+          End of reviewer — Diffing Rules in Practice. Print tip: Use your browser’s Print dialog and select A4. If your print
+          preview shows headers/footers (URL/date), disable them in the print settings.
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

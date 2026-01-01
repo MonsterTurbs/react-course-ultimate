@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Server Components (RSC) Part 1 — Reviewer & Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --warnbg: #fff7ed;
+      --warnborder: #fdba74;
+      --goodbg: #f0fdf4;
+      --goodborder: #86efac;
+      --infobg: #eff6ff;
+      --infoborder: #93c5fd;
+      --codebg: #0b0f14;
+      --codetext: #e8e8e8;
+      --shadow: rgba(0,0,0,0.04);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 28px 20px 52px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.7rem;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.86rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 1.25rem;
+      border-left: 5px solid var(--border);
+      padding-left: 10px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { margin: 8px 0 10px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .box {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+      box-shadow: 0 1px 0 var(--shadow);
+    }
+    .box strong { display: inline-block; margin-bottom: 6px; }
+
+    .callout {
+      border-left: 6px solid var(--infoborder);
+      background: var(--infobg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #bfdbfe;
+      margin: 12px 0;
+      box-shadow: 0 1px 0 var(--shadow);
+    }
+
+    .warn {
+      border-left: 6px solid var(--warnborder);
+      background: var(--warnbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #fed7aa;
+      margin: 12px 0;
+      box-shadow: 0 1px 0 var(--shadow);
+    }
+
+    .good {
+      border-left: 6px solid var(--goodborder);
+      background: var(--goodbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #bbf7d0;
+      margin: 12px 0;
+      box-shadow: 0 1px 0 var(--shadow);
+    }
+
+    .code {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0;
+      background: #fff;
+      box-shadow: 0 1px 0 var(--shadow);
+    }
+    .code .label {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    pre {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow: auto;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      white-space: pre;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    @media (max-width: 820px) {
+      .compare { grid-template-columns: 1fr; }
+    }
+
+    .table-wrap {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0;
+      box-shadow: 0 1px 0 var(--shadow);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+    th, td {
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      background: var(--panel);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    tr:last-child td { border-bottom: 0; }
+
+    .qa details {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px 12px;
+      margin: 10px 0;
+      box-shadow: 0 1px 0 var(--shadow);
+    }
+    .qa summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+    }
+    .qa summary::-webkit-details-marker { display: none; }
+    .qa .answer {
+      margin-top: 8px;
+      color: #222;
+    }
+
+    .footer {
+      margin-top: 26px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      .chip, .box, .callout, .warn, .good, .code, .table-wrap, .qa details {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .box, .callout, .warn, .good, .code, .table-wrap, .qa details { break-inside: avoid; }
+      a[href]::after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>React Server Components (RSC) — Part 1</h1>
+      <p class="subtitle">Reviewer / Study Guide • Beginner-friendly • Single-column • Print-ready (A4)</p>
+      <div class="meta">
+        <span class="chip">🔥 New React paradigm</span>
+        <span class="chip">🖥️ Server Components</span>
+        <span class="chip">🧑‍💻 Client Components</span>
+        <span class="chip">🚧 Server–Client boundary</span>
+        <span class="chip">📦 Less JS shipped</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Why do we need Server Components? 🤔</h2>
+      <p>
+        Traditional React apps are often <strong>100% client-side</strong> (the browser does the rendering).
+        That gives great interactivity, but it also introduces real problems.
+      </p>
+
+      <div class="compare">
+        <div class="warn">
+          <strong>Client-side React (100% client) downsides</strong>
+          <ul>
+            <li>📦 Lots of JavaScript must be downloaded to the user’s device</li>
+            <li>🐢 Performance constraints (bundle size matters)</li>
+            <li>🌊 Client–server waterfalls (data fetched in sequence across components)</li>
+          </ul>
+        </div>
+        <div class="good">
+          <strong>Server-side apps (old-school PHP style) upsides</strong>
+          <ul>
+            <li>⚡ Fast initial loads (often little/no JS required)</li>
+            <li>🗄️ Easy direct access to the data source (DB, services)</li>
+            <li>🔌 No need for an API in many cases (you are on the backend already)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Key idea:</strong>
+        <p>
+          Real apps need BOTH: UI as a function of <strong>state</strong> (interactivity) and a function of <strong>data</strong>
+          (content driven by the backend). We want something in-between — not “all client” or “all server”.
+        </p>
+      </div>
+
+      <div class="box">
+        <strong>Simple mental picture:</strong>
+        <ul>
+          <li>🧠 Client world: <em>UI = f(state)</em></li>
+          <li>🗄️ Server world: <em>UI = f(data)</em></li>
+          <li>🎯 Goal: combine both worlds in one React architecture</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) What is React Server Components (RSC)? 🧩</h2>
+      <p>
+        <strong>React Server Components</strong> (often abbreviated as <strong>RSC</strong>) is a new <strong>full‑stack architecture</strong>
+        for building React apps.
+        It introduces the <strong>server</strong> as a <strong>first-class citizen</strong> in React component trees.
+      </p>
+
+      <div class="callout">
+        <strong>Terminology (super important):</strong>
+        <ul>
+          <li><strong>React Server Components (RSC)</strong> = the overall architecture/paradigm</li>
+          <li><strong>Server Component</strong> = a new type of component that runs only on the server</li>
+          <li><strong>Client Component</strong> = the “regular React component” we already know (runs in the browser)</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <strong>One-liner:</strong>
+        <p>
+          RSC lets you build a single app where some components run on the server (close to data) and others run in the
+          browser (interactive), and React composes them together.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Server Components vs Client Components ⚔️</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 50%;">Server Components (run on server)</th>
+              <th style="width: 50%;">Client Components (run in browser)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                🗄️ Great for data fetching and backend concerns<br />
+                📦 Ship <strong>zero JavaScript</strong> for the component itself<br />
+                🚫 No interactivity: no state, no effects, no hooks
+              </td>
+              <td>
+                🧠 Great for interactivity and user input<br />
+                ✅ Can use state, effects, hooks<br />
+                📦 Requires JavaScript bundle to run
+              </td>
+            </tr>
+            <tr>
+              <td>
+                ✅ Can pass props to other server components and to client components<br />
+                ⚠️ Props passed to client components must be <strong>serializable</strong>
+              </td>
+              <td>
+                ✅ Can render UI and respond to events<br />
+                ⚠️ Can’t import server components directly (after crossing the boundary)
+              </td>
+            </tr>
+            <tr>
+              <td>
+                🔁 Re-executes mainly when the URL/route changes (framework-driven)
+              </td>
+              <td>
+                🔁 Re-renders when its state/props change (classic React behavior)
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="warn">
+        <strong>Serializable props rule:</strong>
+        <p>
+          When passing data from server → client, props must be convertible to a transferable format.
+          You can’t pass functions or class instances across the boundary.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) “use client” and the Server–Client Boundary 🚧</h2>
+      <p>
+        In RSC architecture (as implemented by frameworks like Next.js App Router),
+        <strong>server components are the default</strong>. Client components are <strong>opt‑in</strong>.
+      </p>
+
+      <div class="code">
+        <div class="label">Mark a file as a Client Component</div>
+        <pre><code>"use client";
+
+export default function DarkModeToggle() {
+  // can use state, effects, event handlers
+  return &lt;button&gt;Toggle&lt;/button&gt;;
+}</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Boundary concept:</strong>
+        <p>
+          Adding <code>"use client"</code> creates a <strong>server→client boundary</strong>.
+          Everything under that boundary becomes a client-side subtree.
+        </p>
+      </div>
+
+      <div class="box">
+        <strong>Practical note:</strong>
+        <p>
+          Child components of a Client Component don’t need to repeat <code>"use client"</code>.
+          They are already inside the client subtree.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Example: splitting a UI into server/client components 🏨</h2>
+      <p>
+        Think about a dashboard UI (like Wild Oasis). Some parts are mostly static and data-driven,
+        while others need interaction.
+      </p>
+
+      <div class="compare">
+        <div class="good">
+          <strong>Good Server Component candidates</strong>
+          <ul>
+            <li>🧱 Layout pieces: sidebar/header/main wrappers (not interactive)</li>
+            <li>🧑 Profile avatar (fetch user data on server)</li>
+            <li>📋 Cabins table + rows (fetch cabins on server, render HTML)</li>
+          </ul>
+        </div>
+        <div class="warn">
+          <strong>Must be Client Components (interactive)</strong>
+          <ul>
+            <li>🌙 Dark mode toggle (click)</li>
+            <li>🔎 Filters and sorting controls</li>
+            <li>⋯ Menu dropdown that opens on click</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Pattern you’ll often see:</strong>
+        <p>
+          Server components fetch and render data; client components appear deeper in the tree where interactivity is needed.
+          Data can cross the boundary via props.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Import vs Render (important distinction) 📦 vs 🧱</h2>
+      <p>
+        The lecture highlights a subtle but important difference:
+      </p>
+
+      <div class="box">
+        <strong>Import</strong>
+        <p>
+          Module-level dependency (e.g., <code>import X from "./X"</code>). This affects bundling and where code runs.
+        </p>
+        <strong>Render</strong>
+        <p>
+          Using a component in JSX (e.g., <code>&lt;X /&gt;</code>). Rendering can happen via props in some cases.
+        </p>
+      </div>
+
+      <div class="warn">
+        <strong>Rule of thumb (as introduced here):</strong>
+        <p>
+          Client components can’t import server components directly.
+          Once you’re inside a client subtree, you can’t “go back” to the server through imports.
+          (There are nuanced patterns using props; the course covers this later.)
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) When do Server Components re-run? 🔁</h2>
+      <p>
+        Server components have no state, so they don’t re-render because of state updates.
+        Instead, they typically re-run when the <strong>URL/route changes</strong>.
+        Frameworks (like Next.js) tie server components to routes.
+      </p>
+
+      <div class="good">
+        <strong>Practical takeaway:</strong>
+        <p>
+          Navigate to a different route → the server component tree for that route executes again → data may be fetched again.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>8) Mental model: Traditional React vs RSC 🧠</h2>
+      <p>
+        Traditional React is easy to describe:
+      </p>
+      <div class="box">
+        <strong>Traditional React (simplified)</strong>
+        <ul>
+          <li>👆 User interacts → state updates</li>
+          <li>🔁 Components re-render</li>
+          <li>🖼️ View updates</li>
+          <li>🌐 Data often fetched in client components and stored in state</li>
+        </ul>
+      </div>
+
+      <p>
+        RSC keeps that core model, but adds a server layer:
+      </p>
+      <div class="callout">
+        <strong>RSC (enhanced mental model)</strong>
+        <ul>
+          <li>🖥️ Server components fetch data and render parts of the view</li>
+          <li>🧑‍💻 Client components handle interactivity (state/effects)</li>
+          <li>🌉 Props connect server ↔ client across the boundary</li>
+          <li>🧭 Navigation (URL changes) triggers re-execution of server components for the new route</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <strong>Important reminder:</strong>
+        <p>
+          Server components aren’t “better” than client components. They’re different tools for different jobs.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>9) Pros and Cons of RSC ✅ / ⚠️</h2>
+
+      <div class="compare">
+        <div class="good">
+          <strong>Pros</strong>
+          <ul>
+            <li>🧱 Full-stack composition using components (frontend + backend concerns)</li>
+            <li>🔌 Often no need to build a separate API for the web app</li>
+            <li>🔐 Safer access to secrets (API keys stay on server)</li>
+            <li>🌊 Fewer client–server waterfalls (better performance)</li>
+            <li>📉 Less JavaScript shipped (“disappearing code”) — can use big server-only libraries without inflating bundles</li>
+            <li>📡 Can stream rendered output (framework feature) for large content</li>
+          </ul>
+        </div>
+        <div class="warn">
+          <strong>Cons</strong>
+          <ul>
+            <li>🧩 React becomes more complex (new concepts and rules)</li>
+            <li>🧠 More decisions: server vs client component, where to fetch data, etc.</li>
+            <li>🧬 Many hooks (like Context) don’t work in server components</li>
+            <li>📱 If you also need a mobile app, you may still need an API anyway</li>
+            <li>🏗️ Practically requires a framework (Next.js/Remix/etc.)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Bottom line from the lecture:</strong>
+        <p>
+          The added complexity is usually worth it because performance and full-stack composition improve a lot.
+        </p>
+      </div>
+    </section>
+
+    <section class="qa">
+      <h2>10) Mini Quiz (self-check) 🧪</h2>
+
+      <details>
+        <summary>Q1) What is “RSC” referring to: a component or the architecture?</summary>
+        <div class="answer">
+          RSC refers to the architecture/paradigm (“React Server Components”). A “server component” is a specific type of component.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q2) Why do server components ship zero JavaScript?</summary>
+        <div class="answer">
+          Because they run only on the server and never execute in the browser, so they don’t need to be included in the client bundle.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q3) What does “use client” do?</summary>
+        <div class="answer">
+          It marks a file as a Client Component and creates a server→client boundary, making a client-side subtree.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q4) When do server components typically re-run?</summary>
+        <div class="answer">
+          When the URL/route changes (framework navigation), not because of client state changes.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q5) Give one example of a non-serializable prop.</summary>
+        <div class="answer">
+          A function (or a class instance). These can’t be passed from server → client as props.
+        </div>
+      </details>
+    </section>
+
+    <p class="footer">
+      End of Part 1 reviewer. Next: deeper “behind the scenes” and comparison with server-side rendering.
+    </p>
+  </main>
+</body>
+</html>

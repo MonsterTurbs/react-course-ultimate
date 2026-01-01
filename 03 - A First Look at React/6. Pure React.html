@@ -1,0 +1,499 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Pure React (No Tooling) (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 20px 44px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .muted { color: var(--muted); }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-right: 6px;
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+      margin: 8px 0 0;
+    }
+
+    .checklist li { margin: 8px 0; }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    /* Keep links readable on screen, but never print URLs */
+    a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      .toolbar { display: none !important; }
+
+      /* Don’t print any URL after links */
+      a[href]:after { content: "" !important; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧪 Pure React (No Tooling, No Build Step) — Reviewer</h1>
+      <p class="subtitle">How to write React inside a plain HTML file using script tags, without JSX, bundlers, or dev servers. A4 print-ready.</p>
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: Single-column, word-wrapped, designed for clean A4 printing (no URLs printed).</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Table of Contents</strong>
+        <ol>
+          <li><a href="#why">Why “Pure React” is shown</a></li>
+          <li><a href="#setup">Project setup (folder + index.html)</a></li>
+          <li><a href="#add-react">Add React via script tags</a></li>
+          <li><a href="#react-vs-reactdom">React vs ReactDOM (why two scripts)</a></li>
+          <li><a href="#no-jsx">No JSX: use React.createElement</a></li>
+          <li><a href="#render">Render into the DOM (createRoot + render)</a></li>
+          <li><a href="#state-effect">State + effect: build a small clock</a></li>
+          <li><a href="#limitations">Why modern tooling is helpful</a></li>
+          <li><a href="#self-check">Quick self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="why">
+      <h2>🎯 Why “Pure React” is shown</h2>
+      <p>
+        This lecture is a “for fun” experiment to show React working inside a normal HTML file —
+        <strong>no modern tooling</strong> and <strong>no build step</strong>.
+      </p>
+      <div class="callout">
+        <p><strong>Big goal</strong> ✅</p>
+        <p class="muted">
+          Understand what the tooling usually does for you (JSX support, modules, dev server, auto-reload, etc.).
+          Pure React works — but it’s not how real-world React apps are typically built.
+        </p>
+      </div>
+    </section>
+
+    <section id="setup">
+      <h2>📁 Project setup (folder + index.html)</h2>
+      <ol>
+        <li>Create a folder (example name): <strong>01-pure-react</strong> 🗂️</li>
+        <li>Open the folder in VS Code (drag-and-drop to VS Code or use “Open Folder”) 🧑‍💻</li>
+        <li>Create <strong>index.html</strong> 📄</li>
+      </ol>
+
+      <h3>Quick HTML scaffold tip ⚡</h3>
+      <p class="muted">
+        In VS Code, type <code>!</code> then press Enter to generate a basic HTML template.
+      </p>
+
+      <h3>Root element (where React will render) 🌱</h3>
+      <pre><code>&lt;body&gt;
+  &lt;div id="root"&gt;&lt;/div&gt;
+&lt;/body&gt;</code></pre>
+
+      <div class="callout">
+        <p><strong>Beginner-friendly explanation</strong> 🧠</p>
+        <p class="muted">
+          The <code>#root</code> div is a container. React will “take over” that element and render your UI inside it.
+          The ID can be anything, but <code>root</code> is the common convention.
+        </p>
+      </div>
+    </section>
+
+    <section id="add-react">
+      <h2>➕ Add React via script tags</h2>
+      <p>
+        In “pure React”, you include React as scripts directly in your HTML.
+      </p>
+
+      <div class="callout">
+        <p><strong>Where to find these scripts</strong> 🔎</p>
+        <p class="muted">
+          The lecture references the official React site documentation for a downloadable HTML example.
+          If the exact link changes in the future, the important part is still the same: you need the React script
+          and the ReactDOM script.
+        </p>
+      </div>
+
+      <h3>Typical structure (conceptual) 🧩</h3>
+      <pre><code>&lt;!-- 1) React core --&gt;
+&lt;script src="...react.development.js"&gt;&lt;/script&gt;
+
+&lt;!-- 2) ReactDOM renderer for browsers --&gt;
+&lt;script src="...react-dom.development.js"&gt;&lt;/script&gt;
+
+&lt;!-- 3) Your app code --&gt;
+&lt;script&gt;
+  // Your component + rendering logic
+&lt;/script&gt;</code></pre>
+
+      <p class="muted">
+        After adding the scripts, React exposes global objects like <code>React</code> and <code>ReactDOM</code> that you can use.
+      </p>
+    </section>
+
+    <section id="react-vs-reactdom">
+      <h2>🧠 React vs ReactDOM (why two scripts)</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>React ⚛️ <span class="pill">Core</span></h3>
+          <ul>
+            <li>Components</li>
+            <li>State (<code>useState</code>)</li>
+            <li>Effects (<code>useEffect</code>)</li>
+            <li>Logic and APIs to interact with React</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>ReactDOM 🌐 <span class="pill">Browser renderer</span></h3>
+          <ul>
+            <li>Renders React components into the browser DOM</li>
+            <li>Provides <code>createRoot</code> and rendering utilities</li>
+            <li>React can also target other environments (example: React Native)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Simple mental model</strong> ✅</p>
+        <p class="muted">
+          React = “what the UI is” (components/state).
+          ReactDOM = “how to show it in the browser”.
+        </p>
+      </div>
+    </section>
+
+    <section id="no-jsx">
+      <h2>🚫 No JSX: use React.createElement</h2>
+      <p>
+        In a plain HTML file with no build step, JSX will not work because JSX must be transformed into JavaScript.
+        Without tooling, you use <code>React.createElement</code> instead.
+      </p>
+
+      <h3>Component example (pure React) 🧩</h3>
+      <pre><code>function App() {
+  // createElement(type, props, children)
+  return React.createElement("h1", null, "Hello React! 👋⚛️");
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Beginner-friendly explanation</strong> 🧠</p>
+        <p class="muted">
+          <code>createElement</code> is what JSX compiles into behind the scenes.
+          JSX is easier to read, but this shows what React is doing at a lower level.
+        </p>
+      </div>
+    </section>
+
+    <section id="render">
+      <h2>🖼️ Render into the DOM (createRoot + render)</h2>
+      <p>
+        Creating components alone does nothing until you tell React to render into the page.
+      </p>
+
+      <h3>Render the App into #root 🌱</h3>
+      <pre><code>const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(React.createElement(App));</code></pre>
+
+      <div class="callout">
+        <p><strong>What is happening?</strong> ✅</p>
+        <ul>
+          <li>🔎 You select the DOM node <code>#root</code> (normal DOM selection)</li>
+          <li>🌱 That becomes the root container for your React app</li>
+          <li>🖼️ React renders your component output into that container</li>
+        </ul>
+      </div>
+
+      <h3>Add dynamic content (time example) ⏰</h3>
+      <p class="muted">Because this is just JavaScript, you can generate values and include them as children.</p>
+      <pre><code>function App() {
+  const time = new Date().toLocaleTimeString();
+  return React.createElement("h1", null, `It's ${time} ⏰`);
+}</code></pre>
+
+      <p class="muted">
+        In this “pure” setup, you generally need to refresh the page manually to see changes — unless you add state/effects.
+      </p>
+    </section>
+
+    <section id="state-effect">
+      <h2>🔄 State + effect: build a small clock</h2>
+      <p>
+        To update the UI over time, you need <strong>state</strong> (data that React tracks) and an <strong>effect</strong>
+        (run code after rendering).
+      </p>
+
+      <h3>Clock example (pure React) ⏱️</h3>
+      <pre><code>function App() {
+  const [time, setTime] = React.useState(new Date().toLocaleTimeString());
+
+  React.useEffect(() =&gt; {
+    const id = setInterval(() =&gt; {
+      setTime(new Date().toLocaleTimeString());
+    }, 1000);
+
+    // Cleanup (good practice)
+    return () =&gt; clearInterval(id);
+  }, []);
+
+  return React.createElement("h1", null, `It's ${time} ⏰`);
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(React.createElement(App));</code></pre>
+
+      <div class="callout">
+        <p><strong>Key ideas</strong> ✅</p>
+        <ul>
+          <li>🧠 <code>useState</code> creates state and a setter (<code>setTime</code>)</li>
+          <li>🔁 Updating state triggers a re-render</li>
+          <li>🧪 <code>useEffect</code> runs the interval setup once because of the empty dependency array <code>[]</code></li>
+          <li>🧹 Cleanup prevents timers from stacking (important in real apps)</li>
+        </ul>
+      </div>
+
+      <p class="muted">
+        This demonstrates the React promise: <strong>update state → UI stays in sync</strong>.
+      </p>
+    </section>
+
+    <section id="limitations">
+      <h2>🧰 Why modern tooling is helpful</h2>
+      <p>
+        Pure React is educational, but it’s not a great real-world developer experience.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>What you miss without tooling 🚫</h3>
+          <ul>
+            <li>🧾 JSX support (you’re stuck with <code>createElement</code>)</li>
+            <li>📦 Modules/imports (harder to split code into files)</li>
+            <li>🔁 Dev server with hot reload (you often refresh manually)</li>
+            <li>🧱 Modern build optimization for production</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>What tooling gives you ✅</h3>
+          <ul>
+            <li>✨ JSX compilation</li>
+            <li>📁 File-based module system (clean project structure)</li>
+            <li>⚡ Fast dev server + auto reload</li>
+            <li>🏗️ Production builds + bundling</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Practical takeaway</strong> 🎯</p>
+        <p class="muted">
+          Pure React is a helpful demo, but modern React development uses tooling because it improves readability,
+          scalability, and development speed.
+        </p>
+      </div>
+    </section>
+
+    <section id="self-check">
+      <h2>📝 Quick self-check</h2>
+      <ol>
+        <li>Why does JSX not work in “pure React” without tooling?</li>
+        <li>What is the purpose of the <code>&lt;div id="root"&gt;</code> element?</li>
+        <li>Why do we include both React and ReactDOM scripts?</li>
+        <li>What does <code>React.createElement(type, props, children)</code> do?</li>
+        <li>How does the clock update every second in React?</li>
+        <li>What does the empty dependency array <code>[]</code> do in an effect?</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>✅ If you can answer these, you understand the “pure React” demo and why tooling matters.</strong> 😄</p>
+      </div>
+
+      <ul class="checklist">
+        <li>✅ I know how React can run in a plain HTML file</li>
+        <li>✅ I understand createElement vs JSX</li>
+        <li>✅ I understand root rendering + state-driven re-render</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>
+        Reviewer generated from the provided transcript. Designed for clean A4 printing (single column, word-wrapped).
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

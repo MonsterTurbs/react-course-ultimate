@@ -1,0 +1,472 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Class Components vs Function Components (Hooks vs Lifecycle)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+
+    .compare{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 4px;
+      font-size: 13.5px;
+    }
+    .compare th,
+    .compare td{
+      border:1px solid var(--border);
+      padding: 10px 10px;
+      vertical-align: top;
+    }
+    .compare th{
+      background: var(--panel);
+      text-align:left;
+      font-weight:700;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+    .danger{ color: var(--danger); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🆚 React Study Guide: Class Components vs Function Components</h1>
+      <p class="subtitle">A focused comparison of the two component styles: <strong>functions + Hooks</strong> (modern) vs <strong>classes + lifecycle methods</strong> (legacy). Emphasis: why Hooks changed React development.</p>
+      <div class="meta">
+        <span class="chip">🪝 Hooks (modern)</span>
+        <span class="chip">🏛️ Lifecycle methods (legacy)</span>
+        <span class="chip">🧠 State & Effects</span>
+        <span class="chip">🧩 Event handlers & JSX return</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>📌 High-level idea</h2>
+      <p>Before we dive deeper into class components, it helps to understand <strong>what actually changes</strong> when you move between modern function components and legacy class components.</p>
+      <div class="callout">
+        <strong>Big picture:</strong> Class components revolve around <em>lifecycle methods</em> and <em>object-oriented patterns</em>. Function components revolve around <em>Hooks</em> and <em>synchronization</em>.
+      </div>
+    </section>
+
+    <section>
+      <h2>🕰️ Timeline (context)</h2>
+      <ul>
+        <li>🏛️ <strong>Class components</strong> became common in early React (mid-2010s). They use lifecycle methods like <code>componentDidMount</code>.</li>
+        <li>🪝 <strong>Hooks</strong> (and fully capable function components) arrived later and changed the standard way people write React apps.</li>
+        <li>⚠️ Before Hooks, function components existed but were limited because they couldn’t manage their own state.</li>
+      </ul>
+      <p class="muted">The exact version numbers aren’t the important part here — what matters is understanding <em>why</em> Hooks mattered: they unlocked state and side-effects in function components.</p>
+    </section>
+
+    <section>
+      <h2>🧱 How you write the component</h2>
+
+      <table class="compare" aria-label="How components are written">
+        <thead>
+          <tr>
+            <th>Function Component (Modern)</th>
+            <th>Class Component (Legacy)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <ul>
+                <li>Any JS function (declaration or arrow)</li>
+                <li>Props are function parameters</li>
+              </ul>
+              <pre><code>function MovieList(props) {
+  return &lt;div /&gt;;
+}
+
+const MovieList = (props) =&gt; {
+  return &lt;div /&gt;;
+};</code></pre>
+            </td>
+            <td>
+              <ul>
+                <li>ES6 class extending <code>React.Component</code></li>
+                <li>Uses OOP patterns and the <code>this</code> keyword</li>
+              </ul>
+              <pre><code>import React from "react";
+
+class MovieList extends React.Component {
+  render() {
+    return &lt;div /&gt;;
+  }
+}</code></pre>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>🧠 Props and State: “easy mode” vs “boilerplate mode”</h2>
+      <table class="compare" aria-label="Props and state comparison">
+        <thead>
+          <tr>
+            <th>Function Components</th>
+            <th>Class Components</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <h3>📩 Props</h3>
+              <ul>
+                <li>Read via function parameter</li>
+                <li>Often destructured for convenience</li>
+              </ul>
+              <pre><code>function Hello({ name }) {
+  return &lt;p&gt;Hi {name}!&lt;/p&gt;;
+}</code></pre>
+
+              <h3>🧠 State</h3>
+              <ul>
+                <li>Created via <code>useState</code></li>
+                <li>Multiple state variables are normal</li>
+              </ul>
+              <pre><code>const [count, setCount] = useState(0);</code></pre>
+            </td>
+            <td>
+              <h3>📩 Props</h3>
+              <ul>
+                <li>Read via <code>this.props</code></li>
+              </ul>
+              <pre><code>render() {
+  return &lt;p&gt;Hi {this.props.name}!&lt;/p&gt;;
+}</code></pre>
+
+              <h3>🧠 State</h3>
+              <ul>
+                <li>Initialized in constructor with <code>this.state = { ... }</code></li>
+                <li>Often one big state object</li>
+              </ul>
+              <pre><code>constructor(props) {
+  super(props);
+  this.state = { count: 0 };
+}</code></pre>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <strong>Main pain point in classes:</strong> lots of React-specific boilerplate and constant use of <code>this</code>.
+      </div>
+    </section>
+
+    <section>
+      <h2>🌪️ Side effects and “lifecycle” vs “synchronization”</h2>
+      <p>This is the biggest conceptual difference.</p>
+
+      <div class="rule">
+        <h3>🏛️ Class components: lifecycle methods</h3>
+        <p>React provides special methods that run at different moments in a component’s life:</p>
+        <ul>
+          <li><code>componentDidMount</code> — runs after first render</li>
+          <li><code>componentDidUpdate</code> — runs after updates</li>
+          <li><code>componentWillUnmount</code> — runs before the component is removed</li>
+        </ul>
+        <pre><code>componentDidMount() {
+  // start fetching, subscribe, etc.
+}
+
+componentWillUnmount() {
+  // cleanup subscriptions, timers, etc.
+}</code></pre>
+      </div>
+
+      <div class="rule">
+        <h3>🪝 Function components: useEffect for synchronization</h3>
+        <p>With Hooks, we focus more on <strong>synchronizing</strong> the component with a side effect (data fetching, subscriptions, timers, DOM interactions), instead of thinking in rigid lifecycle steps.</p>
+        <pre><code>useEffect(() =&gt; {
+  // do side effect
+  return () =&gt; {
+    // cleanup
+  };
+}, [deps]);</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Key mindset shift:</strong> Classes emphasize “when in the lifecycle”. Hooks emphasize “keep this effect in sync with these dependencies”.
+      </div>
+    </section>
+
+    <section>
+      <h2>🪝 Why Hooks are the main difference</h2>
+      <p>Hooks introduced a new way of thinking and writing React apps:</p>
+      <ul>
+        <li>♻️ Easier reuse of stateful logic via <strong>custom hooks</strong></li>
+        <li>🧹 Cleaner organization: related logic can live together (instead of being split across lifecycle methods)</li>
+        <li>😌 Less boilerplate and less “React-specific ceremony”</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Practical outcome:</strong> Hook-based code tends to be cleaner because <code>useEffect</code> lets you keep all lifecycle-related logic in one place.
+      </div>
+    </section>
+
+    <section>
+      <h2>🖱️ Event handlers (small but important difference)</h2>
+      <table class="compare" aria-label="Event handler comparison">
+        <thead>
+          <tr>
+            <th>Function Components</th>
+            <th>Class Components</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <ul>
+                <li>Handlers are just functions in the component body</li>
+              </ul>
+              <pre><code>function Counter() {
+  function handleClick() {
+    // ...
+  }
+
+  return &lt;button onClick={handleClick} /&gt;;
+}</code></pre>
+            </td>
+            <td>
+              <ul>
+                <li>Handlers are class methods</li>
+                <li>Often need manual binding for <code>this</code></li>
+              </ul>
+              <pre><code>class Counter extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleClick() {
+    // ...
+  }
+
+  render() {
+    return &lt;button onClick={this.handleClick} /&gt;;
+  }
+}</code></pre>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <strong>Beginner pain point:</strong> The <code>this</code> keyword in class handlers is easy to get wrong and can break your app.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 Returning JSX</h2>
+      <ul>
+        <li>🪝 <strong>Functions:</strong> return JSX directly from the function.</li>
+        <li>🏛️ <strong>Classes:</strong> return JSX from the special <code>render()</code> method.</li>
+      </ul>
+      <div class="rule">
+        <h3>Quick reminder</h3>
+        <pre><code>// function component
+return &lt;div /&gt;;
+
+// class component
+render() {
+  return &lt;div /&gt;;
+}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Summary: advantages of function components (with Hooks)</h2>
+      <ul>
+        <li class="ok">✅ Less boilerplate, cleaner code</li>
+        <li class="ok">✅ Easier to manage state (<code>useState</code>)</li>
+        <li class="ok">✅ Easier to work with side effects (<code>useEffect</code>)</li>
+        <li class="ok">✅ Easier to share stateful logic (custom hooks)</li>
+        <li class="ok">✅ No annoying / error-prone <code>this</code></li>
+      </ul>
+
+      <div class="callout">
+        <strong>Why code is cleaner with Hooks:</strong> lifecycle-related code can be kept together instead of being scattered across multiple lifecycle methods.
+      </div>
+    </section>
+
+    <section>
+      <h2>🏛️ One advantage of class components</h2>
+      <p>The lecture points out one main advantage some developers feel with classes:</p>
+      <ul>
+        <li>🧭 Lifecycle methods can be easier to understand at first because their names are explicit: <code>componentDidMount</code>, <code>componentWillUnmount</code>, etc.</li>
+      </ul>
+      <div class="callout">
+        <strong>Reality check:</strong> Even if classes feel clearer initially, modern React development is overwhelmingly Hook-based.
+      </div>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>🪝 Hooks are the biggest difference: they changed how we think about state and side effects.</li>
+        <li>🏛️ Classes rely on lifecycle methods; Hooks rely on synchronization with dependencies.</li>
+        <li>🧠 Function components are simpler: fewer React-specific rules and less boilerplate.</li>
+        <li>🖱️ Event handlers in classes are more verbose and often require manual <code>this</code> binding.</li>
+        <li>✅ Knowing classes is still valuable for legacy codebases and migrations.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

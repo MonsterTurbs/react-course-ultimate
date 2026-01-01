@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reading and Updating the User State (Redux Toolkit) — Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f8f8f8;
+      --code: #0f172a;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    main { display: grid; gap: 14px; }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 14px 12px;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 0 0 10px; }
+
+    ul, ol {
+      margin: 0 0 10px;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .kvs {
+      display: grid;
+      gap: 10px;
+    }
+
+    .kv {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      background: var(--soft);
+    }
+
+    .kv b { display: inline-block; margin-right: 6px; }
+
+    .callout {
+      border-left: 4px solid #111;
+      padding: 10px 12px;
+      background: var(--soft);
+      border-radius: 10px;
+    }
+
+    .callout p { margin-bottom: 8px; }
+
+    .code {
+      background: #0b1020;
+      color: #eef2ff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      overflow: auto;
+      border: 1px solid #0b1020;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap; /* wrap long lines so print won’t cut off */
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      color: var(--code);
+      background: #f3f4f6;
+      padding: 1px 5px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .code code {
+      color: inherit;
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 860px) {
+      .grid2 { grid-template-columns: 1fr 1fr; }
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 12.5px;
+      margin-top: -4px;
+    }
+
+    .checklist li { margin: 7px 0; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; max-width: none; }
+      header { margin-bottom: 12px; }
+      .card { break-inside: avoid; page-break-inside: avoid; }
+      .code { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Do not print link URLs */
+      a[href]:after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧑‍💻 Reading and Updating the User State (Redux Toolkit)</h1>
+      <p class="subtitle">Reviewer / Study Guide — Updating Redux state from a form, showing it in multiple places, and avoiding common input pitfalls.</p>
+      <div class="meta">
+        <div>🧭 Topic focus: <b>Dispatching actions</b>, <b>useSelector</b>, <b>controlled inputs vs Redux</b>, and <b>navigation after submit</b>.</div>
+        <div>🖨️ Print notes: Single-column, A4-friendly spacing, long lines wrap to avoid cut-offs.</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>🎯 Goal of this lecture</h2>
+        <ul>
+          <li>✅ Update <code>state.user.username</code> in Redux when the user submits the “Create User” form.</li>
+          <li>✅ Show the username across the app (Header, Home page, Cart, and Order form).</li>
+          <li>✅ Redirect to the menu after saving the name.</li>
+          <li>✅ Use <code>defaultValue</code> (not <code>value</code>) when pre-filling an uncontrolled input.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>🧠 Core concepts you must remember</h2>
+
+        <div class="kvs">
+          <div class="kv">
+            <b>1) How Redux state gets updated</b>
+            <div class="mini">⚙️ You don’t “set state” directly. You <b>dispatch</b> an <b>action</b>, and a reducer updates the state.</div>
+            <ul>
+              <li>Action creator (from <code>createSlice</code>) → produces <code>{ type, payload }</code></li>
+              <li><code>dispatch(actionCreator(payload))</code> → reducer runs → store updates → UI re-renders</li>
+            </ul>
+          </div>
+
+          <div class="kv">
+            <b>2) Don’t connect text inputs directly to Redux</b>
+            <div class="mini">🚫 Bad practice: dispatching on every key press makes global state noisy + can cause performance issues.</div>
+            <ul>
+              <li>✅ Keep typing in <b>local component state</b> (controlled input).</li>
+              <li>✅ Dispatch to Redux only on <b>submit</b> (when the user is “done”).</li>
+            </ul>
+          </div>
+
+          <div class="kv">
+            <b>3) Reading state in components</b>
+            <div class="mini">🔍 Use <code>useSelector</code> to read from the Redux store.</div>
+            <ul>
+              <li><code>const username = useSelector(s =&gt; s.user.username)</code></li>
+              <li>If no username yet: conditionally render nothing or show the form.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🧩 Step-by-step implementation (what you actually do)</h2>
+
+        <h3>1) Update Redux in <code>CreateUser</code> on form submit</h3>
+        <div class="callout">
+          <p>🧷 Pattern: Local state for typing → submit → dispatch → navigate.</p>
+          <ul>
+            <li>Guard clause: if username is empty, do nothing.</li>
+            <li>Use <code>useDispatch</code> to get <code>dispatch</code>.</li>
+            <li>Dispatch <code>updateName(username)</code>.</li>
+            <li>Use <code>useNavigate</code> to go to <code>/menu</code>.</li>
+          </ul>
+        </div>
+
+        <div class="code" aria-label="CreateUser submit example">
+<pre><code>// CreateUser.jsx (concept)
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { updateName } from './userSlice';
+
+function CreateUser() {
+  const [username, setUsername] = useState('');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!username) return;              // ✅ guard clause
+
+    dispatch(updateName(username));     // ✅ update Redux
+    navigate('/menu');                  // ✅ redirect
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input value={username} onChange={(e) =&gt; setUsername(e.target.value)} /&gt;
+      &lt;button&gt;Start ordering&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+</code></pre>
+        </div>
+
+        <h3>2) Home page: show CreateUser only when username is empty</h3>
+        <p>🧠 Idea: If a username exists, don’t ask again—show a “Continue ordering” button instead.</p>
+
+        <div class="code" aria-label="Home conditional render example">
+<pre><code>// Home.jsx (concept)
+import { useSelector } from 'react-redux';
+
+const username = useSelector(s =&gt; s.user.username);
+
+return (
+  &lt;div&gt;
+    {username === '' ? (
+      &lt;CreateUser /&gt;
+    ) : (
+      &lt;Button to="/menu" type="primary"&gt;
+        Continue ordering, {username}
+      &lt;/Button&gt;
+    )}
+  &lt;/div&gt;
+);
+</code></pre>
+        </div>
+
+        <h3>3) Show username in other pages (Cart + Header + other UI)</h3>
+        <p>📌 You repeat the same <code>useSelector</code> pattern wherever you need the name.</p>
+        <div class="code" aria-label="useSelector example">
+<pre><code>const username = useSelector(s =&gt; s.user.username);
+// Use it in UI: "Your cart, {username}"</code></pre>
+        </div>
+
+        <h3>4) Pre-fill the “Name” field in the order form</h3>
+        <div class="callout">
+          <p>⚠️ Important: Don’t do <code>value={username}</code> unless you also handle <code>onChange</code>.</p>
+          <p>✅ Use <code>defaultValue={username}</code> to prefill but still allow typing without wiring it to Redux.</p>
+        </div>
+
+        <div class="code" aria-label="defaultValue example">
+<pre><code>// CreateOrder.jsx (concept)
+const username = useSelector(s =&gt; s.user.username);
+
+&lt;input
+  name="customer"
+  defaultValue={username}  // ✅ prefill only
+  // onChange not required for uncontrolled input
+/&gt;
+</code></pre>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🧯 Common mistakes (and fixes)</h2>
+        <div class="grid2">
+          <div class="kv">
+            <b>❌ Dispatching on every keystroke</b>
+            <p class="mini">Symptom: Redux updates constantly while typing.</p>
+            <p>✅ Fix: keep input typing in local state, dispatch only on submit.</p>
+          </div>
+          <div class="kv">
+            <b>❌ Using <code>value={username}</code> without <code>onChange</code></b>
+            <p class="mini">Symptom: input becomes “stuck” and can’t be edited.</p>
+            <p>✅ Fix: use <code>defaultValue</code> or make it a proper controlled input with local state.</p>
+          </div>
+          <div class="kv">
+            <b>❌ Forgetting <code>e.preventDefault()</code></b>
+            <p class="mini">Symptom: page refresh on submit; state “disappears”.</p>
+            <p>✅ Fix: add <code>e.preventDefault()</code> in <code>handleSubmit</code>.</p>
+          </div>
+          <div class="kv">
+            <b>❌ Expecting Redux state to persist after refresh</b>
+            <p class="mini">Symptom: username resets after reloading the page.</p>
+            <p>✅ Reality: Redux state is in-memory. Persistence needs storage/API (this app intentionally does not).</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>✅ Quick checklist (self-test)</h2>
+        <ol class="checklist">
+          <li>🧠 I can explain why inputs should not write to Redux on each key press.</li>
+          <li>🧩 I can implement <code>useDispatch</code> + <code>dispatch(updateName(username))</code>.</li>
+          <li>🧭 I can navigate after submit using <code>useNavigate</code>.</li>
+          <li>🔍 I can read the name anywhere using <code>useSelector</code>.</li>
+          <li>🧷 I know when to use <code>defaultValue</code> vs <code>value</code>.</li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <h2>➡️ What’s next</h2>
+        <p>🛒 After user state, the next big feature is the <b>cart global state</b> using Redux Toolkit. That’s where the app becomes truly functional (add pizzas, update quantities, clear cart, etc.).</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

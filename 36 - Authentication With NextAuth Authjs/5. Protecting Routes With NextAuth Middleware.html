@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Authentication — Protecting Routes With NextAuth Middleware (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codetext: #e8eefc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { padding: 14px 2px 0; }
+
+    h2 {
+      font-size: 1.15rem;
+      margin: 18px 0 10px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.02rem;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+    ul { margin: 8px 0 8px 18px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-left: 5px solid #111;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout .title {
+      margin: 0 0 6px;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow-x: auto;
+      border: 1px solid rgba(255,255,255,0.08);
+      white-space: pre;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    /* Print styles (A4) */
+    @media print {
+      @page { size: A4; margin: 16mm; }
+      body { font-size: 11.5pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { background: #fff; }
+      .chip { background: #fff; }
+      pre {
+        background: #fff;
+        color: #111;
+        border: 1px solid #ddd;
+        white-space: pre-wrap;
+      }
+      /* Don’t print link URLs */
+      a[href]:after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🛡️ Protecting Routes With NextAuth/Auth.js Middleware (Next.js App Router)</h1>
+      <p class="subtitle">Reviewer / Study Guide — beginner-friendly notes + practical examples (print-ready, single-column)</p>
+      <div class="meta">
+        <span class="chip">✅ Goal: Authorization (protect routes)</span>
+        <span class="chip">🧩 File: <code>middleware.js</code> (project root)</span>
+        <span class="chip">🔐 Tool: NextAuth/Auth.js <code>auth</code> middleware</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>1) What you are building</h2>
+      <p>
+        You want to <strong>block access</strong> to the “guest area” routes (e.g., <code>/account</code>) when the user is <strong>not logged in</strong>.
+        If they’re unauthorized, they should be redirected to a sign-in page.
+      </p>
+
+      <div class="callout">
+        <p class="title">🧠 Key idea</p>
+        <p class="small">
+          Middleware runs <strong>on every request before the route renders</strong> (unless you limit it with a matcher). This is perfect for authorization checks.
+        </p>
+      </div>
+
+      <h2>2) Middleware file location and conventions</h2>
+      <ul>
+        <li><strong>File name:</strong> <code>middleware.js</code></li>
+        <li><strong>Location:</strong> project <strong>root</strong> (same level as <code>package.json</code>), <em>not</em> inside <code>app/</code></li>
+        <li><strong>Export:</strong> a function named <code>middleware</code> (or export a compatible middleware function)</li>
+      </ul>
+
+      <h2>3) Quick experiment: your own middleware</h2>
+      <p>
+        Before using NextAuth’s middleware, the lecture demonstrates a simple custom middleware to understand behavior.
+      </p>
+
+      <h3>3.1 Logging the incoming request</h3>
+      <pre><code>// middleware.js (root)
+export function middleware(request) {
+  console.log("Incoming request:", request);
+}
+</code></pre>
+      <p class="small">📌 You can inspect cookies, URL, headers, geolocation hints, etc.</p>
+
+      <h3>3.2 Redirecting with NextResponse</h3>
+      <p>
+        You can force a redirect using <code>NextResponse.redirect()</code>.
+        But you must avoid redirect loops.
+      </p>
+      <pre><code>// middleware.js (root)
+import { NextResponse } from "next/server";
+
+export function middleware(request) {
+  // Always redirect to /about (demo only)
+  return NextResponse.redirect(new URL("/about", request.url));
+}
+</code></pre>
+
+      <div class="callout">
+        <p class="title">⚠️ Common problem: “Too many redirects”</p>
+        <p class="small">
+          Middleware runs for <strong>every route by default</strong>. If you redirect to <code>/about</code> and middleware still runs on <code>/about</code>, you get an infinite loop.
+        </p>
+      </div>
+
+      <h3>3.3 Fixing loops with a matcher</h3>
+      <p>
+        Use <code>export const config</code> and a <code>matcher</code> to restrict which routes execute the middleware.
+      </p>
+      <pre><code>// middleware.js (root)
+import { NextResponse } from "next/server";
+
+export function middleware(request) {
+  return NextResponse.redirect(new URL("/about", request.url));
+}
+
+export const config = {
+  matcher: ["/account"], // middleware runs ONLY on /account
+};
+</code></pre>
+
+      <h2>4) Real goal: Protect /account with NextAuth/Auth.js</h2>
+      <p>
+        NextAuth (Auth.js) provides an <code>auth</code> helper that can act as:
+      </p>
+      <ul>
+        <li>✅ a function to read the current session in server components</li>
+        <li>✅ a middleware-compatible function to protect routes</li>
+      </ul>
+
+      <h3>4.1 Use Auth.js middleware in <code>middleware.js</code></h3>
+      <pre><code>// middleware.js (root)
+import { auth } from "./app/_lib/auth";
+
+export const middleware = auth;
+
+export const config = {
+  matcher: ["/account"],
+};
+</code></pre>
+
+      <div class="callout">
+        <p class="title">✅ What this does</p>
+        <p class="small">
+          Now, whenever a request targets <code>/account</code>, Auth.js middleware runs and can decide whether the user is allowed.
+        </p>
+      </div>
+
+      <h2>5) Required Auth.js config: the <code>authorized</code> callback</h2>
+      <p>
+        Middleware alone isn’t enough — you also configure a callback in your Auth.js setup.
+        This callback returns <strong>true</strong> if the request is authorized, otherwise <strong>false</strong>.
+      </p>
+
+      <pre><code>// app/_lib/auth.js (or your auth config file)
+import NextAuth from "next-auth";
+import Google from "next-auth/providers/google";
+
+const config = {
+  providers: [
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+    }),
+  ],
+
+  callbacks: {
+    authorized({ auth, request }) {
+      // ✅ simplest rule: allow only logged-in users
+      return !!auth?.user;
+    },
+  },
+};
+
+export const { auth, handlers: { GET, POST } } = NextAuth(config);
+</code></pre>
+
+      <div class="callout">
+        <p class="title">🧩 Explain it like I’m new</p>
+        <ul class="small">
+          <li><code>auth</code> here means “current authentication/session info”</li>
+          <li><code>auth?.user</code> exists when the user is logged in</li>
+          <li><code>!!</code> converts a value into a strict boolean (true/false)</li>
+          <li>If you return <code>false</code>, Auth.js will redirect to a sign-in route</li>
+        </ul>
+      </div>
+
+      <h2>6) End-to-end flow you should expect</h2>
+      <ol>
+        <li>🚶 User tries to visit <code>/account</code></li>
+        <li>🛑 <code>middleware.js</code> runs (because matcher matches <code>/account</code>)</li>
+        <li>🔎 Auth.js executes <code>callbacks.authorized(...)</code></li>
+        <li>
+          ✅ If logged in → allow route rendering<br />
+          ❌ If not logged in → redirect to a sign-in page
+        </li>
+      </ol>
+
+      <h2>7) Practical checklist (debug fast)</h2>
+      <div class="grid">
+        <div class="callout">
+          <p class="title">✅ File placement</p>
+          <ul class="small">
+            <li><code>middleware.js</code> is in the project root (not <code>app/</code>)</li>
+            <li>Matcher includes the route(s) you want to protect, e.g. <code>"/account"</code></li>
+          </ul>
+        </div>
+        <div class="callout">
+          <p class="title">✅ Auth.js wiring</p>
+          <ul class="small">
+            <li>You export <code>auth</code> from your Auth.js setup file</li>
+            <li><code>callbacks.authorized</code> returns boolean</li>
+            <li>Use optional chaining: <code>!!auth?.user</code></li>
+          </ul>
+        </div>
+        <div class="callout">
+          <p class="title">⚠️ Avoid common traps</p>
+          <ul class="small">
+            <li>Redirect loops if middleware matches the redirect target</li>
+            <li>Protect only what you need (don’t over-match everything)</li>
+            <li>Remember: middleware runs per-request, so keep it fast</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>8) Quick recap (memorize this recipe)</h2>
+      <ul>
+        <li>🧾 Create <code>middleware.js</code> in the root</li>
+        <li>🧩 Export Auth.js middleware: <code>export const middleware = auth</code></li>
+        <li>🎯 Restrict with <code>matcher</code> to only protected routes (e.g., <code>/account</code>)</li>
+        <li>🔐 In Auth.js config, implement <code>callbacks.authorized</code> → <code>return !!auth?.user</code></li>
+      </ul>
+
+      <div class="divider"></div>
+      <p class="small">
+        ✅ Next steps mentioned in the lecture: build your own sign-in and sign-out UI so you don’t rely on the default blue Auth.js pages.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

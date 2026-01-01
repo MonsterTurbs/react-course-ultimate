@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tailwind CSS Crash Course — Styling the Cart (Reviewer)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --soft:#f7f7f8;
+      --border:#e6e6e6;
+      --accent:#0b57d0;
+      --ok:#0f7b6c;
+      --warn:#8a5a00;
+      --danger:#b42318;
+      --codebg:#0b0f19;
+      --codefg:#e6edf3;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 1.55rem;
+      margin: 0 0 6px 0;
+      line-height: 1.25;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      color:var(--muted);
+      font-size: 0.92rem;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    h2{
+      font-size: 1.2rem;
+      margin: 18px 0 8px;
+      page-break-after: avoid;
+    }
+
+    h3{
+      font-size: 1.05rem;
+      margin: 14px 0 8px;
+      page-break-after: avoid;
+    }
+
+    p{margin: 8px 0;}
+
+    .note, .tip, .warning{
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+      page-break-inside: avoid;
+    }
+    .tip{border-left: 6px solid var(--ok);}
+    .warning{border-left: 6px solid var(--warn);}
+    .note{border-left: 6px solid var(--accent);}
+
+    ul{margin: 8px 0 8px 22px;}
+    li{margin: 6px 0;}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+      page-break-inside: avoid;
+    }
+
+    .k{font-weight:700;}
+    .muted{color:var(--muted);}
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px;
+      border-radius: 12px;
+      overflow:auto;
+      margin: 10px 0;
+      page-break-inside: avoid;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+
+    table{
+      border-collapse: collapse;
+      width: 100%;
+      margin: 10px 0;
+      font-size: 0.98rem;
+      page-break-inside: avoid;
+    }
+    th, td{
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th{background: var(--soft);}
+
+    .checklist li{margin: 7px 0;}
+
+    /* Print */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: unset; padding: 0; }
+      .chip{ background:#fff; }
+      pre{ background:#fff; color:#000; border:1px solid var(--border); }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🛒 Tailwind CSS — Styling the Cart (Study Guide)</h1>
+      <p class="subtitle">Focus: spacing + dividers, responsive cart-item layout, and a <span class="k">secondary</span> button variant.</p>
+      <div class="meta">
+        <span class="chip">Single-column</span>
+        <span class="chip">A4 print-ready</span>
+        <span class="chip">Beginner-friendly</span>
+        <span class="chip">Icons + emoticons</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What you’re styling on the Cart page</h2>
+      <ul>
+        <li>📏 Page spacing (padding around content; controlled top spacing)</li>
+        <li>🧾 Cart items list (render items + add separators)</li>
+        <li>📱 Responsive cart-item row layout (stacked on mobile → inline at <code>sm</code>)</li>
+        <li>🗑️ Actions: temporary <b>Delete</b> button + spacing between action buttons</li>
+        <li>🔘 New button style: <b>secondary</b> (de-emphasized, bordered)</li>
+      </ul>
+
+      <div class="note">
+        <div class="k">🧠 Big idea</div>
+        <p>Use Tailwind utilities to build layout + spacing directly in JSX/markup, then introduce responsive overrides with <code>sm:</code> where the layout starts to feel “too wide” on larger screens.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>1) Page spacing and headings</h2>
+      <div class="card">
+        <p><span class="k">Goal:</span> Add comfortable spacing left/right while keeping the top link close to the top.</p>
+        <table>
+          <thead>
+            <tr><th>What you want</th><th>Typical Tailwind classes</th><th>Why</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Padding around page content</td>
+              <td><code>px-3 py-3</code> (or <code>px-3</code> + <code>pt-?</code>)</td>
+              <td>Creates breathing room without pushing the top link too far down.</td>
+            </tr>
+            <tr>
+              <td>Space between link and H1</td>
+              <td><code>mt-7</code> on the H1</td>
+              <td>Top stays tight; the main heading gets separation.</td>
+            </tr>
+            <tr>
+              <td>Make the H1 more prominent</td>
+              <td><code>text-xl font-semibold</code></td>
+              <td>Visual hierarchy: heading reads like the page title.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tip">
+        <div class="k">✅ Quick memory trick</div>
+        <p><code>px</code> = left/right, <code>py</code> = top/bottom, <code>mt</code> = margin-top. Add the number = spacing scale value (not pixels).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Rendering cart items and adding dividers</h2>
+      <p>To show the cart items, you map the array and render a <code>&lt;CartItem /&gt;</code> per item inside a list.</p>
+
+      <pre><code>// JSX idea
+&lt;ul className="divide-y divide-stone-200 border-b"&gt;
+  {cart.map(item =&gt; (
+    &lt;CartItem key={item.key} item={item} /&gt;
+  ))}
+&lt;/ul&gt;</code></pre>
+
+      <div class="card">
+        <h3>🧩 Why <code>divide-y</code> + <code>border-b</code>?</h3>
+        <ul>
+          <li><code>divide-y</code> creates lines <span class="k">between</span> children only.</li>
+          <li>But you also wanted a closing line at the very bottom ✅</li>
+          <li>So you add <code>border-b</code> to the list (it uses the same border color set by <code>divide-*</code>).</li>
+        </ul>
+      </div>
+
+      <div class="warning">
+        <div class="k">⚠️ Common mistake</div>
+        <p>If you add spacing with <code>space-y-*</code> on the list <em>and</em> you also use <code>divide-y</code>, the divider lines can look “off-center” because spacing affects the layout around the border lines. In this lesson, the fix is to use padding on each cart item instead.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Styling each CartItem</h2>
+      <div class="card">
+        <h3>📦 Use padding per item</h3>
+        <p>Instead of <code>space-y</code> on the list, add something like <code>py-3</code> on each item so separators sit nicely in the middle.</p>
+      </div>
+
+      <div class="card">
+        <h3>🧹 Temporary action: Delete button</h3>
+        <p>The lesson adds a temporary <b>Delete</b> button (type <code>small</code>) and lays out text + button using Flexbox.</p>
+        <pre><code>// idea: inside CartItem
+&lt;div className="flex items-center justify-between"&gt;
+  &lt;div&gt;
+    &lt;p className="mb-1 text-sm font-bold"&gt;2× Margherita&lt;/p&gt;
+    &lt;p className="text-sm text-stone-600"&gt;₱399&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;Button type="small"&gt;Delete&lt;/Button&gt;
+&lt;/div&gt;</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>📱 Responsive improvement at <code>sm</code></h3>
+        <p>On larger screens, stacked content can look “lost” (too much empty space). The fix shown:</p>
+        <ul>
+          <li>Make the container flex only from <code>sm</code> upward: <code>sm:flex</code></li>
+          <li>Align vertically: <code>sm:items-center</code></li>
+          <li>Add spacing between blocks: <code>sm:gap-6</code></li>
+          <li>Remove mobile-only margin: <code>sm:mb-0</code></li>
+        </ul>
+
+        <pre><code>// mobile-first
+className="mb-1 text-sm font-bold
+           sm:flex sm:items-center sm:gap-6 sm:mb-0"</code></pre>
+
+        <p class="muted">🧠 Note: classes without prefixes apply to all sizes; prefixed classes override from that breakpoint upward.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Spacing between action buttons</h2>
+      <p>Below the list, the lecture adds spacing between buttons using the <code>space-y-*</code> helper:</p>
+      <pre><code>// parent wrapper for buttons
+className="mt-6 space-y-2"</code></pre>
+
+      <div class="tip">
+        <div class="k">✅ When to use <code>space-y</code></div>
+        <p>Use it when you want consistent spacing between children and you are <em>not</em> depending on divider lines being visually centered between padded rows.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Creating a “Secondary” button variant</h2>
+      <p>The goal is a de-emphasized button: transparent background, subtle border, light hover/focus styling.</p>
+
+      <div class="card">
+        <h3>🔘 What “secondary” usually looks like</h3>
+        <ul>
+          <li>Background: transparent (default)</li>
+          <li>Border: visible but light (e.g., <code>border-2 border-stone-300</code>)</li>
+          <li>Hover: subtle background + darker text (e.g., <code>hover:bg-stone-200 hover:text-stone-800</code>)</li>
+          <li>Focus: ring uses a neutral color (e.g., <code>focus:ring-stone-200</code>)</li>
+        </ul>
+      </div>
+
+      <pre><code>// example Tailwind for a secondary button
+"inline-block rounded-full border-2 border-stone-300
+ uppercase font-semibold tracking-widest
+ px-4 py-2 text-stone-700
+ hover:bg-stone-200 hover:text-stone-800
+ focus:outline-none focus:ring focus:ring-stone-200 focus:ring-offset-2
+ transition-colors duration-300"</code></pre>
+
+      <div class="warning">
+        <div class="k">⚠️ Important detail about sorting</div>
+        <p>Your Prettier Tailwind plugin sorts classes inside JSX strings, but it won’t automatically sort strings that live in JavaScript objects (like <code>styles.secondary</code>). That’s normal.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Quick checklist</h2>
+      <ul class="checklist">
+        <li>📌 Page padding: <code>px-3</code> (and a small <code>py</code> if needed)</li>
+        <li>🧭 H1 spacing: <code>mt-7</code>; styling: <code>text-xl font-semibold</code></li>
+        <li>🧾 List separators: <code>divide-y divide-stone-200</code> + add <code>border-b</code> to “close” the list</li>
+        <li>📦 CartItem spacing: add <code>py-*</code> per item (instead of <code>space-y</code> on the list)</li>
+        <li>📱 Responsive cart row at <code>sm</code>: <code>sm:flex sm:items-center sm:gap-6</code></li>
+        <li>🧹 Reset mobile-only spacing at <code>sm</code>: <code>sm:mb-0</code></li>
+        <li>🔘 Secondary button: light border + subtle hover/focus</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧯 Common mistakes to avoid</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="k">1) “sm means small screens” ❌</div>
+          <p><code>sm:*</code> applies from <b>640px and up</b> (mobile-first). Below that, the unprefixed classes apply.</p>
+        </div>
+        <div class="card">
+          <div class="k">2) Dividers look weird ❌</div>
+          <p>If you combine <code>divide-y</code> with <code>space-y</code>, the borders can appear misaligned. Prefer padding on items.</p>
+        </div>
+        <div class="card">
+          <div class="k">3) Over-styling a “secondary” button ❌</div>
+          <p>Secondary actions should be calmer. Keep contrast and hover effects subtle.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="muted" style="margin-top:18px; border-top:1px solid var(--border); padding-top:10px; font-size:0.92rem;">
+      <p>End of notes for <span class="k">Styling the Cart</span>. Next lesson: styling the order form.</p>
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,386 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eat-N-Split — Selecting a Friend (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --ink:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --accent:#0b57d0;
+      --ok:#137333;
+      --warn:#b06000;
+      --danger:#b3261e;
+    }
+
+    /* Base */
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px 18px 42px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--soft);
+      padding:16px 16px 14px;
+      border-radius:12px;
+    }
+    h1{margin:0 0 6px;font-size:20px;line-height:1.25;}
+    .subtitle{margin:0;color:var(--muted);font-size:13px;}
+
+    h2{
+      margin:18px 0 8px;
+      font-size:16px;
+      padding-top:10px;
+      border-top:1px solid var(--border);
+    }
+    h3{margin:14px 0 6px;font-size:14px;}
+    p{margin:8px 0;}
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+
+    .callout{
+      border:1px solid var(--border);
+      border-left:5px solid var(--accent);
+      background:#fff;
+      padding:12px 12px;
+      border-radius:10px;
+      margin:10px 0;
+    }
+    .callout.ok{border-left-color:var(--ok);}
+    .callout.warn{border-left-color:var(--warn);}
+    .callout.danger{border-left-color:var(--danger);}
+
+    ul{margin:8px 0 8px 22px;}
+    li{margin:6px 0;}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+
+    pre{
+      margin:10px 0;
+      padding:12px;
+      border:1px solid var(--border);
+      background: #fcfcfc;
+      border-radius:10px;
+      overflow:auto;
+      font-size:12px;
+      line-height:1.45;
+      tab-size:2;
+    }
+    code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+
+    .diagram{
+      border:1px dashed var(--border);
+      background:#fff;
+      padding:12px;
+      border-radius:10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      line-height:1.4;
+      white-space:pre-wrap;
+    }
+
+    .hr{height:1px;background:var(--border);margin:14px 0;}
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border:1px solid var(--border);
+      background:#fff;
+      padding:1px 6px;
+      border-radius:6px;
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    /* Print */
+    @page { size: A4; margin: 14mm; }
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ padding:0; }
+      header{ break-inside:avoid; }
+      h2, h3{ break-after:avoid; }
+      pre, .callout, .diagram{ break-inside:avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 Eat-N-Split — Selecting a Friend</h1>
+      <p class="subtitle">Reviewer / Study Guide (React Fundamentals): lifting state up, sibling communication, conditional rendering, and safe comparisons with optional chaining.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: State + Props + Events</span>
+        <span class="chip">🔁 Pattern: Lift state up</span>
+        <span class="chip">🧠 Concept: One-way data flow</span>
+        <span class="chip">🧰 Tooling: Optional chaining (?.)</span>
+      </div>
+    </header>
+
+    <h2>🎯 What you’re building (behavior checklist)</h2>
+    <ul>
+      <li>Click <b>Select</b> on a friend → open the “Split a bill with …” form for that friend.</li>
+      <li>The selected friend row gets a highlight (e.g., orange background) and the button text becomes <b>Close</b>.</li>
+      <li>Click <b>Close</b> again on the same friend → close the form (no friend selected).</li>
+      <li>Click <b>Select</b> on another friend → switch selection and update the form content instantly.</li>
+      <li>Nice UX edge case: if “Add Friend” form is open, selecting a friend should auto-close it.</li>
+    </ul>
+
+    <div class="callout">
+      <b>Key idea 🧠</b>
+      <p>If two components need the same information (here: which friend is selected), that information must live in the <b>closest common parent</b> and be passed down via props.</p>
+    </div>
+
+    <h2>🧠 Why “selected friend” must be lifted up</h2>
+    <p>
+      In React, data flows <b>down</b> the component tree (parent → child) via props. A <code>&lt;Friend /&gt;</code> component and a <code>&lt;FormSplitBill /&gt;</code> component are <b>siblings</b> (and in your app, <code>Friend</code> is even nested inside <code>FriendsList</code>), so they can’t pass data sideways directly.
+    </p>
+    <p>
+      ✅ Solution: put the selected friend in <code>App</code> state, then:
+      <br />• pass that state down to the form (to display the correct friend)
+      <br />• pass a handler function down to the friend row (so it can “tell” the parent which friend was clicked)
+    </p>
+
+    <div class="diagram" aria-label="Data flow diagram">
+Component Tree (simplified)
+
+App
+├─ FriendsList
+│  ├─ Friend (row)
+│  ├─ Friend (row)
+│  └─ ...
+└─ FormSplitBill
+
+Goal: Friend click should affect FormSplitBill
+
+✅ Put state in App:
+  selectedFriend (state)
+
+Data Flow:
+  App passes selectedFriend ↓ to FriendsList ↓ to Friend
+  Friend triggers onSelection(friend) ↑ (by calling a function prop)
+  App updates selectedFriend → rerender → FormSplitBill receives updated friend
+    </div>
+
+    <h2>🧱 Step-by-step implementation</h2>
+
+    <h3>1) Add state in <code>App</code> for the selected friend</h3>
+    <div class="callout ok">
+      <b>Default value ✅</b>
+      <p>Use <code>null</code> to represent “no friend selected”.</p>
+    </div>
+
+    <pre><code>// App.js
+import { useState } from "react";
+
+export default function App() {
+  const [selectedFriend, setSelectedFriend] = useState(null);
+
+  // ...
+}
+</code></pre>
+
+    <h3>2) Conditionally render the split form</h3>
+    <p>
+      If there is no selected friend, there’s nothing to show on the right panel.
+      Use short-circuit rendering: <code>{'{selectedFriend && &lt;FormSplitBill /&gt;}'}</code>.
+    </p>
+
+    <pre><code>// App.js (inside JSX)
+{selectedFriend &amp;&amp; (
+  &lt;FormSplitBill selectedFriend={selectedFriend} /&gt;
+)}
+</code></pre>
+
+    <h3>3) Create a handler that updates the selection (child-to-parent communication)</h3>
+    <p>
+      The <code>Friend</code> row will call this handler when the button is clicked.
+      We also want a toggle behavior:
+    </p>
+    <ul>
+      <li>If you click the <b>same</b> friend again → deselect (set back to <code>null</code>).</li>
+      <li>If you click a <b>different</b> friend → switch selection.</li>
+    </ul>
+
+    <div class="callout warn">
+      <b>Important ⚠️</b>
+      <p>
+        When <code>selectedFriend</code> is <code>null</code>, you cannot read <code>.id</code>.
+        Use optional chaining <code>selectedFriend?.id</code> to avoid “Cannot read properties of null”.
+      </p>
+    </div>
+
+    <pre><code>// App.js
+function handleSelection(friend) {
+  setSelectedFriend((cur) =>
+    cur?.id === friend.id ? null : friend
+  );
+}
+</code></pre>
+
+    <h3>4) Pass the handler down to the friend rows (via <code>FriendsList</code>)</h3>
+    <p>
+      This is a light example of <b>prop drilling</b>: <code>App</code> → <code>FriendsList</code> → <code>Friend</code>.
+      It’s fine for 1–2 levels. It becomes painful at 5–6 levels (later you’ll learn better tools for that).
+    </p>
+
+    <pre><code>// App.js
+&lt;FriendsList
+  friends={friends}
+  selectedFriend={selectedFriend}
+  onSelection={handleSelection}
+/&gt;
+</code></pre>
+
+    <pre><code>// FriendsList.js
+export default function FriendsList({ friends, selectedFriend, onSelection }) {
+  return (
+    &lt;ul&gt;
+      {friends.map((friend) =&gt; (
+        &lt;Friend
+          key={friend.id}
+          friend={friend}
+          selectedFriend={selectedFriend}
+          onSelection={onSelection}
+        /&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+</code></pre>
+
+    <h3>5) In <code>Friend</code>, compute whether this row is selected</h3>
+    <p>
+      We compare the selected friend’s <code>id</code> with the current row’s <code>friend.id</code>.
+      Then we use that boolean to:
+    </p>
+    <ul>
+      <li>add a highlight class (e.g., <code>selected</code>)</li>
+      <li>change the button text to <b>Close</b></li>
+    </ul>
+
+    <pre><code>// Friend.js
+export default function Friend({ friend, selectedFriend, onSelection }) {
+  const isSelected = selectedFriend?.id === friend.id;
+
+  return (
+    &lt;li className={isSelected ? "selected" : ""}&gt;
+      &lt;img src={friend.image} alt={friend.name} /&gt;
+      &lt;h3&gt;{friend.name}&lt;/h3&gt;
+
+      {/* ...balance message... */}
+
+      &lt;button className="button" onClick={() =&gt; onSelection(friend)}&gt;
+        {isSelected ? "Close" : "Select"}
+      &lt;/button&gt;
+    &lt;/li&gt;
+  );
+}
+</code></pre>
+
+    <div class="callout">
+      <b>Why <code>() =&gt; onSelection(friend)</code> and not <code>onSelection(friend)</code>? 🧠</b>
+      <p>
+        Because <code>onClick</code> needs a <b>function</b>. If you write <code>onSelection(friend)</code> directly, it runs immediately during render.
+      </p>
+    </div>
+
+    <h3>6) Use the selected friend in <code>FormSplitBill</code></h3>
+    <p>
+      Once the form receives <code>selectedFriend</code>, you can display the name anywhere needed.
+    </p>
+
+    <pre><code>// FormSplitBill.js
+export default function FormSplitBill({ selectedFriend }) {
+  return (
+    &lt;form className="form-split-bill"&gt;
+      &lt;h2&gt;Split a bill with {selectedFriend.name}&lt;/h2&gt;
+      {/* ...rest of form... */}
+    &lt;/form&gt;
+  );
+}
+</code></pre>
+
+    <h2>🧯 Common issues and quick fixes</h2>
+
+    <div class="callout danger">
+      <b>Bug: “Cannot read properties of null (reading 'id')” ❌</b>
+      <p>
+        This happens when you do <code>selectedFriend.id</code> while <code>selectedFriend</code> is <code>null</code>.
+        Fix it with optional chaining: <code>selectedFriend?.id</code>.
+      </p>
+    </div>
+
+    <div class="callout warn">
+      <b>UI looks weird: Add Friend form and Split Bill form open together ⚠️</b>
+      <p>
+        If you have another UI state like <code>showAddFriend</code>, close it when selecting a friend.
+      </p>
+      <pre><code>// App.js (inside handleSelection)
+setShowAddFriend(false);
+</code></pre>
+    </div>
+
+    <h2>🧪 Practice drills (quick self-check)</h2>
+    <ol>
+      <li>Why can’t <code>Friend</code> directly “send” data to <code>FormSplitBill</code>?</li>
+      <li>What does <code>null</code> represent in <code>selectedFriend</code> state?</li>
+      <li>Explain, in one sentence, what “lifting state up” means.</li>
+      <li>What is “prop drilling” and why is it not a big problem here?</li>
+      <li>What does optional chaining <code>?.</code> prevent?</li>
+    </ol>
+
+    <h2>📌 Cheat sheet</h2>
+    <ul>
+      <li>🧠 <b>Lifting state up:</b> place shared state in the closest common parent, pass down data + callbacks.</li>
+      <li>🔁 <b>Toggle selection:</b> <code>cur?.id === friend.id ? null : friend</code></li>
+      <li>🧷 <b>Conditional render:</b> <code>{'{selectedFriend && &lt;FormSplitBill /&gt;}'}</code></li>
+      <li>🛡️ <b>Safe comparisons:</b> <code>selectedFriend?.id === friend.id</code></li>
+      <li>🧩 <b>Child-to-parent:</b> pass a function prop and call it inside the child’s event handler.</li>
+    </ul>
+
+    <div class="hr"></div>
+    <p class="subtitle">
+      End of notes for this lecture. Next topic: making the split-bill form fully dynamic (controlled inputs + calculations).
+    </p>
+  </main>
+</body>
+</html>

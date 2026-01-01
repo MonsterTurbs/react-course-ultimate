@@ -1,0 +1,1098 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Setting Up a Git and GitHub Repository — Study Guide (Wild Oasis)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --ok: #0a7a2f;
+      --warn: #8a4b00;
+      --danger: #b00020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column A4-friendly layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 16px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12.5px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 14px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol { margin: 8px 0 8px 22px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 10px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .ok { border-left: 5px solid var(--ok); }
+    .warn { border-left: 5px solid var(--warn); }
+    .danger { border-left: 5px solid var(--danger); }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th { background: var(--soft); }
+
+    details {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+      margin-top: 10px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .small { color: var(--muted); font-size: 12.5px; }
+
+    /* Print styles */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      section, header { border: 1px solid #00000020; box-shadow: none; }
+      details { border-style: solid; }
+
+      /* Do NOT print URL expansions */
+      a[href]::after { content: "" !important; }
+
+      /* Keep headings with their next content */
+      h2, h3 { break-after: avoid-page; page-break-after: avoid; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧰 Git + GitHub Setup — Reviewer / Study Guide</h1>
+      <p class="subtitle">Wild Oasis (Deployment section) • Install Git, initialize a repo, commit, create GitHub repo, use Personal Access Token, push to remote.</p>
+      <div class="meta">
+        <span class="chip">🧠 Goal: version control + backup</span>
+        <span class="chip">📌 Output: GitHub repo with your source code</span>
+        <span class="chip">🧾 Includes: README.md + .gitignore basics</span>
+        <span class="chip">🛡️ Security: use token (like a password)</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>✅ What you will accomplish</h2>
+        <ul>
+          <li>📥 Install <strong>Git</strong> on your computer</li>
+          <li>📁 Turn your project folder into a <strong>Git repository</strong> (<span class="kbd">git init</span>)</li>
+          <li>🧩 Create a <strong>README.md</strong> (project intro)</li>
+          <li>📌 Save a snapshot of your work using a <strong>commit</strong> (<span class="kbd">git commit</span>)</li>
+          <li>☁️ Create a <strong>GitHub repository</strong> (remote repo in the cloud)</li>
+          <li>🔐 Create a <strong>Personal Access Token</strong> and use it as your password for pushing</li>
+          <li>🚀 Upload your code to GitHub (<span class="kbd">git push</span>)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧠 Beginner-friendly concepts</h2>
+
+        <h3>1) What is Git?</h3>
+        <p>Git is a <strong>version control system</strong>. Think of it as “save points” for your code. Each save point is called a <strong>commit</strong> (📸 snapshot).</p>
+
+        <h3>2) What is a repository?</h3>
+        <p>A <strong>repository</strong> (repo) is a special folder that tracks file changes over time. Git creates a hidden folder called <code>.git</code> that stores the history.</p>
+
+        <h3>3) Local repo vs Remote repo</h3>
+        <ul>
+          <li>💻 <strong>Local repo</strong>: on your computer</li>
+          <li>☁️ <strong>Remote repo</strong>: online (GitHub / GitLab)</li>
+        </ul>
+
+        <div class="callout ok">
+          <strong>✅ Key idea</strong>
+          <p>Local repo = where you code. Remote repo = backup + sharing + deployment pipelines (CI/CD).</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Step-by-step workflow (the “happy path”)</h2>
+
+        <h3>A) Install Git</h3>
+        <ol>
+          <li>🌐 Download Git for your OS (Windows/macOS/Linux)</li>
+          <li>🧪 Confirm it works in your terminal:</li>
+        </ol>
+        <pre><code>git --version</code></pre>
+
+        <h3>B) Initialize your project as a Git repository</h3>
+        <pre><code>git init</code></pre>
+        <p class="small">📝 This creates a <code>.git</code> folder that stores the change history.</p>
+
+        <h3>C) Check current status</h3>
+        <pre><code>git status</code></pre>
+        <p>Git will show which files are:</p>
+        <ul>
+          <li>🆕 <strong>Untracked</strong>: not yet added to Git</li>
+          <li>✏️ <strong>Modified</strong>: changed since last commit</li>
+          <li>✅ <strong>Staged</strong>: ready to be committed</li>
+        </ul>
+
+        <h3>D) Create a README.md (recommended)</h3>
+        <div class="callout">
+          <strong>📄 README.md template</strong>
+          <pre><code># The Wild Oasis
+
+Main project in Jonas Schmedtmann's Ultimate React Course.
+
+Built with React Query and Supabase.
+</code></pre>
+          <p class="small">Markdown basics: <code>#</code> = H1, <code>##</code> = H2, etc.</p>
+        </div>
+
+        <h3>E) Stage files (add to staging area)</h3>
+        <p>Staging area = the list of changes you want included in the next commit.</p>
+        <pre><code>git add -A</code></pre>
+
+        <h3>F) Commit (save a snapshot)</h3>
+        <pre><code>git commit -m "initial commit"</code></pre>
+
+        <div class="callout warn">
+          <strong>📝 Commit message tip</strong>
+          <p>Write messages like commands: “add login form”, “fix bug”, “update README”.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>☁️ GitHub setup (remote repository)</h2>
+
+        <h3>A) Create a GitHub account + verify email</h3>
+        <ul>
+          <li>👤 Sign up / sign in to GitHub</li>
+          <li>📧 Verify your email (important for pushing and settings)</li>
+        </ul>
+
+        <h3>B) Create a new repository</h3>
+        <ul>
+          <li>➕ Click the “plus” → <strong>New repository</strong></li>
+          <li>📛 Name: e.g. <strong>The Wild Oasis</strong></li>
+          <li>🔒 Public or Private (your choice)</li>
+          <li>⚠️ Do NOT initialize with README/.gitignore/license (because you already have a local repo)</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Why avoid GitHub auto-README?</strong>
+          <p>If both local and remote create initial commits separately, you can get “history mismatch” and need merges. Starting with an empty remote is simpler for beginners.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🔐 Personal Access Token (PAT)</h2>
+
+        <p>GitHub now often requires a token instead of your password when pushing via HTTPS. A PAT is basically a <strong>password substitute</strong>.</p>
+
+        <ol>
+          <li>Go to GitHub <strong>Settings</strong> (avatar menu)</li>
+          <li>Scroll down → <strong>Developer settings</strong></li>
+          <li><strong>Personal access tokens</strong> → generate new token</li>
+          <li>Set expiration (example: 30 days)</li>
+          <li>Select scope: ✅ <strong>repo</strong> (needed for pushing to repos)</li>
+          <li>Generate token → copy it and store safely</li>
+        </ol>
+
+        <div class="callout danger">
+          <strong>🚨 Treat your token like a password</strong>
+          <ul>
+            <li>Do not paste it into public places or screenshots</li>
+            <li>If leaked, revoke/delete it immediately</li>
+            <li>You may not be able to view it again after closing the page</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🔗 Connect local repo to GitHub (remote)</h2>
+
+        <h3>1) Add the remote called <code>origin</code></h3>
+        <p>Copy your GitHub repo HTTPS URL, then:</p>
+        <pre><code>git remote add origin https://github.com/&lt;your-username&gt;/&lt;your-repo&gt;.git</code></pre>
+
+        <h3>2) Push your code to GitHub</h3>
+        <pre><code>git push -u origin main</code></pre>
+
+        <div class="callout ok">
+          <strong>✅ What “-u” means</strong>
+          <p>It sets an upstream tracking branch, so later you can just run <span class="kbd">git push</span> without extra parameters.</p>
+        </div>
+
+        <h3>3) When Git asks for credentials</h3>
+        <ul>
+          <li>Username/email: your GitHub email/username</li>
+          <li>Password: your <strong>Personal Access Token</strong> (PAT)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Mini example: modify → add → commit → push</h2>
+
+        <ol>
+          <li>Edit a file (example: README.md)</li>
+          <li>Check changes:</li>
+        </ol>
+        <pre><code>git status</code></pre>
+
+        <p>Stage changes:</p>
+        <pre><code>git add -A</code></pre>
+
+        <p>Commit:</p>
+        <pre><code>git commit -m "update README"</code></pre>
+
+        <p>Push:</p>
+        <pre><code>git push</code></pre>
+
+        <div class="callout">
+          <strong>📌 Mental model</strong>
+          <p>Working directory → (git add) → Staging area → (git commit) → Local history → (git push) → GitHub</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>📁 Why node_modules and dist are not on GitHub</h2>
+
+        <p>You may notice GitHub shows only <strong>source</strong> and <strong>public</strong> folders (and configs) but not <code>node_modules</code> or <code>dist</code>.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Folder/File</th>
+              <th>Should it be in Git?</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>node_modules/</code></td>
+              <td>No ❌</td>
+              <td>Huge; can be reinstalled anytime using <span class="kbd">npm install</span></td>
+            </tr>
+            <tr>
+              <td><code>dist/</code></td>
+              <td>Usually No ❌</td>
+              <td>Build output; can be recreated using <span class="kbd">npm run build</span></td>
+            </tr>
+            <tr>
+              <td><code>src/</code>, <code>public/</code></td>
+              <td>Yes ✅</td>
+              <td>Your actual source code and static assets</td>
+            </tr>
+            <tr>
+              <td><code>.gitignore</code></td>
+              <td>Yes ✅</td>
+              <td>Tells Git what to ignore (node_modules, dist, env files, etc.)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout ok">
+          <strong>✅ Best practice</strong>
+          <p>Commit source code, not generated output. Your build server (Netlify/Vercel) will build the project from source.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 Quick “Command Cheat Sheet”</h2>
+        <ul>
+          <li>📍 Initialize repo: <span class="kbd">git init</span></li>
+          <li>🔎 Check status: <span class="kbd">git status</span></li>
+          <li>➕ Stage all files: <span class="kbd">git add -A</span></li>
+          <li>📸 Commit: <span class="kbd">git commit -m "message"</span></li>
+          <li>🔗 Add remote: <span class="kbd">git remote add origin &lt;url&gt;</span></li>
+          <li>🚀 Push first time: <span class="kbd">git push -u origin main</span></li>
+          <li>🚀 Push later: <span class="kbd">git push</span></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧠 Common mistakes (and fixes)</h2>
+
+        <div class="callout warn">
+          <strong>1) “Authentication failed”</strong>
+          <ul>
+            <li>Use your <strong>Personal Access Token</strong> as the password (not your GitHub password)</li>
+            <li>Token must have <strong>repo</strong> scope</li>
+            <li>If expired, generate a new token</li>
+          </ul>
+        </div>
+
+        <div class="callout warn">
+          <strong>2) Branch name mismatch (master vs main)</strong>
+          <p>Your default branch might be <code>master</code> on older setups. Check with:</p>
+          <pre><code>git status</code></pre>
+          <p>Then push using the correct branch name.</p>
+        </div>
+
+        <div class="callout warn">
+          <strong>3) Forgot to stage files</strong>
+          <p>If commit says “nothing to commit”, run:</p>
+          <pre><code>git add -A</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <h2>🗒️ Transcript (reference)</h2>
+        <p class="small">You can keep this collapsed while studying, then expand when you need the exact wording.</p>
+
+        <details>
+          <summary>📜 Show transcript</summary>
+          <pre><code>In this video,
+
+I will show you how to install Git version control
+
+on your local computer,
+
+how to set up a Git repository
+
+and commit your project to it,
+
+and then how we can basically upload
+
+that repository to a remote GitHub repo.
+
+Now, if you already know how to work with Git and GitHub,
+
+then please feel free to just skip this video.
+
+But if you're still new to Git,
+
+then this is a very important part
+
+of your web developer learning journey,
+
+and so let's go check it out.
+
+So first of all, you'll have to download Git.
+
+So let's come to this website right here.
+
+And from here you can download Git
+
+for your own operating system.
+
+So then you need to install it,
+
+and once you're done we can get back to VS code.
+
+So here, let's then clear the terminal.
+
+And so if your Git installation was successful,
+
+you should be able to run in this folder, Git in it.
+
+And so this will then transform this folder here
+
+into a Git repository.
+
+And a Git repository is basically
+
+just a special kind of folder,
+
+which will track every single change
+
+that you do to every single file in this folder,
+
+so inside this Git repository.
+
+Now Git is also deeply integrated into VS code,
+
+which is why now all of these files
+
+have changed their color.
+
+And also here in this source control panel,
+
+we can see all the files
+
+that are currently still untracked.
+
+So untracked just means that we didn't add them yet
+
+to our so-called staging area.
+
+So let's actually run a command here
+
+called Git status.
+
+And so you will be able to see the same thing.
+
+So we are on the main branch,
+
+because in Git we can have multiple branches
+
+where different versions of your code
+
+can live in different branches,
+
+and you can then easily switch
+
+back and forth between them.
+
+Now I will of course not go deep into any of this here,
+
+because this is not a Git course.
+
+So this video is more of a quick tutorial.
+
+But anyway, before we actually add this here
+
+to our staging area,
+
+let's create a brand new file called "readme.md."
+
+And "md" stands for markdown.
+
+And so usually all repositories
+
+should have a README file like this.
+
+Now, inside markdown we can create
+
+basically an H one with this hash symbol.
+
+So let's say, "The Wild Oasis."
+
+And then here we can create a paragraph
+
+simply by writing here.
+
+And if we wanted an H two,
+
+we would just use it like this,
+
+or an H three and so on.
+
+So let's just say "Main project
+
+in Jonas Schmedtmann's Ultimate React Course."
+
+So this doesn't really matter.
+
+And so now let's add all the files
+
+to the so-called staging area.
+
+So that's "Git add," and then "-A"
+
+so an upper case A.
+
+And then here are these files changed
+
+from untracked to edit.
+
+Alright, if we then check Git status again,
+
+then here we see that we have all of these new files.
+
+And if we then go ahead and change one of them,
+
+then here the color should change.
+
+So let's delete this.
+
+And indeed then we get here "M" for modified.
+
+But let's put it back.
+
+And so then that will go away.
+
+And so then what we can do
+
+is to basically save a snapshot
+
+of the current state of the repository,
+
+and that is what we call a commit.
+
+So Git is all about committing,
+
+and so let's now use this very important command.
+
+So many times we actually use "Git add" and "Git commit"
+
+right one after the other.
+
+So we add everything,
+
+and then we commit it to the repository.
+
+So "Git commit" then "-M" for the commit message.
+
+And then here in the beginning
+
+we usually write "initial commit."
+
+Now, okay and so this then basically clears
+
+all of our working tree,
+
+because these files are now safely committed
+
+inside our Git repository.
+
+And again, if we then changed something here in one of them
+
+then that color would change here again.
+
+So now that's modified again.
+
+And so if we then check "Git status" again,
+
+here we can see that this one has been modified.
+
+And so if we wanted,
+
+we could then add this file again and commit again.
+
+But in this case, let's again just put it back.
+
+And now if we want to basically upload this
+
+to some remote repository,
+
+then we need to create an account
+
+on a service like GitHub or GitLab.
+
+And GitHub is by far the most popular one.
+
+And so let's go there.
+
+So github.com, and then once again,
+
+you need to sign in for your own account right here,
+
+or actually right here.
+
+And once you're done doing that, I will meet you back here.
+
+So once you're done creating your account,
+
+and verifying your email,
+
+which is very important for this to work,
+
+let's create ourselves a new repository
+
+by clicking here on this plus,
+
+then here, or you can also just click here.
+
+So then you need to give it a name,
+
+let's say "The Wild Oasis."
+
+And here you can actually use the same one
+
+because they are scoped to your own username basically.
+
+And then you can choose to make it public or private,
+
+which I will do private.
+
+And then here, don't do any of this.
+
+So no "read me," no "Git ignore" and no "license."
+
+And then let's create this repository.
+
+So this is our new and for now empty repository.
+
+Now, here are some instructions
+
+to how to connect this remote repository.
+
+So this repository that we have here,
+
+which is living here in the cloud, essentially,
+
+with the local repository that we created earlier
+
+on your computer.
+
+Now, before we can actually do that connection,
+
+let's quickly set up something called an access token.
+
+So that's a token that you will use
+
+instead of a password
+
+when you want to connect these two repositories.
+
+So let's come here to your avatar and go to the settings.
+
+And then all the way down here
+
+we go to "developer settings."
+
+And if this here has changed in the meantime,
+
+then you can just Google for how to access
+
+or how to create GitHub personal access tokens.
+
+So here then, select one of these two.
+
+I will just go with the classic ones,
+
+and then here just "generate new token."`
+
+And again, I think you can choose both of them.
+
+Then here you give it a name.
+
+I will just call it "test."
+
+Then here you can select for how long
+
+you want this token to be valid.
+
+So you can choose "no expiration,"
+
+but that is not the most secure option.
+
+So let's leave it at 30.
+
+And so then every 30 days,
+
+you'll have to create a new one.
+
+And then here you'll have to select this repo option,
+
+so that with this token you can get complete access
+
+and complete control over repositories.
+
+Now this stuff here I think we don't need.
+
+And so then let's click on "generate token,"
+
+which I'm not gonna do because I don't need it,
+
+or well maybe I will.
+
+So let's generate this token.
+
+And of course I will
+
+after this video is finished, delete it immediately.
+
+But what you need to do now is to copy this
+
+and store it somewhere safe.
+
+So as it says here, you won't be able to see it again,
+
+because this here is now basically just like a password.
+
+So you need to treat this as a password.
+
+And again, you will need this to connect
+
+the remote repo with your local repo.
+
+And actually, let's now go back
+
+to our terminal NVS code and do that.
+
+So that's "Git remote add,"
+
+and then we call this new branch here an origin.
+
+And then here we need the URL of that Git repository.
+
+So make sure you copy this.
+
+And then let's come to our repositories.
+
+And so this is the one that we just created.
+
+So here we need to copy this part,
+
+or we could also just have copied all of this.
+
+So then let's add that here and then hit "enter."
+
+And so now with this, your local repository knows
+
+about this remote repository,
+
+which again we called here "Origin."
+
+And so now to get all our code
+
+from this repository into this remote one on GitHub
+
+we just used to command "Git push."
+
+Then we need the "-U" for upstream,
+
+and then the name of the remote one, so "Origin,"
+
+and then the name of our current branch
+
+or of the branch that we want
+
+to push to that remote branch.
+
+And so that name of the branch is "main,"
+
+as we can see here,
+
+which in your case will not show up here,
+
+but you can probably also see it here,
+
+or also if you use the command of "Git status."
+
+But anyway, this is the command
+
+that you will need by default.
+
+So "Git push-U, origin Main."
+
+And now here Git will probably
+
+ask you for your credentials.
+
+So that's gonna be your GitHub email address
+
+and that access token that we created earlier.
+
+So that's what you're gonna use instead of a password.
+
+So that token is gonna be necessary
+
+each time that you push your code to the remote branch.
+
+And so each time you did this,
+
+Git probably asked for your credentials.
+
+Now here in my case, it didn't ask me,
+
+because I stored those right inside of Git.
+
+But here, let's keep it simple.
+
+So you can just give it your email
+
+and your access token as a password
+
+each time that it asks for it.
+
+But anyway, in the meantime, as we can see here
+
+all our files have actually been uploaded
+
+to our remote GitHub repository.
+
+Now, okay, now if we reload this,
+
+we should see everything here,
+
+and indeed, there it is.
+
+Great.
+
+So here we have also the readme.md,
+
+which is giving us basically some overview
+
+over what this repository is.
+
+And so that's why each repo should have a README like this.
+
+So here we have the name of our latest commit,
+
+and also when it was done.
+
+Then here we can just explore our code base as we wish.
+
+So here is all the code that we have written.
+
+Here we even have this nice tree.
+
+And yeah, now your code is basically safely stored in here.
+
+Now maybe you're wondering why we only have the source
+
+and the public folder,
+
+if here in our VS code we actually have also note modules
+
+and the dist folder.
+
+Well, the reason for that
+
+is that Vite gave us this Git ignore file.
+
+And so this Git ignore contains
+
+all kinds of files and folders
+
+that will be ignored by Git.
+
+So those are files that will not be committed
+
+into the Git repository.
+
+And so that includes the node modules folder,
+
+and also the dist folder.
+
+And the reason for the dist folder is that this is a folder
+
+that we can very easily just recompute.
+
+And so really only the source code itself
+
+should be committed into the repository.
+
+All right, now here, let's just change something,
+
+just so we can see the workflow of using Git in action.
+
+So let's say we say,
+
+"built with react query and super base."
+
+So then we modified this file,
+
+which again is visible here
+
+in this yellow color and demodified part.
+
+And indeed, if we do Git status,
+
+then here we can see the same and we can see
+
+that we are on the main branch.
+
+So now let's commit this to a repo.
+
+And for that we first need to add it to the staging area
+
+which are all the files that will later be committed
+
+because we might not want to commit all of the files
+
+that we changed, and only some of them.
+
+And therefore that's why first
+
+we have to place the files in this staging area.
+
+So "Git add."
+
+And so here we could even just add some of them.
+
+So just like readme.md,
+
+but usually what I like to do
+
+when I'm working on my own is to just add all the files.
+
+And so then after that we can immediately commit.
+
+So "Git commit-M", and then commit message.
+
+And so usually the message here is written like a command.
+
+So "update readme."
+
+So not update it, but update.
+
+So that's committed.
+
+And then finally, let's push it also to our remote repo.
+
+So "Git push-U origin main."
+
+So let's wait for it.
+
+And if we now reload, then we will see
+
+that our latest commit is now "update readme."
+
+And so all of these have been made 15 minutes ago,
+
+but this one was right now.
+
+And so then here we have indeed that updated file.
+
+And so this is in a nutshell
+
+how you use Git and GitHub in the easiest way possible.
+
+So we can do really a lot of very complex
+
+and very complicated stuff,
+
+but these are the bare essentials.
+
+And so with this, I think we finished
+
+and can now move on to the next lecture
+
+where we actually use this GitHub repo
+
+to deploy your application.</code></pre>
+        </details>
+      </section>
+
+      <section>
+        <h2>✅ Quick self-check</h2>
+        <ul>
+          <li>☑️ I can run <span class="kbd">git status</span> and understand what it shows</li>
+          <li>☑️ I know the difference between untracked, modified, staged</li>
+          <li>☑️ I can do: <span class="kbd">git add -A</span> → <span class="kbd">git commit -m</span> → <span class="kbd">git push</span></li>
+          <li>☑️ I created a GitHub repo without auto README</li>
+          <li>☑️ I generated a PAT with repo scope and stored it safely</li>
+        </ul>
+        <p class="small">Next lecture: use this GitHub repo to deploy (continuous deployment / CI style).</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

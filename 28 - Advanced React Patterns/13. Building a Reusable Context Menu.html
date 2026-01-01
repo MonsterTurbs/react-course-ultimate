@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced React Patterns — Reusable Context Menu (Compound Components) | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --soft2:#fbfbfb;
+      --codebg:#0b1020;
+      --codefg:#e7e7e7;
+      --accent:#1a73e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 48px;
+    }
+
+    header {
+      padding: 18px 16px;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 4px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    section {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 0 18px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--soft2);
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text);
+      margin: 10px 0;
+    }
+
+    .note {
+      border-left: 4px solid #7a7a7a;
+      background: var(--soft2);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      color: var(--text);
+    }
+
+    .danger {
+      border-left: 4px solid #b00020;
+      background: #fff5f6;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      color: var(--text);
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--codebg);
+      color: var(--codefg);
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,.08);
+      white-space: pre;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    hr {
+      border: 0;
+      border-top: 1px solid var(--border);
+      margin: 14px 0;
+    }
+
+    /* Print styles */
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { background: #fff; }
+      .page { max-width: none; margin: 0; padding: 0; }
+      header, section { border-color: #d7d7d7; box-shadow: none; }
+      pre { page-break-inside: avoid; }
+      h2, h3 { page-break-after: avoid; }
+      section { break-inside: avoid; }
+
+      /* Do not print URL trails */
+      a[href]:after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 Reusable Context Menu (Compound Component Pattern)</h1>
+      <p class="subtitle">Advanced React Patterns — turning row actions (Duplicate / Edit / Delete) into a clean, reusable, “app-like” context menu.</p>
+      <div class="meta">
+        <span class="chip">🧠 Pattern: Compound Components</span>
+        <span class="chip">🪝 Reuse: Context + Custom Hooks</span>
+        <span class="chip">🧰 Tools: createPortal, useOutsideClick</span>
+        <span class="chip">🎯 Goal: only 1 menu open at a time</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What we are building (big picture)</h2>
+      <p>We want each <strong>CabinRow</strong> to show a small <strong>three-dots button</strong>. Clicking it opens a floating menu with actions:</p>
+      <ul>
+        <li>📄 Duplicate</li>
+        <li>✏️ Edit</li>
+        <li>🗑️ Delete (with confirmation)</li>
+      </ul>
+      <div class="callout">
+        <p><strong>Key behavior:</strong> only <em>one</em> menu can be open at a time across the whole table. That means the state must live <em>above</em> the rows (in a parent <code>Menus</code> component).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Why Compound Components fit perfectly</h2>
+      <p>We have a “set of related components” that only makes sense together:</p>
+      <ul>
+        <li><code>Menus</code> (parent) — holds shared state (which menu is open, where it should appear)</li>
+        <li><code>Menus.Menu</code> — a wrapper per row</li>
+        <li><code>Menus.Toggle</code> — the three-dots trigger</li>
+        <li><code>Menus.List</code> — the floating panel (portal)</li>
+        <li><code>Menus.Button</code> — menu actions (with icons + close behavior)</li>
+      </ul>
+      <p class="mini">✅ This keeps the API expressive while hiding the “plumbing” (state + DOM positioning + outside click).</p>
+    </section>
+
+    <section>
+      <h2>🧩 Desired API (how it’s used)</h2>
+      <p>We wrap the whole table so <code>Menus</code> can ensure only one open menu:</p>
+      <pre><code>&lt;Menus&gt;
+  &lt;Table.Body
+    data={cabins}
+    render={(cabin) =&gt; (
+      &lt;CabinRow cabin={cabin} key={cabin.id} /&gt;
+    )}
+  /&gt;
+&lt;/Menus&gt;</code></pre>
+
+      <p>Then inside each row:</p>
+      <pre><code>&lt;Menus.Menu&gt;
+  &lt;Menus.Toggle id={cabinId} /&gt;
+
+  &lt;Menus.List id={cabinId}&gt;
+    &lt;Menus.Button icon={&lt;HiSquare2Stack /&gt;} onClick={handleDuplicate}&gt;
+      Duplicate
+    &lt;/Menus.Button&gt;
+
+    &lt;Modal.Open opens="edit"&gt;
+      &lt;Menus.Button icon={&lt;HiPencil /&gt;}&gt;Edit&lt;/Menus.Button&gt;
+    &lt;/Modal.Open&gt;
+
+    &lt;Modal.Open opens="delete"&gt;
+      &lt;Menus.Button icon={&lt;HiTrash /&gt;}&gt;Delete&lt;/Menus.Button&gt;
+    &lt;/Modal.Open&gt;
+  &lt;/Menus.List&gt;
+
+  &lt;Modal.Window name="edit"&gt;
+    &lt;CreateCabinForm cabinToEdit={cabin} /&gt;
+  &lt;/Modal.Window&gt;
+
+  &lt;Modal.Window name="delete"&gt;
+    &lt;ConfirmDelete resourceName="cabins" onConfirm={() =&gt; deleteCabin(cabinId)} /&gt;
+  &lt;/Modal.Window&gt;
+&lt;/Menus.Menu&gt;</code></pre>
+
+      <div class="note">
+        <p><strong>Why this is cool:</strong> we can “mix” compound components — the menu triggers modal windows. The row stays clean because the state and wiring are handled by the compound components.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🏗️ Implementation recipe (step-by-step)</h2>
+      <div class="grid2">
+        <div>
+          <h3>1) Create context + parent state</h3>
+          <ul>
+            <li><code>openId</code>: which menu is open now (empty string = none)</li>
+            <li><code>position</code>: where to place the floating list (x/y)</li>
+            <li><code>open(id)</code> and <code>close()</code> helpers</li>
+          </ul>
+        </div>
+        <div>
+          <h3>2) Implement child components</h3>
+          <ul>
+            <li><strong>Toggle</strong>: decides open/close + calculates position</li>
+            <li><strong>List</strong>: renders via <code>createPortal</code> only when matching <code>openId</code></li>
+            <li><strong>Button</strong>: runs its action (if any) + always closes the menu</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧱 Core code (reference)</h2>
+      <p class="mini">This is a cleaned-up “study version” of what the lecture implements. Adjust styled-components names to match your project.</p>
+
+      <pre><code>import { createContext, useContext, useState } from "react";
+import { createPortal } from "react-dom";
+import { HiEllipsisVertical } from "react-icons/hi2";
+import useOutsideClick from "../hooks/useOutsideClick";
+
+// Styled components (already provided in the project)
+import { StyledToggle, StyledList, StyledButton } from "./Menus.styles";
+
+const MenusContext = createContext();
+
+export default function Menus({ children }) {
+  const [openId, setOpenId] = useState("");
+  const [position, setPosition] = useState(null);
+
+  const close = () =&gt; setOpenId("");
+  const open = setOpenId;
+
+  return (
+    &lt;MenusContext.Provider value={{ openId, open, close, position, setPosition }}&gt;
+      {children}
+    &lt;/MenusContext.Provider&gt;
+  );
+}
+
+function Menu({ children }) {
+  return &lt;div&gt;{children}&lt;/div&gt;;
+}
+
+function Toggle({ id }) {
+  const { openId, open, close, setPosition } = useContext(MenusContext);
+
+  function handleClick(e) {
+    // Make sure we use the button rect (not the SVG)
+    const rect = e.target.closest("button").getBoundingClientRect();
+
+    setPosition({
+      x: window.innerWidth - rect.width - rect.x,
+      y: rect.y + rect.height + 8,
+    });
+
+    if (openId === "" || openId !== id) open(id);
+    else close();
+  }
+
+  return (
+    &lt;StyledToggle onClick={handleClick}&gt;
+      &lt;HiEllipsisVertical /&gt;
+    &lt;/StyledToggle&gt;
+  );
+}
+
+function List({ id, children }) {
+  const { openId, position, close } = useContext(MenusContext);
+  const ref = useOutsideClick(close, true);
+
+  if (openId !== id) return null;
+
+  return createPortal(
+    &lt;StyledList ref={ref} position={position}&gt;
+      {children}
+    &lt;/StyledList&gt;,
+    document.body
+  );
+}
+
+function Button({ icon, onClick, children }) {
+  const { close } = useContext(MenusContext);
+
+  function handleClick() {
+    onClick?.();
+    close();
+  }
+
+  return (
+    &lt;li&gt;
+      &lt;StyledButton onClick={handleClick}&gt;
+        {icon}
+        &lt;span&gt;{children}&lt;/span&gt;
+      &lt;/StyledButton&gt;
+    &lt;/li&gt;
+  );
+}
+
+Menus.Menu = Menu;
+Menus.Toggle = Toggle;
+Menus.List = List;
+Menus.Button = Button;</code></pre>
+
+      <div class="callout">
+        <p><strong>Remember:</strong> the <code>Menus</code> parent must wrap the table rows so it can enforce the “only one open” rule using a single <code>openId</code>.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>📌 How positioning works (beginner-friendly)</h2>
+      <p>We want the floating menu to appear <strong>just below</strong> the three-dots button. The browser can tell us where the button is using:</p>
+      <ul>
+        <li><code>getBoundingClientRect()</code> → gives a “rectangle” with <code>x</code>, <code>y</code>, <code>width</code>, <code>height</code></li>
+        <li>We use <code>e.target.closest("button")</code> so we always measure the actual button (not the SVG icon)</li>
+      </ul>
+      <div class="note">
+        <p><strong>Why is X calculated as</strong> <code>window.innerWidth - rect.width - rect.x</code>?</p>
+        <p>Because the styled list uses <code>right:</code> positioning. That formula converts the button’s left-based <code>x</code> value into a right-based offset.</p>
+      </div>
+      <div class="danger">
+        <p><strong>Known limitation:</strong> using <code>position: fixed</code> means the menu can appear “stuck” if you scroll after opening. Fixing this correctly can be done, but it’s outside the lecture scope.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🖱️ Closing the menu when clicking outside</h2>
+      <p>We reuse the same idea from the modal:</p>
+      <ul>
+        <li>Attach a document click listener</li>
+        <li>If click target is NOT inside the menu DOM node → close it</li>
+      </ul>
+      <p>Instead of rewriting the effect each time, we reuse <code>useOutsideClick(close, true)</code> and attach the returned <code>ref</code> to <code>StyledList</code>.</p>
+      <div class="callout">
+        <p><strong>Important:</strong> listening on the <em>capturing</em> phase (<code>true</code>) prevents “open then instantly close” bugs due to event bubbling.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🔁 Integrating Menu actions with Modal (Edit/Delete)</h2>
+      <p>Instead of using ugly inline row buttons, we want the menu items to trigger modal windows:</p>
+      <ul>
+        <li>Menu item “Edit” → opens <code>&lt;Modal.Window name="edit"&gt;</code></li>
+        <li>Menu item “Delete” → opens <code>&lt;Modal.Window name="delete"&gt;</code></li>
+      </ul>
+      <p class="mini">✅ This works because <code>Modal.Open</code> can wrap any element, including <code>Menus.Button</code>, and inject <code>onClick</code> via cloning.</p>
+    </section>
+
+    <section>
+      <h2>🐞 Common mistakes & quick fixes</h2>
+      <ul>
+        <li><strong>Menu doesn’t show:</strong> ensure <code>&lt;Menus&gt;</code> wraps the rows so context is available.</li>
+        <li><strong>Wrong element measured:</strong> use <code>e.target.closest("button")</code> before <code>getBoundingClientRect()</code>.</li>
+        <li><strong>Menu closes immediately after opening:</strong> your outside-click listener likely runs in bubbling phase — use capturing (<code>true</code>).</li>
+        <li><strong>Multiple menus open:</strong> ensure there’s only one shared <code>openId</code> in the parent.</li>
+        <li><strong>Edit/Delete open the wrong window:</strong> verify IDs/names match: <code>opens="delete"</code> ↔ <code>name="delete"</code>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>✅ Review checklist (self-test)</h2>
+      <ul>
+        <li>🧠 Can you explain why <code>openId</code> must live in the <code>Menus</code> parent?</li>
+        <li>🧩 Can you name the parts of the compound component API (<code>Menu</code>, <code>Toggle</code>, <code>List</code>, <code>Button</code>)?</li>
+        <li>🧭 Can you describe how the menu position is computed?</li>
+        <li>🖱️ Can you explain why outside-click needs capturing?</li>
+        <li>🧰 Can you describe why the menu list is rendered via a portal?</li>
+      </ul>
+      <hr />
+      <p class="mini">Next lecture direction: the UI now feels like a real app — you will keep applying these reusable patterns across the project.</p>
+    </section>
+
+  </main>
+</body>
+</html>

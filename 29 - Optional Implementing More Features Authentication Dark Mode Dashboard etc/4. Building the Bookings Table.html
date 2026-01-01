@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Building the Bookings Table — React Study Guide (Print-Friendly)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --ok: #137333;
+      --warn: #b06000;
+      --bad: #b3261e;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px 48px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 18px 16px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .chips {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+    }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 8px 18px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: #f6f9ff;
+      padding: 10px 12px;
+      margin: 12px 0;
+      border-radius: 10px;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+      padding: 10px 12px;
+      margin: 12px 0;
+      border-radius: 10px;
+    }
+
+    .good {
+      border-left: 4px solid var(--ok);
+      background: #f1fbf4;
+      padding: 10px 12px;
+      margin: 12px 0;
+      border-radius: 10px;
+    }
+
+    .bad {
+      border-left: 4px solid var(--bad);
+      background: #fff5f5;
+      padding: 10px 12px;
+      margin: 12px 0;
+      border-radius: 10px;
+    }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .kpi > div {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: var(--soft);
+    }
+
+    .kpi b { display: inline-block; margin-bottom: 4px; }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: #0b1020;
+      color: #e7e7e7;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      background: #f3f4f6;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 8px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    footer {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    /* Print settings */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>📘 Building the Bookings Table — Reviewer / Study Guide</h1>
+      <p class="subtitle">Topic: Fetching bookings from Supabase, joining related tables, and rendering a reusable table using React Query.</p>
+      <div class="chips">
+        <span class="chip">🧠 React Query</span>
+        <span class="chip">🗄️ Supabase select + joins</span>
+        <span class="chip">🧱 Reusable Table (compound component)</span>
+        <span class="chip">🧾 Clean UI states (Empty / Loading)</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What you are building (Goal)</h2>
+      <div class="kpi">
+        <div>
+          <b>✅ Result</b>
+          <p>A <b>Bookings</b> page that displays booking rows with: cabin name, guest name/email, dates, status, and total price.</p>
+        </div>
+        <div>
+          <b>✅ Key idea</b>
+          <p>We must fetch <b>bookings</b> plus related <b>cabins</b> and <b>guests</b> (not only IDs), because the UI needs human-readable info.</p>
+        </div>
+      </div>
+
+      <div class="note">
+        <p><b>💡 Why this matters:</b> Real-world apps rarely display raw foreign keys like <span class="inline-code">cabinId</span> or <span class="inline-code">guestId</span>. You typically show names, emails, labels, and formatted dates.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Setup in Supabase (Sample data)</h2>
+      <p>The lecture starts by adding more sample data so the table is not “empty”.</p>
+      <ul>
+        <li>👤 Add a new guest (example: <b>Steven Williams</b>).</li>
+        <li>📅 Add a new booking (start/end dates, nights, guests, price, status).</li>
+        <li>🔗 Assign <b>foreign keys</b>: choose a cabin ID and the guest ID you created.</li>
+      </ul>
+      <div class="good">
+        <p><b>Tip:</b> When testing UI features like sorting/filtering later, more rows make it easier to validate behavior.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Step 1 — Create <span class="inline-code">getBookings()</span> in the API layer</h2>
+      <p>You already have <span class="inline-code">getBooking()</span> for a single booking. Now you add <b>get all bookings</b>.</p>
+
+      <h3>🧷 Minimal version (select everything)</h3>
+      <pre><code>export async function getBookings() {
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("*");
+
+  if (error) {
+    console.error(error);
+    throw new Error("Bookings could not be loaded");
+  }
+
+  return data;
+}</code></pre>
+
+      <div class="warn">
+        <p><b>⚠️ Reminder:</b> This fetch returns <span class="inline-code">cabinId</span> and <span class="inline-code">guestId</span> only — not cabin/guest details.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>📄 Step 2 — Render the Bookings page + Bookings table component</h2>
+      <p>On the Bookings page, you include a <span class="inline-code">BookingTable</span> component.</p>
+
+      <h3>🧹 Clean UX states</h3>
+      <ul>
+        <li>⏳ If data is loading → show <b>Spinner</b>.</li>
+        <li>📭 If there is no data → show an <b>Empty</b> component (and avoid showing an empty table).</li>
+        <li>✅ If data exists → render the table rows.</li>
+      </ul>
+
+      <pre><code>// inside BookingTable
+if (isLoading) return &lt;Spinner /&gt;;
+
+if (!bookings?.length)
+  return &lt;Empty resourceName="bookings" /&gt;;</code></pre>
+
+      <div class="note">
+        <p><b>🧠 Beginner note:</b> This pattern prevents “weird UI” (like a full table frame with no rows). It also makes the interface feel intentional.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>⚡ Step 3 — Fetch bookings with React Query</h2>
+      <p>You create a custom hook similar to <span class="inline-code">useCabins()</span>, but for bookings.</p>
+
+      <pre><code>export function useBookings() {
+  const { data: bookings, isLoading, error } = useQuery({
+    queryKey: ["bookings"],
+    queryFn: getBookings,
+  });
+
+  return { bookings, isLoading, error };
+}</code></pre>
+
+      <div class="good">
+        <p><b>✅ Benefits you keep:</b> caching, refetch on focus, easy devtools inspection, consistent loading/error management.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🔗 Step 4 — Join related tables (cabins + guests) in Supabase</h2>
+      <p>Your UI needs:</p>
+      <ul>
+        <li>🏠 Cabin: <b>name</b></li>
+        <li>👤 Guest: <b>fullName</b> and <b>email</b></li>
+      </ul>
+
+      <p>So you update the query to include foreign tables.</p>
+
+      <h3>✅ Join version (bring related objects)</h3>
+      <pre><code>const { data, error } = await supabase
+  .from("bookings")
+  .select("*, cabins(*), guests(*)");</code></pre>
+
+      <div class="note">
+        <p><b>Why it works:</b> Supabase can return nested objects from related tables using the relationship defined by foreign keys.</p>
+      </div>
+
+      <h3>🎯 Optimized version (select only what you need)</h3>
+      <pre><code>const { data, error } = await supabase
+  .from("bookings")
+  .select(
+    "id, created_at, startDate, endDate, numNights, numGuests, status, totalPrice, cabins(name), guests(fullName, email)"
+  );</code></pre>
+
+      <div class="good">
+        <p><b>✅ Best practice:</b> selecting fewer columns reduces payload size and speeds up your app, especially with many rows.</p>
+      </div>
+
+      <div class="bad">
+        <p><b>Common mistake:</b> using the wrong table name (example: <span class="inline-code">cabin</span> vs <span class="inline-code">cabins</span>). Supabase will throw a foreign-key lookup error.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧱 Step 5 — Table + Row rendering (what happens in BookingRow)</h2>
+      <p>Each row receives one booking object and “picks out” the exact fields it needs (including nested guest data).</p>
+
+      <h3>🧠 Destructuring pattern (cleaner code)</h3>
+      <pre><code>// example shape (simplified)
+booking = {
+  startDate,
+  endDate,
+  status,
+  totalPrice,
+  cabins: { name },
+  guests: { fullName, email },
+}</code></pre>
+
+      <h3>🏷️ Status → color mapping</h3>
+      <ul>
+        <li>🔵 <span class="inline-code">unconfirmed</span> → blue</li>
+        <li>🟢 <span class="inline-code">checked-in</span> → green</li>
+        <li>⚪ <span class="inline-code">checked-out</span> → silver</li>
+      </ul>
+
+      <div class="note">
+        <p><b>Why this is nice:</b> instead of hardcoding styles everywhere, you centralize the “status → style” rule once.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Mental model (how the data flows)</h2>
+      <ol>
+        <li>📦 UI needs booking rows with readable fields (names, emails, status, etc.).</li>
+        <li>🔌 <span class="inline-code">getBookings()</span> fetches data from Supabase, including related tables.</li>
+        <li>⚡ React Query caches bookings in <span class="inline-code">queryKey: ["bookings"]</span>.</li>
+        <li>🧱 <span class="inline-code">BookingTable</span> handles loading/empty states and renders the table.</li>
+        <li>🧾 <span class="inline-code">BookingRow</span> formats and displays each booking’s info.</li>
+      </ol>
+
+      <div class="divider"></div>
+
+      <div class="good">
+        <p><b>✅ Outcome:</b> you get a “real app” feeling table with proper caching and clean UX states.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🛠️ Quick practice tasks (recommended)</h2>
+      <ul>
+        <li>🧪 Add 3 more bookings in Supabase and confirm they appear without code changes.</li>
+        <li>🔍 Temporarily change the select list and observe payload differences in React Query Devtools.</li>
+        <li>🧯 Intentionally misspell <span class="inline-code">cabins</span> to see the foreign key error and understand the failure mode.</li>
+        <li>🧹 Add a small “Error UI” in case React Query returns an error (optional upgrade).</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>Print tip: Use A4, scale 100%, and enable “Background graphics” if you want the callout boxes to appear.</p>
+    </footer>
+  </main>
+</body>
+</html>

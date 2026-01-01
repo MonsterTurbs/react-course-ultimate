@@ -1,0 +1,318 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tailwind CSS — Reusing Styles with @apply (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --codebg:#0b0f14;
+      --codefg:#e6edf3;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px 56px;
+    }
+
+    header{
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 1.55rem;
+      line-height: 1.25;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: .98rem;
+    }
+
+    .meta{
+      margin-top: 10px;
+      font-size: .92rem;
+      color: var(--muted);
+    }
+
+    .card{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 14px 0;
+    }
+
+    h2{
+      font-size: 1.18rem;
+      margin: 18px 0 10px;
+    }
+
+    h3{
+      font-size: 1.02rem;
+      margin: 14px 0 8px;
+    }
+
+    p{ margin: 10px 0; }
+
+    ul{ margin: 8px 0 10px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid #111;
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout .title{
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .9em;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 10px;
+      overflow: auto;
+      line-height: 1.45;
+      font-size: .92rem;
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .inline-code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .95em;
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .two-col{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .tag{
+      display:inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background:#fff;
+      font-size: .86rem;
+      color: var(--muted);
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    .checklist li{ margin: 7px 0; }
+
+    /* Print */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; margin: 0; padding: 0; }
+      header{ margin-bottom: 12px; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]:after{ content: ""; }
+      pre{ page-break-inside: avoid; }
+      .card, .callout{ page-break-inside: avoid; }
+      h1,h2,h3{ page-break-after: avoid; }
+      ul,li,p{ page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Tailwind CSS — Reusing Styles with <span class="inline-code">@apply</span></h1>
+      <p class="subtitle">Reviewer / study guide (beginner-friendly) for composing Tailwind utility classes into reusable “old-school” CSS classes.</p>
+      <p class="meta"><span class="tag">📌 Tailwind concept</span><span class="tag">🧩 Reuse</span><span class="tag">🧠 Best practices</span></p>
+    </header>
+
+    <section class="card">
+      <h2>✅ Big Idea</h2>
+      <p>Tailwind is usually written directly in your markup (JSX/HTML) using many small utility classes.</p>
+      <p>But sometimes you repeat the exact same long list of utilities (especially for inputs). In those cases, Tailwind provides the <strong><span class="inline-code">@apply</span> directive</strong> so you can bundle utilities into a single custom class.</p>
+      <p><strong>Result:</strong> you write a class like <span class="inline-code">.input</span> once, and reuse it everywhere. 🙂</p>
+    </section>
+
+    <section>
+      <h2>🧠 What is “utility-first” and why <span class="inline-code">@apply</span> exists?</h2>
+      <ul>
+        <li>Utility-first means: <strong>lots of tiny classes</strong> (each does one job) + <strong>compose them</strong> in JSX.</li>
+        <li><span class="inline-code">@apply</span> is an <em>escape hatch</em>: when a utility combo is repeated a lot, you can compose it into a single reusable class.</li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">⚠️ Important mindset</p>
+        <p><span class="inline-code">@apply</span> should be the <strong>exception</strong>, not the rule. If you overuse it, you slide back into traditional CSS (“invent class names for everything”), which removes many of Tailwind’s advantages.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🗂️ Where do we put these reusable classes?</h2>
+      <p>In the lecture, the reusable class is placed in <strong>index.css</strong> using Tailwind layers.</p>
+      <p>Tailwind typically has these directives at the top of your CSS:</p>
+      <pre><code>@tailwind base;
+@tailwind components;
+@tailwind utilities;</code></pre>
+
+      <p>Then you add a custom layer for your reusable classes:</p>
+      <pre><code>@layer components {
+  /* Your reusable classes go here */
+}</code></pre>
+
+      <p>Think of <span class="inline-code">@layer components</span> as “a safe place to define component-like classes that Tailwind will keep in the right order.”</p>
+    </section>
+
+    <section>
+      <h2>🧪 Step-by-step: Creating an <span class="inline-code">.input</span> class with <span class="inline-code">@apply</span></h2>
+
+      <div class="two-col">
+        <div class="card">
+          <h3>1) Start with the long utility list (in JSX)</h3>
+          <p>Example: your input has many utilities (rounded corners, padding, border, focus ring, transitions, responsive padding, etc.).</p>
+          <pre><code>&lt;input
+  className="rounded-full border border-stone-200 px-4 py-2
+             text-sm transition-all duration-300
+             placeholder:text-stone-400
+             focus:outline-none focus:ring focus:ring-yellow-400"
+/&gt;</code></pre>
+          <p>When you repeat this across multiple inputs, your JSX becomes noisy and harder to maintain.</p>
+        </div>
+
+        <div class="card">
+          <h3>2) Move the utilities into CSS using <span class="inline-code">@apply</span></h3>
+          <p>In <strong>index.css</strong> (or a global CSS file used by Tailwind):</p>
+          <pre><code>@layer components {
+  .input {
+    @apply rounded-full border border-stone-200 px-4 py-2
+           text-sm transition-all duration-300
+           placeholder:text-stone-400
+           focus:outline-none focus:ring focus:ring-yellow-400;
+  }
+}</code></pre>
+          <p>Now <span class="inline-code">.input</span> is “composed” from Tailwind utilities.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>3) Replace repeated utility strings with the reusable class</h3>
+        <pre><code>&lt;input className="input" /&gt;
+&lt;input className="input" /&gt;
+&lt;input className="input" /&gt;</code></pre>
+        <p>✅ Your UI looks the same, but your JSX is cleaner.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧭 When should you use <span class="inline-code">@apply</span>?</h2>
+      <ul>
+        <li><strong>Good fit:</strong> repeated, long, consistent styles (e.g., inputs, badges, small reusable patterns).</li>
+        <li><strong>Not ideal:</strong> using <span class="inline-code">@apply</span> for almost everything (you’ll reinvent “CSS class naming” problems).</li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">⭐ Better long-term reuse in React</p>
+        <p>For big UI pieces (especially buttons), the cleaner approach is usually to create a <strong>React component</strong> (e.g., <span class="inline-code">&lt;Button /&gt;</span>) and encapsulate your Tailwind class list there.</p>
+        <p>That way you reuse <em>behavior + markup + styles</em> together, not just a CSS class.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>📝 Mini Cheat Sheet</h2>
+      <div class="card">
+        <h3>Common pattern used in the lecture</h3>
+        <pre><code>/* index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .input {
+    @apply w-full rounded-full border border-stone-200
+           px-4 py-2 text-sm
+           placeholder:text-stone-400
+           transition-all duration-300
+           focus:outline-none focus:ring focus:ring-yellow-400;
+  }
+}</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Using it in JSX</h3>
+        <pre><code>function CreateOrder() {
+  return (
+    &lt;form&gt;
+      &lt;input className="input" placeholder="Your address" /&gt;
+      &lt;input className="input" placeholder="Phone" /&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Quick Self-Check (for retention)</h2>
+      <ul class="checklist">
+        <li>🧩 <strong>Load-bearing concept:</strong> <span class="inline-code">@apply</span> composes multiple Tailwind utilities into one CSS class.</li>
+        <li>🗂️ You typically define these in <span class="inline-code">@layer components</span>.</li>
+        <li>⚠️ Use it sparingly; otherwise you lose Tailwind’s main benefits.</li>
+        <li>🧱 In React, prefer <strong>components</strong> for bigger reusable UI (e.g., buttons).</li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">💡 Practice prompt</p>
+        <p>Create a <span class="inline-code">.btn</span> class using <span class="inline-code">@apply</span>, then compare it to creating a <span class="inline-code">&lt;Button /&gt;</span> React component. Which one feels easier to maintain as the app grows?</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

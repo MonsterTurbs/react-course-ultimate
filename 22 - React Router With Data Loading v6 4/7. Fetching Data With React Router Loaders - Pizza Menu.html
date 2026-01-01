@@ -1,0 +1,405 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Router Loaders — Fetching the Pizza Menu (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #047857;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .soft { background: var(--soft); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #eef2ff;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7faff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #ecfdf5;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+    }
+
+    .danger {
+      border-left: 4px solid var(--danger);
+      background: #fef2f2;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+
+    .table th, .table td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    .table th {
+      background: var(--soft);
+      text-align: left;
+    }
+
+    /* Print styles (A4, clean margins, no URL after links) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Keep blocks from splitting awkwardly */
+      header, .card, pre, .note, .table { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Printer-friendly sizing */
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li, .table { font-size: 12.2px; }
+
+      /* Remove automatic URL printing */
+      a[href]::after { content: "" !important; }
+
+      /* Ensure code blocks print legibly */
+      pre {
+        color: #111 !important;
+        background: #f2f2f2 !important;
+        border: 1px solid #ddd;
+      }
+
+      .chip {
+        border-color: #ddd;
+        background: #f7f7f7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">📥 React Router Data APIs</p>
+      <h1>🍕 Fetching Data With React Router Loaders (Pizza Menu)</h1>
+      <p class="subtitle">
+        Learn the loader workflow: define a loader, attach it to a route, and read the data in the page with <code>useLoaderData()</code>.
+      </p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">📥 Loader</span>
+        <span class="chip">🧭 Route-level fetching</span>
+        <span class="chip">🪝 useLoaderData()</span>
+        <span class="chip">⚡ Render-as-you-fetch</span>
+        <span class="chip">🧰 services layer</span>
+        <span class="chip">📋 Menu page</span>
+      </div>
+    </header>
+
+    <section class="card soft">
+      <h2>🧠 What is a “loader”?</h2>
+      <p>
+        A <strong>loader</strong> is a function that fetches data for a route.
+        You connect it to a specific route, and React Router automatically runs it when the app navigates to that route.
+      </p>
+      <div class="note">
+        ✅ When the data finishes loading, React Router makes it available to the page component using
+        <strong><code>useLoaderData()</code></strong>.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>✅ The 3-step loader workflow</h2>
+      <ol>
+        <li>🧪 <strong>Create a loader</strong> (fetch and return data)</li>
+        <li>🧩 <strong>Provide the loader to the route</strong> (route config)</li>
+        <li>🪝 <strong>Read the data in the page</strong> (use <code>useLoaderData()</code>)</li>
+      </ol>
+      <div class="note warn">
+        ⚠️ Loaders can technically live anywhere, but the common convention is to place a page’s loader
+        in the <strong>same file as the page component</strong>.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>Step 1) 🧪 Create the menu loader (inside the Menu page file)</h2>
+      <p>
+        The lecture starts by loading the pizza menu. The Menu page file exports:
+      </p>
+      <ul>
+        <li>✅ a default export (the React component)</li>
+        <li>✅ a named export (the <code>loader</code> function)</li>
+      </ul>
+
+      <h3>Use a services layer (apiRestaurant)</h3>
+      <p>
+        Instead of writing fetch logic inside the loader, the project centralizes API calls in a service file.
+        That service contains functions like:
+      </p>
+      <ul>
+        <li>🍕 <code>getMenu()</code></li>
+        <li>🧾 <code>getOrder(id)</code></li>
+        <li>➕ <code>createOrder(orderData)</code></li>
+        <li>✏️ <code>updateOrder(id, updateData)</code></li>
+      </ul>
+
+      <div class="note good">
+        ✅ Why this is good: API URLs + request logic live in one place (easy to reuse, easy to update).
+      </div>
+
+      <h3>Conceptual loader code</h3>
+      <pre>// Menu.jsx
+import { getMenu } from "../../services/apiRestaurant";
+
+export async function loader() {
+  const menu = await getMenu();
+  return menu;
+}
+
+export default function Menu() {
+  // component body...
+}</pre>
+    </section>
+
+    <section class="card">
+      <h2>Step 2) 🧩 Attach the loader to the route</h2>
+      <p>
+        In the router definition, import the loader from the Menu file.
+        Since many pages will eventually have loaders, the lecture renames it on import:
+      </p>
+      <pre>import Menu, { loader as menuLoader } from "./features/menu/Menu";</pre>
+
+      <p>Then connect it to the menu route:</p>
+      <pre>{
+  path: "/menu",
+  element: &lt;Menu /&gt;,
+  loader: menuLoader,
+}</pre>
+
+      <div class="note">
+        ✅ This makes the router responsible for triggering the data fetch when visiting <code>/menu</code>.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>Step 3) 🪝 Read the data using <code>useLoaderData()</code></h2>
+      <p>
+        In the Menu page component, call <code>useLoaderData()</code> to access the loader’s returned value.
+        You don’t pass any arguments — React Router already knows which loader belongs to this route.
+      </p>
+
+      <pre>import { useLoaderData } from "react-router-dom";
+
+export default function Menu() {
+  const menu = useLoaderData();
+  console.log(menu);
+
+  return (
+    &lt;ul&gt;
+      {menu.map((pizza) =&gt; (
+        &lt;MenuItem key={pizza.id} pizza={pizza} /&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</pre>
+
+      <div class="note good">
+        ✅ Result: when you navigate to <code>/menu</code>, React Router fires the request automatically and the menu data appears.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>⚡ Why loaders matter: “render as you fetch”</h2>
+      <p>
+        The lecture highlights a key performance idea:
+      </p>
+      <ul>
+        <li>🕒 <strong>Fetch on render</strong> (common with <code>useEffect</code>): render first, fetch after — can cause waterfalls</li>
+        <li>⚡ <strong>Render as you fetch</strong> (with loaders): routing + fetching begin together</li>
+      </ul>
+      <div class="note">
+        ✅ Loaders reduce “data loading waterfalls” because fetching starts as the router resolves the route.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🧩 Another major benefit: centralizing data loading</h2>
+      <p>
+        With loaders, the router becomes more than “URL → component mapping”. It becomes a place that also defines
+        <strong>which data a page needs</strong>.
+      </p>
+      <ul>
+        <li>🧭 One place to see routes and their data requirements</li>
+        <li>🔗 Pages and their data are tightly coupled (URLs often imply the needed data)</li>
+        <li>🧠 Easier mental model: “this route loads this data”</li>
+      </ul>
+      <div class="note warn">
+        ⚠️ It may look similar to fetching inside a component file, but the fetch is driven by the router configuration,
+        not by component lifecycle.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>✅ Mini checklist (to avoid common mistakes)</h2>
+      <ul>
+        <li>✅ Export the loader (named export)</li>
+        <li>✅ Attach it to the correct route object (<code>loader: menuLoader</code>)</li>
+        <li>✅ Use <code>useLoaderData()</code> inside the page component</li>
+        <li>✅ Use <code>key={pizza.id}</code> when mapping</li>
+        <li>✅ Keep API calls in <code>services/</code> for reuse and easy maintenance</li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="card soft">
+      <h2>➡️ What’s next</h2>
+      <p>
+        Now that the menu loads via a loader, the next lecture adds a <strong>loading indicator</strong> so the UI can show
+        feedback while the route data is being fetched.
+      </p>
+    </section>
+
+    <footer class="muted" style="margin-top:16px; font-size:12px;">
+      Print format: A4, single-column, word-wrapped, clean margins.
+    </footer>
+  </main>
+</body>
+</html>

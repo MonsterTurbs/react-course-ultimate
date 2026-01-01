@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Study Guide — Error Handling: Setting Up Error Boundaries</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #0b1020;
+      --codefg: #e8eefc;
+      --accent: #0b57d0;
+      --ok: #067d2f;
+      --warn: #b54708;
+      --bad: #b42318;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column, print-friendly container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 22px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 16px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px;
+      background: #fff;
+      margin-top: 12px;
+    }
+
+    .callout {
+      border-left: 6px solid var(--accent);
+      background: #f3f7ff;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin-top: 12px;
+    }
+
+    .callout.ok { border-left-color: var(--ok); background: #f0fdf4; }
+    .callout.warn { border-left-color: var(--warn); background: #fff7ed; }
+    .callout.bad { border-left-color: var(--bad); background: #fff1f2; }
+
+    ul { margin: 8px 0 8px 22px; padding: 0; }
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .inline {
+      background: #f1f5ff;
+      border: 1px solid #dbe7ff;
+      border-radius: 6px;
+      padding: 1px 6px;
+    }
+
+    .kbd {
+      font-family: inherit;
+      font-size: 12.5px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      background: #fff;
+      padding: 2px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 860px) {
+      .grid2 {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Print rules (A4, no URL after links, clean spacing) */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header { break-inside: avoid; }
+      .card, .callout, pre { break-inside: avoid; }
+      a { color: #000; text-decoration: none; }
+      a[href]:after { content: "" !important; } /* do not print URLs */
+      .chip { color: #222; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧯 Error Handling in Next.js: Setting Up Error Boundaries</h1>
+      <p class="subtitle">
+        Reviewer / study guide (beginner-friendly) — Next.js App Router conventions: <span class="inline">error.js</span> and <span class="inline">global-error.js</span>
+      </p>
+      <div class="meta">
+        <span class="chip">Single-column</span>
+        <span class="chip">A4 print-ready</span>
+        <span class="chip">Includes examples</span>
+        <span class="chip">Focus: user-friendly failure states</span>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>🎯 What you are building</h2>
+      <p>
+        Your website is already rendering real data (cabins, about page, etc.). Now you need <strong>simple error handling</strong> so that when something breaks,
+        users see a clean, branded message instead of an ugly crash screen.
+      </p>
+      <ul>
+        <li>✅ A <strong>global error boundary</strong> that wraps the whole app (except the root layout).</li>
+        <li>✅ Optional <strong>nested error boundaries</strong> for specific route segments.</li>
+        <li>✅ Understanding what an error boundary <strong>can</strong> and <strong>cannot</strong> catch.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>🤔 Why error boundaries matter</h2>
+      <p>
+        Real-world users will eventually hit unexpected states:
+      </p>
+      <ul>
+        <li>🔗 Bookmarked a cabin URL whose ID no longer exists (e.g., <span class="inline">/cabins/9999</span>).</li>
+        <li>🐛 A coding bug slipped into production (e.g., reading <span class="inline">capacity.max</span> but <span class="inline">capacity</span> is a number).</li>
+        <li>🌐 Temporary failures from external services (network hiccups, Supabase errors, etc.).</li>
+      </ul>
+
+      <div class="callout warn">
+        <strong>Important:</strong> Next.js development shows a special error overlay. In production, users would see a different (still bad) error.
+        Error boundaries let you control the user experience.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧠 Next.js convention: <span class="inline">error.js</span></h2>
+      <p>
+        In the App Router, you can create a file named <span class="inline">error.js</span> to define an error boundary.
+        If you place it in:
+      </p>
+      <ul>
+        <li><span class="inline">app/error.js</span> → global (for most of the app)</li>
+        <li><span class="inline">app/account/error.js</span> → only for <span class="inline">/account</span> and its nested routes</li>
+        <li><span class="inline">app/cabins/error.js</span> → only for <span class="inline">/cabins</span> and nested routes</li>
+      </ul>
+
+      <div class="callout ok">
+        <strong>Rule of thumb:</strong> The <em>closest</em> <span class="inline">error.js</span> in the route tree wins.
+        This is how nested error boundaries work.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧩 Minimal global error boundary example</h2>
+      <p>
+        Next.js will pass two props into your error component:
+      </p>
+      <ul>
+        <li>🧨 <strong>error</strong> — the error object (you can display <span class="inline">error.message</span>)</li>
+        <li>🔁 <strong>reset</strong> — a function to retry rendering (useful after transient failures)</li>
+      </ul>
+
+      <div class="callout warn">
+        <strong>Must be a Client Component:</strong> error boundaries are interactive (button clicks), so they require <span class="inline">"use client"</span>.
+      </div>
+
+      <h3>✅ Example: <span class="inline">app/error.js</span></h3>
+      <pre><code>"use client";
+
+export default function Error({ error, reset }) {
+  return (
+    &lt;main style={{ padding: 24 }}&gt;
+      &lt;h1&gt;😵 Something went wrong&lt;/h1&gt;
+      &lt;p&gt;{error?.message}&lt;/p&gt;
+
+      &lt;button onClick={() =&gt; reset()}&gt;
+        🔁 Try again
+      &lt;/button&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <strong>What does reset do?</strong> It tells Next.js to re-attempt rendering the route segment.
+        In some cases it behaves like a retry; in others it may feel like a refresh.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧪 Example bug scenario (from the transcript)</h2>
+      <div class="grid2">
+        <div class="callout bad">
+          <strong>Bug:</strong> developer assumes <span class="inline">capacity</span> is an object.
+          <pre><code>// ❌ Wrong assumption
+const max = cabin.capacity.max;</code></pre>
+        </div>
+        <div class="callout ok">
+          <strong>Correct:</strong> in this project, capacity is a number.
+          <pre><code>// ✅ Correct
+const max = cabin.maxCapacity;</code></pre>
+        </div>
+      </div>
+      <p>
+        Without an error boundary, a rendering error like this can crash the page. With <span class="inline">app/error.js</span>, users see a clean message.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>⚠️ What error boundaries catch (and what they don’t)</h2>
+      <div class="callout ok">
+        <strong>Catches:</strong> Errors thrown during <strong>rendering</strong> (including server component rendering problems that surface in the segment).
+      </div>
+      <div class="callout warn">
+        <strong>Does NOT catch:</strong> Errors in <strong>callbacks</strong> (event handlers, timers) unless they cause render to throw.
+      </div>
+      <p>
+        Practical tip: If an error happens inside a click handler, handle it there (try/catch, toasts, inline error UI), not via error boundaries.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>🌍 Special case: errors in the Root Layout</h2>
+      <p>
+        <span class="inline">app/error.js</span> does <strong>not</strong> catch errors thrown in the <strong>root layout</strong> (<span class="inline">app/layout.js</span>).
+      </p>
+
+      <div class="callout">
+        If you need to catch errors even from the root layout, create:
+        <ul>
+          <li><span class="inline">app/global-error.js</span> ✅</li>
+        </ul>
+        <p>
+          Note: <span class="inline">global-error.js</span> replaces the entire layout, so it must render its own <span class="inline">html</span> and <span class="inline">body</span>.
+        </p>
+      </div>
+
+      <h3>✅ Minimal pattern: <span class="inline">app/global-error.js</span></h3>
+      <pre><code>"use client";
+
+export default function GlobalError({ error, reset }) {
+  return (
+    &lt;html&gt;
+      &lt;body style={{ fontFamily: "Arial", padding: 24 }}&gt;
+        &lt;h1&gt;🧯 Critical error&lt;/h1&gt;
+        &lt;p&gt;{error?.message}&lt;/p&gt;
+        &lt;button onClick={() =&gt; reset()}&gt;🔁 Retry&lt;/button&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+
+      <div class="callout warn">
+        <strong>Use global-error sparingly:</strong> Prefer segment-level boundaries when possible.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧭 Quick mental model</h2>
+      <ul>
+        <li>📁 Put <span class="inline">error.js</span> inside the route segment you want to protect.</li>
+        <li>🧱 Nearest boundary wins (nested boundaries override parent boundaries).</li>
+        <li>🧑‍💻 Must be a client component because it includes interactivity (reset).</li>
+        <li>🚫 Root layout errors need <span class="inline">global-error.js</span>.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>➡️ Next topic preview: Not Found errors</h2>
+      <p>
+        Some “errors” are really <strong>404 / Not Found</strong> situations (e.g., cabin ID doesn’t exist). Next.js handles that with a separate convention
+        (<span class="inline">not-found.js</span>), which you’ll implement next.
+      </p>
+      <div class="callout ok">
+        ✅ Goal: show a friendly “This page was not found” screen (instead of a crash).
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

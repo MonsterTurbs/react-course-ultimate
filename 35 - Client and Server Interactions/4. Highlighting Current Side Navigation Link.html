@@ -1,0 +1,386 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Highlighting the Current Navigation Link — Study Guide (Next.js App Router)</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+      --warnbg:#fff7ed;
+      --warnborder:#fed7aa;
+      --goodbg:#f0fdf4;
+      --goodborder:#bbf7d0;
+      --tipbg:#eff6ff;
+      --tipborder:#bfdbfe;
+      --purplebg:#faf5ff;
+      --purpleborder:#ddd6fe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 26px 18px 64px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, var(--panel));
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+      margin-bottom: 14px;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color:#222;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    h2{ margin:0 0 10px 0; font-size: 16px; }
+    h3{ margin:14px 0 8px 0; font-size: 14px; }
+
+    p{ margin: 8px 0; }
+    ul, ol{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .key{ font-weight:700; }
+
+    .callout{
+      border-left: 4px solid #111;
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .good{
+      border: 1px solid var(--goodborder);
+      background: var(--goodbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .warn{
+      border: 1px solid var(--warnborder);
+      background: var(--warnbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .tip{
+      border: 1px solid var(--tipborder);
+      background: var(--tipbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .purple{
+      border: 1px solid var(--purpleborder);
+      background: var(--purplebg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px;
+      border-radius: 12px;
+      overflow:auto;
+      border:1px solid #1b2547;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .mini{ font-size: 13px; color: var(--muted); }
+
+    .table{
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .table th, .table td{
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+
+    .table th{ text-align:left; background: var(--panel); }
+
+    /* Print CSS */
+    @media print{
+      @page{ size: A4; margin: 14mm; }
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width:none; padding:0; }
+      header, section{ break-inside: avoid; page-break-inside: avoid; }
+      pre, table{ break-inside: avoid; page-break-inside: avoid; border: 1px solid #000; }
+      .chip, .table th, .table td{ border-color:#000; }
+      .callout{ border-left-color:#000; }
+      .good, .warn, .tip, .purple{ border-color:#000; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧭 Highlighting the Current Side Navigation Link</h1>
+      <p class="sub">
+        Reviewer / study guide: using <span class="key">usePathname()</span> (Next.js hook) to highlight the active navigation item, and why this must happen in a Client Component.
+      </p>
+      <div class="meta">
+        <span class="chip">🔵 Client Hook: <code>usePathname</code></span>
+        <span class="chip">🟡 Server vs Client boundary</span>
+        <span class="chip">🧪 React DevTools</span>
+        <span class="chip">🎨 Conditional styling</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>✅ What you’re building</h2>
+      <p>
+        You want the navigation to visually indicate the current page:
+      </p>
+      <ul>
+        <li>🏠 If you’re on <span class="key">Home</span> → highlight Home link</li>
+        <li>📅 If you’re on <span class="key">Reservations</span> → highlight Reservations link</li>
+        <li>👤 If you’re on <span class="key">Account</span> → highlight Account link</li>
+      </ul>
+
+      <div class="callout">
+        <p>🎯 Simple rule: compare the <span class="key">current pathname</span> with each link’s <span class="key">href</span>, then add a special CSS class when they match.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>1) 🧪 DevTools insight: Why you don’t see Server Components in the client tree</h2>
+      <p>
+        When you open the React component tree in DevTools for a Next.js App Router app:
+      </p>
+      <ul>
+        <li>You’ll see lots of framework components (ErrorBoundary, NotFoundBoundary, etc.).</li>
+        <li>You will often <span class="key">not</span> see many of your Server Components by name.</li>
+      </ul>
+
+      <div class="good">
+        <p>✅ Reason: that tree is showing the <span class="key">client-side rendered/hydrated portion</span>. Server Components already ran on the server.</p>
+      </div>
+
+      <h3>Hydration clue</h3>
+      <p>
+        Some components show “rendered by <span class="key">hydrateRoot</span>” — meaning they were server-rendered first, then hydrated in the browser.
+      </p>
+
+      <div class="tip">
+        <p>🧠 Quick mental model: DevTools tree ≈ “what’s alive on the client right now.”</p>
+      </div>
+
+      <h3>Bonus: Suspense boundary toggling</h3>
+      <p>
+        If you see a Suspense boundary in DevTools, you can sometimes toggle its state to preview the fallback UI (e.g., loading spinner) and understand streaming behavior.
+      </p>
+    </section>
+
+    <section>
+      <h2>2) 🪝 The key tool: <code>usePathname()</code></h2>
+      <p>
+        Next.js provides a hook that returns the current URL pathname (examples: <code>/account</code>, <code>/account/reservations</code>).
+        You can use it to decide which nav link is “active”.
+      </p>
+
+      <div class="warn">
+        <p>
+          ⚠️ Important: <code>usePathname</code> is a hook, so it only works in a <span class="key">Client Component</span>.
+          If you try to use it in a Server Component, you’ll get an error.
+        </p>
+      </div>
+
+      <h3>Typical error</h3>
+      <div class="warn">
+        <p>“<code>usePathname</code> only works in Client Components …”</p>
+      </div>
+
+      <div class="good">
+        <p>✅ Fix: add <code>'use client'</code> to the component that uses the hook (your navigation component).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) 🧱 Implementation pattern</h2>
+      <p>
+        Your navigation is usually built by looping over an array of links.
+        For each link, check whether <code>pathname === link.href</code> and apply an “active” class.
+      </p>
+
+      <pre><code>// Navigation.jsx
+'use client'
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+const links = [
+  { href: '/account', label: 'Account' },
+  { href: '/account/reservations', label: 'Reservations' },
+  { href: '/account/profile', label: 'Profile' },
+];
+
+export default function SideNav() {
+  const pathname = usePathname();
+
+  return (
+    &lt;nav&gt;
+      &lt;ul&gt;
+        {links.map((link) =&gt; (
+          &lt;li key={link.href}&gt;
+            &lt;Link
+              href={link.href}
+              className={`
+                block rounded px-3 py-2
+                ${pathname === link.href ? 'bg-primary-900' : ''}
+              `}
+            &gt;
+              {link.label}
+            &lt;/Link&gt;
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+  );
+}
+</code></pre>
+
+      <div class="tip">
+        <p>🎨 In the lecture, the active class used was something like <code>bg-primary-900</code> (Tailwind) to make the active link slightly lighter/different.</p>
+      </div>
+
+      <h3>Debugging (optional)</h3>
+      <p>
+        While implementing, logging the pathname helps you verify the exact strings you’re comparing:
+      </p>
+      <pre><code>const pathname = usePathname();
+console.log(pathname); // e.g., '/account/reservations'
+</code></pre>
+
+      <div class="warn">
+        <p>⚠️ Remove logs when you’re done to keep the console clean.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) 🧠 Why this “simple feature” still needs client code</h2>
+      <p>
+        Highlighting an active link looks simple, but it depends on a client-side hook.
+        This is a good reminder that sometimes you switch to a Client Component just to access a hook API.
+      </p>
+
+      <table class="table" aria-label="When you need client components">
+        <thead>
+          <tr>
+            <th>Need</th>
+            <th>Usually implies</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Hooks like <code>usePathname</code>, <code>useState</code>, <code>useEffect</code></td>
+            <td>🔵 Client Component</td>
+          </tr>
+          <tr>
+            <td>Pure rendering with fetched data</td>
+            <td>🟡 Server Component (preferred when possible)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <p>🎯 Best practice still applies: keep Client Components as small/low in the tree as possible.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 Quick recap</h2>
+      <ul>
+        <li>🧪 DevTools tree shows mostly client-side components; server components already rendered on the server.</li>
+        <li>🪝 Use <code>usePathname()</code> to get the current pathname.</li>
+        <li>🔵 Hooks require a Client Component → add <code>'use client'</code> to the nav component.</li>
+        <li>🎨 Conditionally apply a class when <code>pathname === link.href</code>.</li>
+      </ul>
+
+      <div class="good">
+        <p>✅ Result: navigation always highlights the current page with clean, reusable code (loop over link config once).</p>
+      </div>
+    </section>
+
+    <p class="mini" style="margin-top:12px;">
+      Print tip: Use browser Print → A4. Margins, line height, and word-wrapping are configured to prevent cut-off.
+    </p>
+  </div>
+</body>
+</html>

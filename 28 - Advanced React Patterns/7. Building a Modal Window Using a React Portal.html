@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced React Patterns — Building a Modal Window Using a React Portal (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --code-bg: #f6f8fa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      word-wrap: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin: 0 0 6px 0;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 22px 0 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 16px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 14px 14px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout {
+      border-left: 4px solid #111;
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    ul, ol { padding-left: 20px; margin: 10px 0; }
+    li { margin: 6px 0; }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre-wrap;   /* important for printing */
+      word-break: break-word;
+      margin: 10px 0;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .k { font-weight: 700; }
+    .muted { color: var(--muted); }
+
+    .two-col-note {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+      header { border-bottom: 1px solid #000; }
+      .card, .callout, pre {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      a, a:visited {
+        color: inherit;
+        text-decoration: none;
+      }
+      /* Ensure printed output doesn't include URLs */
+      a[href]::after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🪟 Building a Modal Window Using a React Portal</h1>
+      <p class="subtitle">Reviewer / Study Guide — Advanced React Patterns (Modal v1 using <span class="k">createPortal</span>)</p>
+      <div class="chips" aria-label="topics">
+        <span class="chip">⚛️ React</span>
+        <span class="chip">🧩 Reusable UI</span>
+        <span class="chip">🕳️ Portals</span>
+        <span class="chip">🧠 State + Props</span>
+        <span class="chip">🧷 Close behavior</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What you’re building in this lecture</h2>
+      <div class="card">
+        <p><span class="k">Goal:</span> Move the “Create Cabin” form into a reusable <span class="k">Modal</span> that opens on top of the page.</p>
+        <ul>
+          <li>✅ Modal accepts <span class="k">children</span> (any content, like <span class="k">&lt;CreateCabinForm /&gt;</span>).</li>
+          <li>✅ Modal supports closing via an <span class="k">onClose</span> prop.</li>
+          <li>✅ Form can also close the modal using an optional <span class="k">onCloseModal</span> prop.</li>
+          <li>✅ Modal is rendered with a <span class="k">React Portal</span> (so it can’t be clipped by parent CSS).</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <p>🧠 Key idea: A modal is an “overlay UI” — it should sit above everything else. Portals help you render it at the top of the DOM (e.g., under <span class="k">document.body</span>) while keeping props/state working normally.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧱 The architecture you end up with</h2>
+      <ol>
+        <li><span class="k">CabinsPage</span> stays clean: it just renders <span class="k">&lt;AddCabin /&gt;</span>.</li>
+        <li><span class="k">AddCabin</span> owns the state: <span class="k">isOpenModal</span>.</li>
+        <li><span class="k">Modal</span> is reusable and receives:
+          <ul>
+            <li><span class="k">onClose</span> (function to close)</li>
+            <li><span class="k">children</span> (content to show)</li>
+          </ul>
+        </li>
+        <li><span class="k">CreateCabinForm</span> optionally receives <span class="k">onCloseModal</span> to close itself after cancel/success.</li>
+      </ol>
+
+      <div class="two-col-note">
+        <p class="muted"><span class="k">Why move logic out of the page?</span> Pages should be “composition-only” when possible (less state, fewer effects). It keeps routing pages easy to read and test.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Step-by-step reviewer (what changes you made)</h2>
+
+      <h3>1) Create a reusable <span class="k">AddCabin</span> component</h3>
+      <ul>
+        <li>Move the button + “show form” logic out of the Cabins page.</li>
+        <li>Rename state from <span class="k">showForm</span> → <span class="k">isOpenModal</span> for clarity.</li>
+      </ul>
+
+      <pre><code>// AddCabin.jsx (concept)
+function AddCabin() {
+  const [isOpenModal, setIsOpenModal] = useState(false);
+
+  return (
+    &lt;&gt;
+      &lt;Button onClick={() =&gt; setIsOpenModal((open) =&gt; !open)}&gt;
+        Add new cabin
+      &lt;/Button&gt;
+
+      {isOpenModal &amp;&amp; (
+        &lt;Modal onClose={() =&gt; setIsOpenModal(false)}&gt;
+          &lt;CreateCabinForm onCloseModal={() =&gt; setIsOpenModal(false)} /&gt;
+        &lt;/Modal&gt;
+      )}
+    &lt;/&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p>✅ Beginner tip: Keeping “open/close” state in <span class="k">AddCabin</span> makes the modal dumb and reusable. The modal does not decide when it is shown — the parent does.</p>
+      </div>
+
+      <h3>2) Make <span class="k">Modal</span> accept <span class="k">children</span> and <span class="k">onClose</span></h3>
+      <ul>
+        <li>Wrap modal content inside an <span class="k">Overlay</span> to dim/blur background.</li>
+        <li>Add a close button (X icon) that calls <span class="k">onClose</span>.</li>
+      </ul>
+
+      <pre><code>// Modal.jsx (concept without portal yet)
+function Modal({ children, onClose }) {
+  return (
+    &lt;Overlay&gt;
+      &lt;StyledModal&gt;
+        &lt;ButtonIcon onClick={onClose}&gt;✖&lt;/ButtonIcon&gt;
+        &lt;div&gt;{children}&lt;/div&gt;
+      &lt;/StyledModal&gt;
+    &lt;/Overlay&gt;
+  );
+}</code></pre>
+
+      <h3>3) Let the form close the modal (safely)</h3>
+      <ul>
+        <li>Pass <span class="k">onCloseModal</span> into <span class="k">CreateCabinForm</span>.</li>
+        <li>Use optional chaining to avoid crashes when the form is used outside a modal.</li>
+      </ul>
+
+      <pre><code>// CreateCabinForm.jsx (concept)
+function CreateCabinForm({ onCloseModal }) {
+  const close = () =&gt; onCloseModal?.(); // ✅ safe call
+
+  return (
+    &lt;Form&gt;
+      {/* ...fields... */}
+
+      &lt;Button type="reset" onClick={close}&gt;
+        Cancel
+      &lt;/Button&gt;
+
+      {/* after successful create/edit */}
+      // onSuccess: close();
+    &lt;/Form&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p>🛡️ Why optional chaining? If <span class="k">CreateCabinForm</span> is reused on a normal page later, it might not receive <span class="k">onCloseModal</span>. Calling <span class="k">undefined()</span> would crash your app.</p>
+      </div>
+
+      <h3>4) Tweak form styling based on where it’s rendered</h3>
+      <ul>
+        <li>Set a <span class="k">type</span> prop (e.g., <span class="k">modal</span> vs <span class="k">regular</span>) so spacing looks correct in a modal.</li>
+        <li>Use a default prop for the “regular” case.</li>
+      </ul>
+
+      <pre><code>// example idea
+&lt;Form type={onCloseModal ? "modal" : "regular"} /&gt;
+
+// and a default
+Form.defaultProps = { type: "regular" };</code></pre>
+
+      <h3>5) Upgrade to a Portal with <span class="k">createPortal</span> 🕳️</h3>
+      <p>A portal renders your modal outside the normal DOM subtree (often under <span class="k">document.body</span>), while keeping it in the same React component tree.</p>
+
+      <pre><code>import { createPortal } from "react-dom";
+
+function Modal({ children, onClose }) {
+  return createPortal(
+    &lt;Overlay&gt;
+      &lt;StyledModal&gt;
+        &lt;ButtonIcon onClick={onClose}&gt;✖&lt;/ButtonIcon&gt;
+        &lt;div&gt;{children}&lt;/div&gt;
+      &lt;/StyledModal&gt;
+    &lt;/Overlay&gt;,
+    document.body
+  );
+}</code></pre>
+
+      <div class="card">
+        <p><span class="k">Why portals matter:</span></p>
+        <ul>
+          <li>🧱 Avoids the modal being clipped by parent containers using <span class="k">overflow: hidden</span> or <span class="k">overflow: scroll</span>.</li>
+          <li>🧭 Keeps z-index/stacking behavior more predictable for “overlay UI”.</li>
+          <li>🧩 Still receives props normally (React tree stays the same).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🔎 Mental model: React tree vs DOM tree</h2>
+      <div class="callout">
+        <p><span class="k">React component tree</span> decides <span class="k">state + props</span> relationships.</p>
+        <p><span class="k">DOM tree</span> decides <span class="k">layout + CSS clipping</span>.</p>
+        <p>🕳️ Portals “teleport” DOM placement without changing React relationships.</p>
+      </div>
+
+      <ul>
+        <li>Without portal: modal appears inside the page’s DOM container (e.g., inside <span class="k">#root</span> under the table).</li>
+        <li>With portal: modal becomes a direct child of <span class="k">&lt;body&gt;</span> (or another chosen node).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧯 Common issues and quick fixes</h2>
+      <div class="card">
+        <ul>
+          <li>❌ <span class="k">Close button does nothing</span> → Ensure you pass <span class="k">onClose</span> and wire it to <span class="k">onClick</span>.</li>
+          <li>❌ <span class="k">Cancel crashes</span> → Use <span class="k">onCloseModal?.()</span> (optional chaining).</li>
+          <li>❌ <span class="k">Modal clipped/cut off</span> → Use a portal to <span class="k">document.body</span> (or a dedicated portal root).</li>
+          <li>❌ <span class="k">Weird spacing in modal form</span> → Add a <span class="k">type="modal"</span> styling variant.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Mini-checklist (you should remember)</h2>
+      <ol>
+        <li>✅ A modal is shown/hidden by the parent (external state).</li>
+        <li>✅ Modal receives <span class="k">children</span> so it can render anything.</li>
+        <li>✅ Close behavior flows down via <span class="k">onClose</span> (and optionally to children).</li>
+        <li>✅ Portals solve layout/CSS clipping issues (<span class="k">overflow: hidden</span> problems).</li>
+      </ol>
+
+      <div class="hr" role="separator" aria-hidden="true"></div>
+
+      <h3>🧪 Quick self-test</h3>
+      <ul>
+        <li>Q: Why does a portal not break props/state?
+          <br><span class="muted">A: Because the React component tree remains the same; only DOM placement changes.</span>
+        </li>
+        <li>Q: What CSS situation most often breaks modals without portals?
+          <br><span class="muted">A: A parent with <span class="k">overflow: hidden</span> (or certain stacking contexts) can clip it.</span>
+        </li>
+        <li>Q: What makes the modal reusable?
+          <br><span class="muted">A: It renders <span class="k">children</span> and uses an <span class="k">onClose</span> callback instead of owning the open/close state.</span>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>➡️ What’s next</h2>
+      <div class="callout">
+        <p>Next lecture: Convert this modal into a <span class="k">Compound Component</span> so opening/closing becomes cleaner, and the API becomes more expressive.</p>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

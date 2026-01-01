@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Navigating Between Pages (Next/link) — Reviewer & Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --warnbg: #fff7ed;
+      --warnborder: #fdba74;
+      --goodbg: #f0fdf4;
+      --goodborder: #86efac;
+      --codebg: #0b0f14;
+      --codetext: #e8e8e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 20px 52px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.65rem;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.86rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 1.25rem;
+      border-left: 5px solid var(--border);
+      padding-left: 10px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { margin: 8px 0 10px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .box {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+    .box strong { display: inline-block; margin-bottom: 6px; }
+
+    .callout {
+      border-left: 5px solid var(--border);
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    .warn {
+      border-left: 6px solid var(--warnborder);
+      background: var(--warnbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #fed7aa;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 6px solid var(--goodborder);
+      background: var(--goodbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #bbf7d0;
+      margin: 12px 0;
+    }
+
+    .steps {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      margin: 12px 0;
+    }
+    .steps .row {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .steps .row:first-child { border-top: 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .code {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0;
+      background: #fff;
+    }
+    .code .label {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    pre {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow: auto;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      white-space: pre;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .qa details {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+    .qa summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+    }
+    .qa summary::-webkit-details-marker { display: none; }
+    .qa .answer {
+      margin-top: 8px;
+      color: #222;
+    }
+
+    .footer {
+      margin-top: 26px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      .chip, .box, .callout, .warn, .good, .steps, .code, .qa details {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .box, .callout, .warn, .good, .steps, .code, .qa details { break-inside: avoid; }
+      a[href]::after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Navigating Between Pages (Next.js App Router)</h1>
+      <p class="subtitle">Reviewer / Study Guide • Single-column • Print-ready (A4) • Beginner-friendly</p>
+      <div class="meta">
+        <span class="chip">🔗 next/link</span>
+        <span class="chip">⚡ SPA-like navigation</span>
+        <span class="chip">📦 Prefetch + caching</span>
+        <span class="chip">🧩 Reusable Navigation</span>
+        <span class="chip">🧱 Layouts next</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Goal: Move between pages without full reloads 🎯</h2>
+      <p>
+        You already created routes like <strong>/</strong>, <strong>/cabins</strong>, <strong>/about</strong>, and <strong>/account</strong>.
+        Now you need navigation links so users can move between pages.
+      </p>
+
+      <div class="callout">
+        <strong>What you want:</strong>
+        <p>
+          Navigation should feel like a <strong>Single Page Application (SPA)</strong> (fast transitions),
+          even though Next.js can server-render pages.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) First attempt: regular <code>&lt;a href&gt;</code> (works but not ideal) ⚠️</h2>
+      <p>
+        You can add a normal anchor tag on the homepage to go to <code>/cabins</code>.
+        It will navigate correctly, but it usually causes a <strong>full page reload</strong>.
+      </p>
+
+      <div class="code">
+        <div class="label">Homepage using a normal anchor</div>
+        <pre><code>&lt;a href="/cabins"&gt;Explore luxury cabins&lt;/a&gt;</code></pre>
+      </div>
+
+      <div class="warn">
+        <strong>Why this is bad for app-like UX:</strong>
+        <ul>
+          <li>🔄 Full page reload (feels slower)</li>
+          <li>📥 Browser fetches the whole page again</li>
+          <li>🚫 Not the smooth SPA-like navigation you expect</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <strong>Common beginner mistake:</strong>
+        <p>
+          Typo in route name (example: <code>/cabin</code> instead of <code>/cabins</code>) leads to “page not found”.
+          The route must match the folder name you created.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Correct way: use Next.js <code>Link</code> ✅</h2>
+      <p>
+        Next.js provides a <code>Link</code> component that enables faster, client-side navigation.
+        It feels like SPA navigation.
+      </p>
+
+      <div class="code">
+        <div class="label">Import Link</div>
+        <pre><code>import Link from "next/link";</code></pre>
+      </div>
+
+      <div class="code">
+        <div class="label">Use Link (same prop name as &lt;a href&gt;)</div>
+        <pre><code>&lt;Link href="/cabins"&gt;Explore luxury cabins&lt;/Link&gt;</code></pre>
+      </div>
+
+      <div class="good">
+        <strong>Key UX improvement:</strong>
+        <p>
+          Clicking the link transitions immediately without a hard reload. The app now feels much more like an SPA.
+        </p>
+      </div>
+
+      <div class="callout">
+        <strong>Nice detail vs React Router:</strong>
+        <p>
+          React Router’s link uses <code>to</code>. Next.js uses <code>href</code>, matching native HTML.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Why <code>Link</code> is faster (conceptual) ⚡</h2>
+      <p>
+        The lecture mentions that <code>Link</code> triggers several optimizations behind the scenes.
+      </p>
+
+      <div class="box">
+        <strong>Optimizations you get “for free”:</strong>
+        <ul>
+          <li>🧠 <strong>Prefetching</strong>: linked routes may be prefetched (mainly visible in production)</li>
+          <li>🧩 <strong>Code splitting</strong>: each page can load as a separate chunk</li>
+          <li>🗃️ <strong>Client caching</strong>: visited pages can be cached in the browser temporarily</li>
+        </ul>
+      </div>
+
+      <div class="warn">
+        <strong>Note:</strong>
+        <p>
+          Prefetch behavior is easier to observe in production builds than in dev mode.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Programmatic navigation (hooks) 🧭</h2>
+      <p>
+        Next.js also offers hooks for programmatic navigation.
+        But the lecture warns: these hooks won’t work directly in your page components
+        because (by default) they are <strong>Server Components</strong>.
+      </p>
+
+      <div class="callout">
+        <strong>Simple rule (for now):</strong>
+        <p>
+          Server Components can’t use typical React client hooks.
+          You’ll learn soon how and when to use navigation hooks properly.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Build a reusable Navigation component 🧩</h2>
+      <p>
+        Instead of placing links manually on every page, create a reusable component.
+      </p>
+
+      <div class="code">
+        <div class="label">Create a components folder (temporary approach)</div>
+        <pre><code>app/
+  components/
+    navigation.js</code></pre>
+      </div>
+
+      <div class="warn">
+        <strong>⚠️ Important nuance:</strong>
+        <p>
+          Creating a folder inside <code>app/</code> can look like it might create a route (e.g., <code>/components</code>),
+          but it only becomes a route if there is a <code>page.js</code> inside.
+        </p>
+      </div>
+
+      <div class="code">
+        <div class="label">app/components/navigation.js (example)</div>
+        <pre><code>import Link from "next/link";
+
+export default function Navigation() {
+  return (
+    &lt;ul&gt;
+      &lt;li&gt;&lt;Link href="/"&gt;Home&lt;/Link&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;Link href="/cabins"&gt;Cabins&lt;/Link&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;Link href="/about"&gt;About&lt;/Link&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;Link href="/account"&gt;Your account&lt;/Link&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  );
+}</code></pre>
+      </div>
+
+      <div class="code">
+        <div class="label">Use it in a page (example)</div>
+        <pre><code>import Navigation from "./components/navigation";
+
+export default function Page() {
+  return (
+    &lt;div&gt;
+      &lt;Navigation /&gt;
+      &lt;h1&gt;The Wild Oasis&lt;/h1&gt;
+      &lt;p&gt;Welcome to paradise.&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+      </div>
+
+      <div class="good">
+        <strong>Result:</strong>
+        <p>
+          You can click between pages smoothly, with SPA-like navigation.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Why this still isn’t the final solution 🧱</h2>
+      <p>
+        You might be tempted to import <code>&lt;Navigation /&gt;</code> into every page manually.
+        That works, but it’s repetitive.
+      </p>
+
+      <div class="warn">
+        <strong>The better approach:</strong>
+        <p>
+          Use a <strong>layout</strong> so navigation appears automatically on every page.
+          Layouts are the next topic in the course.
+        </p>
+      </div>
+
+      <div class="box">
+        <strong>Bonus observation (from the lecture):</strong>
+        <p>
+          When you updated Navigation to include “Home”, you briefly saw the old 3-link menu.
+          That happened because the browser served a cached version of the page.
+        </p>
+      </div>
+    </section>
+
+    <section class="qa">
+      <h2>8) Mini Quiz (self-check) 🧪</h2>
+
+      <details>
+        <summary>Q1) Why is using a normal &lt;a href&gt; not ideal in Next.js apps?</summary>
+        <div class="answer">
+          It often triggers a full page reload, which feels slower and less like an SPA.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q2) What component should you use for internal navigation in Next.js?</summary>
+        <div class="answer">
+          Use <code>Link</code> from <code>next/link</code>.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q3) Name one optimization that Link provides.</summary>
+        <div class="answer">
+          Prefetching, code splitting (page chunks), and client-side caching are common ones.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q4) What’s the better way to show Navigation on all pages?</summary>
+        <div class="answer">
+          Use a shared layout (Next.js <code>layout.js</code>), instead of importing it into every page.
+        </div>
+      </details>
+    </section>
+
+    <p class="footer">
+      End of reviewer. Next lecture: Layouts (reusable UI that wraps multiple pages).
+    </p>
+  </main>
+</body>
+</html>

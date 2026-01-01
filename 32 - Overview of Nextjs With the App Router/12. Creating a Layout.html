@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Creating a Layout (Root Layout) — Reviewer & Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --warnbg: #fff7ed;
+      --warnborder: #fdba74;
+      --goodbg: #f0fdf4;
+      --goodborder: #86efac;
+      --codebg: #0b0f14;
+      --codetext: #e8e8e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 20px 52px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.65rem;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.86rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 1.25rem;
+      border-left: 5px solid var(--border);
+      padding-left: 10px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { margin: 8px 0 10px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .box {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+    .box strong { display: inline-block; margin-bottom: 6px; }
+
+    .callout {
+      border-left: 5px solid var(--border);
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    .warn {
+      border-left: 6px solid var(--warnborder);
+      background: var(--warnbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #fed7aa;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 6px solid var(--goodborder);
+      background: var(--goodbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #bbf7d0;
+      margin: 12px 0;
+    }
+
+    .steps {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      margin: 12px 0;
+    }
+    .steps .row {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .steps .row:first-child { border-top: 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .code {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0;
+      background: #fff;
+    }
+    .code .label {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    pre {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow: auto;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      white-space: pre;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .qa details {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+    .qa summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+    }
+    .qa summary::-webkit-details-marker { display: none; }
+    .qa .answer {
+      margin-top: 8px;
+      color: #222;
+    }
+
+    .footer {
+      margin-top: 26px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      .chip, .box, .callout, .warn, .good, .steps, .code, .qa details {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .box, .callout, .warn, .good, .steps, .code, .qa details { break-inside: avoid; }
+      a[href]::after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Creating a Layout (Root Layout) — Next.js App Router</h1>
+      <p class="subtitle">Reviewer / Study Guide • Single-column • Print-ready (A4) • Beginner-friendly</p>
+      <div class="meta">
+        <span class="chip">🧱 layout.js</span>
+        <span class="chip">🌍 Root Layout</span>
+        <span class="chip">👶 children prop</span>
+        <span class="chip">🏷️ metadata export</span>
+        <span class="chip">🖼️ public assets</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) What is a Root Layout? 🌍</h2>
+      <p>
+        In the Next.js App Router, every app needs a <strong>global layout</strong> called the <strong>Root Layout</strong>.
+        This layout wraps the entire application, meaning it applies to <strong>every route</strong>.
+      </p>
+
+      <div class="box">
+        <strong>Why Next.js re-created <code>layout.js</code> earlier:</strong>
+        <p>
+          When you deleted <code>layout.js</code>, Next.js complained that there was no root layout and
+          automatically generated one.
+          That’s because the root layout is required.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Root Layout MUST include <code>&lt;html&gt;</code> and <code>&lt;body&gt;</code> ✅</h2>
+      <p>
+        The root layout defines the global HTML structure.
+        That’s why it must return <code>&lt;html&gt;</code> and <code>&lt;body&gt;</code>.
+        You can also set attributes like <code>lang</code>.
+      </p>
+
+      <div class="code">
+        <div class="label">app/layout.js (minimal structure)</div>
+        <pre><code>export default function RootLayout({ children }) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body&gt;
+        {children}
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Why no <code>&lt;head&gt;</code> here?</strong>
+        <p>
+          In App Router, you typically control head info (like title) using conventions such as exporting
+          <code>metadata</code> (shown below).
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Why did page content disappear? 🤔</h2>
+      <p>
+        When you first added only the Navigation inside the root layout, all pages showed the navigation,
+        but none of the page-specific content appeared.
+      </p>
+
+      <div class="warn">
+        <strong>Cause:</strong>
+        <p>
+          The layout was returning only the navigation.
+          Since every page is wrapped by this layout, the page output had no place to render.
+        </p>
+      </div>
+
+      <h3>The fix: use the <code>children</code> prop 👶</h3>
+      <p>
+        Layouts receive a <code>children</code> prop.
+        Next.js automatically fills <code>children</code> with the current page (or nested layout) for the route.
+      </p>
+
+      <div class="code">
+        <div class="label">Root Layout with navigation + page content</div>
+        <pre><code>import Navigation from "./components/navigation";
+
+export default function RootLayout({ children }) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body&gt;
+        &lt;Navigation /&gt;
+        &lt;main&gt;{children}&lt;/main&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>React connection:</strong>
+        <p>
+          <code>children</code> is a core React concept (also similar to React Router’s <code>&lt;Outlet /&gt;</code> idea).
+          That’s why knowing React well makes Next.js much easier.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Shared UI: Navigation + Footer (renders on all pages) 🧩</h2>
+      <p>
+        Anything you put in the layout <strong>outside</strong> of <code>{children}</code> becomes shared UI.
+        Example: a footer.
+      </p>
+
+      <div class="code">
+        <div class="label">Shared footer in the layout</div>
+        <pre><code>export default function RootLayout({ children }) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body&gt;
+        &lt;Navigation /&gt;
+        &lt;main&gt;{children}&lt;/main&gt;
+        &lt;footer&gt;Copyright by The Wild Oasis&lt;/footer&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+      </div>
+
+      <div class="good">
+        <strong>Benefit:</strong>
+        <p>
+          You no longer need to import Navigation on every page.
+          The layout gives you consistent UI across the entire app.
+        </p>
+      </div>
+
+      <div class="callout">
+        <strong>Performance note (from the lecture):</strong>
+        <p>
+          Shared layout UI typically does <em>not</em> re-render the same way as full-page reloads when navigating.
+          It helps keep navigation smooth.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Page Title + Metadata using conventions 🏷️</h2>
+      <p>
+        Instead of writing a manual <code>&lt;title&gt;</code> tag, you can export a constant named <code>metadata</code>
+        from your layout.
+        Next.js then generates the correct head elements.
+      </p>
+
+      <div class="code">
+        <div class="label">Export metadata from the layout</div>
+        <pre><code>export const metadata = {
+  title: "The Wild Oasis",
+};</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>Key idea:</strong>
+        <p>
+          Next.js is heavily convention-based:
+          file names like <code>page.js</code>, <code>layout.js</code>, and exports like <code>metadata</code>
+          unlock framework features without extra boilerplate.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Adding a logo: starter files + public assets 🖼️</h2>
+      <p>
+        The lecture shows pulling starter files (from GitHub) to avoid building the logo manually.
+        Two key takeaways:
+      </p>
+
+      <div class="box">
+        <strong>Public folder usage:</strong>
+        <ul>
+          <li>📁 Place static files in <code>public/</code> (e.g., <code>public/icon.png</code>)</li>
+          <li>🖼️ Reference them by file name (e.g., <code>src="/icon.png"</code>)</li>
+          <li>⚠️ Next.js recommends using the built-in <code>Image</code> component (later topic)</li>
+        </ul>
+      </div>
+
+      <div class="warn">
+        <strong>Why you saw a warning/error:</strong>
+        <p>
+          Next.js often nudges you toward its <code>Image</code> component for image optimization.
+          The lecture acknowledges this and postpones the proper solution to a later section.
+        </p>
+      </div>
+
+      <div class="callout">
+        <strong>About styling:</strong>
+        <p>
+          Don’t worry about styling yet.
+          Tailwind CSS will be used later, and some starter components already include Tailwind classes.
+        </p>
+      </div>
+    </section>
+
+    <section class="qa">
+      <h2>7) Mini Quiz (self-check) 🧪</h2>
+
+      <details>
+        <summary>Q1) Why is the root layout required in every Next.js App Router app?</summary>
+        <div class="answer">
+          Because it wraps the entire application and defines the global HTML structure.
+          Next.js needs it to render pages correctly.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q2) What two tags are mandatory in the root layout?</summary>
+        <div class="answer">The <code>&lt;html&gt;</code> and <code>&lt;body&gt;</code> tags.</div>
+      </details>
+
+      <details>
+        <summary>Q3) What does the <code>children</code> prop represent in a layout?</summary>
+        <div class="answer">
+          It represents the content of the currently active page (or nested layout) that Next.js injects automatically.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q4) How do you set the page title using a Next.js convention?</summary>
+        <div class="answer">
+          Export <code>metadata</code> from the layout (e.g., <code>export const metadata = { title: "..." }</code>).
+        </div>
+      </details>
+
+      <details>
+        <summary>Q5) Where do you put static assets like icons?</summary>
+        <div class="answer">Inside the <code>public/</code> folder.</div>
+      </details>
+    </section>
+
+    <section>
+      <h2>8) What’s next? ➡️</h2>
+      <div class="good">
+        <strong>Next concept:</strong>
+        <p>
+          Layouts and pages in the App Router are typically <strong>Server Components</strong>.
+          That’s a new React paradigm, and it’s the next lecture.
+        </p>
+      </div>
+    </section>
+
+    <p class="footer">
+      End of reviewer. Next lecture: React Server Components (new paradigm in Next.js).
+    </p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,341 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JavaScript Reviewer — Array.map() (React Prep)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.65rem;
+      line-height: 1.25;
+      margin: 0 0 8px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 1.02rem;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { margin: 10px 0 10px 22px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      padding: 10px 12px;
+      background: #fff;
+      margin: 10px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow: auto;
+      white-space: pre-wrap;      /* wrap for print */
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .two-col {
+      display: block; /* keep single-column */
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      border: 0;
+      margin: 14px 0;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      a[href]:after { content: ""; } /* do NOT print URLs */
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 JavaScript Reviewer: <code>Array.map()</code> (React Prep)</h1>
+      <p class="subtitle">
+        Goal: master the functional array methods—<code>map</code>, <code>filter</code>, <code>reduce</code>—so you can build real React UIs confidently.
+      </p>
+      <div class="meta">
+        <span class="chip">📄 A4 print-ready</span>
+        <span class="chip">🧩 Single-column</span>
+        <span class="chip">✅ Beginner-friendly</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Big Idea (What <code>map</code> does)</h2>
+      <p>
+        🔁 <strong><code>map</code> loops over an array and returns a new array</strong> with the <strong>same length</strong>, where each element is the result of a transformation you define.
+      </p>
+      <div class="callout">
+        <strong>✅ Functional (non-mutating) mindset</strong>
+        <div>
+          <code>map</code> does <strong>not</strong> change the original array. Instead, it creates a brand-new array based on the original.
+        </div>
+      </div>
+      <div class="callout">
+        <strong>📌 Mental model</strong>
+        <div>
+          “For every item in the array, produce a new value, and collect all results into a new array.”
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Syntax (Core Pattern)</h2>
+      <p>🧩 <strong>Signature:</strong></p>
+      <pre><code>const newArray = oldArray.map((element, index, array) =&gt; {
+  // return the new value for this element
+  return transformedValue;
+});</code></pre>
+
+      <h3>Callback function (the important part)</h3>
+      <ul>
+        <li>✅ The callback runs <strong>once per element</strong>.</li>
+        <li>🧪 Whatever you <code>return</code> becomes the new element in the output array.</li>
+        <li>📏 Output array has the <strong>same number of items</strong> as the original array.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>⚠️ Common mistake</strong>
+        <div>
+          Forgetting to return a value (especially when using curly braces) results in <code>undefined</code> elements.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Example 1: Double each number</h2>
+      <p>
+        🧪 If you have <code>[1, 2, 3]</code> and you want <code>[2, 4, 6]</code>:
+      </p>
+      <pre><code>const arr = [1, 2, 3];
+const doubled = arr.map((el) =&gt; el * 2);
+
+// doubled: [2, 4, 6]
+// arr is unchanged: [1, 2, 3]</code></pre>
+      <p>
+        🔍 Step-by-step:
+      </p>
+      <ol>
+        <li><code>el = 1</code> → return <code>2</code></li>
+        <li><code>el = 2</code> → return <code>4</code></li>
+        <li><code>el = 3</code> → return <code>6</code></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>4) Example 2: Extract book titles (common in React)</h2>
+      <p>
+        📚 Suppose <code>books</code> is an array of objects (like API data):
+      </p>
+      <pre><code>const titles = books.map((book) =&gt; book.title);
+// titles: ["The Lord of the Rings", "The Cyberiad", ...]</code></pre>
+
+      <div class="callout">
+        <strong>✅ Why this matters in React</strong>
+        <div>
+          You often transform API arrays into the exact shape your UI needs (labels, options, rows, cards, etc.).
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Example 3: Build “essential data” objects</h2>
+      <p>
+        🧱 Sometimes you still want objects, but only the fields you need:
+      </p>
+      <pre><code>const essentialData = books.map((book) =&gt; {
+  return {
+    title: book.title,
+    author: book.author,
+  };
+});</code></pre>
+
+      <h3>Arrow function gotcha: returning an object</h3>
+      <p>
+        ⚠️ If you write an object literal directly after the arrow, JavaScript may treat <code>{}</code> as a function block.
+      </p>
+      <p>
+        ✅ Fix: wrap the object in parentheses to return it implicitly:
+      </p>
+      <pre><code>const essentialData = books.map((book) =&gt; (
+  {
+    title: book.title,
+    author: book.author,
+  }
+));</code></pre>
+    </section>
+
+    <section>
+      <h2>6) Example 4: Add computed fields (very realistic)</h2>
+      <p>
+        🧮 You can compute values while mapping (e.g., a total reviews count):
+      </p>
+      <pre><code>function getTotalReviewCount(book) {
+  const goodreads = book.reviews?.goodreads?.reviewsCount ?? 0;
+  const library = book.reviews?.libraryanything?.reviewsCount ?? 0;
+  return goodreads + library;
+}
+
+const essentialData = books.map((book) =&gt; (
+  {
+    title: book.title,
+    author: book.author,
+    reviewsCount: getTotalReviewCount(book),
+  }
+));</code></pre>
+
+      <div class="callout">
+        <strong>💡 Key takeaway</strong>
+        <div>
+          <code>map</code> is not just for “picking fields.” It’s for shaping data into the exact structure your UI needs.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Quick Checklist (Use <code>map</code> when…)</h2>
+      <ul>
+        <li>✅ You want a <strong>new array</strong> based on an old array.</li>
+        <li>✅ Output should have the <strong>same number of items</strong>.</li>
+        <li>✅ You want to <strong>transform each element</strong> (format, pick fields, compute values, etc.).</li>
+      </ul>
+      <hr class="hr" />
+      <p>
+        🚫 Do <strong>not</strong> use <code>map</code> when:
+      </p>
+      <ul>
+        <li>🚫 You want fewer items (use <code>filter</code>).</li>
+        <li>🚫 You want a single value (use <code>reduce</code>).</li>
+        <li>🚫 You only want side effects (use <code>forEach</code>), though in React you usually avoid that pattern.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>8) Mini React Connection (Why you’re learning this)</h2>
+      <p>
+        🧩 In React, you’ll constantly map data to UI:
+      </p>
+      <pre><code>// Example concept (JSX)
+// items.map(item =&gt; &lt;Card key={item.id} title={item.title} /&gt;)</code></pre>
+      <p>
+        ✅ If you understand <code>map</code>, you’ll understand how React renders lists and repeats components based on data.
+      </p>
+    </section>
+
+    <section>
+      <h2>9) Quick Self-Test (answer without looking)</h2>
+      <ol>
+        <li>🧠 Does <code>map</code> mutate the original array?</li>
+        <li>📏 Is the output array length always the same as the input length?</li>
+        <li>⚠️ What happens if you forget to return inside the callback?</li>
+        <li>🧱 How do you return an object implicitly from an arrow function?</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Next Up</h2>
+      <p>
+        ➡️ Next method: <strong><code>filter</code></strong> — keep only the items that match a condition.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

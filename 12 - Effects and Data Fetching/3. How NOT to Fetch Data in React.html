@@ -1,0 +1,440 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>How NOT to Fetch Data in React — Reviewer / Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codefg: #e8ecff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column printable page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 16px 16px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 14px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .note {
+      border-left: 4px solid #c7c7c7;
+      background: #fcfcfc;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .warn {
+      border-left: 4px solid #ffb300;
+      background: #fffaf0;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .good {
+      border-left: 4px solid #2e7d32;
+      background: #f2fbf3;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .bad {
+      border-left: 4px solid #c62828;
+      background: #fff5f5;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kpi {
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .kpi b { display: block; margin-bottom: 6px; }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .toc {
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .toc li {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #fff;
+    }
+
+    .toc span {
+      color: var(--muted);
+      font-size: 12px;
+      margin-left: 6px;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .qa {
+      display: grid;
+      gap: 10px;
+    }
+
+    .q {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .q .a {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border);
+      color: #222;
+    }
+
+    .small { font-size: 12.5px; color: var(--muted); }
+
+    /* Print rules */
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      a { color: inherit; text-decoration: none; }
+      header, section { border-color: #d9d9d9; }
+      pre {
+        background: #ffffff;
+        color: #111111;
+        border: 1px solid #d9d9d9;
+      }
+      .chip { background: #f5f5f5; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🎬 How NOT to Fetch Data in React</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) — Why fetching in render logic causes infinite loops</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Side effects + data fetching</span>
+        <span class="chip">🧠 Key idea: Render logic must be pure</span>
+        <span class="chip">⚠️ Anti-pattern: setState during render</span>
+        <span class="chip">✅ Fix: useEffect (next lesson)</span>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2 style="margin:0 0 8px;">🧭 Quick Navigation</h2>
+      <ul class="toc">
+        <li><a href="#goal">1) Goal of the lecture</a> <span>what you’re trying to build</span></li>
+        <li><a href="#setup">2) Setup steps in VS Code</a> <span>project + OMDb key</span></li>
+        <li><a href="#wrong">3) The WRONG way</a> <span>fetch in render logic</span></li>
+        <li><a href="#loop">4) Why it becomes an infinite loop</a> <span>render → setState → render</span></li>
+        <li><a href="#symptoms">5) Symptoms & errors</a> <span>network spam, too many re-renders</span></li>
+        <li><a href="#rules">6) Practical rules to remember</a> <span>what to do instead</span></li>
+        <li><a href="#quiz">7) Quick self-check</a> <span>interview-style questions</span></li>
+      </ul>
+    </header>
+
+    <main>
+      <section id="goal">
+        <h2>1) 🎯 Goal of the Lecture</h2>
+        <p>This lesson intentionally shows the <b>wrong way</b> to fetch data in React so you can understand <b>why the rule exists</b>.</p>
+        <div class="grid">
+          <div class="kpi">
+            <b>✅ What you want:</b>
+            <p>Fetch movie data <b>once</b> when the <code>App</code> component <b>mounts</b> (initial render), then store results in state.</p>
+          </div>
+          <div class="kpi">
+            <b>❌ What you’ll do (on purpose):</b>
+            <p>Fetch data directly inside <b>render logic</b> (top-level code in the component function) and even try to call <code>setMovies(...)</code> there.</p>
+          </div>
+        </div>
+        <div class="note">
+          <p>💡 Learning trick: Breaking a rule (carefully) helps you see the consequences clearly.</p>
+        </div>
+      </section>
+
+      <section id="setup">
+        <h2>2) 🧰 Setup Steps (usePopcorn + OMDb)</h2>
+        <ol>
+          <li>📁 Open your <b>usePopcorn</b> project folder in VS Code.</li>
+          <li>🧾 Duplicate your <code>App</code> file (e.g., keep a copy as reference like <code>App-v1</code>).</li>
+          <li>🔑 Get an OMDb API key (free) and store it in a constant.</li>
+        </ol>
+
+        <div class="good">
+          <p>✅ Good habit: Define constants that don’t depend on props/state <b>outside</b> the component so they don’t get recreated on every render.</p>
+        </div>
+
+        <pre><code>// Outside the component (good practice)
+const KEY = "YOUR_OMDB_KEY";
+
+// Example request pattern (OMDb):
+// https://www.omdbapi.com/?apikey=YOUR_OMDB_KEY&amp;s=interstellar
+</code></pre>
+
+        <p class="small">Note: The request uses <code>s=</code> to search by query string. Another option is searching by ID/title, but here we use search.</p>
+      </section>
+
+      <section id="wrong">
+        <h2>3) ❌ The WRONG Way: Fetching Inside Render Logic</h2>
+        <p><b>Render logic</b> is the code that runs every time your component function runs.</p>
+        <p>If you fetch at the top level of the component, it runs on:</p>
+        <ul>
+          <li>🍼 Initial mount</li>
+          <li>🔁 Every re-render</li>
+        </ul>
+
+        <div class="bad">
+          <p>⚠️ Anti-pattern: Performing a side effect (fetch) in render logic. It might “seem” okay while you only <code>console.log</code>, but it breaks as soon as you set state.</p>
+        </div>
+
+        <pre><code>function App() {
+  // ❌ WRONG: side effect inside render logic
+  fetch(`https://www.omdbapi.com/?apikey=${KEY}&amp;s=interstellar`)
+    .then(res =&gt; res.json())
+    .then(data =&gt; {
+      console.log(data);
+      // setMovies(data.Search); // &lt;-- this is where disaster begins 😬
+    });
+
+  return (
+    &lt;div&gt;...UI...&lt;/div&gt;
+  );
+}
+</code></pre>
+
+        <p class="small">Even if you don’t set state yet, this is still a side effect in render logic, which violates React’s purity requirement.</p>
+      </section>
+
+      <section id="loop">
+        <h2>4) 🔁 Why It Becomes an Infinite Loop</h2>
+        <p>Here is the loop you accidentally create:</p>
+        <ol>
+          <li>🧩 Component renders (function runs)</li>
+          <li>🌐 Fetch runs</li>
+          <li>🧠 You call <code>setMovies(...)</code></li>
+          <li>🔁 State update triggers a re-render</li>
+          <li>➡️ Component function runs again… which triggers fetch again… and so on forever</li>
+        </ol>
+
+        <div class="warn">
+          <p>⚠️ Key rule reminder: <b>Never update state in render logic</b>. State updates must happen in event handlers or effects.</p>
+        </div>
+
+        <pre><code>// The moment you do this inside the fetch callback...
+.then(data =&gt; {
+  setMovies(data.Search); // ❌ triggers re-render
+});
+
+// ...you create:
+// render -&gt; fetch -&gt; setState -&gt; render -&gt; fetch -&gt; setState -&gt; ...∞
+</code></pre>
+      </section>
+
+      <section id="symptoms">
+        <h2>5) 🚨 Symptoms You’ll See (Real World)</h2>
+        <ul>
+          <li>📡 Network tab shows <b>continuous requests</b> (spam / infinite fetch)</li>
+          <li>🌀 App feels slow or freezes</li>
+          <li>🧨 You may hit an error like <b>“Too many re-renders”</b></li>
+        </ul>
+
+        <div class="note">
+          <p>🧩 Why the error happens: React detects a render loop caused by updating state during render. It stops you to prevent locking the browser.</p>
+        </div>
+
+        <pre><code>// Another example of the same rule being broken:
+function App() {
+  // ❌ This is even worse: setState directly at top level
+  // setWatched([]); // React will complain: Too many re-renders
+
+  return &lt;div&gt;...&lt;/div&gt;;
+}
+</code></pre>
+      </section>
+
+      <section id="rules">
+        <h2>6) ✅ Practical Rules to Remember</h2>
+
+        <h3>✅ What to do</h3>
+        <ul>
+          <li>🧼 Keep render logic <b>pure</b> (no side effects)</li>
+          <li>🧠 Fetch data in <b>useEffect</b> when it needs to run after mount (next lecture)</li>
+          <li>🖱️ Do side effects in <b>event handlers</b> when triggered by user actions</li>
+        </ul>
+
+        <h3>❌ What not to do</h3>
+        <ul>
+          <li>🚫 Don’t fetch data at the top level of a component function</li>
+          <li>🚫 Don’t call <code>setState</code> (or update refs) in render logic</li>
+          <li>🚫 Don’t assume “it works” just because you only see <code>console.log</code> output</li>
+        </ul>
+
+        <div class="good">
+          <p>✅ Next step preview: <b>useEffect</b> is designed specifically to run side effects <b>after</b> render, without creating loops.</p>
+        </div>
+      </section>
+
+      <section id="quiz">
+        <h2>7) 🧪 Quick Self‑Check (Mini Quiz)</h2>
+        <div class="qa">
+          <div class="q">
+            <b>Q1:</b> Why is fetching inside render logic considered a “side effect”?
+            <div class="a"><b>A:</b> It interacts with the outside world (network) and makes render output depend on external timing/results. Render logic must be pure and predictable.</div>
+          </div>
+
+          <div class="q">
+            <b>Q2:</b> Why does <code>setMovies(...)</code> inside the fetch callback cause infinite requests?
+            <div class="a"><b>A:</b> Because <code>setMovies</code> triggers a re-render, which re-runs the component function, which re-runs fetch again, repeating forever.</div>
+          </div>
+
+          <div class="q">
+            <b>Q3:</b> Where should data fetching live in React?
+            <div class="a"><b>A:</b> In <code>useEffect</code> (for “run after render/mount” behavior) or in event handlers (for user-triggered fetches).</div>
+          </div>
+
+          <div class="q">
+            <b>Q4:</b> What’s one “good habit” mentioned about constants like API keys?
+            <div class="a"><b>A:</b> Define them outside the component if they don’t depend on props/state, so they aren’t recreated on each render.</div>
+          </div>
+        </div>
+
+        <p class="small">Tip: This topic is a common interview area because it tests whether you understand render purity, side effects, and re-render triggers.</p>
+      </section>
+
+      <section>
+        <h2>📌 Key Takeaway</h2>
+        <p><b>Render logic must be pure.</b> If you fetch data (side effect) or set state in render logic, you risk infinite loops and unstable UIs.</p>
+        <p>✅ The correct approach for “fetch on mount” is <b>useEffect</b>, which you’ll learn next.</p>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,296 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thinking in React (Section 2) — Components, Composition & Reusability (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --accent: #1a73e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column, print-friendly layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    header {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .kicker {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    h1 {
+      margin: 6px 0 0;
+      font-size: 1.65rem;
+      line-height: 1.25;
+      letter-spacing: -0.2px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    h2 {
+      margin: 18px 0 10px;
+      font-size: 1.2rem;
+      line-height: 1.25;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: #f3f7ff;
+    }
+
+    .warn {
+      border-left: 4px solid #d93025;
+      background: #fff6f5;
+    }
+
+    ul { margin: 8px 0 0 20px; }
+    li { margin: 6px 0; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fbfbfb;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    pre code {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      border-radius: 0;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print rules */
+    @media print {
+      @page { size: A4; margin: 14mm; }
+
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+
+      header, .card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      /* Avoid printing raw URLs */
+      a[href]::after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <p class="kicker">📘 The Ultimate React Course — Part 2 • Section: Thinking in React</p>
+      <h1>Section Overview: Components, Composition & Reusability</h1>
+      <div class="meta">
+        <span class="chip">🧠 Focus: “Thinking in React”</span>
+        <span class="chip">🧩 Topic: Components + Composition</span>
+        <span class="chip">♻️ Topic: Reusability</span>
+        <span class="chip">🧱 Output: Build a new project foundation</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="card note">
+        <h2>🎯 What this section is about</h2>
+        <p>
+          This is the <strong>second section</strong> on how to think in React. The goal is to learn how to:
+        </p>
+        <ul>
+          <li>🧩 Think about <strong>components</strong> (what to extract, what to keep together)</li>
+          <li>🧱 Use <strong>component composition</strong> to build UI layouts in a clean way</li>
+          <li>♻️ Design for <strong>reusability</strong> so components can be reused across features/pages</li>
+        </ul>
+        <p class="mini">✅ These are “intermediate” topics, but they are still foundational for real-world React work.</p>
+      </section>
+
+      <section class="card">
+        <h2>🧠 Key ideas (beginner-friendly)</h2>
+        <ul>
+          <li>
+            <strong>Component</strong> = a small UI building block (function that returns JSX). Think: “a reusable LEGO piece.” 🧱
+          </li>
+          <li>
+            <strong>Composition</strong> = combining components to build bigger UI, instead of writing one giant component. 🧩
+          </li>
+          <li>
+            <strong>Reusability</strong> = the same component works in multiple places by passing different <code>props</code> (and sometimes <code>children</code>). ♻️
+          </li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>🗺️ What you will build (based on the transcript)</h2>
+        <p>
+          Over the next few lessons, you’ll build a new project. In this section you will focus on the <strong>foundation</strong>:
+        </p>
+        <ul>
+          <li>✅ Learn how to <strong>split a UI into components</strong> (what components you need)</li>
+          <li>✅ Learn what <strong>types of components</strong> exist and where each type fits</li>
+          <li>✅ Implement the UI structure in React</li>
+          <li>✅ Build a <strong>simple app layout</strong> using composition (nesting components cleanly)</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>🧩 “Splitting UI into components” — a practical checklist</h2>
+        <ul>
+          <li>🔍 Identify repeated UI patterns (lists, cards, rows, buttons) → candidate components</li>
+          <li>🧱 Identify UI sections (sidebar, header, main area, footer) → layout components</li>
+          <li>📦 Group things that change together (same state/props) → keep in one component</li>
+          <li>♻️ If you will reuse it in multiple places → extract into a reusable component</li>
+        </ul>
+      </section>
+
+      <section class="card note">
+        <h2>🧱 Composition — simple example</h2>
+        <p class="mini">Instead of one huge component, compose small ones:</p>
+        <pre><code>function App() {
+  return (
+    &lt;Layout&gt;
+      &lt;Sidebar&gt;
+        &lt;Menu /&gt;
+      &lt;/Sidebar&gt;
+      &lt;Main&gt;
+        &lt;Dashboard /&gt;
+      &lt;/Main&gt;
+    &lt;/Layout&gt;
+  );
+}</code></pre>
+        <p class="mini">✅ This reads like a UI blueprint, which is the main advantage of composition.</p>
+      </section>
+
+      <section class="card">
+        <h2>♻️ Reusability — simple example</h2>
+        <p class="mini">A reusable component is flexible via props:</p>
+        <pre><code>function Badge({ icon, label }) {
+  return (
+    &lt;span&gt;{icon} {label}&lt;/span&gt;
+  );
+}
+
+// Reuse it
+&lt;Badge icon="✅" label="Done" /&gt;
+&lt;Badge icon="⚠️" label="Needs review" /&gt;</code></pre>
+        <p class="mini">✅ One component, many different results.</p>
+      </section>
+
+      <section class="card warn">
+        <h2>⚠️ Common beginner mistakes (to avoid)</h2>
+        <ul>
+          <li>❌ Making one “mega component” that contains the entire page logic/UI</li>
+          <li>❌ Extracting components too early without a reason (creates more complexity)</li>
+          <li>❌ Passing too many props when a layout/children pattern would be clearer</li>
+        </ul>
+        <p class="mini">Rule of thumb: extract components when it improves clarity, reuse, or separation of concerns.</p>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="card">
+        <h2>📝 Quick recap (from the lecture)</h2>
+        <ul>
+          <li>📌 This section focuses on <strong>how to think</strong> about components (not only how to code them).</li>
+          <li>🧩 You’ll learn <strong>composition</strong> to build layouts more cleanly.</li>
+          <li>♻️ You’ll learn <strong>reusability</strong> to write components that scale to real apps.</li>
+        </ul>
+        <p class="mini">🚀 If this sounds fun, the next lessons will build the project step-by-step.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

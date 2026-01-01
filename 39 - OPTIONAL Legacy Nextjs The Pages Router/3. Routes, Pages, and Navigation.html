@@ -1,0 +1,455 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Pages Router — Routes, Pages, and Navigation (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --accent:#0b57d0;
+      --ok:#137333;
+      --warn:#b06000;
+      --bad:#b3261e;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, sans-serif;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      padding:18px 18px 14px;
+      border-radius:12px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 1.55rem;
+      line-height:1.25;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:0.98rem;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:0.92rem;
+    }
+
+    .chip{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:999px;
+      padding:4px 10px;
+      white-space:nowrap;
+    }
+
+    h2{
+      margin:22px 0 10px;
+      font-size:1.18rem;
+      line-height:1.35;
+    }
+
+    h3{
+      margin:16px 0 8px;
+      font-size:1.05rem;
+      line-height:1.35;
+    }
+
+    p{ margin: 10px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background: #fff;
+      border-radius:12px;
+      padding:14px 14px 12px;
+      margin:12px 0;
+    }
+    .callout .title{
+      margin:0 0 6px;
+      font-weight:700;
+    }
+
+    .callout.good{ border-left:6px solid var(--ok); }
+    .callout.warn{ border-left:6px solid var(--warn); }
+    .callout.bad{ border-left:6px solid var(--bad); }
+
+    .toc{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:14px;
+      margin-top:14px;
+    }
+    .toc h2{ margin:0 0 8px; }
+    .toc ul{ margin:0; padding-left:18px; }
+    .toc li{ margin:6px 0; }
+
+    /* Keep links readable on screen, but don't print raw URLs */
+    a{ color:var(--accent); text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+
+    .kbd{
+      font-family:var(--mono);
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:6px;
+      padding:1px 6px;
+      font-size:0.92em;
+      white-space:nowrap;
+    }
+
+    pre{
+      margin:10px 0;
+      padding:12px;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:10px;
+      overflow:auto;
+      font-family:var(--mono);
+      font-size:0.92rem;
+      line-height:1.5;
+    }
+
+    code{ font-family:var(--mono); }
+
+    ul{ margin:10px 0; padding-left:20px; }
+    li{ margin:6px 0; }
+
+    .two-col{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+
+    .mini{
+      font-size:0.95rem;
+      color:var(--muted);
+    }
+
+    .qa{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:14px;
+      background:#fff;
+      margin:12px 0;
+    }
+    .qa .q{ font-weight:700; margin:0 0 6px; }
+    .qa .a{ margin:0; }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin:18px 0;
+    }
+
+    /* Print styles */
+    @page{ size:A4; margin: 14mm; }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width:none; padding:0; }
+      header, .toc{ background:#fff; }
+      a{ color: inherit; text-decoration:none; }
+      /* Do NOT print hrefs/URLs */
+      a[href]::after{ content:""; }
+      pre{ page-break-inside:avoid; }
+      .callout, .qa, header, .toc{ page-break-inside:avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>📄 Next.js Pages Router — Routes, Pages, and Navigation</h1>
+      <p class="subtitle">Reviewer / Study Guide (beginner-friendly) • Single-column • Print-ready (A4)</p>
+      <div class="meta">
+        <span class="chip">✅ File-based routing</span>
+        <span class="chip">🧭 Navigation with <code>next/link</code></span>
+        <span class="chip">📁 Nested routes</span>
+        <span class="chip">🧠 Key differences vs App Router</span>
+      </div>
+
+      <section class="toc" aria-label="Table of contents">
+        <h2>🗂️ Table of Contents</h2>
+        <ul>
+          <li><a href="#goal">Goal of this lesson</a></li>
+          <li><a href="#file-routing">How routing works in the Pages Router</a></li>
+          <li><a href="#create-pages">Creating routes: <code>cabins.js</code>, <code>about.js</code></a></li>
+          <li><a href="#index">What <code>pages/index.js</code> means</a></li>
+          <li><a href="#navigation">Navigation with <code>Link</code></a></li>
+          <li><a href="#nested">Nested routes with folders + <code>index.js</code></a></li>
+          <li><a href="#differences">Big difference: no React Server Components</a></li>
+          <li><a href="#recap">Recap + quick check</a></li>
+        </ul>
+      </section>
+    </header>
+
+    <section id="goal">
+      <h2>🎯 Goal of this lesson</h2>
+      <p>
+        You are learning how to create <strong>routes</strong> and <strong>pages</strong> using the <strong>legacy Next.js Pages Router</strong>.
+        The key idea is <strong>file-based routing</strong>: the <em>file name</em> (and folder structure) inside <code>pages/</code>
+        becomes the URL.
+      </p>
+
+      <div class="callout good">
+        <p class="title">✅ What you should be able to do after this</p>
+        <ul>
+          <li>Create new routes by adding files inside <code>pages/</code></li>
+          <li>Understand what <code>pages/index.js</code> represents</li>
+          <li>Navigate between pages using <code>next/link</code></li>
+          <li>Create nested routes using folders</li>
+          <li>Explain why Pages Router feels simpler than App Router (no RSC model)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="file-routing">
+      <h2>🧩 How routing works in the Pages Router</h2>
+      <p>
+        In the <strong>App Router</strong>, you create a folder per route (e.g., <code>app/cabins/page.js</code>).
+        In the <strong>Pages Router</strong>, you usually create a <strong>file</strong> whose name becomes the route.
+      </p>
+
+      <div class="callout">
+        <p class="title">🗺️ Mental model</p>
+        <ul>
+          <li><code>pages/cabins.js</code> → route is <code>/cabins</code></li>
+          <li><code>pages/about.js</code> → route is <code>/about</code></li>
+          <li><code>pages/index.js</code> → route is <code>/</code> (homepage)</li>
+        </ul>
+      </div>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Don’t mix up “file name” vs “component name”</p>
+        <p class="mini">
+          The <strong>route name</strong> comes from the <strong>file name</strong>.
+          The exported React component can be named anything, but many projects name it the same as the route for readability.
+        </p>
+      </div>
+    </section>
+
+    <section id="create-pages">
+      <h2>🛠️ Creating routes: <code>cabins.js</code> and <code>about.js</code></h2>
+
+      <h3>1) Create <code>pages/cabins.js</code></h3>
+      <p>
+        Create a new file named <code>cabins.js</code> inside the <code>pages</code> folder.
+        That file automatically becomes the <code>/cabins</code> page.
+      </p>
+      <pre><code>// pages/cabins.js
+export default function Cabins() {
+  return &lt;h1&gt;Cabins page&lt;/h1&gt;;
+}
+</code></pre>
+
+      <h3>2) Create <code>pages/about.js</code></h3>
+      <pre><code>// pages/about.js
+export default function About() {
+  return &lt;h1&gt;About page&lt;/h1&gt;;
+}
+</code></pre>
+
+      <div class="qa">
+        <p class="q">🤔 What happens after you create these files?</p>
+        <p class="a">
+          Next.js automatically makes these routes available. If your dev server is running, you can visit
+          <span class="kbd">/cabins</span> and <span class="kbd">/about</span> immediately.
+        </p>
+      </div>
+    </section>
+
+    <section id="index">
+      <h2>🏠 What <code>pages/index.js</code> means</h2>
+      <p>
+        In the Pages Router, <code>pages/index.js</code> is special: it represents the <strong>root route</strong> <code>/</code>.
+        So when you visit the home URL, Next.js renders the component exported from that file.
+      </p>
+
+      <div class="callout">
+        <p class="title">💡 Simple example</p>
+        <pre><code>// pages/index.js
+import Link from "next/link";
+
+export default function Home() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Home&lt;/h1&gt;
+      &lt;p&gt;Go to other pages:&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}
+</code></pre>
+      </div>
+
+      <p class="mini">
+        Note: the lesson mentions that this is the same idea as an <code>index.js</code> file inside a nested folder—it becomes the “root” for that folder’s route.
+      </p>
+    </section>
+
+    <section id="navigation">
+      <h2>🧭 Navigation with <code>next/link</code></h2>
+      <p>
+        Navigation works basically the same as in the App Router: use <code>Link</code> from <code>next/link</code>.
+        Clicking a <code>Link</code> gives you that “single-page app” feeling (client-side navigation), instead of a full page reload.
+      </p>
+
+      <pre><code>// pages/index.js
+import Link from "next/link";
+
+export default function Home() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Home&lt;/h1&gt;
+      &lt;nav&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;Link href="/cabins"&gt;Cabins&lt;/Link&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;Link href="/about"&gt;About&lt;/Link&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/nav&gt;
+    &lt;/main&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout good">
+        <p class="title">✅ Tip</p>
+        <p class="mini">
+          Use <code>Link</code> instead of a plain <code>&lt;a&gt;</code> for internal routes. It enables Next.js client-side navigation and better performance.
+        </p>
+      </div>
+    </section>
+
+    <section id="nested">
+      <h2>📁 Nested routes with folders + <code>index.js</code></h2>
+      <p>
+        For nested routes (like <code>/test/hello</code>), you use <strong>folders</strong> inside <code>pages/</code>.
+        Inside that folder, <code>index.js</code> becomes the folder’s root route.
+      </p>
+
+      <div class="callout">
+        <p class="title">🧱 Folder routing example</p>
+        <ul>
+          <li><code>pages/test/index.js</code> → <code>/test</code></li>
+          <li><code>pages/test/hello.js</code> → <code>/test/hello</code></li>
+        </ul>
+      </div>
+
+      <pre><code>// pages/test/index.js
+export default function TestRoot() {
+  return &lt;h1&gt;Test root&lt;/h1&gt;;
+}
+
+// pages/test/hello.js
+export default function HelloTest() {
+  return &lt;h1&gt;Hello test!&lt;/h1&gt;;
+}
+</code></pre>
+
+      <div class="qa">
+        <p class="q">🧠 Quick check</p>
+        <p class="a">If you have <code>pages/blog/index.js</code>, what route is that? → <strong>/blog</strong></p>
+      </div>
+    </section>
+
+    <section id="differences">
+      <h2>🔍 Big difference vs App Router: no React Server Components</h2>
+      <p>
+        A major difference emphasized in the lesson: the legacy Pages Router does <strong>not</strong> use the
+        React Server Components (RSC) model.
+      </p>
+
+      <div class="callout good">
+        <p class="title">✅ What this means in practice</p>
+        <ul>
+          <li>Pages are basically “regular React” pages.</li>
+          <li>They can be server-rendered, then hydrated in the browser (classic Next.js behavior).</li>
+          <li>You can use React Hooks in pages without thinking about “Server vs Client components”.</li>
+        </ul>
+      </div>
+
+      <div class="callout warn">
+        <p class="title">⚠️ But you lose some App Router features</p>
+        <ul>
+          <li>Less built-in streaming/suspense patterns compared to App Router.</li>
+          <li>Different (and generally simpler) caching story than App Router.</li>
+          <li>No component-level “server-only” model like RSC.</li>
+        </ul>
+      </div>
+
+      <p class="mini">
+        The lesson notes that this simplicity can be a benefit when maintaining older projects: fewer moving parts.
+      </p>
+    </section>
+
+    <section id="recap">
+      <h2>✅ Recap + quick check</h2>
+
+      <div class="callout">
+        <p class="title">🧾 Key takeaways</p>
+        <ul>
+          <li>Pages Router routing is <strong>file-based</strong>: file/folder structure under <code>pages/</code> determines URL paths.</li>
+          <li><code>pages/index.js</code> is the homepage route <code>/</code>.</li>
+          <li>Use <code>Link</code> from <code>next/link</code> for navigation between routes.</li>
+          <li>Nested routes = folders; folder root route = <code>index.js</code>.</li>
+          <li>Pages Router does not use React Server Components—hooks are straightforward anywhere.</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="qa">
+        <p class="q">📝 Mini-quiz (answer mentally)</p>
+        <ul>
+          <li>Which file maps to <code>/about</code>?</li>
+          <li>Which file maps to <code>/</code>?</li>
+          <li>How do you create <code>/products/reviews</code>?</li>
+          <li>Why can you use hooks freely in Pages Router pages?</li>
+        </ul>
+      </div>
+
+      <div class="callout good">
+        <p class="title">➡️ Next topic</p>
+        <p class="mini">You’re ready to move on to <strong>dynamic routes</strong> in the Pages Router.</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

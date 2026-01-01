@@ -1,0 +1,370 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React useEffect Challenge — Currency Converter (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --code:#0f172a;
+      --codebg:#f6f8fa;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column, print-friendly layout */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 22px 18px 40px;
+    }
+
+    header{
+      padding: 14px 14px 10px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+    }
+    h1{
+      margin:0 0 6px;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background:var(--soft);
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
+      color:#222;
+    }
+
+    h2{
+      margin: 18px 0 8px;
+      font-size: 18px;
+    }
+    h3{
+      margin: 14px 0 6px;
+      font-size: 15px;
+    }
+
+    p{ margin: 8px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background:#fff;
+      border-left: 5px solid #111;
+      border-radius:10px;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+    .callout .label{
+      font-weight:700;
+      margin-right: 6px;
+    }
+    ul{ margin: 8px 0 10px 18px; }
+    li{ margin: 6px 0; }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 14px 0;
+    }
+
+    pre{
+      margin:10px 0;
+      padding: 10px 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow:auto;
+      color: var(--code);
+      line-height: 1.45;
+      font-size: 12.5px;
+      white-space: pre;
+      tab-size: 2;
+    }
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .toc{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding: 10px 12px;
+      background:#fff;
+      margin-top: 12px;
+    }
+    .toc ol{ margin: 6px 0 0 18px; }
+    .toc li{ margin: 4px 0; }
+
+    .checklist{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding: 10px 12px;
+      background:#fff;
+    }
+
+    .muted{ color: var(--muted); }
+
+    /* Print rules */
+    @page{ size: A4; margin: 16mm; }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding:0; }
+      header, .toc, .callout, .checklist{ box-shadow:none !important; }
+      a{ color: inherit; text-decoration:none; }
+      pre, .callout, .toc, .checklist{ break-inside: avoid; page-break-inside: avoid; }
+      h1,h2,h3{ break-after: avoid; page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>💱 React Challenge: Currency Converter — Reviewer / Study Guide</h1>
+      <p class="subtitle">Focus: controlled inputs, <code>useEffect</code> data fetching, dependency arrays, loading UX, and small guard clauses.</p>
+      <div class="meta">
+        <span class="chip">🧠 Beginner-friendly</span>
+        <span class="chip">🪝 Hooks: useState + useEffect</span>
+        <span class="chip">🌐 Fetch + async/await</span>
+        <span class="chip">🖨️ A4 Print-ready</span>
+      </div>
+
+      <section class="toc" aria-label="Table of contents">
+        <strong>📌 Contents</strong>
+        <ol>
+          <li>What you are building</li>
+          <li>Step 1: Controlled inputs</li>
+          <li>Step 2: Fetch conversion data with <code>useEffect</code></li>
+          <li>Step 3: Dependency array (make it reactive)</li>
+          <li>Step 4: Loading UX (disable inputs)</li>
+          <li>Step 5: Guard when currencies are the same</li>
+          <li>Common pitfalls + upgrades</li>
+        </ol>
+      </section>
+    </header>
+
+    <h2>1) 🎯 What you are building</h2>
+    <p>
+      A simple currency conversion tool: type an <strong>amount</strong>, pick a <strong>From</strong> currency and a <strong>To</strong> currency,
+      then show the converted value.
+    </p>
+    <div class="callout">
+      <span class="label">Key idea ✅</span>
+      <span>Whenever <strong>amount</strong>, <strong>fromCurrency</strong>, or <strong>toCurrency</strong> changes, your app should fetch fresh conversion data.</span>
+    </div>
+
+    <h2>2) 🎛️ Step 1: Make the inputs controlled</h2>
+    <p>
+      A <strong>controlled input</strong> means React state is the single source of truth.
+      The input shows <code>value={state}</code>, and updates state with <code>onChange</code>.
+    </p>
+
+    <div class="checklist">
+      <strong>✅ Controlled inputs checklist</strong>
+      <ul>
+        <li>🧮 Amount input uses <code>value={amount}</code> and updates with <code>setAmount(...)</code></li>
+        <li>🌍 From currency select uses <code>value={fromCurrency}</code></li>
+        <li>🎯 To currency select uses <code>value={toCurrency}</code></li>
+      </ul>
+      <p class="muted">Tip: Convert the amount to a number if you plan to do numeric operations.</p>
+    </div>
+
+    <pre><code>// State (example defaults)
+const [amount, setAmount] = useState(1);
+const [fromCurrency, setFromCurrency] = useState("EUR");
+const [toCurrency, setToCurrency] = useState("USD");
+
+// Controlled amount input
+&lt;input
+  type="number"
+  value={amount}
+  onChange={(e) =&gt; setAmount(Number(e.target.value))}
+/&gt;
+
+// Controlled selects
+&lt;select value={fromCurrency} onChange={(e) =&gt; setFromCurrency(e.target.value)}&gt;...&lt;/select&gt;
+&lt;select value={toCurrency} onChange={(e) =&gt; setToCurrency(e.target.value)}&gt;...&lt;/select&gt;
+</code></pre>
+
+    <h2>3) 🌐 Step 2: Fetch conversion data with <code>useEffect</code></h2>
+    <p>
+      Fetching from an API is a <strong>side effect</strong> (it talks to the outside world), so we do it in <code>useEffect</code>.
+      Effects run <strong>after</strong> React renders.
+    </p>
+
+    <div class="callout">
+      <span class="label">Rule 📌</span>
+      <span>The function passed to <code>useEffect</code> must not be <code>async</code>. Create an inner async function and call it.</span>
+    </div>
+
+    <pre><code>useEffect(() =&gt; {
+  async function convert() {
+    const res = await fetch(
+      `https://api.frankfurter.app/latest?amount=${amount}&from=${fromCurrency}&to=${toCurrency}`
+    );
+
+    const data = await res.json();
+
+    // Example response:
+    // { amount: 1, base: "EUR", date: "2020-...", rates: { USD: 1.07 } }
+
+    setConverted(data.rates[toCurrency]);
+  }
+
+  convert();
+}, []);
+</code></pre>
+
+    <p class="muted">🧩 Note: Using <code>data.rates[toCurrency]</code> lets you read the dynamic currency key (USD/EUR/GBP/etc.).</p>
+
+    <h2>4) 🔁 Step 3: Dependency array (make the effect reactive)</h2>
+    <p>
+      If your effect uses <code>amount</code>, <code>fromCurrency</code>, and <code>toCurrency</code>, then the effect <strong>depends</strong> on them.
+      Put them in the dependency array so React re-runs the effect when any of them changes.
+    </p>
+
+    <div class="callout">
+      <span class="label">Mental model 🧠</span>
+      <span>
+        The dependency array is like an “event listener for state/props”.
+        When a dependency changes, React re-runs your effect to keep things synchronized.
+      </span>
+    </div>
+
+    <pre><code>useEffect(() =&gt; {
+  async function convert() {
+    const res = await fetch(
+      `https://api.frankfurter.app/latest?amount=${amount}&from=${fromCurrency}&to=${toCurrency}`
+    );
+    const data = await res.json();
+    setConverted(data.rates[toCurrency]);
+  }
+
+  convert();
+}, [amount, fromCurrency, toCurrency]);
+</code></pre>
+
+    <h2>5) ⏳ Step 4: Loading UX (disable inputs)</h2>
+    <p>
+      Network calls take time. A clean UX pattern is to track <code>isLoading</code> and temporarily disable inputs.
+      This helps users understand something is happening and reduces rapid repeated requests.
+    </p>
+
+    <pre><code>const [converted, setConverted] = useState("");
+const [isLoading, setIsLoading] = useState(false);
+
+useEffect(() =&gt; {
+  async function convert() {
+    setIsLoading(true);
+
+    const res = await fetch(
+      `https://api.frankfurter.app/latest?amount=${amount}&from=${fromCurrency}&to=${toCurrency}`
+    );
+    const data = await res.json();
+
+    setConverted(data.rates[toCurrency]);
+    setIsLoading(false);
+  }
+
+  convert();
+}, [amount, fromCurrency, toCurrency]);
+
+// Disable fields while loading
+&lt;input disabled={isLoading} ... /&gt;
+&lt;select disabled={isLoading} ... &gt;...&lt;/select&gt;
+&lt;select disabled={isLoading} ... &gt;...&lt;/select&gt;
+</code></pre>
+
+    <h2>6) 🧯 Step 5: Guard clause when currencies are the same</h2>
+    <p>
+      If <code>fromCurrency</code> equals <code>toCurrency</code>, conversion is unnecessary.
+      Some APIs may even error on that case. Use a guard clause to skip fetch.
+    </p>
+
+    <pre><code>useEffect(() =&gt; {
+  // ✅ Guard: same currency means “no conversion”
+  if (fromCurrency === toCurrency) {
+    setConverted(amount);
+    return;
+  }
+
+  async function convert() {
+    setIsLoading(true);
+    const res = await fetch(
+      `https://api.frankfurter.app/latest?amount=${amount}&from=${fromCurrency}&to=${toCurrency}`
+    );
+    const data = await res.json();
+    setConverted(data.rates[toCurrency]);
+    setIsLoading(false);
+  }
+
+  convert();
+}, [amount, fromCurrency, toCurrency]);
+</code></pre>
+
+    <h2>7) 🧠 Common pitfalls (and quick fixes)</h2>
+    <ul>
+      <li>🔁 <strong>Effect runs only once</strong> → You probably used <code>[]</code> but forgot dependencies. Add them.</li>
+      <li>🧾 <strong>Amount becomes a string</strong> → Use <code>Number(e.target.value)</code>.</li>
+      <li>🐢 <strong>UI feels slow</strong> → Normal; network is async. Add <code>isLoading</code> UX.</li>
+      <li>💥 <strong>From = To error</strong> → Add the guard clause to skip fetch.</li>
+      <li>🧯 <strong>Ignored errors</strong> → Fine for a challenge, but real apps must handle errors (see upgrades below).</li>
+    </ul>
+
+    <h2>8) ⭐ Optional upgrades (real-world polish)</h2>
+    <div class="callout">
+      <span class="label">Upgrade ideas 🚀</span>
+      <span>Not required for the challenge, but excellent practice.</span>
+    </div>
+    <ul>
+      <li>🛑 <strong>Error handling</strong>: add <code>error</code> state and show a friendly message if fetch fails.</li>
+      <li>🧹 <strong>Abort previous requests</strong>: if users type quickly, cancel older requests (avoid race conditions).</li>
+      <li>⏱️ <strong>Debounce input</strong>: wait ~300ms after typing before fetching to reduce requests.</li>
+      <li>🔒 <strong>Validate amount</strong>: if amount is <code>0</code> or negative, decide how your UI should behave.</li>
+    </ul>
+
+    <div class="divider"></div>
+
+    <h2>9) ✅ Final recap</h2>
+    <ul>
+      <li>🎛️ Controlled inputs = <code>value</code> + <code>onChange</code> tied to state</li>
+      <li>🌐 Fetching is a side effect → do it in <code>useEffect</code></li>
+      <li>🔁 Dependency array controls when the effect re-runs</li>
+      <li>⏳ Loading state improves UX (disable inputs / show loader)</li>
+      <li>🧯 Guard clause prevents pointless or failing requests</li>
+    </ul>
+
+    <p class="muted">End of reviewer. Print this page to PDF (A4) for your notes.</p>
+  </main>
+</body>
+</html>

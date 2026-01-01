@@ -1,0 +1,424 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Updating an Item — Toggle Packed Status (Immutable Update) | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background: #fef2f2; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .diagram{
+      border: 1px dashed var(--border);
+      background:#ffffff;
+      border-radius: 10px;
+      padding: 10px 10px;
+      margin: 12px 0;
+    }
+
+    .badge{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:#ffffff;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      color: var(--muted);
+      vertical-align: middle;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre, .diagram{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn, .callout.danger{ background:#ffffff; }
+      .card, .term, pre, .callout, .diagram{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Updating an Item — Toggle Packed Status ✅🧳</h1>
+      <p class="subtitle">
+        Reviewer/study guide: implement a checkbox to toggle <strong>item.packed</strong> using an immutable update.
+        The click happens in <strong>Item</strong>, but the <span class="badge">items</span> state lives in <strong>App</strong>, so we use child-to-parent communication.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">☑️ Checkbox + controlled element</span>
+        <span class="chip">🧱 Immutable update (map + spread)</span>
+        <span class="chip">⬆️ Child-to-parent communication</span>
+        <span class="chip">🧠 Toggle boolean state</span>
+        <span class="chip">✨ UI stays in sync</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Goal: Add a Checkbox that Marks Items as Packed</h2>
+      <div class="card">
+        <ul>
+          <li>We add a <strong>checkbox</strong> to each item.</li>
+          <li>When checked, the item becomes “packed” (boolean: <code>true</code>).</li>
+          <li>UI reflects packed state (e.g., strike-through text).</li>
+        </ul>
+      </div>
+
+      <div class="diagram" aria-label="Component tree">
+        <pre><code>App (items state)
+└─ PackingList
+   └─ Item (checkbox click happens here)
+</code></pre>
+      </div>
+
+      <div class="callout">
+        <p>
+          This is similar to deleting: the interaction happens in <strong>Item</strong>, but the state update must be done in <strong>App</strong>.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Checkbox as a Controlled Element ☑️</h2>
+      <div class="card">
+        <p>
+          A controlled input means React controls its value. For a checkbox, you control the <strong><code>checked</code></strong> prop.
+          (Not <code>value</code> — checkboxes use <code>checked</code>.)
+        </p>
+
+        <h3>Item: add the checkbox</h3>
+        <pre><code>function Item({ item, onToggleItem }) {
+  return (
+    &lt;li&gt;
+      &lt;input
+        type="checkbox"
+        checked={item.packed}
+        onChange={() =&gt; onToggleItem(item.id)}
+      /&gt;
+
+      &lt;span style={item.packed ? { textDecoration: "line-through" } : {}}&gt;
+        {item.quantity} {item.description}
+      &lt;/span&gt;
+
+      &lt;button&gt;❌&lt;/button&gt;
+    &lt;/li&gt;
+  );
+}
+</code></pre>
+
+        <p class="mini">
+          The checkbox is controlled because its checked state is always derived from <code>item.packed</code>,
+          and the <code>onChange</code> triggers an update.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <p>
+          If you set <code>checked={item.packed}</code> but forget <code>onChange</code>, the checkbox becomes “read-only” in practice.
+          React is forcing the checkbox to match state, but nothing updates the state.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Create the Toggle Handler Where State Lives (in App) 🏠</h2>
+      <div class="card">
+        <p>
+          We want to update exactly <strong>one object</strong> inside an array. The standard immutable pattern is:
+          <strong>map</strong> the array and replace the matching object with a <strong>new object</strong>.
+        </p>
+
+        <pre><code>function App() {
+  const [items, setItems] = useState([]);
+
+  function handleToggleItem(id) {
+    setItems((items) =&gt;
+      items.map((item) =&gt;
+        item.id === id
+          ? { ...item, packed: !item.packed }
+          : item
+      )
+    );
+  }
+
+  return (
+    &lt;div className="app"&gt;
+      &lt;PackingList
+        items={items}
+        onDeleteItem={handleDeleteItem}
+        onToggleItem={handleToggleItem}
+      /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+        <div class="term">
+          <div class="icon">🧱</div>
+          <div class="body">
+            <p class="title">Why map + spread?</p>
+            <p class="desc">
+              <code>map()</code> returns a new array. <code>{ ...item }</code> returns a new object.
+              This avoids mutating state and keeps React updates predictable.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout ok">
+        <p>
+          Toggle logic: <code>packed: !item.packed</code> flips the boolean.
+          <strong>true → false</strong>, <strong>false → true</strong>.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Pass the Toggle Handler Down to Item ⬇️</h2>
+      <div class="card">
+        <p>
+          Since <strong>Item</strong> is rendered inside <strong>PackingList</strong>, we forward the handler through it.
+        </p>
+
+        <h3>PackingList forwards <code>onToggleItem</code></h3>
+        <pre><code>function PackingList({ items, onDeleteItem, onToggleItem }) {
+  return (
+    &lt;div className="list"&gt;
+      &lt;ul&gt;
+        {items.map((item) =&gt; (
+          &lt;Item
+            key={item.id}
+            item={item}
+            onDeleteItem={onDeleteItem}
+            onToggleItem={onToggleItem}
+          /&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+      </div>
+
+      <div class="callout">
+        <p>
+          This is the common React pattern: parent owns the state, child triggers updates by calling a callback prop.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Common Pitfalls (and Fixes) 🧯</h2>
+
+      <div class="card">
+        <h3>Pitfall A: Using <code>value</code> instead of <code>checked</code></h3>
+        <pre><code>// ❌ Not the typical controlled checkbox pattern
+&lt;input type="checkbox" value={item.packed} /&gt;
+
+// ✅ Correct
+&lt;input type="checkbox" checked={item.packed} /&gt;
+</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Pitfall B: Calling the handler immediately</h3>
+        <pre><code>// ❌ Runs immediately on render
+onChange={onToggleItem(item.id)}
+
+// ✅ Pass a function, React calls it later
+onChange={() =&gt; onToggleItem(item.id)}
+</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Pitfall C: Mutating the object directly</h3>
+        <pre><code>// ❌ Don't do this (mutation)
+setItems((items) =&gt; {
+  const item = items.find((i) =&gt; i.id === id);
+  item.packed = !item.packed;
+  return items;
+});
+
+// ✅ Do this (immutable)
+setItems((items) =&gt; items.map((item) =&gt;
+  item.id === id ? { ...item, packed: !item.packed } : item
+));
+</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) What React Does After Toggling 🔄</h2>
+      <div class="card">
+        <ol>
+          <li>User clicks checkbox in <strong>Item</strong>.</li>
+          <li><strong>Item</strong> calls <code>onToggleItem(item.id)</code>.</li>
+          <li><strong>App</strong> updates <span class="badge">items</span> using <code>setItems</code>.</li>
+          <li>React re-renders → checkbox state updates → strike-through updates.</li>
+        </ol>
+      </div>
+
+      <div class="callout ok">
+        <p>
+          Notice the mental model: we don’t “set a class in the DOM.”
+          We change state and React keeps the UI in sync.
+        </p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>7) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>Why does <code>handleToggleItem</code> live in <strong>App</strong> and not in <strong>Item</strong>?</li>
+          <li>Why do we use <code>map()</code> for update but <code>filter()</code> for delete?</li>
+          <li>Why do we need <code>{ ...item }</code> when toggling?</li>
+          <li>Why does a checkbox use <code>checked</code> (not <code>value</code>)?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li>The state array lives in App; Item only renders one element and triggers events.</li>
+          <li><code>filter()</code> removes elements; <code>map()</code> keeps length but changes one element.</li>
+          <li>To avoid mutating the existing object in state (immutability).</li>
+          <li>Checkbox UI is controlled by its checked state (true/false).</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Keep margins around ~14mm. Code blocks wrap so they won’t be cut off.
+    </footer>
+  </main>
+</body>
+</html>

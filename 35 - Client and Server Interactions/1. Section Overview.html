@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Section Overview — Client & Server Interactions (Next.js) — Study Guide</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+      --warnbg:#fff7ed;
+      --warnborder:#fed7aa;
+      --goodbg:#f0fdf4;
+      --goodborder:#bbf7d0;
+      --tipbg:#eff6ff;
+      --tipborder:#bfdbfe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 26px 18px 64px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, var(--panel));
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+      margin-bottom: 14px;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color:#222;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    h2{ margin:0 0 10px 0; font-size: 16px; }
+    h3{ margin:14px 0 8px 0; font-size: 14px; }
+
+    p{ margin: 8px 0; }
+    ul, ol{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .key{ font-weight:700; }
+
+    .callout{
+      border-left: 4px solid #111;
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .good{
+      border: 1px solid var(--goodborder);
+      background: var(--goodbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .warn{
+      border: 1px solid var(--warnborder);
+      background: var(--warnbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .tip{
+      border: 1px solid var(--tipborder);
+      background: var(--tipbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px;
+      border-radius: 12px;
+      overflow:auto;
+      border:1px solid #1b2547;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .mini{ font-size: 13px; color: var(--muted); }
+
+    /* Print CSS */
+    @media print{
+      @page{ size: A4; margin: 14mm; }
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width:none; padding:0; }
+      header, section{ break-inside: avoid; page-break-inside: avoid; }
+      pre{ break-inside: avoid; page-break-inside: avoid; border: 1px solid #000; }
+      .chip{ border-color:#000; }
+      .callout{ border-left-color:#000; }
+      .good, .warn, .tip{ border-color:#000; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🚀 Section Overview: Client & Server Interactions (Next.js)</h1>
+      <p class="sub">
+        Reviewer / study guide: how Server and Client parts of a Next.js App Router application work together to form full-stack experiences.
+      </p>
+      <div class="meta">
+        <span class="chip">🧩 Topic: Composition (Server ↔ Client)</span>
+        <span class="chip">🔁 State sharing</span>
+        <span class="chip">📦 Data fetching strategy</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>✅ What this section is about</h2>
+      <p>
+        This section focuses on how the <span class="key">server</span> and the <span class="key">client</span> portions of a Next.js application
+        interact and how you compose them into a real <span class="key">full-stack app</span>.
+      </p>
+      <div class="callout">
+        <p>🧠 In simple terms: “When should code run on the server vs the browser, and how do they talk to each other?”</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>1) 🧱 Rendering Server Components inside Client Components</h2>
+      <p>
+        You will learn <span class="key">how and why</span> a Client Component can still include Server Components as children,
+        and <span class="key">when it makes sense</span> to do that.
+      </p>
+
+      <h3>Beginner-friendly idea</h3>
+      <ul>
+        <li>🖥️ <span class="key">Server Components</span>: great for secure data fetching, heavy computation, and reducing client bundle size.</li>
+        <li>🧭 <span class="key">Client Components</span>: needed for interactivity (state, effects, event handlers).</li>
+        <li>🧩 Composition: you often want an interactive shell (client) that contains server-rendered content.</li>
+      </ul>
+
+      <div class="tip">
+        <p>💡 Mental model: Client Components are like “interactive containers” that can hold server-rendered UI.</p>
+      </div>
+
+      <pre><code>// Conceptual example (App Router)
+// Client component wraps server component
+
+// ClientShell.jsx
+'use client'
+export function ClientShell({ children }) {
+  return (
+    &lt;div&gt;
+      {/* interactive UI here */}
+      {children}
+    &lt;/div&gt;
+  );
+}
+
+// ServerContent.jsx (default = server)
+export async function ServerContent() {
+  const data = await getData();
+  return &lt;div&gt;{data}&lt;/div&gt;;
+}
+</code></pre>
+    </section>
+
+    <section>
+      <h2>2) 🔁 Sharing state between Server and Client (both directions)</h2>
+      <p>
+        You will learn techniques to share state across the server/client boundary:
+      </p>
+      <ul>
+        <li>🔗 Using the <span class="key">URL</span> (e.g., search params, route params) to store/share state</li>
+        <li>🧠 Using the <span class="key">React Context API</span> to share client-side state across components</li>
+      </ul>
+
+      <div class="callout">
+        <p>🧠 Why the URL matters: it’s a “universal state” that both server and client can read.</p>
+      </div>
+
+      <pre><code>// Conceptual idea: URL as shared state
+// /cabins?capacity=4
+
+// Server component can read search params
+export default async function Page({ searchParams }) {
+  const capacity = searchParams.capacity;
+  const cabins = await getCabins({ capacity });
+  return &lt;CabinsList cabins={cabins} /&gt;;
+}
+</code></pre>
+    </section>
+
+    <section>
+      <h2>3) 📦 How to think about data fetching + streaming</h2>
+      <p>
+        You will learn how to plan data fetching for a page that has multiple related pieces of data.
+        For example: how to fetch “main data” first, then fetch “secondary data” in parallel,
+        and how streaming can improve the user experience.
+      </p>
+
+      <div class="good">
+        <p>✅ Goal: faster perceived loading without blocking the entire page on slower data.</p>
+      </div>
+
+      <pre><code>// Conceptual pattern (with Suspense)
+import { Suspense } from 'react';
+
+export default async function Page() {
+  const primary = await getPrimaryData();
+  
+  return (
+    &lt;&gt;
+      &lt;PrimaryView data={primary} /&gt;
+
+      &lt;Suspense fallback={&lt;p&gt;⏳ Loading related data...&lt;/p&gt;} &gt;
+        {/* server component can fetch secondary data */}
+        &lt;RelatedData /&gt;
+      &lt;/Suspense&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+
+      <p class="mini">
+        Even if this section overview is short, the upcoming lectures will make this concrete with real UI screens.
+      </p>
+    </section>
+
+    <section>
+      <h2>🧾 What to expect next</h2>
+      <ul>
+        <li>More advanced patterns for composing Server + Client Components</li>
+        <li>Practical strategies for keeping state in sync</li>
+        <li>Better performance by choosing where data should be fetched and how to stream it</li>
+      </ul>
+
+      <div class="tip">
+        <p>🎓 This section is advanced, but it’s one of the most important for building real-world Next.js apps.</p>
+      </div>
+    </section>
+
+    <p class="mini" style="margin-top:12px;">
+      Print tip: Use browser Print → A4. Margins, line height, and word-wrapping are configured to prevent cut-off.
+    </p>
+  </div>
+</body>
+</html>

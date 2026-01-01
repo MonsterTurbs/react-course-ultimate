@@ -1,0 +1,385 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WorldWise — Including a Map with Leaflet (React Leaflet) | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --soft: #f6f7f9;
+      --border: #e6e6e6;
+      --codebg: #0b1020;
+      --codefg: #e9eefc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    section {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+      padding: 16px 18px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.18rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.02rem;
+    }
+
+    p { margin: 10px 0; }
+
+    .callout {
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 10px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 12px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 8px;
+      padding: 1px 6px;
+      font-size: 0.92em;
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-right: 6px;
+      margin-top: 6px;
+    }
+
+    /* Print: A4, clean margins, single column */
+    @page {
+      size: A4;
+      margin: 14mm 12mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-radius: 0; box-shadow: none; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      pre { background: #ffffff; color: #111111; border: 1px solid #dcdcdc; }
+
+      /* Don’t print link URLs */
+      a[href]:after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🗺️ WorldWise — Including a Map with Leaflet (React Leaflet)</h1>
+      <p class="subtitle">Reviewer / Study Guide (beginner-friendly) — building the map container, tiles, marker + popup, and common gotchas.</p>
+      <div class="meta">
+        <span class="tag">Single-column</span>
+        <span class="tag">A4 print-ready</span>
+        <span class="tag">React Router + Context section</span>
+        <span class="tag">React Leaflet + Leaflet</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What you’re building in this lecture</h2>
+      <p>You are implementing the <strong>Map</strong> UI for the WorldWise app using a third‑party map library:</p>
+      <ul>
+        <li>Install <strong>react-leaflet</strong> (React components) and <strong>leaflet</strong> (base map engine).</li>
+        <li>Import Leaflet’s CSS (required for proper rendering).</li>
+        <li>Render a map using <strong>&lt;MapContainer /&gt;</strong> + <strong>&lt;TileLayer /&gt;</strong>.</li>
+        <li>Place a <strong>Marker</strong> and show a <strong>Popup</strong> when clicked.</li>
+        <li>Fix the common issue: map exists but is invisible because height is <strong>0</strong>.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>✅ Key idea:</strong>
+        <div>React Leaflet gives you <em>React components</em> that wrap Leaflet’s map functionality. You compose a map by nesting components inside <code>&lt;MapContainer&gt;</code>.</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>📦 Installation and required CSS</h2>
+      <h3>1) Install the packages</h3>
+      <p>Run these in your project folder:</p>
+      <pre>npm install react-leaflet leaflet</pre>
+
+      <h3>2) Include Leaflet’s CSS</h3>
+      <p>Leaflet requires CSS for tiles, markers, and layout. A common approach is importing it in <code>index.css</code>.</p>
+      <div class="callout">
+        <strong>⚠️ If you skip this CSS:</strong>
+        <div>Your map may render incorrectly (missing markers, broken layout, weird tile behavior).</div>
+      </div>
+      <pre>/* index.css */
+@import "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";</pre>
+      <p><span class="tag">Note</span> Version differences usually won’t matter for this course project, but the CSS import must exist.</p>
+    </section>
+
+    <section>
+      <h2>🧩 React Leaflet basic components</h2>
+      <div class="grid">
+        <div class="mini">
+          <h3>🗺️ MapContainer</h3>
+          <ul>
+            <li>Creates the actual map instance.</li>
+            <li>Needs a <code>center</code> (lat/lng) and <code>zoom</code>.</li>
+            <li>Must have a visible height via CSS (very important).</li>
+          </ul>
+        </div>
+        <div class="mini">
+          <h3>🧱 TileLayer</h3>
+          <ul>
+            <li>Defines where the map tiles come from (the “map style”).</li>
+            <li>Uses a URL template like <code>{z}/{x}/{y}</code>.</li>
+          </ul>
+        </div>
+        <div class="mini">
+          <h3>📍 Marker + 💬 Popup</h3>
+          <ul>
+            <li><strong>Marker</strong> shows a pin at a position.</li>
+            <li><strong>Popup</strong> is a UI bubble that opens when the marker is clicked.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🛠️ Implementing the Map component (step-by-step)</h2>
+
+      <h3>Step A — Start with state for the map position</h3>
+      <p>The map <code>center</code> expects <strong>[latitude, longitude]</strong>. Use state so you can update the map later (for example, when URL query string changes).</p>
+      <pre>import { useState } from "react";
+
+const [mapPosition, setMapPosition] = useState([40, 0]);</pre>
+
+      <h3>Step B — Add React Leaflet components</h3>
+      <pre>import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+
+function Map() {
+  const [mapPosition, setMapPosition] = useState([40, 0]);
+
+  return (
+    <div className={styles.mapContainer}>
+      <MapContainer
+        className={styles.map}
+        center={mapPosition}
+        zoom={6}
+        scrollWheelZoom={true}
+      >
+        <TileLayer
+          attribution='&amp;copy; OpenStreetMap contributors'
+          url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+        />
+
+        <Marker position={mapPosition}>
+          <Popup>
+            A pretty CSS3 popup. <br /> Easily customizable.
+          </Popup>
+        </Marker>
+      </MapContainer>
+    </div>
+  );
+}</pre>
+
+      <div class="callout">
+        <strong>🧠 Beginner note:</strong>
+        <div>
+          The map shows up because <code>&lt;MapContainer&gt;</code> creates a map, but the visible “map look” comes from <code>&lt;TileLayer&gt;</code>.
+          Without a tile layer, the container exists but you won’t see actual map imagery.
+        </div>
+      </div>
+
+      <h3>Step C — Choose a nicer tile style (HOT)</h3>
+      <p>Switching styles can be as simple as swapping the tile URL. In the lecture, the “hot” tiles were used:</p>
+      <pre>url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"</pre>
+
+      <h3>Step D — Enable zooming with the mouse wheel</h3>
+      <p>If <code>scrollWheelZoom</code> is set to <code>false</code>, the wheel will not zoom. Set it to <code>true</code>:</p>
+      <pre>&lt;MapContainer scrollWheelZoom={true} ... &gt;</pre>
+    </section>
+
+    <section>
+      <h2>🐛 Troubleshooting: “Map is there… but I can’t see it”</h2>
+      <p>A very common issue: DevTools shows the map DOM is present, but its height is <strong>0</strong>, so nothing is visible.</p>
+
+      <div class="callout">
+        <strong>✅ Fix:</strong>
+        <div>
+          Add a class to the <code>MapContainer</code> that sets a real height (often <code>height: 100%</code>), and make sure the parent container also has a height.
+        </div>
+      </div>
+
+      <h3>Example CSS module setup</h3>
+      <pre>/* Map.module.css */
+.mapContainer {
+  height: 100%;
+}
+
+.map {
+  height: 100%;
+}</pre>
+
+      <h3>Example JSX</h3>
+      <pre>&lt;div className={styles.mapContainer}&gt;
+  &lt;MapContainer className={styles.map} ...&gt;
+    ...
+  &lt;/MapContainer&gt;
+&lt;/div&gt;</pre>
+
+      <p><span class="tag">Tip</span> If you still see height 0, check the parent layout: a child can’t be 100% tall if the parent doesn’t have a height.</p>
+    </section>
+
+    <section>
+      <h2>📍 Marker vs Popup (quick mental model)</h2>
+      <ul>
+        <li><strong>Marker</strong> = the pin icon placed at a location.</li>
+        <li><strong>Popup</strong> = the bubble content that opens when you click the marker.</li>
+      </ul>
+      <div class="callout">
+        <strong>✅ What you saw in the lecture:</strong>
+        <div>
+          The popup text only appears after clicking the marker. This confirms Leaflet is working correctly.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Why use state for map position?</h2>
+      <p>Even though the lecture starts with a temporary position, using state sets you up for the next features:</p>
+      <ul>
+        <li>Move the map when the user clicks a city (center on that city).</li>
+        <li>Sync the map center with the URL Query String (<code>?lat=...&amp;lng=...</code>).</li>
+        <li>Show one marker per city (not just one placeholder marker).</li>
+      </ul>
+
+      <div class="callout">
+        <strong>🔜 Next lecture preview:</strong>
+        <div>
+          Replace the single marker with a <strong>marker for each city</strong>, and show city info inside popups.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>📝 Quick checklist</h2>
+      <ul>
+        <li>✅ Installed <code>react-leaflet</code> and <code>leaflet</code></li>
+        <li>✅ Imported Leaflet CSS in <code>index.css</code></li>
+        <li>✅ Rendered <code>&lt;MapContainer&gt;</code> with <code>center</code> and <code>zoom</code></li>
+        <li>✅ Added <code>&lt;TileLayer&gt;</code> (HOT tiles for nicer style)</li>
+        <li>✅ Added <code>Marker</code> + <code>Popup</code></li>
+        <li>✅ Fixed height issue by applying <code>className={styles.map}</code> with <code>height: 100%</code></li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

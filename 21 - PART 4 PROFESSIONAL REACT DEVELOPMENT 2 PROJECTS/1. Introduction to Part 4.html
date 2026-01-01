@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Part 4 — Professional React Development (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #047857;
+      --warn: #b45309;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .soft { background: var(--soft); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7faff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #ecfdf5;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print styles (A4, clean margins, no URL after links) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Keep cards from splitting awkwardly */
+      .card, .note { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Printer-friendly sizing */
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li { font-size: 12.2px; }
+
+      /* Remove automatic URL printing */
+      a[href]::after { content: "" !important; }
+
+      .chip {
+        border-color: #ddd;
+        background: #f7f7f7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">📘 The Ultimate React Course — Part 4</p>
+      <h1>🏗️ Introduction to Part 4: Professional React Development</h1>
+      <p class="subtitle">
+        From learning React concepts ➜ to building <strong>two full professional web apps</strong> using React + the ecosystem.
+      </p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">⚛️ React in real projects</span>
+        <span class="chip">🧰 React ecosystem</span>
+        <span class="chip">🔐 Authentication</span>
+        <span class="chip">🔎 Filtering</span>
+        <span class="chip">📄 Pagination</span>
+        <span class="chip">📊 Charts</span>
+        <span class="chip">🌙 Dark mode</span>
+        <span class="chip">🧩 UI patterns</span>
+      </div>
+    </header>
+
+    <section class="card soft">
+      <h2>🎯 What changes in Part 4?</h2>
+      <p>
+        Part 4 is a <strong>shift in focus</strong> compared to Parts 1–3.
+        Instead of only learning React features in isolation, you’ll now learn how to use React
+        together with its <strong>library ecosystem</strong> to build real, production-style applications.
+      </p>
+      <div class="note">
+        ✅ The promise of this part: by the end, you should feel capable of building
+        <strong>high-quality apps on your own</strong>.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧰 Tools mentioned (ecosystem)</h2>
+      <p class="muted">The lecture highlights that these projects use “high quality tools” such as:</p>
+      <ul>
+        <li>⚡ <strong>React Query</strong> — simplifies server/remote data fetching, caching, and syncing.</li>
+        <li>🗄️ <strong>Supabase</strong> — backend-as-a-service (database + auth + storage) for building full apps faster.</li>
+        <li>🎨 <strong>Tailwind CSS</strong> — utility-first CSS framework for rapidly building modern UIs.</li>
+      </ul>
+      <div class="note warn">
+        ⚠️ Tool names can change over time, but the skill is stable:
+        learning to combine React with a modern ecosystem is what makes your apps “professional.”
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>✨ Features you will build (common in real apps)</h2>
+      <p>
+        The projects in this part include many features you’ll see across real-world web applications.
+        These are strong portfolio signals because they show product-like thinking, not just UI demos.
+      </p>
+      <ul>
+        <li>🔐 <strong>Authentication</strong> (sign in/out, protected pages)</li>
+        <li>🔎 <strong>Data filtering</strong> (find what you need quickly)</li>
+        <li>📄 <strong>Pagination</strong> (handle large lists properly)</li>
+        <li>📊 <strong>Charts</strong> (visualize data and trends)</li>
+        <li>🌙 <strong>Dark mode</strong> (user preference + theming)</li>
+        <li>🧾 <strong>Context menus</strong> (right-click / actions menu patterns)</li>
+        <li>🪟 <strong>Modals</strong> (create/edit flows, confirmations)</li>
+        <li>➕ And more…</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>🧠 Beginner-friendly: what “professional app” means here</h2>
+      <p>
+        A professional React application is not just a page that looks good.
+        It also includes:
+      </p>
+      <ul>
+        <li>🧱 Clean structure and reusable components</li>
+        <li>🧭 Predictable state and data flow</li>
+        <li>📡 Reliable data loading and UI states (loading/error/success)</li>
+        <li>🔒 Security basics (authentication + access control)</li>
+        <li>🧪 Debuggability (clear logic, easy to reason about)</li>
+      </ul>
+      <div class="note good">
+        ✅ Part 4 is where you connect React skills to “real-world” app building.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🧪 Mini self-check (quick questions)</h2>
+      <ol>
+        <li>❓ Why do we need libraries beyond React when building real apps?</li>
+        <li>❓ What are 3 features mentioned that appear in most web apps?</li>
+        <li>❓ What is the big mindset shift in Part 4 vs Part 1–3?</li>
+      </ol>
+      <p class="muted">If you can answer these, you got the main point of this intro.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="card">
+      <h2>➡️ Key takeaway</h2>
+      <p>
+        Part 4 is about taking everything you’ve learned and applying it to build
+        <strong>two complete, real-world React applications</strong> using the modern React ecosystem.
+      </p>
+      <p>
+        🧑‍💻 Now it’s time to bring your React skills into the real world.
+      </p>
+    </section>
+
+    <footer class="muted" style="margin-top:16px; font-size:12px;">
+      Print format: A4, single-column, word-wrapped, clean margins.
+    </footer>
+  </main>
+</body>
+</html>

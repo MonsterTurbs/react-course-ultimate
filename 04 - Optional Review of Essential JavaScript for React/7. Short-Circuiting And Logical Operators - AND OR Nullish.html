@@ -1,0 +1,445 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Short-Circuiting (AND / OR / Nullish) (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 20px 44px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .muted { color: var(--muted); }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th { background: var(--soft); }
+
+    /* Screen links are fine, but never print URLs */
+    a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      .toolbar { display: none !important; }
+
+      /* Don’t print any URL after links */
+      a[href]:after { content: "" !important; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>⚡ Short-Circuiting & Logical Operators — AND / OR / Nullish (Reviewer)</h1>
+      <p class="subtitle">Beginner-friendly notes + examples for <code>&&</code>, <code>||</code>, and <code>??</code>. A4 print-ready, single-column.</p>
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Clean A4 output (no printed URLs). Word-wrapped to avoid cut-offs.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Table of Contents</strong>
+        <ol>
+          <li><a href="#concept">What is short-circuiting?</a></li>
+          <li><a href="#and">AND operator <code>&&</code></a></li>
+          <li><a href="#or">OR operator <code>||</code></a></li>
+          <li><a href="#truthy-falsy">Truthy vs falsy (quick list)</a></li>
+          <li><a href="#defaults">Default values: <code>||</code> vs <code>??</code></a></li>
+          <li><a href="#react">React use cases</a></li>
+          <li><a href="#practice">Practice drills</a></li>
+          <li><a href="#self-check">Quick self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="concept">
+      <h2>🧠 What is short-circuiting?</h2>
+      <p>
+        In JavaScript, some logical operators can <strong>stop early</strong> and return a value immediately.
+        This is called <strong>short-circuiting</strong>.
+      </p>
+      <p class="muted">
+        Key idea: <strong>These operators return a value</strong> (not always <code>true</code>/<code>false</code>),
+        and sometimes they don’t even evaluate the second operand.
+      </p>
+
+      <div class="callout">
+        <p><strong>Remember</strong> ✅</p>
+        <p class="muted">Short-circuiting is extremely common in React for conditional rendering and defaults.</p>
+      </div>
+    </section>
+
+    <section id="and">
+      <h2>✅ AND operator: <code>&&</code></h2>
+      <p>
+        <code>A && B</code> returns:
+      </p>
+      <ul>
+        <li>🔻 <strong>A</strong> immediately, if <strong>A is falsy</strong> (short-circuit)</li>
+        <li>🔺 <strong>B</strong>, if <strong>A is truthy</strong> (it must check B)</li>
+      </ul>
+
+      <h3>Basic examples</h3>
+      <pre><code>console.log(true && "some string");
+// → "some string"
+
+console.log(false && "some string");
+// → false  (short-circuits, doesn’t look at the second part)</code></pre>
+
+      <h3>Using <code>&&</code> like a small “if” ✅</h3>
+      <pre><code>// If hasMovieAdaptation is truthy, show message.
+// If it’s falsy, result is falsy and nothing happens.
+
+hasMovieAdaptation && "This book has a movie.";</code></pre>
+
+      <div class="callout">
+        <p><strong>React pattern</strong> ⚛️</p>
+        <p class="muted"><code>{hasMovieAdaptation && &lt;p&gt;This book has a movie.&lt;/p&gt;}</code></p>
+      </div>
+    </section>
+
+    <section id="or">
+      <h2>🔁 OR operator: <code>||</code></h2>
+      <p>
+        <code>A || B</code> returns:
+      </p>
+      <ul>
+        <li>🔺 <strong>A</strong> immediately, if <strong>A is truthy</strong> (short-circuit)</li>
+        <li>🔻 <strong>B</strong>, if <strong>A is falsy</strong></li>
+      </ul>
+
+      <h3>Basic examples</h3>
+      <pre><code>console.log(true || "some string");
+// → true  (short-circuits)
+
+console.log(false || "some string");
+// → "some string"</code></pre>
+
+      <h3>Setting default values with <code>||</code> 🧩</h3>
+      <p class="muted">If a value is missing (often <code>undefined</code>), you can provide a fallback:</p>
+      <pre><code>const spanishTranslation = book.translations.spanish || "not translated";
+// If spanishTranslation is undefined → "not translated"</code></pre>
+
+      <div class="callout">
+        <p><strong>Important</strong> ⚠️</p>
+        <p class="muted"><code>||</code> treats <strong>all falsy values</strong> as “missing”, including <code>0</code> and <code>""</code>. This can cause bugs.</p>
+      </div>
+    </section>
+
+    <section id="truthy-falsy">
+      <h2>🧪 Truthy vs falsy (quick list)</h2>
+      <p>
+        JavaScript converts values to <code>true</code>/<code>false</code> in conditions.
+      </p>
+
+      <p><strong>Falsy values (common ones):</strong></p>
+      <div>
+        <span class="pill">false</span>
+        <span class="pill">0</span>
+        <span class="pill">"" (empty string)</span>
+        <span class="pill">null</span>
+        <span class="pill">undefined</span>
+        <span class="pill">NaN</span>
+      </div>
+
+      <p class="muted"><strong>Truthy</strong> is basically “anything that’s not falsy”.</p>
+
+      <h3>Example</h3>
+      <pre><code>console.log("hello" && "second");
+// → "second" ("hello" is truthy)
+
+console.log(0 && "second");
+// → 0 (0 is falsy, short-circuit)</code></pre>
+    </section>
+
+    <section id="defaults">
+      <h2>🧯 Defaults: <code>||</code> vs <code>??</code> (Nullish coalescing)</h2>
+      <p>
+        The <strong>nullish coalescing operator</strong> <code>??</code> is like <code>||</code>, but safer for numbers and empty strings.
+      </p>
+
+      <h3>Problem with <code>||</code> when the value is <code>0</code> ⚠️</h3>
+      <pre><code>const countWrong = book.reviews.libranything.reviewsCount || "no data";
+
+// If reviewsCount is 0:
+// countWrong becomes "no data" (WRONG, because 0 is valid data)</code></pre>
+
+      <h3>Fix with <code>??</code> ✅</h3>
+      <p class="muted"><code>??</code> only falls back when the left side is <strong>null</strong> or <strong>undefined</strong> (not when it’s 0 or "").</p>
+      <pre><code>const count = book.reviews.libranything.reviewsCount ?? "no data";
+
+// If reviewsCount is 0:
+// count stays 0 ✅
+
+// If reviewsCount is undefined:
+// count becomes "no data" ✅</code></pre>
+
+      <div class="callout">
+        <p><strong>Rule of thumb</strong> ✅</p>
+        <ul>
+          <li><strong>Use <code>||</code></strong> when you want to treat <em>all falsy</em> values as “missing”.</li>
+          <li><strong>Use <code>??</code></strong> when you only want to treat <em>null/undefined</em> as “missing”.</li>
+        </ul>
+      </div>
+
+      <table aria-label="Operator comparison">
+        <thead>
+          <tr>
+            <th>Left value</th>
+            <th><code>value || "fallback"</code></th>
+            <th><code>value ?? "fallback"</code></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>undefined</code></td>
+            <td>"fallback"</td>
+            <td>"fallback"</td>
+          </tr>
+          <tr>
+            <td><code>null</code></td>
+            <td>"fallback"</td>
+            <td>"fallback"</td>
+          </tr>
+          <tr>
+            <td><code>0</code></td>
+            <td>"fallback" ❌</td>
+            <td>0 ✅</td>
+          </tr>
+          <tr>
+            <td><code>""</code> (empty string)</td>
+            <td>"fallback" (maybe unwanted)</td>
+            <td>"" ✅</td>
+          </tr>
+          <tr>
+            <td><code>"hello"</code></td>
+            <td>"hello"</td>
+            <td>"hello"</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="react">
+      <h2>⚛️ React use cases (where you’ll see this)</h2>
+      <h3>1) Conditional rendering with <code>&&</code> ✅</h3>
+      <pre><code>// Show an element only when condition is true
+{hasMovieAdaptation && &lt;p&gt;This book has a movie.&lt;/p&gt;}</code></pre>
+
+      <h3>2) Default props / values</h3>
+      <pre><code>// Use ?? when 0 is a valid value
+const itemsPerPage = props.itemsPerPage ?? 10;
+
+// Use || when any falsy should fallback (rare, but sometimes ok)
+const title = props.title || "Untitled";</code></pre>
+
+      <div class="callout">
+        <p><strong>Practical warning</strong> ⚠️</p>
+        <p class="muted">If <code>0</code> is meaningful in your UI, prefer <code>??</code> to avoid accidentally replacing it.</p>
+      </div>
+    </section>
+
+    <section id="practice">
+      <h2>🏋️ Practice drills</h2>
+      <ol>
+        <li>Predict the output: <code>"hi" && 0</code>, <code>0 || "x"</code>, <code>0 ?? "x"</code>.</li>
+        <li>Create a variable <code>name</code> that falls back to "Anonymous" only when it is <code>null</code> or <code>undefined</code>.</li>
+        <li>In React style, write a snippet that renders a warning message only when <code>isError</code> is truthy.</li>
+        <li>Try a counter example: default to 1 when <code>count</code> is missing, but keep 0 if count is 0.</li>
+      </ol>
+    </section>
+
+    <section id="self-check">
+      <h2>📝 Quick self-check</h2>
+      <ol>
+        <li>When does <code>&&</code> short-circuit?</li>
+        <li>When does <code>||</code> short-circuit?</li>
+        <li>Why can <code>||</code> be dangerous for numeric values like 0?</li>
+        <li>What values does <code>??</code> treat as “missing”?</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>✅ If you can answer these, you’re ready to use short-circuiting in React safely.</strong> 😄</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>
+        Reviewer generated from the provided transcript. Designed for clean A4 printing (single column, word-wrapped).
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

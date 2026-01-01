@@ -1,0 +1,411 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thinking in React — Fundamentals of State Management | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background: #fef2f2; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .flow{
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 10px 10px;
+      margin: 12px 0;
+    }
+    .flow .row{ margin: 6px 0; }
+    .flow .q{ font-weight: 700; }
+    .flow .a{ color: var(--muted); }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre, .flow{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn, .callout.danger{ background:#ffffff; }
+      .card, .term, pre, .callout, .flow{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Fundamentals of State Management ⚙️🧠</h1>
+      <p class="subtitle">
+        Reviewer/study guide: what state management means in React, local vs global state, and a decision flow for when to create state and where to place it.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">🧠 State = #1 concept</span>
+        <span class="chip">🏠 “State needs a home”</span>
+        <span class="chip">📍 Local vs Global</span>
+        <span class="chip">🧮 Derived state</span>
+        <span class="chip">🧷 useRef (no re-render)</span>
+        <span class="chip">⬆️ Lifting state up</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Why State Management Matters</h2>
+      <div class="callout">
+        <p>
+          <strong>State is the most important concept in React.</strong> Therefore, managing state is one of the most important parts of
+          <strong>thinking in React</strong>.
+        </p>
+        <p class="mini">
+          In small apps, you can often “just put state where it’s needed.” But as apps grow, you need a consistent strategy so state doesn’t become a mess.
+        </p>
+      </div>
+
+      <div class="term">
+        <div class="icon">🧩</div>
+        <div class="body">
+          <p class="title">Why it can look messy</p>
+          <p class="desc">Real apps often have many state variables. The important skill is knowing which ones you truly need and where they should live.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Definition: What Is “State Management”?</h2>
+      <div class="card">
+        <p>State management is about deciding:</p>
+        <ul>
+          <li>🆕 <strong>When</strong> to create a new piece of state</li>
+          <li>🧠 <strong>What type</strong> of state you need (state vs derived state vs ref, etc.)</li>
+          <li>📍 <strong>Where</strong> to place each piece of state in the codebase</li>
+          <li>⬇️⬆️ <strong>How data flows</strong> through the app (props down, events up)</li>
+        </ul>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Analogy:</strong> State management is giving each piece of state a “home” in your codebase. 🏠</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Local State vs Global State</h2>
+
+      <div class="term">
+        <div class="icon">📍</div>
+        <div class="body">
+          <p class="title">Local state</p>
+          <p class="desc">State needed by one component (or just a small component area like parent + children). Created with <code>useState</code> inside that component.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Example (Udemy-like app): Search input 🔎</h3>
+        <p class="mini">Only the search bar component typically needs to know what the user typed.</p>
+        <pre><code>function SearchBar() {
+  const [query, setQuery] = useState("");
+
+  return (
+    &lt;input
+      value={query}
+      onChange={(e) =&gt; setQuery(e.target.value)}
+      placeholder="Search courses..."
+    /&gt;
+  );
+}</code></pre>
+      </div>
+
+      <div class="term">
+        <div class="icon">🌍</div>
+        <div class="body">
+          <p class="title">Global state (aka shared state)</p>
+          <p class="desc">State needed by many components across the app. Accessible throughout the component tree (commonly via Context or a library like Redux).</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Example (Udemy-like app): Shopping cart 🛒</h3>
+        <p class="mini">Many parts of the UI may need the cart: header badge, product pages, checkout, sidebar summary, etc.</p>
+        <ul>
+          <li>✅ shared by many components</li>
+          <li>✅ used “all over the place”</li>
+          <li>➡️ good candidate for global/shared state</li>
+        </ul>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Guideline:</strong> Start with <strong>local state</strong> and only move to global state when you truly need it. 🧭</p>
+        <p class="mini">In the current course stage (parts 1–2), you’ll mostly use local state.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) When Do You Need State?</h2>
+      <div class="card">
+        <p class="mini">
+          It starts when you realize: “I need to store some data.”
+          The next steps help you decide whether that data should be a normal variable, derived state, a ref, or state.
+        </p>
+      </div>
+
+      <div class="flow" aria-label="When to create state flow">
+        <div class="row"><span class="q">Q1:</span> Will this data change over time? <span class="a">(during the app lifecycle)</span></div>
+        <div class="row">➜ If <strong>No</strong> ✅ → use a normal variable (often <code>const</code>).</div>
+        <div class="row">➜ If <strong>Yes</strong> 🔁 → go to Q2.</div>
+        <hr class="divider" />
+        <div class="row"><span class="q">Q2:</span> Can you compute it from existing <strong>state</strong> or <strong>props</strong>?</div>
+        <div class="row">➜ If <strong>Yes</strong> 🧮 → <strong>derive the state</strong> (don’t duplicate).</div>
+        <div class="row">➜ If <strong>No</strong> → go to Q3.</div>
+        <hr class="divider" />
+        <div class="row"><span class="q">Q3:</span> Should updating it trigger a re-render?</div>
+        <div class="row">➜ If <strong>No</strong> 🧷 → use a <strong>ref</strong> (persists, but doesn’t re-render).</div>
+        <div class="row">➜ If <strong>Yes</strong> 🎨 → use <strong>state</strong> (typically <code>useState</code>).</div>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Most of the time:</strong> if data changes and the UI must update, you’ll use <code>useState</code>. ✅</p>
+      </div>
+
+      <div class="card">
+        <h3>Beginner-friendly examples</h3>
+        <ul>
+          <li>🔢 Counter value → needs re-render → <code>useState</code></li>
+          <li>📊 “Items packed %” → can be computed from items array → derived state</li>
+          <li>⏱️ Timer ID / previous value you want to keep but not re-render → <code>useRef</code> (later topic)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Where Should State Live?</h2>
+      <div class="card">
+        <p class="mini">After you decided you need state, the next decision is where to place it (its “home”). 🏠</p>
+      </div>
+
+      <div class="flow" aria-label="Where to place state flow">
+        <div class="row"><span class="q">Case A:</span> Only the current component uses it</div>
+        <div class="row">➜ Keep it in that component ✅ (done).</div>
+        <hr class="divider" />
+        <div class="row"><span class="q">Case B:</span> A child component needs it too</div>
+        <div class="row">➜ Keep state in parent and <strong>pass it down via props</strong> ⬇️.</div>
+        <hr class="divider" />
+        <div class="row"><span class="q">Case C:</span> Siblings (or parent) need it</div>
+        <div class="row">➜ Move it to the <strong>first common parent</strong> → <strong>lift state up</strong> ⬆️.</div>
+        <hr class="divider" />
+        <div class="row"><span class="q">Case D:</span> Many components across the tree need it</div>
+        <div class="row">➜ This becomes <strong>global/shared state</strong> 🌍 (Context / Redux). (Covered later.)</div>
+      </div>
+
+      <div class="callout">
+        <p>
+          <strong>Connection to what you already saw:</strong>
+          in the Far Away app, the form and the packing list are siblings.
+          To share data between them, state must be lifted to their common parent.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Mini example: lifting state up (conceptual)</h3>
+        <pre><code>// App owns items state
+function App() {
+  const [items, setItems] = useState([]);
+
+  function handleAddItem(newItem) {
+    setItems((items) =&gt; [...items, newItem]);
+  }
+
+  return (
+    &lt;&gt;
+      &lt;Form onAddItem={handleAddItem} /&gt;
+      &lt;PackingList items={items} /&gt;
+    &lt;/&gt;
+  );
+}
+
+// Form sends data UP via callback
+function Form({ onAddItem }) {
+  // create newItem then...
+  // onAddItem(newItem)
+}
+
+// PackingList receives data DOWN via props
+function PackingList({ items }) {
+  return items.map(/* render */);
+}</code></pre>
+        <p class="mini">Props go down ⬇️, events go up ⬆️ (via functions).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) The “Intuition” Part (What Happens Over Time)</h2>
+      <div class="callout warn">
+        <p>
+          This can feel confusing at first—like too many questions and decisions.
+          But with practice, it becomes intuitive: you’ll naturally know when to create state, derive state, or lift state up.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Beginner strategy ✅</h3>
+        <ul>
+          <li>Start with local state in the component where you first need it</li>
+          <li>If siblings need the same data, lift it up to the closest common parent</li>
+          <li>If many parts of the app need it, consider global/shared state later</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>7) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>What does “state management” mean in this section?</li>
+          <li>Give one example of local state and one example of global state.</li>
+          <li>When should you derive state instead of creating new state?</li>
+          <li>When might you use a ref instead of state?</li>
+          <li>When do you lift state up?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li>Deciding when to create state, what type, where it lives, and how data flows.</li>
+          <li>Local: search input text. Global: shopping cart.</li>
+          <li>When you can compute the value from existing state/props.</li>
+          <li>When you need to persist data but don’t want re-renders (later topic).</li>
+          <li>When siblings/parent need the same data—move to first common parent.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Keep margins around ~14mm and enable background graphics only if you want shaded callouts.
+    </footer>
+  </main>
+</body>
+</html>

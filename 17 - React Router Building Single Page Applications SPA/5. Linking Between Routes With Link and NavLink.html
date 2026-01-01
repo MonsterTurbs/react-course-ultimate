@@ -1,0 +1,383 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Router — Linking Between Routes (Link & NavLink) | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #0b57d0;
+      --accent-2: #0f766e;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --code-bg: #0b1020;
+      --code-text: #e5e7eb;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.65rem;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      margin: 22px 0 10px;
+      letter-spacing: -0.1px;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin: 16px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol { margin: 8px 0 10px 22px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--accent);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.danger { border-left-color: var(--danger); }
+    .callout.good { border-left-color: var(--accent-2); }
+
+    .callout .title {
+      margin: 0 0 6px;
+      font-weight: 700;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 12px;
+      border-radius: 12px;
+      overflow: auto;
+      margin: 10px 0 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .qa {
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .qa .q {
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .qa .a { margin: 0; }
+
+    .small { color: var(--muted); font-size: 0.95rem; }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      :root { --bg: #fff; --text: #000; --muted: #222; }
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header { border-bottom: 1px solid #bbb; }
+      .chip, .callout { background: #fff !important; }
+      pre {
+        background: #fff !important;
+        color: #000 !important;
+        border: 1px solid #bbb;
+      }
+      a, a:visited {
+        color: inherit;
+        text-decoration: none;
+      }
+      /* Do NOT print URL after links */
+      a[href]:after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🔗 React Router: Linking Between Routes with <code>Link</code> &amp; <code>NavLink</code></h1>
+      <p class="subtitle">How to navigate between pages in a Single Page Application (SPA) without hard reloads.</p>
+      <div class="meta">
+        <span class="chip">Topic: React Router v6</span>
+        <span class="chip">Goal: SPA navigation</span>
+        <span class="chip">Tools: <code>&lt;Link&gt;</code>, <code>&lt;NavLink&gt;</code></span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What you’re building in this lecture</h2>
+      <ul>
+        <li>Replace normal <code>&lt;a href&gt;</code> links (hard reload) with React Router navigation (no reload).</li>
+        <li>Create a reusable navigation component (<code>PageNav</code>) you can place on multiple pages.</li>
+        <li>Use <code>NavLink</code> to automatically add an <code>active</code> class for the current route.</li>
+      </ul>
+
+      <div class="callout good">
+        <p class="title">✅ Key idea</p>
+        <p>In an SPA, navigation should update the URL <strong>without reloading the page</strong>. React Router does this by intercepting clicks and swapping components in the DOM.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Why <code>&lt;a href&gt;</code> is not ideal for SPAs</h2>
+      <p>If you add a normal anchor tag like:</p>
+      <pre><code>&lt;a href="/pricing"&gt;Go to Pricing&lt;/a&gt;</code></pre>
+
+      <div class="callout warn">
+        <p class="title">⚠️ What happens</p>
+        <ul>
+          <li>The browser performs a <strong>full page reload</strong>.</li>
+          <li>You’ll see new requests in the Network tab (HTML/JS/CSS/assets may re-fetch).</li>
+          <li>The SPA “native-app feel” is lost because navigation becomes slower and resets runtime state.</li>
+        </ul>
+      </div>
+
+      <p class="small">Tip: This is why you saw multiple network requests after clicking an anchor link.</p>
+    </section>
+
+    <section>
+      <h2>✅ The solution: React Router’s <code>Link</code></h2>
+      <p>React Router provides <code>&lt;Link&gt;</code> which changes the URL and renders a new route <strong>without reloading</strong> the page.</p>
+
+      <h3>Basic example (Home → Pricing)</h3>
+      <pre><code>// HomePage.jsx
+import { Link } from "react-router-dom";
+
+export default function HomePage() {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;WorldWise&lt;/h1&gt;
+      &lt;Link to="/pricing"&gt;Go to Pricing&lt;/Link&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p class="title">🧩 Important detail</p>
+        <p>Use a leading slash: <code>to="/pricing"</code> so the path is always absolute (from the root), not relative.</p>
+      </div>
+
+      <div class="callout good">
+        <p class="title">✅ Result</p>
+        <p>Clicking the link updates the URL and swaps the rendered component. The Network tab stays quiet (no “hard refresh”).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧱 Reusable navigation: <code>PageNav</code> component</h2>
+      <p>Instead of adding links manually on every page, create a reusable navigation component and render it where you need it.</p>
+
+      <h3>Example structure</h3>
+      <ul>
+        <li><code>src/pages/</code> → route pages (HomePage, Pricing, Product, etc.)</li>
+        <li><code>src/components/</code> → reusable UI pieces (PageNav, buttons, layout)</li>
+      </ul>
+
+      <h3>PageNav example</h3>
+      <pre><code>// components/PageNav.jsx
+import { Link } from "react-router-dom";
+
+export default function PageNav() {
+  return (
+    &lt;nav&gt;
+      &lt;ul&gt;
+        &lt;li&gt;&lt;Link to="/"&gt;Home&lt;/Link&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;Link to="/pricing"&gt;Pricing&lt;/Link&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;Link to="/product"&gt;Product&lt;/Link&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+  );
+}</code></pre>
+
+      <h3>Use it in each page</h3>
+      <pre><code>// pages/Pricing.jsx
+import PageNav from "../components/PageNav";
+
+export default function Pricing() {
+  return (
+    &lt;&gt;
+      &lt;PageNav /&gt;
+      &lt;h1&gt;Pricing&lt;/h1&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p class="title">🧠 Concept</p>
+        <p>You can render navigation inside each page, or once at a higher level (like in <code>App</code>) depending on your layout strategy.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>⭐ Highlight the active page using <code>NavLink</code></h2>
+      <p>In menus, it’s common to highlight the current page. React Router makes this easy with <code>&lt;NavLink&gt;</code>.</p>
+
+      <h3>Replace Link → NavLink</h3>
+      <pre><code>// components/PageNav.jsx
+import { NavLink } from "react-router-dom";
+
+export default function PageNav() {
+  return (
+    &lt;nav&gt;
+      &lt;ul&gt;
+        &lt;li&gt;&lt;NavLink to="/"&gt;Home&lt;/NavLink&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;NavLink to="/pricing"&gt;Pricing&lt;/NavLink&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;NavLink to="/product"&gt;Product&lt;/NavLink&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+  );
+}</code></pre>
+
+      <div class="callout good">
+        <p class="title">✅ What you get automatically</p>
+        <p>The currently active link receives a CSS class (commonly <code>active</code>). You can style it later to highlight the current route.</p>
+      </div>
+
+      <p class="small">Later, once you add CSS (including CSS Modules), you can style that active state (color, underline, background, etc.).</p>
+    </section>
+
+    <section>
+      <h2>🌐 Why URLs matter in SPAs</h2>
+      <ul>
+        <li>🔁 Refresh-safe: If you refresh on <code>/pricing</code>, you still land on Pricing.</li>
+        <li>🔖 Bookmarkable: Users can bookmark a specific screen.</li>
+        <li>🤝 Shareable: You can send a link to a teammate and they open the exact same view.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🛠️ Dev workflow tips mentioned</h2>
+      <div class="two-col">
+        <div class="qa">
+          <p class="q">⌨️ Replace many occurrences quickly</p>
+          <p class="a">Use VS Code “select all occurrences” to replace <code>Link</code> → <code>NavLink</code> in one pass. Shortcut depends on OS/keymap, but the idea is: select the word, then select all matches, then type once.</p>
+        </div>
+        <div class="qa">
+          <p class="q">🔍 Validate it worked</p>
+          <p class="a">Check the Network tab: clicking router links should not trigger a full reload. Also check React DevTools: the route component changes immediately.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>✅ Quick recap (memory checklist)</h2>
+      <ul>
+        <li>😵 <code>&lt;a href&gt;</code> → full reload (bad for SPA navigation).</li>
+        <li>🚀 <code>&lt;Link to="/path"&gt;</code> → SPA navigation (no reload).</li>
+        <li>🧭 Build <code>PageNav</code> once → reuse on many pages.</li>
+        <li>⭐ <code>&lt;NavLink&gt;</code> → auto active class for styling current page.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧪 Mini practice</h2>
+      <ol>
+        <li>Create <code>PageNav</code> with 3 routes: Home, Pricing, Product.</li>
+        <li>Use <code>NavLink</code> so your current route gets an active state.</li>
+        <li>Open DevTools → Network and confirm no hard reload when navigating.</li>
+      </ol>
+    </section>
+
+    <footer class="small" style="margin-top: 18px; border-top: 1px solid var(--border); padding-top: 12px;">
+      <p style="margin: 0;">Next topic: 🎨 Styling (including CSS Modules) to make the navigation and pages look like a real product.</p>
+    </footer>
+  </main>
+</body>
+</html>

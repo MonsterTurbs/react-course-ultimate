@@ -1,0 +1,325 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Behind the Scenes — Project Setup & Walkthrough (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --accent:#0b57d0;
+      --ok:#0f7b3d;
+      --warn:#8a5a00;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px 56px;
+    }
+
+    header{
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    .kicker{
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .2px;
+      margin: 0 0 6px;
+    }
+
+    h1{
+      font-size: 24px;
+      line-height: 1.25;
+      margin: 0 0 10px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2{
+      font-size: 18px;
+      margin: 22px 0 10px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3{
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p{ margin: 10px 0; }
+
+    .card{
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .badge{
+      display:inline-block;
+      border: 1px solid var(--border);
+      background:#fff;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-left-width: 4px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.ok{ border-left-color: var(--ok); }
+    .callout.warn{ border-left-color: var(--warn); }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    code{
+      background:#fff;
+      border:1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    pre{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      overflow:auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 10px 0;
+    }
+
+    .hr{ height:1px; background:var(--border); margin: 14px 0; }
+
+    a{ color: var(--accent); text-decoration: underline; }
+
+    .small{ font-size: 12.5px; color: var(--muted); }
+
+    /* Print */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; padding: 0; }
+      a{ color: #000; text-decoration: none; }
+      a[href]::after{ content: ""; } /* do not print URLs */
+      .card, .callout, pre, code{ break-inside: avoid; }
+      h2, h3{ break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">📚 The Ultimate React Course — Part 2 • Section: How React Works Behind the Scenes</p>
+      <h1>Project Setup & Walkthrough <span class="badge">Print-ready reviewer</span></h1>
+      <p class="subtitle">Goal: set up the provided demo project (no Create React App this time), run it, and practice reading code written by someone else. ✅</p>
+    </header>
+
+    <section class="card">
+      <h2>What you will accomplish</h2>
+      <ul>
+        <li>🔧 Copy the starter folder (already prepared) into your projects directory.</li>
+        <li>📦 Install dependencies using <code>npm install</code> (because <code>node_modules</code> is not included).</li>
+        <li>▶️ Run the app with <code>npm start</code> and fix port conflicts if needed.</li>
+        <li>🧠 Walk through the code at a high level: state, props, event handlers, conditional rendering, and array indexing.</li>
+        <li>👀 Practice reading unfamiliar code like a real team scenario.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Setup: copy the demo project</h2>
+      <p>Instead of generating a new app with Create React App, the course provides a ready-to-copy project folder.</p>
+
+      <div class="callout ok">
+        <strong>✅ Expected folder structure</strong>
+        <p class="small">When you copy the starter folder (named <code>how-react-works</code>), it already contains common CRA files:</p>
+        <ul>
+          <li><code>src/</code> — your React code (components, styles, etc.)</li>
+          <li><code>public/</code> — static files (HTML shell, icons)</li>
+          <li><code>package.json</code> — dependency list + scripts like <code>start</code></li>
+        </ul>
+      </div>
+
+      <h3>Why there is no <code>node_modules</code> folder</h3>
+      <p>Starter projects usually exclude <code>node_modules</code> because it is huge. That means React, ReactDOM, and other libraries are not physically present yet — you will install them from <code>package.json</code>.</p>
+
+      <pre><strong>Commands</strong>
+# 1) go into the project folder
+cd how-react-works
+
+# 2) install packages
+npm install
+
+# 3) run the dev server
+npm start
+</pre>
+
+      <div class="callout warn">
+        <strong>⚠️ Port already in use (common)</strong>
+        <p class="small">If port <code>3000</code> is already used, CRA will ask if you want to use another port. You can say “yes”. Better: stop the other running app if you don’t need it.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Walkthrough: how to read an existing React project</h2>
+      <p>In real work, you will often open a project where code is already written by someone else. The goal is to understand:</p>
+      <ul>
+        <li>📌 What the app does (features / behavior)</li>
+        <li>🧩 What components exist (component tree)</li>
+        <li>🧠 Where state lives and how it flows (props + state updates)</li>
+      </ul>
+
+      <div class="card">
+        <h3>Step 1 — Start at the root UI</h3>
+        <p>Open <code>App.js</code> and identify what it renders. In this demo, the <strong>App</strong> mostly renders a <strong>Tabbed</strong> component and passes a <code>content</code> array.</p>
+        <pre>// Mental model (simplified)
+function App() {
+  return <Tabbed content={content} />;
+}</pre>
+        <p class="small">✅ First question to ask: “What props are passed into the next component?”</p>
+      </div>
+
+      <div class="card">
+        <h3>Step 2 — Find the main state</h3>
+        <p>Inside <strong>Tabbed</strong>, there is a state like <code>activeTab</code> that stores which tab is currently selected.</p>
+        <pre>// Example shape
+const [activeTab, setActiveTab] = useState(0);</pre>
+        <p><strong>Meaning:</strong> if <code>activeTab = 2</code>, the UI should show the third item (0-based indexing).</p>
+
+        <div class="callout">
+          <strong>💡 Array indexing refresher</strong>
+          <p class="small">Arrays start at <code>0</code>. So:</p>
+          <pre>content[0] // first
+content[1] // second
+content[2] // third</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Step 3 — Identify conditional rendering</h3>
+        <p>The demo renders either:</p>
+        <ul>
+          <li>✅ <strong>TabContent</strong> (when <code>activeTab</code> is within the content list), or</li>
+          <li>✅ <strong>DifferentContent</strong> (for the special “extra” tab)</li>
+        </ul>
+        <p class="small">Look for patterns like <code>condition ? A : B</code> or <code>condition && A</code>.</p>
+      </div>
+
+      <div class="card">
+        <h3>Step 4 — Understand events: where the state changes</h3>
+        <p>The <strong>Tab</strong> component is basically a button. Clicking a tab calls a handler like:</p>
+        <pre>// Inside Tab
+<button onClick={() => onClick(num)}>Tab {num + 1}</button></pre>
+        <p>Now go back up to see what <code>onClick</code> is. In the parent, it’s <code>setActiveTab</code>.</p>
+        <pre>// Parent usage
+<Tab num={0} onClick={setActiveTab} />
+<Tab num={1} onClick={setActiveTab} />
+// ...</pre>
+        <p><strong>Result:</strong> clicking the tab sets <code>activeTab</code> to that tab’s number → the UI re-renders with the correct content.</p>
+      </div>
+
+      <div class="card">
+        <h3>Step 5 — Zoom into a leaf component (TabContent)</h3>
+        <p><strong>TabContent</strong> receives one item (e.g., <code>{summary, details}</code>) and has its own local state like:</p>
+        <ul>
+          <li>👁️ <code>showDetails</code> — toggles showing/hiding details</li>
+          <li>❤️ <code>likes</code> — increments when clicking a button</li>
+        </ul>
+
+        <pre>// Typical patterns you will spot
+{showDetails && <p>{item.details}</p>}
+
+<button onClick={() => setLikes(likes + 1)}>+1 like</button></pre>
+
+        <div class="callout warn">
+          <strong>⚠️ Small best-practice note</strong>
+          <p class="small">When the next state depends on the previous state, many developers prefer the callback form:</p>
+          <pre>setLikes((cur) => cur + 1);</pre>
+          <p class="small">In this lecture, the instructor points out they didn’t use it here on purpose — you’ll discuss this later.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Fast checklist when reading someone else’s code</h2>
+      <ol>
+        <li>🧭 Find the entry point: what does <code>App</code> render?</li>
+        <li>🗂️ Identify the component tree (use React DevTools if available).</li>
+        <li>🧠 Locate state: where is <code>useState</code> used?</li>
+        <li>📨 Trace props: what data flows into child components?</li>
+        <li>🖱️ Find event handlers: where do clicks change state?</li>
+        <li>🔀 Look for conditional rendering that changes UI.</li>
+        <li>✅ Verify behavior in the browser: click tabs, toggle details, increment likes.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Mini practice questions</h2>
+      <ul>
+        <li>🧩 If <code>activeTab</code> becomes <code>1</code>, which element of <code>content</code> is displayed?</li>
+        <li>🧠 Why does React re-render when you call <code>setActiveTab</code> or <code>setLikes</code>?</li>
+        <li>🔎 In <strong>TabContent</strong>, what controls whether details are visible?</li>
+        <li>📌 What is the purpose of the “DifferentContent” tab?</li>
+      </ul>
+      <p class="small">Tip: Answer by pointing to the exact line/pattern (state + render usage + handler).</p>
+    </section>
+
+    <footer class="small">
+      <div class="hr"></div>
+      <p>End of reviewer — Project Setup & Walkthrough. Next: deeper internals of how React works behind the scenes. ✅</p>
+    </footer>
+  </main>
+</body>
+</html>

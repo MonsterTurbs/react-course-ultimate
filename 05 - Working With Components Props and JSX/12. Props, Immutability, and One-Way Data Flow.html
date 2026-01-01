@@ -1,0 +1,564 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Props, Immutability, and One-Way Data Flow (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --warn: #b00020;
+      --ok: #1b5e20;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.ok { border-left-color: #a5d6a7; }
+    .callout.warn { border-left-color: #f5c6cb; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+    .okText { color: var(--ok); }
+    .warnText { color: var(--warn); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .term {
+      display: inline-block;
+      padding: 1px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.9em;
+    }
+
+    .diagram {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--soft);
+      padding: 12px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc, .diagram { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧭 Props, Immutability, and One-Way Data Flow — Reviewer</h1>
+      <p class="subtitle">Why props are read-only, how React stays predictable with pure components, and why data flows top → down. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print dialog, set Paper size = A4, Margins = Default.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#props-recap">Props recap (what they are used for)</a></li>
+          <li><a href="#component-data">Component “data” = props + state</a></li>
+          <li><a href="#state-vs-props">State vs props (internal vs external)</a></li>
+          <li><a href="#immutable">Strict rule: props are immutable (read-only)</a></li>
+          <li><a href="#side-effects">Why mutating props creates side effects</a></li>
+          <li><a href="#pure">React wants components to be pure (for props/state)</a></li>
+          <li><a href="#one-way">One-way data flow (top → bottom)</a></li>
+          <li><a href="#why-one-way">Why one-way data flow is beneficial</a></li>
+          <li><a href="#pass-up">“How do I pass data up?” (teaser)</a></li>
+          <li><a href="#practice">Practice & self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="props-recap">
+      <h2>📦 Props recap (what they are used for)</h2>
+      <p>
+        <strong>Props</strong> are used to pass data from <strong>parent</strong> components to <strong>child</strong> components.
+        That means props let you pass information <em>down</em> the component tree.
+      </p>
+
+      <div class="callout ok">
+        <p><strong>Props = component configuration ⚙️</strong></p>
+        <p class="muted">
+          Think of props like <strong>settings</strong> that let a parent control how a child looks and behaves.
+          Similar to <strong>arguments</strong> passed into a JavaScript function.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>What can be passed as props? 🧰</h3>
+        <ul>
+          <li>🧾 Strings</li>
+          <li>🔢 Numbers</li>
+          <li>📚 Arrays</li>
+          <li>🧱 Objects</li>
+          <li>🧠 Functions</li>
+          <li>🧩 Even other components / JSX (later technique)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="component-data">
+      <h2>🧠 Component “data” = props + state</h2>
+      <p>
+        React renders a component based on its <strong>current data</strong> and keeps the UI in sync with that data.
+        This lecture clarifies that the main data sources are:
+      </p>
+      <ul>
+        <li><strong>Props</strong> 📦 (data coming from the parent)</li>
+        <li><strong>State</strong> 🧠 (internal data owned by the component)</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Key idea ✅</strong></p>
+        <p class="muted">UI is a reflection of data. In React, that data is mostly props + state.</p>
+      </div>
+    </section>
+
+    <section id="state-vs-props">
+      <h2>🏁 State vs props (internal vs external)</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>State 🧠 (internal)</h3>
+          <ul>
+            <li>Owned by the component itself</li>
+            <li>Can be updated by the component’s logic</li>
+            <li>Changes over time (triggers re-render)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Props 📦 (external)</h3>
+          <ul>
+            <li>Owned by the parent component</li>
+            <li>Comes from “outside” the child</li>
+            <li>Can only be updated by the parent</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Important warning ⚠️</strong></p>
+        <p class="muted">
+          If you feel like you need to <strong>change props inside a child</strong>, what you probably need is <strong>state</strong>.
+        </p>
+      </div>
+    </section>
+
+    <section id="immutable">
+      <h2>🔒 Strict rule: props are immutable (read-only)</h2>
+      <p>
+        React has a few strict rules, and one of the most important is:
+      </p>
+
+      <div class="callout warn">
+        <p><strong>Props are immutable ✅</strong></p>
+        <p class="muted">You must not change (mutate) props. Treat them as read-only.</p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Bad example ❌ (mutating props)</h3>
+          <pre><code>function Pizza(props) {
+  // ❌ Never do this
+  props.price = props.price + 3;
+
+  return &lt;span&gt;{props.price}&lt;/span&gt;;
+}</code></pre>
+          <p class="muted">This tries to modify data that the parent owns.</p>
+        </div>
+
+        <div class="card">
+          <h3>Good pattern ✅ (derive values)</h3>
+          <pre><code>function Pizza(props) {
+  // ✅ Create a new value based on props
+  const displayPrice = props.price + 3;
+
+  return &lt;span&gt;{displayPrice}&lt;/span&gt;;
+}</code></pre>
+          <p class="muted">Compute new values without changing the props object.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="side-effects">
+      <h2>💥 Why mutating props creates side effects</h2>
+      <p>
+        Props are an object. In JavaScript, objects are passed by reference.
+        So if you mutate an object that was created outside the component, you may accidentally affect other code.
+      </p>
+
+      <div class="callout">
+        <p><strong>Side effect definition 🧪</strong></p>
+        <p class="muted">
+          A <strong>side effect</strong> happens when a function changes data that exists outside its own scope.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Mini mental model 🔗</h3>
+        <p class="muted">
+          If a child mutates props, it might be mutating the parent’s data too (because it’s the same referenced object).
+          That can cause unpredictable UI and “strange bugs”.
+        </p>
+      </div>
+
+      <pre><code>// Imagine this object lives outside the component
+const config = { theme: "light" };
+
+function Child(props) {
+  // ❌ Side effect: mutates external data
+  props.theme = "dark";
+  return null;
+}
+
+// If props points to config, config is now changed too.</code></pre>
+
+      <p class="muted">This is the type of behavior React tries to prevent by encouraging immutability.</p>
+    </section>
+
+    <section id="pure">
+      <h2>🧼 React wants components to be pure (for props/state)</h2>
+      <p>
+        React is designed around the idea that components should behave like <strong>pure functions</strong>
+        with respect to their data (props/state).
+      </p>
+
+      <div class="callout ok">
+        <p><strong>Why purity helps ✅</strong></p>
+        <ul>
+          <li>⚙️ React can optimize rendering when output depends only on inputs</li>
+          <li>🐛 Fewer weird bugs caused by hidden mutations</li>
+          <li>🧠 Easier mental model: same props/state → same UI</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>General immutability rule in React 🧊</h3>
+        <p class="muted">
+          Don’t mutate data that was created outside the component’s function scope.
+          Instead, create new arrays/objects when you need changes.
+        </p>
+      </div>
+
+      <pre><code>// ✅ Example: immutable update (creates new array)
+const nextItems = [...items, newItem];
+
+// ✅ Example: immutable update (creates new object)
+const nextUser = { ...user, name: "Reymond" };</code></pre>
+    </section>
+
+    <section id="one-way">
+      <h2>⬇️ One-way data flow (top → bottom)</h2>
+      <p>
+        React uses <strong>one-way data flow</strong>:
+        data flows from parent components down to child components using props.
+      </p>
+
+      <div class="diagram" aria-label="One-way data flow diagram">
+App (parent)
+  ↓ props
+Menu (child)
+  ↓ props
+Pizza (grandchild)
+      </div>
+
+      <div class="callout">
+        <p><strong>Simple meaning ✅</strong></p>
+        <p class="muted">Data can flow from parents to children — but not the opposite direction.</p>
+      </div>
+
+      <p class="muted">
+        Some frameworks (like Angular) can use two-way data flow, which feels different if you’ve used them before.
+      </p>
+    </section>
+
+    <section id="why-one-way">
+      <h2>✅ Why one-way data flow is beneficial</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>1) Predictability 🔮</h3>
+          <p class="muted">It’s easier to know where data comes from when it only flows in one direction.</p>
+        </div>
+        <div class="card">
+          <h3>2) Easier debugging 🧯</h3>
+          <p class="muted">You can trace issues by following the flow top → down (less guessing).</p>
+        </div>
+        <div class="card">
+          <h3>3) Performance ⚡</h3>
+          <p class="muted">Two-way binding is often less efficient to implement.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pass-up">
+      <h2>🪃 “How do I pass data up?” (teaser)</h2>
+      <p>
+        A common question is:
+        <span class="term">“What if I want to send data from a child up to a parent?”</span>
+      </p>
+
+      <div class="callout">
+        <p><strong>The idea (high level) ✅</strong></p>
+        <p class="muted">
+          Even with one-way data flow, we can still <em>trigger updates</em> in a parent by passing a <strong>function</strong>
+          down as a prop. (You’ll learn this soon.)
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Preview example (don’t memorize yet) 👀</h3>
+        <pre><code>function Parent() {
+  function handleSelect(pizza) {
+    // Parent updates state here
+  }
+
+  return &lt;Child onSelect={handleSelect} /&gt;;
+}
+
+function Child({ onSelect }) {
+  return (
+    &lt;button onClick={() =&gt; onSelect("Funghi")}&gt;
+      Select Funghi 🍄
+    &lt;/button&gt;
+  );
+}</code></pre>
+        <p class="muted">Notice: data still flows down, but child can notify parent via a callback.</p>
+      </div>
+    </section>
+
+    <section id="practice">
+      <h2>🧪 Practice & self-check</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Practice 1: Spot the mutation 🕵️</h3>
+          <p class="muted">Why is this a bad idea?</p>
+          <pre><code>function Pizza(props) {
+  props.soldOut = true;
+  return null;
+}</code></pre>
+          <p class="muted"><strong>Fix:</strong> derive values or use state in the owning component.</p>
+        </div>
+
+        <div class="card">
+          <h3>Practice 2: Derive safely ✅</h3>
+          <p class="muted">Show a “sale” price without mutating props:</p>
+          <pre><code>function Pizza({ price }) {
+  const salePrice = price - 2;
+  return &lt;span&gt;{salePrice}&lt;/span&gt;;
+}</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Self-check ✅</h3>
+          <ul>
+            <li>What are props used for?</li>
+            <li>What is component data made of (in this section)?</li>
+            <li>What’s the difference between props and state?</li>
+            <li>Why are props immutable?</li>
+            <li>What is a side effect?</li>
+            <li>What does one-way data flow mean?</li>
+            <li>Give 2 benefits of one-way data flow.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Quick summary 🔑</strong></p>
+        <p class="muted">
+          Props pass data parent → child and should be treated as read-only. Mutating props creates side effects and breaks
+          React’s “pure component” mental model. React prefers immutability and uses one-way data flow to make apps more
+          predictable, easier to debug, and often more performant.
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

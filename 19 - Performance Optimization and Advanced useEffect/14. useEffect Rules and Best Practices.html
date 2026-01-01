@@ -1,0 +1,583 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>useEffect Rules & Best Practices — Reviewer (Print‑Friendly)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --accent: #0b57d0;
+      --good: #137333;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --mono-bg: #0b1020;
+      --mono-text: #e6edf3;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      word-wrap: break-word;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 60px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toc {
+      margin: 16px 0 0;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+    }
+
+    .toc h2 {
+      font-size: 16px;
+      margin: 0 0 8px;
+    }
+
+    .toc ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .toc li { margin: 4px 0; }
+
+    section { margin-top: 18px; }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: var(--panel);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #f3fbf5;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .bad {
+      border-left: 4px solid var(--bad);
+      background: #fef2f2;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    ul { margin: 8px 0 8px 20px; }
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      background: var(--mono-bg);
+      color: var(--mono-text);
+      padding: 12px;
+      border-radius: 12px;
+      overflow: auto;
+      border: 1px solid #1f2a44;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .k {
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    footer {
+      margin-top: 22px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* Print */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      a { color: inherit; text-decoration: none; }
+      a[href]:after { content: ""; }
+      .toc { break-inside: avoid; }
+      .card, .note, .good, .warn, .bad, pre { break-inside: avoid; }
+      h2, h3 { break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>useEffect Rules & Best Practices</h1>
+      <p class="subtitle">Reviewer / Study Guide — beginner‑friendly notes with examples (A4 print‑ready, single column)</p>
+
+      <div class="toc" aria-label="Table of contents">
+        <h2>Table of Contents</h2>
+        <ul>
+          <li><a href="#why">Why useEffect feels confusing</a></li>
+          <li><a href="#deps">Dependency Array Rules</a></li>
+          <li><a href="#reactive">What are “reactive values”?</a></li>
+          <li><a href="#stale">Stale closures (why missing deps is dangerous)</a></li>
+          <li><a href="#objects">Avoid objects/arrays as dependencies</a></li>
+          <li><a href="#strategies">Strategies to reduce dependencies (without lying)</a></li>
+          <li><a href="#escape">Effects as an “escape hatch”</a></li>
+          <li><a href="#overuse">3 common overuses to avoid</a></li>
+          <li><a href="#checklist">Quick checklist</a></li>
+        </ul>
+      </div>
+    </header>
+
+    <section id="why">
+      <h2>Why useEffect feels confusing 🧠</h2>
+      <p>
+        <span class="pill">Key idea</span>
+        <strong>useEffect runs after render</strong>. It’s for synchronizing your component with the outside world (side effects),
+        not for normal UI data flow.
+      </p>
+
+      <div class="note">
+        <strong>💡 Mental model:</strong> React renders UI first ➜ then effects run.
+        If you rely on an effect to “make the UI correct,” you often create bugs or extra renders.
+      </div>
+    </section>
+
+    <section id="deps">
+      <h2>Dependency Array Rules ✅</h2>
+
+      <div class="card">
+        <h3>Rule 1: Include every used state and prop</h3>
+        <p>
+          If your effect function reads a <strong>state variable</strong> or a <strong>prop</strong>, it must be listed in the dependency array.
+        </p>
+        <pre><code>// ✅ Good: count is used inside effect, so it must be a dependency
+useEffect(() =&gt; {
+  document.title = `Count: ${count}`;
+}, [count]);</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Rule 2: Include context values too</h3>
+        <p>
+          If your component reads from context (via a custom hook or <span class="k">useContext</span>), those values are also dependencies.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Rule 3: Include all “reactive values”</h3>
+        <p>
+          This expands the rule: you must include not only state/props/context, but also any value that <em>references</em> them.
+          This includes helper variables and functions created in the component.
+        </p>
+      </div>
+
+      <div class="good">
+        <strong>✅ Best practice:</strong> Don’t ignore ESLint’s exhaustive-deps warning.
+        Most “mysterious bugs” in effects come from missing dependencies.
+      </div>
+
+      <div class="warn">
+        <strong>⚠️ Important:</strong> Dependencies usually “choose themselves.” If it’s used and reactive, it belongs in the array.
+        The fix is almost never “remove it from deps.”
+      </div>
+    </section>
+
+    <section id="reactive">
+      <h2>What are “reactive values”? 🔁</h2>
+      <p>
+        A <strong>reactive value</strong> is any value that can change across renders and therefore can make your effect stale.
+      </p>
+
+      <div class="card">
+        <h3>Reactive values include:</h3>
+        <ul>
+          <li>State (from <span class="k">useState</span>)</li>
+          <li>Props</li>
+          <li>Context values (from context/hooks)</li>
+          <li>Any other variable/function that <strong>references</strong> state/props/context</li>
+        </ul>
+
+        <pre><code>// minutes and seconds are state (reactive)
+// formatDuration references them, so it's reactive too
+const minutes = Math.floor(duration / 60);
+const seconds = duration % 60;
+
+function formatDuration() {
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+useEffect(() =&gt; {
+  console.log(formatDuration());
+  // ✅ dependencies must include every reactive value used
+}, [minutes, seconds, formatDuration]);</code></pre>
+
+        <div class="note">
+          <strong>💡 Tip:</strong> If ESLint says a dependency is missing, it’s pointing at a reactive value.
+          Your job is to understand <em>why</em> it became reactive.
+        </div>
+      </div>
+    </section>
+
+    <section id="stale">
+      <h2>Stale closures (why missing deps is dangerous) 🧨</h2>
+      <p>
+        A <strong>closure</strong> is when a function “remembers” variables from the scope where it was created.
+        In React, if an effect doesn’t rerun when a value changes, the effect will keep using the old remembered value — a <strong>stale closure</strong>.
+      </p>
+
+      <div class="bad">
+        <strong>🚫 Bug pattern:</strong> omit dependencies to “stop reruns.”
+        This often makes the effect read stale state.
+      </div>
+
+      <pre><code>// 🚫 Bad: count is used, but deps are empty
+useEffect(() =&gt; {
+  const id = setInterval(() =&gt; {
+    console.log(count); // will log the OLD count forever
+  }, 1000);
+  return () =&gt; clearInterval(id);
+}, []);
+
+// ✅ Better: include count OR use a ref/functional update depending on intent
+useEffect(() =&gt; {
+  const id = setInterval(() =&gt; {
+    console.log(count);
+  }, 1000);
+  return () =&gt; clearInterval(id);
+}, [count]);</code></pre>
+
+      <div class="note">
+        <strong>💡 Remember:</strong> The solution is not to “lie to React.”
+        Instead, change the code so the dependency truly becomes unnecessary.
+      </div>
+    </section>
+
+    <section id="objects">
+      <h2>Avoid objects/arrays as dependencies 🧱</h2>
+      <p>
+        React compares dependencies with <strong>triple equals</strong> (<span class="k">===</span>).
+        Objects/arrays get a new reference when recreated, so React thinks they changed even if their contents look identical.
+      </p>
+
+      <div class="warn">
+        <strong>⚠️ Result:</strong> If you put an inline object/array in deps, the effect often reruns on every render.
+      </div>
+
+      <pre><code>// 🚫 Bad: options is a new object every render
+const options = { pageSize: 20 };
+
+useEffect(() =&gt; {
+  doSomething(options);
+}, [options]); // reruns every render
+
+// ✅ Better: depend on primitives
+useEffect(() =&gt; {
+  doSomething({ pageSize });
+}, [pageSize]);</code></pre>
+
+      <div class="note">
+        <strong>💡 If you truly need the whole object:</strong> memoize it with <span class="k">useMemo</span>
+        (or restructure code so the effect depends on primitives).
+      </div>
+    </section>
+
+    <section id="strategies">
+      <h2>Strategies to reduce dependencies (without lying) 🧰</h2>
+      <p>
+        Sometimes including every dependency makes an effect run “too often.”
+        You still should not omit dependencies. Instead, change your code so the dependency is no longer reactive or no longer needed.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>1) Move helper functions inside the effect</h3>
+          <p>Best when the helper is only used by that effect.</p>
+          <pre><code>// ✅ Helper is no longer a dependency
+useEffect(() =&gt; {
+  function formatDuration(min, sec) {
+    return `${min}:${String(sec).padStart(2, "0")}`;
+  }
+
+  console.log(formatDuration(minutes, seconds));
+}, [minutes, seconds]);</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>2) Memoize functions with useCallback</h3>
+          <p>Useful when a function must stay stable (e.g., used in other deps or passed as prop).</p>
+          <pre><code>const getCity = useCallback(async (id) =&gt; {
+  // fetch + setState
+}, [/* only truly needed deps */]);
+
+useEffect(() =&gt; {
+  getCity(id);
+}, [id, getCity]);</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>3) If the function is not reactive, move it outside the component</h3>
+          <p>If it doesn’t reference state/props/context, it doesn’t need re-creation each render.</p>
+          <pre><code>// ✅ Outside component
+function isValidEmail(email) {
+  return /.+@.+\..+/.test(email);
+}
+
+function Login() {
+  useEffect(() =&gt; {
+    // isValidEmail is stable and not reactive
+  }, []);
+}</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>4) For objects: depend on primitive fields</h3>
+          <p>Use <span class="k">obj.id</span>, <span class="k">obj.name</span>, etc. (primitives) instead of the whole object.</p>
+          <pre><code>// ✅ Depend on primitives
+useEffect(() =&gt; {
+  doSomething(userId, role);
+}, [userId, role]);</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>5) For objects: memoize with useMemo</h3>
+          <p>When you truly need the object identity to stay stable.</p>
+          <pre><code>const options = useMemo(() =&gt; {
+  return { pageSize, sortBy };
+}, [pageSize, sortBy]);
+
+useEffect(() =&gt; {
+  doSomething(options);
+}, [options]);</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>6) Consider useReducer for related reactive values</h3>
+          <p>
+            When many dependencies are “tied together,” a reducer can centralize updates and simplify effects.
+            It can feel like a “secret weapon” for dependency complexity.
+          </p>
+        </div>
+      </div>
+
+      <div class="good">
+        <strong>✅ Stable functions you can ignore in deps:</strong>
+        <ul>
+          <li><span class="k">setState</span> functions from <span class="k">useState</span></li>
+          <li><span class="k">dispatch</span> from <span class="k">useReducer</span></li>
+        </ul>
+        React guarantees these have a stable identity across renders.
+      </div>
+
+      <div class="warn">
+        <strong>⚠️ Same rules apply to:</strong> <span class="k">useMemo</span> and <span class="k">useCallback</span>
+        dependency arrays. If you understand effect deps, you understand memo/callback deps.
+      </div>
+    </section>
+
+    <section id="escape">
+      <h2>Effects are an “escape hatch” 🚪</h2>
+      <p>
+        Effects should often be a <strong>last resort</strong> when no other approach makes sense.
+        React calls effects an “escape hatch” because they step outside normal React rendering/data flow.
+      </p>
+
+      <div class="note">
+        <strong>💡 Preferred tools before useEffect:</strong>
+        <ul>
+          <li><strong>Event handlers</strong> for user interactions</li>
+          <li><strong>Derived state</strong> (compute values during render)</li>
+          <li><strong>Reducers</strong> for complex related updates</li>
+          <li><strong>Libraries</strong> for advanced problems (e.g., data fetching)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="overuse">
+      <h2>3 common overuses to avoid (especially as a beginner) 🚫</h2>
+
+      <div class="card">
+        <h3>1) Responding to user events with useEffect</h3>
+        <p>
+          If the user clicked or typed, start with an <strong>event handler</strong>.
+          Even if it causes a side effect, that’s usually fine.
+        </p>
+        <pre><code>// ✅ Prefer event handler
+function Search() {
+  function handleChange(e) {
+    setQuery(e.target.value);
+    // side effects can be triggered here if needed
+  }
+
+  return &lt;input value={query} onChange={handleChange} /&gt;;
+}</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>2) Fetching data on mount with useEffect (overused in real apps)</h3>
+        <p>
+          In small apps, it’s okay. In real-world apps, consider a data-fetching library (e.g., React Query)
+          to handle caching, retries, loading states, and race conditions.
+        </p>
+        <div class="note">
+          <strong>🙂 Course reality:</strong> It’s normal to learn with <span class="k">useEffect</span> first.
+          Later, you level up with specialized tools.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>3) Synchronizing state-to-state with useEffect</h3>
+        <p>
+          A common pattern is: “watch state A, then set state B.” This can cause extra re-renders.
+          Prefer derived state or combine related state (often a reducer).
+        </p>
+        <pre><code>// 🚫 Often avoidable
+useEffect(() =&gt; {
+  setFullName(`${firstName} ${lastName}`);
+}, [firstName, lastName]);
+
+// ✅ Derived state (no effect needed)
+const fullName = `${firstName} ${lastName}`;</code></pre>
+
+        <div class="warn">
+          <strong>⚠️ Practical note:</strong> Sometimes syncing state with an effect is acceptable
+          if it greatly simplifies the code. Use judgment.
+        </div>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <h2>Quick checklist ✅</h2>
+      <div class="card">
+        <ul>
+          <li>✅ Every <strong>reactive value</strong> used in the effect must be in deps (state/props/context + anything referencing them).</li>
+          <li>✅ Don’t ignore exhaustive-deps warnings; understand them.</li>
+          <li>⚠️ Avoid <strong>objects/arrays</strong> in deps; depend on primitives or memoize the object.</li>
+          <li>🧰 If deps cause too many reruns, restructure code: move helpers into effect, use <span class="k">useCallback</span>/<span class="k">useMemo</span>, or refactor with <span class="k">useReducer</span>.</li>
+          <li>✅ You can omit <span class="k">setState</span> and <span class="k">dispatch</span> from deps (stable identity).</li>
+          <li>🚪 Treat effects as an escape hatch: prefer event handlers + derived state when possible.</li>
+        </ul>
+      </div>
+
+      <div class="good">
+        <strong>🎯 Goal:</strong> When you read an effect, you should be able to explain:
+        <ul>
+          <li>What external thing it synchronizes with</li>
+          <li>Why each dependency is required</li>
+          <li>How the code avoids stale closures and unnecessary reruns</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      <div>
+        Notes based on the provided lecture transcript. Designed for A4 printing (single-column, clean wraps, no printed URLs).
+      </div>
+    </footer>
+  </main>
+</body>
+</html> 

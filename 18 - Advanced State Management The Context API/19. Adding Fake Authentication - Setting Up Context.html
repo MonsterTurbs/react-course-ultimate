@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Context API — Fake Authentication (AuthContext) | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #5a5a5a;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codefg: #e8eefc;
+      --accent: #1a73e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      hyphens: auto;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      margin: 0 0 8px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    nav {
+      margin: 16px 0 20px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+    }
+
+    nav .title {
+      margin: 0 0 10px;
+      font-weight: 700;
+    }
+
+    nav ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    nav li { margin: 6px 0; }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 10px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 6px solid #c7d2fe;
+      background: #f7f8ff;
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin: 14px 0;
+    }
+
+    .callout.warn {
+      border-left-color: #fecaca;
+      background: #fff7f7;
+    }
+
+    .callout.ok {
+      border-left-color: #bbf7d0;
+      background: #f6fffa;
+    }
+
+    .callout .head {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    ul { margin: 10px 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    .card .head {
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    pre {
+      margin: 12px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      overflow: auto;
+      border: 1px solid #1f2a4a;
+    }
+
+    pre code {
+      font-size: 0.9rem;
+      white-space: pre-wrap; /* wrap long lines */
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .checklist li::marker { color: #1f6feb; }
+
+    /* Print settings */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      nav { page-break-inside: avoid; }
+      pre, .card, .callout { page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      /* Do not print URLs after links */
+      a[href]::after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🔐 Fake Authentication in React (AuthContext) — Setting Up Context</h1>
+      <p class="subtitle">Study guide based on the lecture transcript: creating an <code>AuthContext</code> with a Provider + custom hook + reducer to manage <em>user</em> and <em>isAuthenticated</em>.</p>
+      <div class="meta">
+        <span class="chip">🧩 Topic: Context API</span>
+        <span class="chip">🧠 Pattern: Context + useReducer</span>
+        <span class="chip">✅ Goal: Login/Logout + Protected App (next lectures)</span>
+      </div>
+    </header>
+
+    <nav aria-label="Table of contents">
+      <p class="title">📌 Contents</p>
+      <ul>
+        <li><a href="#big-picture">Big Picture: What We’re Building</a></li>
+        <li><a href="#fake-auth">What “Fake Authentication” Means</a></li>
+        <li><a href="#auth-steps">Typical Auth Flow (3 Steps)</a></li>
+        <li><a href="#why-context">Why Context for Auth State?</a></li>
+        <li><a href="#recipe">Context “Recipe” (Boilerplate Pattern)</a></li>
+        <li><a href="#reducer">Reducer Design: user + isAuthenticated</a></li>
+        <li><a href="#login-logout">Login & Logout Functions</a></li>
+        <li><a href="#value">What to Expose in the Context Value</a></li>
+        <li><a href="#pitfalls">Common Pitfalls</a></li>
+        <li><a href="#mini-review">Mini Reviewer / Quick Quiz</a></li>
+      </ul>
+    </nav>
+
+    <section id="big-picture">
+      <h2>🗺️ Big Picture: What We’re Building</h2>
+      <p>
+        The section’s last feature is <strong>authentication</strong>. In a normal app, you’d talk to an API and database. Here, we start with a
+        simplified version so you can focus on the architecture and data-flow.
+      </p>
+
+      <div class="callout ok">
+        <div class="head">✅ Key Output of This Lecture</div>
+        <p>
+          Create an <strong>AuthContext</strong> that stores the logged-in user and whether the user is authenticated, then make it available to the whole app tree.
+        </p>
+      </div>
+    </section>
+
+    <section id="fake-auth">
+      <h2>🎭 What “Fake Authentication” Means</h2>
+      <p>
+        “Fake” authentication means we <strong>do not call an API</strong> to validate credentials. Instead, we keep a single <strong>hard-coded</strong> user inside the
+        frontend and compare the email/password against it.
+      </p>
+      <ul>
+        <li>✅ Useful for learning the workflow early</li>
+        <li>⚠️ Not secure and not how real production auth works</li>
+        <li>➡️ Later projects will replace this with real authentication (database + backend)</li>
+      </ul>
+    </section>
+
+    <section id="auth-steps">
+      <h2>🧭 Typical Auth Flow (3 Steps)</h2>
+      <div class="grid">
+        <div class="card">
+          <p class="head">1) Verify credentials</p>
+          <p>Get email/password from a login form and validate them (normally via an API endpoint).</p>
+        </div>
+        <div class="card">
+          <p class="head">2) Save user in state + redirect</p>
+          <p>If valid, redirect to the main app and store the user object (and auth status) in state.</p>
+        </div>
+        <div class="card">
+          <p class="head">3) Protect routes / UI</p>
+          <p>Block access for non-authenticated users (route protection / conditional rendering).</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="head">🧠 Mental Model</div>
+        <p>
+          Authentication isn’t just “logging in.” It’s also <strong>remembering who you are</strong> (state) and <strong>preventing access</strong> when you’re not logged in.
+        </p>
+      </div>
+    </section>
+
+    <section id="why-context">
+      <h2>🌳 Why Context for Auth State?</h2>
+      <p>
+        Auth state is typically <strong>global UI state</strong>: many components need it (navigation, protected pages, logout button, etc.).
+        Context is a clean way to avoid prop drilling and make this state available across the tree.
+      </p>
+      <ul>
+        <li>🔁 Many components need <code>user</code> and <code>isAuthenticated</code></li>
+        <li>🧼 Avoid passing auth props through many layers</li>
+        <li>✅ Centralize auth actions: <code>login()</code>, <code>logout()</code></li>
+      </ul>
+    </section>
+
+    <section id="recipe">
+      <h2>🍳 Context “Recipe” (Boilerplate Pattern)</h2>
+      <p>This lecture follows the same pattern used previously (CitiesContext, PostsContext):</p>
+      <ol>
+        <li>🧩 Create the context: <code>createContext()</code></li>
+        <li>🧱 Create a Provider component: <code>AuthProvider</code></li>
+        <li>🪝 Create a custom hook: <code>useAuth()</code> (wraps <code>useContext</code>)</li>
+        <li>🛡️ Guardrail: throw error if context used outside provider</li>
+      </ol>
+
+      <pre><code>// AuthContext.jsx (high level structure)
+import { createContext, useContext, useReducer } from "react";
+
+const AuthContext = createContext();
+
+function AuthProvider({ children }) {
+  // reducer + state live here
+  return (
+    &lt;AuthContext.Provider value={{ /* ... */ }}&gt;
+      {children}
+    &lt;/AuthContext.Provider&gt;
+  );
+}
+
+function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined)
+    throw new Error("AuthContext was used outside the AuthProvider");
+  return context;
+}
+
+export { AuthProvider, useAuth };</code></pre>
+
+      <div class="callout warn">
+        <div class="head">⚠️ Why throw an error?</div>
+        <p>
+          Without this guard, using <code>useAuth()</code> outside the Provider can silently return <code>undefined</code>, creating confusing bugs.
+        </p>
+      </div>
+    </section>
+
+    <section id="reducer">
+      <h2>🧮 Reducer Design: <code>user</code> + <code>isAuthenticated</code></h2>
+      <p>
+        The lecture uses a reducer because <code>user</code> and <code>isAuthenticated</code> should usually change together:
+      </p>
+      <ul>
+        <li>✅ Login: set <code>user</code> and set <code>isAuthenticated: true</code></li>
+        <li>✅ Logout: reset <code>user</code> to <code>null</code> and set <code>isAuthenticated: false</code></li>
+      </ul>
+
+      <pre><code>// Initial state
+const initialState = {
+  user: null,
+  isAuthenticated: false,
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "login":
+      return {
+        ...state,
+        user: action.payload,
+        isAuthenticated: true,
+      };
+
+    case "logout":
+      return {
+        ...state,
+        user: null,
+        isAuthenticated: false,
+      };
+
+    default:
+      throw new Error("Unknown action type");
+  }
+}</code></pre>
+
+      <div class="callout">
+        <div class="head">🧠 Why keep <code>...state</code>?</div>
+        <p>
+          It’s future-proof. If you add more auth-related fields later (e.g., role, token, expiry), you won’t accidentally wipe them.
+        </p>
+      </div>
+    </section>
+
+    <section id="login-logout">
+      <h2>🔑 Login & Logout Functions</h2>
+      <p>
+        The Provider exposes two actions. In real apps, <code>login()</code> often calls an API. Here, it compares against a hard-coded user.
+      </p>
+
+      <h3>1) Fake user object</h3>
+      <pre><code>// Hard-coded "fake" user (example shape)
+const FAKE_USER = {
+  name: "Jonas Schmedtmann",
+  email: "jonas@example.com",
+  password: "qwerty",
+  avatar: "https://i.pravatar.cc/100?u=zz",
+};</code></pre>
+
+      <h3>2) Login logic</h3>
+      <pre><code>function login(email, password) {
+  if (email === FAKE_USER.email &amp;&amp; password === FAKE_USER.password) {
+    dispatch({ type: "login", payload: FAKE_USER });
+  }
+}</code></pre>
+
+      <h3>3) Logout logic</h3>
+      <pre><code>function logout() {
+  dispatch({ type: "logout" });
+}</code></pre>
+
+      <div class="callout warn">
+        <div class="head">⚠️ Important Behavior Note</div>
+        <p>
+          In this “fake” setup, invalid credentials simply do nothing (no dispatch). In a real app, you’d show an error message.
+        </p>
+      </div>
+    </section>
+
+    <section id="value">
+      <h2>📦 What to Expose in the Context Value</h2>
+      <p>
+        The context value is your “Auth API” for the rest of the app. Typical exports:
+      </p>
+      <ul class="checklist">
+        <li>👤 <code>user</code> (object or <code>null</code>)</li>
+        <li>🔐 <code>isAuthenticated</code> (boolean)</li>
+        <li>➡️ <code>login(email, password)</code></li>
+        <li>⬅️ <code>logout()</code></li>
+      </ul>
+
+      <pre><code>return (
+  &lt;AuthContext.Provider
+    value={{
+      user,
+      isAuthenticated,
+      login,
+      logout,
+    }}
+  &gt;
+    {children}
+  &lt;/AuthContext.Provider&gt;
+);</code></pre>
+
+      <div class="callout ok">
+        <div class="head">✅ Result</div>
+        <p>
+          Any component can now call <code>useAuth()</code> and instantly get auth data/actions—without prop drilling.
+        </p>
+      </div>
+    </section>
+
+    <section id="pitfalls">
+      <h2>⚠️ Common Pitfalls</h2>
+      <ul>
+        <li>
+          <strong>Using <code>useAuth()</code> outside <code>&lt;AuthProvider&gt;</code></strong>
+          <br />✅ Fix: keep the guard check (<code>context === undefined</code>) and wrap your app tree in the Provider.
+        </li>
+        <li>
+          <strong>Mixing state responsibilities</strong>
+          <br />✅ Fix: keep auth state inside AuthContext; keep unrelated state elsewhere.
+        </li>
+        <li>
+          <strong>Assuming context = state manager</strong>
+          <br />Context only <em>distributes</em> state. State is still managed by <code>useReducer</code>/<code>useState</code>.
+        </li>
+        <li>
+          <strong>Forgetting to export both Provider and hook</strong>
+          <br />✅ Fix: <code>export { AuthProvider, useAuth };</code>
+        </li>
+      </ul>
+    </section>
+
+    <section id="mini-review">
+      <h2>📝 Mini Reviewer / Quick Quiz</h2>
+      <div class="card">
+        <p class="head">Q1) Why is auth state usually global?</p>
+        <p>Because many unrelated components need to know if a user is logged in (navbar, routes, buttons, protected screens).</p>
+      </div>
+
+      <div class="card">
+        <p class="head">Q2) Why use a reducer for <code>user</code> and <code>isAuthenticated</code>?</p>
+        <p>They change together during login/logout, so the reducer keeps updates consistent and centralized.</p>
+      </div>
+
+      <div class="card">
+        <p class="head">Q3) What does the Provider actually “provide”?</p>
+        <p>The <code>value</code> object, which contains state and functions that children can access via <code>useAuth()</code>.</p>
+      </div>
+
+      <div class="card">
+        <p class="head">Q4) What does “fake auth” skip?</p>
+        <p>It skips the real backend/API verification step and uses a hard-coded user instead.</p>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="callout">
+        <div class="head">➡️ What’s Next (following lectures)</div>
+        <ul>
+          <li>Connect the login form button to <code>login()</code></li>
+          <li>Implement logout UI</li>
+          <li>Protect routes/pages from unauthorized access</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

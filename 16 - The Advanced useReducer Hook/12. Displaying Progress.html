@@ -1,0 +1,306 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Quiz — Displaying Progress (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --codebg:#0b1020;
+      --codefg:#e7e7e7;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    header{
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 22px;
+      margin: 0 0 6px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    h2{
+      font-size: 16px;
+      margin: 18px 0 8px;
+    }
+
+    h3{
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p{margin: 8px 0;}
+
+    .card{
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 12px;
+      background: #fff;
+      margin: 10px 0;
+    }
+
+    .callout{
+      border-left: 4px solid #111;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout p{margin: 6px 0;}
+
+    ul{margin: 8px 0 8px 22px;}
+    li{margin: 6px 0;}
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      display: inline-block;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 10px;
+      overflow:auto;
+      border: 1px solid #10162f;
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .grid2{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .badge{
+      display:inline-block;
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      background: #fff;
+      margin-right: 6px;
+      margin-top: 4px;
+    }
+
+    .hr{height:1px;background:var(--border);margin:14px 0;}
+
+    /* Print */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ padding: 0; }
+      a{ color: inherit; text-decoration: none; }
+      a::after{ content: "" !important; }
+      pre{ page-break-inside: avoid; }
+      .card, .callout{ page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>📊 React Quiz — Displaying Progress</h1>
+      <p class="subtitle">Study guide / reviewer (print-friendly, A4, single-column). Topic: show current question, points, and a progress bar in the quiz UI.</p>
+    </header>
+
+    <section class="card">
+      <h2>🎯 Goal of this lecture</h2>
+      <p>We want to display the user’s progress while taking the quiz:</p>
+      <ul>
+        <li>✅ <strong>Current question</strong> out of <strong>total questions</strong></li>
+        <li>✅ <strong>Current points</strong> out of <strong>maximum possible points</strong></li>
+        <li>✅ A <strong>progress bar</strong> that fills as questions are completed</li>
+      </ul>
+      <p>Conceptually: the UI updates as state changes (index, answer, points). In React Quiz, state is managed centrally by <strong>useReducer</strong>.</p>
+    </section>
+
+    <section>
+      <h2>🧩 Component plan</h2>
+      <div class="callout">
+        <p>🧠 Idea: Keep <strong>App</strong> clean. Create a <strong>&lt;Progress /&gt;</strong> component and render it alongside <strong>&lt;Question /&gt;</strong> and <strong>&lt;NextButton /&gt;</strong> when the quiz is active.</p>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <span class="badge">Props</span>
+          <p><strong>Progress</strong> needs data as props (derived or stored in reducer state):</p>
+          <ul>
+            <li><code>index</code> (0-based)</li>
+            <li><code>numQuestions</code> (total count)</li>
+            <li><code>points</code> (current score)</li>
+            <li><code>maxPossiblePoints</code> (sum of points across all questions)</li>
+            <li><code>answer</code> (null or selected option index)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧱 Build the Progress component</h2>
+      <p>Create a new file: <code>components/Progress.js</code> and render a semantic header inside the main content.</p>
+
+      <pre><code>// components/Progress.js
+export default function Progress({
+  index,
+  numQuestions,
+  points,
+  maxPossiblePoints,
+  answer,
+}) {
+  return (
+    &lt;header className="progress"&gt;
+      &lt;progress
+        max={numQuestions}
+        // IMPORTANT: keep empty at the start (index is 0)
+        // but advance immediately after answering
+        value={index + Number(answer !== null)}
+      /&gt;
+
+      &lt;p&gt;
+        Question &lt;strong&gt;{index + 1}&lt;/strong&gt; / {numQuestions}
+      &lt;/p&gt;
+
+      &lt;p&gt;
+        &lt;strong&gt;{points}&lt;/strong&gt; / {maxPossiblePoints} points
+      &lt;/p&gt;
+    &lt;/header&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout">
+        <p>📝 Why <code>index + 1</code> for the label? Because <code>index</code> is 0-based but users expect counting from 1.</p>
+        <p>📌 Why not <code>index + 1</code> for the progress bar value? Because we want the bar to start <strong>empty</strong> at the beginning of question #1.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧮 Derived state you compute in App</h2>
+      <h3>1) Number of questions</h3>
+      <pre><code>const numQuestions = questions.length;</code></pre>
+
+      <h3>2) Max possible points (reduce)</h3>
+      <p>This is derived state (computed from the questions array), so it doesn’t need to live in reducer state.</p>
+      <pre><code>const maxPossiblePoints = questions.reduce(
+  (acc, cur) =&gt; acc + cur.points,
+  0
+);</code></pre>
+
+      <div class="callout">
+        <p>🧠 Reducer note: “reduce” here is <em>array reduce</em> (summing points), not the React reducer function. Same concept: accumulating values into one result.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🔌 Render Progress in App (active state)</h2>
+      <p>When <code>status === "active"</code>, render Progress together with Question and NextButton.</p>
+
+      <pre><code>// App.js (inside the active UI)
+{status === "active" &amp;&amp; (
+  &lt;&gt;
+    &lt;Progress
+      index={index}
+      numQuestions={numQuestions}
+      points={points}
+      maxPossiblePoints={maxPossiblePoints}
+      answer={answer}
+    /&gt;
+
+    &lt;Question
+      question={questions[index]}
+      dispatch={dispatch}
+      answer={answer}
+    /&gt;
+
+    &lt;NextButton dispatch={dispatch} answer={answer} /&gt;
+  &lt;/&gt;
+)}</code></pre>
+
+      <div class="callout">
+        <p>⚠️ Common bug shown in the lecture: forgetting to pass <code>answer</code> to Progress.</p>
+        <p>Why it breaks: <code>answer</code> becomes <code>undefined</code>, and <code>undefined !== null</code> is <code>true</code>, so the progress bar incorrectly starts at <code>index + 1</code>.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 The “nice trick” explained</h2>
+      <div class="card">
+        <p><strong>Problem:</strong> After selecting an option, the progress bar in the demo updates immediately (even before clicking “Next”).</p>
+        <p><strong>Solution:</strong> Add <code>1</code> to the bar value when an answer exists.</p>
+        <p><strong>Trick:</strong> Convert a boolean to a number:</p>
+        <ul>
+          <li><code>Number(false) → 0</code></li>
+          <li><code>Number(true) → 1</code></li>
+        </ul>
+        <pre><code>value={index + Number(answer !== null)}</code></pre>
+        <p>✅ Before answering: <code>answer === null</code> → add 0 → bar stays at current index (empty at start).</p>
+        <p>✅ After answering: <code>answer !== null</code> → add 1 → bar visually advances immediately.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 Quick recap (what you implemented)</h2>
+      <ul>
+        <li>📦 Created a <strong>Progress</strong> component and rendered it during the quiz.</li>
+        <li>🧮 Computed <strong>maxPossiblePoints</strong> via <code>reduce</code> (derived state).</li>
+        <li>🔢 Displayed user-friendly counts: <code>index + 1</code> for the question label.</li>
+        <li>📈 Used a native <code>&lt;progress&gt;</code> element for the progress bar.</li>
+        <li>✨ Implemented immediate progress feedback using <code>index + Number(answer !== null)</code>.</li>
+      </ul>
+
+      <div class="hr"></div>
+
+      <div class="callout">
+        <p>✅ Checkpoint: At this stage, the quiz shows the current question, points, and a progress bar that advances after answering and after moving to the next question.</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

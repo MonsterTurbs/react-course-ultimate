@@ -1,0 +1,346 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — Rendering the Root Component & Strict Mode (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px;
+    }
+
+    header {
+      padding: 16px 16px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 0.9rem;
+    }
+
+    main { padding: 14px 2px 28px; }
+
+    h2 {
+      margin: 20px 0 10px;
+      font-size: 1.15rem;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.02rem;
+      line-height: 1.25;
+    }
+
+    p { margin: 8px 0; }
+
+    .card {
+      margin: 12px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .callout {
+      border-left: 4px solid #111;
+      background: var(--soft);
+    }
+
+    ul { margin: 8px 0 8px 20px; }
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      white-space: pre-wrap;   /* wrap for print */
+      word-break: break-word;  /* avoid cut-off */
+    }
+
+    .k { font-weight: 700; }
+
+    .toc ol { margin: 8px 0 0 20px; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Links: readable on screen, but do not print URLs */
+    a { color: inherit; text-decoration: underline; }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, .card { box-shadow: none !important; }
+      .chip { background: #fff; }
+
+      /* Don’t let browsers append URLs after links */
+      a[href]:after { content: "" !important; }
+
+      /* Prevent awkward splits */
+      header, .card, pre { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Slightly tighter for paper */
+      h1 { font-size: 1.35rem; }
+      h2 { font-size: 1.08rem; }
+      body { font-size: 11.5pt; line-height: 1.55; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🍕 Pizza Menu Project — Rendering the Root Component & Strict Mode</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) — single-column, A4 print-ready</p>
+      <div class="meta">
+        <span class="chip">🧩 Topic: React app entry point</span>
+        <span class="chip">🌱 Level: Beginner</span>
+        <span class="chip">✅ Focus: React 18 root + StrictMode</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="card toc">
+        <h2>🗂️ What you’ll learn</h2>
+        <ol>
+          <li>Why <code>src/index.js</code> is the React “entry point” in Create React App</li>
+          <li>How React 18 renders the app using <code>createRoot</code> and <code>root.render()</code></li>
+          <li>How the <code>public/index.html</code> <code>#root</code> div connects to your React app</li>
+          <li>What <code>&lt;React.StrictMode&gt;</code> does (and why your components may render twice in dev)</li>
+        </ol>
+      </section>
+
+      <section class="card callout">
+        <h2>🎯 Big idea</h2>
+        <p>
+          A React app needs a <span class="k">single starting file</span> (entry point) that:
+        </p>
+        <ul>
+          <li>imports React + the DOM renderer,</li>
+          <li>defines your root component (often <code>App</code>), and</li>
+          <li>renders that component into a real HTML element (usually <code>#root</code>).</li>
+        </ul>
+        <p>
+          Think of it like plugging the React “engine” into the browser “car.” 🚗⚙️
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>🧹 Starting from scratch in the project</h2>
+        <p>
+          In the lecture, you delete files you don’t need from the default Create React App template, then rebuild the essentials.
+          When the app breaks after deletion, that’s normal: React is trying to import files that no longer exist. ⚠️
+        </p>
+        <p class="k">Key rule:</p>
+        <ul>
+          <li>In Create React App (CRA), the bundler expects an entry file named <code>src/index.js</code>.</li>
+          <li>If it’s missing, the build fails because CRA can’t find where your app starts.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>📦 The essential imports</h2>
+        <p>
+          In CRA, React is installed via npm and imported using ES Modules:
+        </p>
+        <pre><code>import React from "react";
+import ReactDOM from "react-dom/client";</code></pre>
+
+        <div class="divider"></div>
+
+        <h3>🔁 Quick comparison: “Pure React” vs CRA</h3>
+        <ul>
+          <li><span class="k">Pure React</span>: you include React using <code>&lt;script&gt;</code> tags in an HTML file.</li>
+          <li><span class="k">CRA</span>: React is installed in <code>node_modules</code>, then you import it with <code>import</code>.</li>
+        </ul>
+        <p>
+          Result: CRA supports modules, bundling, dev server, fast refresh, and JSX tooling. ✅
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>🧱 Create your first component</h2>
+        <p>
+          A React component is typically a function that starts with an uppercase letter (convention + requirement for React to treat it as a component).
+        </p>
+        <pre><code>function App() {
+  return &lt;h1&gt;Hello React!&lt;/h1&gt;;
+}</code></pre>
+        <p>
+          JSX looks like HTML, but it’s actually JavaScript syntax that React can understand after the build step. 🧠
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>🪝 Connect React to the real DOM (React 18 way)</h2>
+        <p>
+          React needs a “mount point” in the real HTML. In CRA, that is:
+          <code>&lt;div id="root"&gt;&lt;/div&gt;</code> inside <code>public/index.html</code>.
+        </p>
+        <p>
+          Then in <code>src/index.js</code>, you select that element and render your app into it:
+        </p>
+        <pre><code>const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(&lt;App /&gt;);</code></pre>
+
+        <div class="divider"></div>
+
+        <h3>🧠 Beginner explanation</h3>
+        <ul>
+          <li><code>document.getElementById("root")</code> finds the real HTML element.</li>
+          <li><code>createRoot(...)</code> creates a React “root controller” for React 18.</li>
+          <li><code>root.render(&lt;App /&gt;)</code> tells React: “Draw the <code>App</code> component here.”</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>🕰️ React 17 vs React 18 rendering</h2>
+        <p>
+          You may still see older codebases using the React 17 approach:
+        </p>
+        <pre><code>// React 17 (older)
+// ReactDOM.render(&lt;App /&gt;, document.getElementById("root"));</code></pre>
+        <p>
+          React 18 recommends the newer root API:
+        </p>
+        <pre><code>// React 18 (modern)
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(&lt;App /&gt;);</code></pre>
+        <p>
+          Practical takeaway: when working on modern projects, expect to see <code>react-dom/client</code> and <code>createRoot</code>. ✅
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>🛡️ Strict Mode</h2>
+        <p>
+          You can wrap your app in <code>&lt;React.StrictMode&gt;</code>:
+        </p>
+        <pre><code>const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+  &lt;React.StrictMode&gt;
+    &lt;App /&gt;
+  &lt;/React.StrictMode&gt;
+);</code></pre>
+
+        <h3>What it does (high level)</h3>
+        <ul>
+          <li>✅ Helps detect certain bugs by running extra checks in development.</li>
+          <li>🔁 In development, it may render components twice to help surface side-effects and unsafe patterns.</li>
+          <li>🔍 Warns about deprecated/outdated React APIs.</li>
+        </ul>
+
+        <p class="k">Important notes:</p>
+        <ul>
+          <li>StrictMode behavior is primarily a <span class="k">development</span> tool.</li>
+          <li>Seeing “double logs” in the console can be normal when StrictMode is enabled. Don’t panic. 😄</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>✅ Quick checklist (copy/paste mental model)</h2>
+        <ul>
+          <li>📁 CRA entry point: <code>src/index.js</code></li>
+          <li>📦 Imports: <code>react</code> and <code>react-dom/client</code></li>
+          <li>🧩 Root component: <code>App</code> (convention)</li>
+          <li>🧷 DOM mount point: <code>public/index.html</code> has <code>&lt;div id="root"&gt;</code></li>
+          <li>⚙️ React 18 render: <code>createRoot(...)</code> then <code>root.render(...)</code></li>
+          <li>🛡️ StrictMode: wrap <code>&lt;App /&gt;</code> for dev checks</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>🧪 Mini self-test</h2>
+        <ol>
+          <li>Why must CRA have a <code>src/index.js</code> file?</li>
+          <li>Where does the <code>"root"</code> element live (which folder/file)?</li>
+          <li>What is the React 18 API to start rendering into the DOM?</li>
+          <li>Why might you see effects/logs run twice in development?</li>
+        </ol>
+        <p>
+          If you can answer these, you’re ready to move forward. ✅
+        </p>
+      </section>
+
+      <section class="card callout">
+        <h2>📌 Key takeaway</h2>
+        <p>
+          React apps are built from components, but they become a real website only when you <span class="k">render</span>
+          the root component into a real DOM node. StrictMode is a safety tool that helps you write better React during development.
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

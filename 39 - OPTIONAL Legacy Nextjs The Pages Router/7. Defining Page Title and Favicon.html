@@ -1,0 +1,346 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Pages Router — Page Title & Favicon (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --soft: #f6f7f9;
+      --border: #e6e6e6;
+      --codebg: #0b1020;
+      --codetext: #e7eaf0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 48px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 18px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      margin: 0 0 8px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 10px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 6px solid #c7d2fe;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #fbfbff;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 6px; }
+
+    ul { margin: 8px 0 8px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      font-size: 0.9rem;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #222;
+    }
+
+    pre {
+      margin: 10px 0 14px;
+      padding: 12px 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      overflow: hidden;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92rem;
+    }
+
+    pre code {
+      white-space: pre-wrap;   /* wrap long lines */
+      word-break: break-word;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92rem;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .checklist li { margin: 8px 0; }
+
+    /* Print settings */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, .callout, pre { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      /* If any links exist, do NOT print URLs */
+      a[href]::after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧭 Next.js Pages Router: Page Title &amp; Favicon</h1>
+      <p class="subtitle">
+        Reviewer / study guide for the legacy <strong>Pages Router</strong> approach (custom <code>_app.js</code> + <code>next/head</code>).
+      </p>
+      <div class="chips" aria-label="topic tags">
+        <span class="chip">📄 Pages Router</span>
+        <span class="chip">🧠 next/head</span>
+        <span class="chip">🏷️ Title</span>
+        <span class="chip">🖼️ Favicon</span>
+        <span class="chip">🧩 Per-page overrides</span>
+      </div>
+    </header>
+
+    <h2>🎯 Goal of this lesson</h2>
+    <ul>
+      <li>Set a <strong>global page title</strong> (so the browser tab shows a proper name, not just the URL).</li>
+      <li>Add a <strong>favicon</strong> (small icon shown in the browser tab).</li>
+      <li>Override the title <strong>per page</strong> (e.g., <em>About / The Wild Oasis</em>).</li>
+      <li>Understand why this feels more manual vs the App Router’s <strong>metadata API</strong>.</li>
+    </ul>
+
+    <div class="callout">
+      <strong>📝 Key idea</strong>
+      <p class="mini">
+        In the <strong>Pages Router</strong>, global HTML &amp; layout behavior is usually handled in <code>pages/_app.js</code>.
+        For head tags (title, favicon, meta), you typically use <code>next/head</code>.
+      </p>
+    </div>
+
+    <h2>🧠 Concept refresher: Where do we put &lt;title&gt; in Pages Router?</h2>
+    <h3>1) <code>pages/_document.js</code> (custom document)</h3>
+    <p>
+      <code>_document.js</code> controls the overall HTML skeleton (html/head/body), but you usually <strong>don’t edit it</strong> for page titles.
+      Most app-level head settings are done with <code>next/head</code>.
+    </p>
+
+    <h3>2) <code>pages/_app.js</code> (custom app)</h3>
+    <p>
+      Think of <code>_app.js</code> as the Pages Router’s “root layout initializer.” It receives:
+      <code>Component</code> (the current page) and <code>pageProps</code>.
+    </p>
+
+    <div class="callout">
+      <strong>✅ Practical rule of thumb</strong>
+      <ul class="checklist">
+        <li>Global layout, providers, global CSS: <strong><code>_app.js</code></strong></li>
+        <li>Title/favicon/meta tags (global defaults): <strong><code>_app.js</code> + <code>next/head</code></strong></li>
+        <li>Page-specific title/meta: <strong>that page file</strong> (also via <code>next/head</code>)</li>
+      </ul>
+    </div>
+
+    <div class="hr"></div>
+
+    <h2>🛠️ Step-by-step: Add global title + favicon in <code>_app.js</code></h2>
+    <p>In the Pages Router, you import <code>Head</code> from <code>next/head</code> and render it alongside your layout.</p>
+
+    <h3>✅ Example: <code>pages/_app.js</code></h3>
+    <pre><code>import Head from "next/head";
+
+// Your app-wide layout / providers typically live here
+export default function App({ Component, pageProps }) {
+  return (
+    &lt;&gt;
+      &lt;Head&gt;
+        &lt;title&gt;The Wild Oasis&lt;/title&gt;
+        &lt;link rel="icon" href="/logo.png" /&gt;
+      &lt;/Head&gt;
+
+      {/* Your global layout wrapper */}
+      &lt;div className="app"&gt;
+        &lt;Component {...pageProps} /&gt;
+      &lt;/div&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+    <div class="callout">
+      <strong>🔎 Why do we use a Fragment (&lt;&gt;...&lt;/&gt;)?</strong>
+      <p class="mini">
+        Because <code>Head</code> must be returned at the <strong>same level</strong> as your layout wrapper.
+        The fragment lets you return two siblings: <code>Head</code> and your page layout.
+      </p>
+    </div>
+
+    <h2>🧩 Per-page custom titles (override the global title)</h2>
+    <p>
+      To override a title for a single page (e.g., About), you also render <code>Head</code> inside that page component.
+      The page-level title will replace the global title when that route is active.
+    </p>
+
+    <h3>✅ Example: <code>pages/about.js</code></h3>
+    <pre><code>import Head from "next/head";
+
+export default function About() {
+  return (
+    &lt;&gt;
+      &lt;Head&gt;
+        &lt;title&gt;About / The Wild Oasis&lt;/title&gt;
+      &lt;/Head&gt;
+
+      &lt;main&gt;
+        &lt;h1&gt;About&lt;/h1&gt;
+        &lt;p&gt;This is the About page.&lt;/p&gt;
+      &lt;/main&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+    <div class="callout">
+      <strong>💡 Naming convention (common pattern)</strong>
+      <p class="mini">
+        Many apps format titles like: <strong><code>PageName / SiteName</code></strong> (e.g., <code>Cabins / The Wild Oasis</code>).
+      </p>
+    </div>
+
+    <h2>🧷 Dynamic titles for dynamic routes</h2>
+    <p>
+      For a dynamic route like <code>/cabins/[cabinId]</code>, you can set the title using the URL parameter.
+      Later, you might replace the ID with a cabin name (after fetching data).
+    </p>
+
+    <h3>✅ Example: <code>pages/cabins/[cabinId].js</code></h3>
+    <pre><code>import Head from "next/head";
+import { useRouter } from "next/router";
+
+export default function Cabin() {
+  const router = useRouter();
+  const { cabinId } = router.query;
+
+  return (
+    &lt;&gt;
+      &lt;Head&gt;
+        &lt;title&gt;Cabin {cabinId} / The Wild Oasis&lt;/title&gt;
+      &lt;/Head&gt;
+
+      &lt;main&gt;
+        &lt;h1&gt;Cabin {cabinId}&lt;/h1&gt;
+      &lt;/main&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+    <div class="callout">
+      <strong>⚠️ Beginner note</strong>
+      <p class="mini">
+        On first render, <code>router.query.cabinId</code> can be <code>undefined</code> while Next.js initializes.
+        That’s normal. Once ready, it will show the correct value.
+      </p>
+    </div>
+
+    <h2>🆚 Pages Router vs App Router (why this feels more manual)</h2>
+    <ul>
+      <li><strong>App Router:</strong> export a <code>metadata</code> object and Next handles it.</li>
+      <li><strong>Pages Router:</strong> add <code>&lt;Head&gt;</code> in <code>_app.js</code> and repeat per page for overrides.</li>
+      <li>This leads to more copy/paste unless you build helpers/utilities.</li>
+    </ul>
+
+    <div class="hr"></div>
+
+    <h2>✅ Quick checklist</h2>
+    <ul class="checklist">
+      <li>🧠 Import <code>Head</code> from <code>next/head</code></li>
+      <li>🏷️ Set global <code>&lt;title&gt;</code> in <code>pages/_app.js</code></li>
+      <li>🖼️ Set favicon with <code>&lt;link rel="icon" href="/logo.png" /&gt;</code> (file must exist in <code>public/</code>)</li>
+      <li>🧩 Override titles per page by rendering <code>&lt;Head&gt;</code> in that page component</li>
+      <li>🧷 For dynamic pages, use <code>useRouter()</code> to read route params</li>
+    </ul>
+
+    <div class="callout">
+      <strong>🧠 Mini practice</strong>
+      <ul>
+        <li>Set titles for: <code>Home</code>, <code>Cabins</code>, <code>Contact</code></li>
+        <li>For <code>/cabins/[cabinId]</code>, start with <code>Cabin {id}</code>, then later replace with the cabin’s name after fetching data.</li>
+      </ul>
+    </div>
+
+    <p class="mini">
+      End of reviewer — next step: fetching data in Pages Router and rendering it in routes.
+    </p>
+  </main>
+</body>
+</html>

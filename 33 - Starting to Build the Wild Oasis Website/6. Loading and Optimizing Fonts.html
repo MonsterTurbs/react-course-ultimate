@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js — Loading & Optimizing Fonts (next/font) — Reviewer</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column, print-friendly container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
+
+    header {
+      padding: 18px 18px 14px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 0.86rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main {
+      margin-top: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 16px 14px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+    }
+
+    h3 {
+      margin: 12px 0 8px;
+      font-size: 1.02rem;
+    }
+
+    p { margin: 8px 0; }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #f6f9ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .callout p { margin: 6px 0; }
+
+    .kbd {
+      display: inline-block;
+      padding: 2px 7px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 0.9em;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #e8eefc;
+      border-radius: 12px;
+      overflow-x: auto;
+      border: 1px solid #111a33;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 0.95em;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 860px) {
+      .two-col { grid-template-columns: 1fr 1fr; }
+    }
+
+    .qa {
+      background: var(--soft);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* Links: keep readable on screen, but do NOT print URLs */
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Print styles */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; } /* do not show URLs */
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🆎 Next.js — Loading & Optimizing Fonts (next/font)</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-Friendly) — self-host Google fonts, improve performance, and avoid layout shifts</p>
+      <div class="meta">
+        <span class="chip">✅ Single-column</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+        <span class="chip">🧠 Focus: next/font/google</span>
+        <span class="chip">🔐 Privacy & performance</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 What you will learn</h2>
+        <ul>
+          <li><strong>Why fonts matter</strong> for UX (performance, layout stability, readability).</li>
+          <li>How Next.js can <strong>self-host Google fonts automatically</strong> using <code>next/font/google</code>.</li>
+          <li>How to configure a font (subsets, display mode, weights) and <strong>apply the generated className</strong>.</li>
+          <li>How to tell if code is running on the <strong>server</strong> vs the <strong>browser</strong> (console output locations).</li>
+        </ul>
+
+        <div class="callout">
+          <p>💡 Big idea: <strong>Self-hosted fonts</strong> are served from your own Next.js server/build output instead of calling Google’s servers at runtime. This improves performance and helps reduce privacy concerns.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Why Next.js font optimization is useful</h2>
+        <ul>
+          <li>⚡ <strong>Performance:</strong> Fonts can load faster when served alongside your site assets.</li>
+          <li>🧱 <strong>Less layout shift:</strong> Better control over font loading reduces “jumping” text (CLS issues).</li>
+          <li>🕵️ <strong>Privacy:</strong> Avoids fetching fonts directly from Google servers, which can be a privacy/legal concern in some contexts.</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <h3>Quick mental model</h3>
+        <p>
+          Next.js gives you a <strong>font loader function</strong> (e.g., <code>Josefin_Sans</code>). You call it with options, it returns an object
+          with a generated <code>className</code>. You add that className to your HTML (commonly the <code>&lt;body&gt;</code>) so the font applies.
+        </p>
+      </section>
+
+      <section>
+        <h2>🛠️ Step-by-step: Add “Josefin Sans” with <code>next/font/google</code></h2>
+
+        <h3>1) Import the font loader</h3>
+        <pre><code>import { Josefin_Sans } from "next/font/google";</code></pre>
+
+        <h3>2) Configure the font</h3>
+        <p>Most common options:</p>
+        <ul>
+          <li><code>subsets</code>: Which character set you need (e.g., <code>"latin"</code>)</li>
+          <li><code>display</code>: Font display strategy (commonly <code>"swap"</code>)</li>
+          <li><code>weight</code>: Required for non-variable fonts (variable fonts often don’t need it)</li>
+        </ul>
+
+        <pre><code>const josefin = Josefin_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  // weight: ["400", "700"], // only if the font is NOT variable
+});</code></pre>
+
+        <h3>3) Apply the generated className</h3>
+        <p>
+          The <code>josefin</code> object contains a Next.js-generated class name (e.g., <code>josefin.className</code>). Apply it to <code>&lt;body&gt;</code>
+          to use the font everywhere.
+        </p>
+
+        <pre><code>export default function RootLayout({ children }) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body className={`${josefin.className}`} &gt;
+        {children}
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          <p>✅ Result: Your pages render using the Josefin Sans font, and Next.js self-hosts the font files for you.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Server vs Browser: where does <code>console.log</code> show up?</h2>
+        <div class="two-col">
+          <div class="qa">
+            <h3>🖥️ In a Server Component</h3>
+            <ul>
+              <li><code>console.log</code> appears in your <strong>terminal</strong> where <code>npm run dev</code> is running.</li>
+              <li>Reason: the component executes on the server.</li>
+            </ul>
+          </div>
+          <div class="qa">
+            <h3>🌐 In a Client Component</h3>
+            <ul>
+              <li><code>console.log</code> appears in the <strong>browser devtools console</strong>.</li>
+              <li>Reason: the component executes in the browser (requires <code>"use client"</code>).</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout">
+          <p>🔎 Tip: In the lecture, logging the font object showed the generated <code>className</code> and other details in the <strong>terminal</strong>—a sign you’re in a server component (like <code>layout.js</code>).</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🏷️ Using multiple fonts (common real-world pattern)</h2>
+        <p>
+          Sometimes you want <strong>one font for body text</strong> and <strong>another for headings</strong>.
+          You can import two fonts and apply their classNames to different elements.
+        </p>
+
+        <pre><code>import { Josefin_Sans, Roboto_Slab } from "next/font/google";
+
+const bodyFont = Josefin_Sans({ subsets: ["latin"], display: "swap" });
+const headingFont = Roboto_Slab({ subsets: ["latin"], display: "swap" });
+
+export default function RootLayout({ children }) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body className={bodyFont.className}&gt;
+        &lt;h1 className={headingFont.className}&gt;Heading font&lt;/h1&gt;
+        {children}
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          <p>🧠 Remember: you don’t have to apply the font to <code>&lt;body&gt;</code>. Apply it only where needed.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>📌 Local fonts (brief mention)</h2>
+        <p>
+          Next.js can also load fonts that you ship with your project using <code>next/font/local</code>.
+          This is useful if you have a licensed font file.
+        </p>
+
+        <pre><code>import localFont from "next/font/local";
+
+const myFont = localFont({
+  src: "./path-to-font/MyFont.woff2",
+  display: "swap",
+});</code></pre>
+
+        <div class="callout">
+          <p>✅ Same idea: configure → get <code>className</code> → apply to elements.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧯 Common mistakes & quick fixes</h2>
+        <ul>
+          <li>❌ <strong>Font imported but not applied:</strong> You forgot <code>className={font.className}</code>.</li>
+          <li>❌ <strong>Wrong import path:</strong> Use <code>next/font/google</code> (Google fonts) or <code>next/font/local</code> (local fonts).</li>
+          <li>❌ <strong>Missing subset:</strong> Set <code>subsets: ["latin"]</code> (or the subset you need).</li>
+          <li>❌ <strong>Non-variable font weight not set:</strong> Add <code>weight</code> (e.g., <code>["400","700"]</code>) if required.</li>
+          <li>🤔 <strong>Where is my console.log?</strong> If you log in a server component, check the terminal, not the browser.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧠 Mini-review (quick questions)</h2>
+        <div class="qa">
+          <ol>
+            <li>Why is self-hosting fonts good for performance and layout stability?</li>
+            <li>What are the 3 main steps to use a Google font with Next.js <code>next/font/google</code>?</li>
+            <li>Where does <code>console.log</code> show up for server components vs client components?</li>
+            <li>When would you choose <code>next/font/local</code> instead?</li>
+          </ol>
+        </div>
+
+        <div class="callout">
+          <p>✅ If you can explain those four, you already understand the core workflow for Next.js fonts.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>✅ Key takeaways</h2>
+        <ul>
+          <li>🆎 Next.js can self-host Google fonts via <code>next/font/google</code>.</li>
+          <li>⚙️ Configure: <code>subsets</code>, <code>display</code>, and (sometimes) <code>weight</code>.</li>
+          <li>🏷️ Apply: use the generated <code>className</code> on <code>&lt;body&gt;</code> or specific elements.</li>
+          <li>🖥️ Logs in server components appear in the terminal, not the browser console.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

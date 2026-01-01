@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Building the Cart Page — Redux + Actions (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f7f7f9;
+      --ok: #0b7a2a;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 36px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout strong { color: var(--text); }
+
+    .callout.ok {
+      border-left-color: var(--ok);
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 860px) {
+      .two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 18mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      pre { overflow: visible; white-space: pre-wrap; word-break: break-word; }
+      .chip { border-color: #dcdcdc; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🛒 Building the Cart Page (Redux + Actions)</h1>
+      <p class="subtitle">Study guide from the lecture transcript: selecting the real cart from Redux, clearing the cart, and rendering an empty state.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Redux State + UI</span>
+        <span class="chip">🧩 Hooks: <code>useSelector</code> + <code>useDispatch</code></span>
+        <span class="chip">🧠 Selector: <code>getCart</code></span>
+        <span class="chip">🧹 Action: <code>clearCart</code></span>
+        <span class="chip">🧾 UI: Empty cart screen</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 What you are building</h2>
+        <p>In this lecture, you finish the <strong>Cart Page</strong> by doing three main things:</p>
+        <ol>
+          <li>🧺 Replace the “fake cart” data with the <strong>real cart</strong> from the Redux store.</li>
+          <li>🧹 Make the <strong>Clear Cart</strong> button work (dispatch <code>clearCart</code>).</li>
+          <li>🕳️ Show an <strong>EmptyCart</strong> component when there are no items in the cart.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🧠 Why we create a <code>getCart</code> selector</h2>
+        <p>
+          Instead of selecting the cart array directly in many components using
+          <code>state.cart.cart</code>, the lecture introduces a small selector:
+          <strong><code>getCart</code></strong>.
+        </p>
+
+        <div class="callout">
+          <p><strong>✅ Benefit</strong></p>
+          <p>
+            If you ever change your state shape (e.g., rename the slice or move the cart property),
+            you only update it in <strong>one place</strong> instead of searching your whole codebase.
+          </p>
+        </div>
+
+        <pre><code>// cartSlice.js (recommended place)
+export const getCart = (state) =&gt; state.cart.cart;
+</code></pre>
+
+        <p>Then in the Cart component, your selection becomes clean and readable:</p>
+        <pre><code>import { useSelector } from "react-redux";
+import { getCart } from "./cartSlice";
+
+const cart = useSelector(getCart);
+</code></pre>
+      </section>
+
+      <section>
+        <h2>🧩 Step-by-step: Using the real Redux cart in the Cart page</h2>
+        <p>
+          The Cart page already had rendering logic, but it used a temporary “fake cart.”
+          Now you replace it with the Redux cart.
+        </p>
+
+        <div class="two-col">
+          <div class="callout">
+            <p><strong>Before</strong> (fake data)</p>
+            <ul>
+              <li>✅ UI works, but data is not real</li>
+              <li>❌ Cart doesn’t match what user added</li>
+            </ul>
+          </div>
+          <div class="callout ok">
+            <p><strong>After</strong> (Redux data)</p>
+            <ul>
+              <li>✅ Cart shows what you added from the menu</li>
+              <li>✅ Works across page navigation</li>
+            </ul>
+          </div>
+        </div>
+
+        <p>
+          Once the Cart page uses Redux state, you can:
+          go to the menu, add pizzas, then open the cart and see them correctly.
+        </p>
+      </section>
+
+      <section>
+        <h2>🧹 Making the “Clear Cart” button work</h2>
+        <p>
+          The Clear Cart button should dispatch an action.
+          In Redux, that means:
+        </p>
+        <ul>
+          <li>Get <code>dispatch</code> using <code>useDispatch()</code> 🧩</li>
+          <li>Import the action creator <code>clearCart</code> 🧹</li>
+          <li>Call <code>dispatch(clearCart())</code> on click 🖱️</li>
+        </ul>
+
+        <pre><code>import { useDispatch } from "react-redux";
+import { clearCart } from "./cartSlice";
+
+const dispatch = useDispatch();
+
+&lt;button onClick={() =&gt; dispatch(clearCart())}&gt;
+  Clear cart
+&lt;/button&gt;
+</code></pre>
+
+        <div class="callout">
+          <p><strong>🔍 What happens under the hood?</strong></p>
+          <p>
+            <code>clearCart()</code> creates an action (e.g., <code>cart/clearCart</code>),
+            Redux dispatches it, and the reducer sets the cart back to an empty array.
+          </p>
+        </div>
+
+        <div class="callout ok">
+          <p><strong>✅ Result</strong></p>
+          <ul>
+            <li>The cart list becomes empty</li>
+            <li>The cart overview disappears (because quantity becomes 0)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🕳️ Empty state: show <code>EmptyCart</code> when cart is empty</h2>
+        <p>
+          A cart page with no items should not show the “order” UI.
+          So the lecture uses an <code>EmptyCart</code> component from the starter files.
+        </p>
+
+        <pre><code>import EmptyCart from "./EmptyCart";
+
+if (!cart.length) return &lt;EmptyCart /&gt;;
+</code></pre>
+
+        <div class="callout">
+          <p><strong>🧠 Why <code>!cart.length</code>?</strong></p>
+          <p>
+            If <code>cart.length</code> is <code>0</code>, then it is “falsy,” so <code>!cart.length</code> becomes <code>true</code>.
+            That’s a simple way to check “no items.”
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🎨 Styling the EmptyCart component (Tailwind notes)</h2>
+        <p>
+          The lecture lightly styles the EmptyCart screen using Tailwind CSS.
+          The main idea is:
+        </p>
+        <ul>
+          <li>Reuse the same “Back to menu” link/button style as the Cart page 🔁</li>
+          <li>Add small utility classes (padding, margin, font weight) ✨</li>
+        </ul>
+
+        <div class="callout">
+          <p><strong>Note</strong></p>
+          <p>
+            If Tailwind feels confusing, you can copy the classes as-is or ignore styling.
+            The logic is the important part: render EmptyCart when the cart is empty.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧯 Common mistakes and quick fixes</h2>
+        <ul>
+          <li>
+            ❌ <strong>Not using the selector</strong>: you still have fake cart data.
+            <div class="callout"><strong>Fix:</strong> replace fake array with <code>useSelector(getCart)</code>.</div>
+          </li>
+          <li>
+            ❌ <strong>Clear button does nothing</strong>: forgot <code>useDispatch</code> or forgot to import <code>clearCart</code>.
+            <div class="callout"><strong>Fix:</strong> add <code>const dispatch = useDispatch()</code> and <code>dispatch(clearCart())</code>.</div>
+          </li>
+          <li>
+            ❌ <strong>Empty cart still shows cart UI</strong>: missing empty-state return.
+            <div class="callout"><strong>Fix:</strong> add <code>if (!cart.length) return &lt;EmptyCart /&gt;;</code>.</div>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Mini-quiz (for retention)</h2>
+        <ol>
+          <li>Why is it better to use <code>getCart</code> instead of repeating <code>state.cart.cart</code> everywhere?</li>
+          <li>What is the purpose of <code>useDispatch</code>?</li>
+          <li>What does <code>dispatch(clearCart())</code> do?</li>
+          <li>Why do we return <code>&lt;EmptyCart /&gt;</code> when <code>cart.length</code> is 0?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🧾 Quick recap</h2>
+        <ul>
+          <li>🧠 Create a selector: <code>getCart = (state) =&gt; state.cart.cart</code></li>
+          <li>🧺 Use Redux cart in the Cart page via <code>useSelector(getCart)</code></li>
+          <li>🧹 Wire the Clear Cart button with <code>dispatch(clearCart())</code></li>
+          <li>🕳️ If cart is empty, render <code>&lt;EmptyCart /&gt;</code> instead of the cart UI</li>
+          <li>➡️ Next: implement delete buttons (remove items one by one)</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

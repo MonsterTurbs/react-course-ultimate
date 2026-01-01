@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Context API — Study Guide (Prop Drilling Solution)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 18px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      margin: 14px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 17px;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14.5px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 0 18px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .callout strong { font-weight: 700; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 12px;
+      background: #fff;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px;
+      background: var(--codebg);
+      color: #e8eefc;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      border: 1px solid #1f2a44;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-bottom-width: 2px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .muted { color: var(--muted); }
+
+    /* Link styling (screen) */
+    a { color: #0b57d0; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Print: A4, clean, no URL noise */
+    @page { size: A4; margin: 18mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-color: #ddd; }
+
+      /* Do not print link URLs */
+      a[href]:after { content: "" !important; }
+
+      /* Keep sections tidy on page breaks */
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Slightly print-optimized text */
+      body { font-size: 11.5pt; line-height: 1.55; }
+      h1 { font-size: 18pt; }
+      h2 { font-size: 13.5pt; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧠 React Context API — What It Is & What Problem It Solves</h1>
+      <p class="subtitle">Reviewer / study guide (beginner-friendly) — focusing on <strong>prop drilling</strong> and how <strong>Context</strong> helps.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Advanced State Management</span>
+        <span class="chip">🧩 Concept: Provider • Value • Consumers</span>
+        <span class="chip">🔁 Key behavior: Context updates re-render consumers</span>
+        <span class="chip">🧾 Print-ready: A4 • single-column • white</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Learning Goals</h2>
+        <ul>
+          <li>Understand the <strong>problem</strong> Context is trying to solve: <strong>prop drilling</strong>.</li>
+          <li>Explain what the <strong>Context API</strong> is in one sentence.</li>
+          <li>Identify the 3 main parts: <strong>Provider</strong>, <strong>Value</strong>, <strong>Consumers</strong>.</li>
+          <li>Know what happens when the <strong>context value changes</strong> (re-render rules).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>😵 The Problem: Prop Drilling</h2>
+        <p>
+          Imagine a component tree where <strong>deep child components</strong> need some state (e.g., <code>count</code>),
+          but that state lives high up in the tree.
+        </p>
+
+        <div class="callout">
+          <strong>Prop drilling</strong> = passing props through multiple component levels <em>even if intermediate components don’t need them</em>.
+          <span class="muted">(They only forward the props.)</span>
+        </div>
+
+        <h3>🧩 Example scenario</h3>
+        <p class="muted">B and F need <code>count</code>, but <code>count</code> is defined in A.</p>
+        <pre><code>A (count state)
+├─ B  ✅ needs count
+│  └─ C
+│     └─ D
+└─ E
+   └─ F  ✅ needs count
+</code></pre>
+
+        <h3>🚨 Why prop drilling becomes painful</h3>
+        <ul>
+          <li>More boilerplate: many components must accept props they don’t use.</li>
+          <li>Harder refactors: moving components means updating many prop paths.</li>
+          <li>Confusing ownership: “Where does this prop come from?” becomes harder to track.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Note:</strong> Better component composition (using <code>children</code>) can reduce prop drilling sometimes…
+          but not always. Some UI structures simply require deep trees.
+        </div>
+      </section>
+
+      <section>
+        <h2>📡 What the Context API Is</h2>
+        <p>
+          The <strong>Context API</strong> is a React system to <strong>pass data through the component tree</strong>
+          <em>without manually passing props at every level</em>.
+        </p>
+        <p>
+          Think of it as <strong>broadcasting</strong> a value so that any subscribed component can read it.
+        </p>
+
+        <div class="callout">
+          ✅ Context is best for <strong>global-ish state</strong> that many components need.
+          <br />
+          Examples: authenticated user, theme, language, app settings.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧱 The 3 Main Parts of Context</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>1) 🏗️ Provider</h3>
+            <p>
+              A special React component that <strong>wraps part of your tree</strong> and gives its children access to a value.
+            </p>
+            <p class="muted">Common placement: near the top of the app (but it can be anywhere).</p>
+          </div>
+          <div class="card">
+            <h3>2) 🎁 Value</h3>
+            <p>
+              The <strong>data</strong> you share.
+              Often includes <strong>state variables</strong> + <strong>setter functions</strong>.
+            </p>
+            <p class="muted">Example: <code>{count, setCount}</code></p>
+          </div>
+          <div class="card">
+            <h3>3) 👀 Consumers</h3>
+            <p>
+              Any component that <strong>reads/subscribes</strong> to the context value.
+              You can have <strong>as many consumers as you want</strong>.
+            </p>
+            <p class="muted">Typically via <code>useContext()</code>.</p>
+          </div>
+        </div>
+
+        <h3>🗺️ Mental model</h3>
+        <pre><code>&lt;Provider value={...}&gt;
+  ...many nested components...
+  &lt;Consumer /&gt;  // can read the value directly ✅
+&lt;/Provider&gt;
+</code></pre>
+      </section>
+
+      <section>
+        <h2>🔁 What Happens When the Value Changes?</h2>
+        <p>
+          When the <strong>context value updates</strong>, React will automatically <strong>re-render</strong>
+          all components that are consuming that context.
+        </p>
+
+        <div class="callout">
+          <strong>New re-render trigger unlocked:</strong>
+          <ul>
+            <li>State update re-renders the component instance (you already know this).</li>
+            <li>Context value update re-renders <strong>subscribed consumers</strong>.</li>
+          </ul>
+        </div>
+
+        <p class="muted">
+          Practical implication: keep context values well-designed.
+          If you put too much frequently-changing data in one context, you can cause unnecessary re-renders.
+        </p>
+      </section>
+
+      <section>
+        <h2>🧪 Minimal Example (Beginner-Friendly)</h2>
+        <p>
+          Below is the smallest “working mental model” of Context:
+          create a context, provide a value, and consume it.
+        </p>
+
+        <pre><code>// 1) Create context
+import { createContext, useContext, useState } from "react";
+
+const CounterContext = createContext();
+
+// 2) Provider component
+function CounterProvider({ children }) {
+  const [count, setCount] = useState(0);
+
+  const value = { count, setCount };
+
+  return (
+    &lt;CounterContext.Provider value={value}&gt;
+      {children}
+    &lt;/CounterContext.Provider&gt;
+  );
+}
+
+// 3) Consumer hook (nice pattern)
+function useCounter() {
+  const ctx = useContext(CounterContext);
+  if (!ctx) throw new Error("useCounter must be used inside CounterProvider");
+  return ctx;
+}
+
+// 4) Deep child can read without prop drilling
+function DeepChild() {
+  const { count, setCount } = useCounter();
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;+&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+// App
+export default function App() {
+  return (
+    &lt;CounterProvider&gt;
+      &lt;DeepChild /&gt;
+    &lt;/CounterProvider&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout">
+          <strong>Key takeaway:</strong> <code>DeepChild</code> gets <code>count</code> directly from context.
+          No more passing <code>count</code> through unrelated components.
+        </div>
+      </section>
+
+      <section>
+        <h2>✅ When to Use Context (and When Not To)</h2>
+
+        <h3>👍 Good candidates</h3>
+        <ul>
+          <li>State needed by many components across different branches of the tree.</li>
+          <li>“App-wide” concerns: auth user, theme, locale, permissions, feature flags.</li>
+          <li>UI state that affects many screens: layout toggles, sidebar state, etc.</li>
+        </ul>
+
+        <h3>⚠️ Not ideal</h3>
+        <ul>
+          <li>Highly local state (only one component needs it): use <code>useState</code>.</li>
+          <li>Very frequent updates affecting many consumers (can cause lots of re-renders).</li>
+          <li>Complex state logic where a reducer or external store might be cleaner (later topics).</li>
+        </ul>
+
+        <div class="callout">
+          💡 Rule of thumb: If you only pass a prop down 1–2 levels, props are usually fine.
+          Context becomes valuable when the tree is deep and/or many siblings need the same data.
+        </div>
+      </section>
+
+      <section>
+        <h2>📝 Quick Recap</h2>
+        <ul>
+          <li>Problem: <strong>prop drilling</strong> (passing props down many levels).</li>
+          <li>Solution: <strong>Context API</strong> broadcasts data without manual prop passing.</li>
+          <li>Provider: shares a <strong>value</strong> to its subtree.</li>
+          <li>Consumers: subscribe/read the value (often via <code>useContext</code>).</li>
+          <li>When value changes: all subscribed consumers <strong>re-render</strong>.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧠 Self-Check (Mini Quiz)</h2>
+        <ol>
+          <li>What is prop drilling in your own words?</li>
+          <li>In Context, what is the Provider responsible for?</li>
+          <li>What is typically inside a context “value” object?</li>
+          <li>What happens to consumers when the context value updates?</li>
+          <li>Give 2 real-world examples of “good context state”.</li>
+        </ol>
+
+        <div class="callout">
+          ✅ If you can answer these without looking, you’re ready to apply Context to WorldWise.
+        </div>
+      </section>
+
+      <section>
+        <h2>📌 Next Step</h2>
+        <p>
+          Next, you will apply Context patterns to reduce prop drilling in larger apps,
+          and learn a powerful pattern for managing shared state cleanly.
+        </p>
+        <p class="muted">
+          Tip: When practicing, keep React DevTools open and watch which components re-render as context values change.
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

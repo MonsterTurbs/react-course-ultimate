@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Query & Advanced Patterns — Client-Side Sorting (Cabins) | Study Guide</title>
+  <style>
+    /*
+      Print-friendly, single-column A4 layout.
+      Notes:
+      - White background
+      - Word wrapping to avoid cut-off when printing
+      - Print CSS for clean PDF output
+    */
+
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f8;
+      --soft2: #fbfbfc;
+      --accent: #1a73e8;
+      --accent2: #0b57d0;
+      --good: #137333;
+      --warn: #b06000;
+      --bad: #b3261e;
+      --codeBg: #0b1020;
+      --codeText: #e7ecff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px 44px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .chip {
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 18px;
+      letter-spacing: -0.1px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 15px;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+
+    ul,
+    ol {
+      margin: 10px 0 10px 20px;
+      padding: 0;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    .card {
+      background: var(--soft2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 12px 12px 12px 14px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.good {
+      border-left-color: var(--good);
+    }
+
+    .callout.warn {
+      border-left-color: var(--warn);
+    }
+
+    .callout.bad {
+      border-left-color: var(--bad);
+    }
+
+    .label {
+      font-weight: 700;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    pre {
+      margin: 10px 0;
+      background: var(--codeBg);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 12px;
+      overflow: auto;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 7px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid.two {
+      grid-template-columns: 1fr;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 18px 0;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .page {
+        padding: 0;
+        max-width: none;
+      }
+
+      a,
+      a:visited {
+        color: var(--text);
+        text-decoration: none;
+      }
+
+      /* Do NOT print link URLs */
+      a[href]:after {
+        content: "";
+      }
+
+      pre {
+        page-break-inside: avoid;
+      }
+
+      .card,
+      .callout {
+        page-break-inside: avoid;
+      }
+
+      h2,
+      h3 {
+        page-break-after: avoid;
+      }
+
+      ul,
+      ol {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>🧭 Client-Side Sorting (Cabins) — Reviewer / Study Guide</h1>
+      <p class="subtitle">Goal: add a reusable <span class="inline-code">SortBy</span> UI that stores sorting state in the URL, then sort cabin data client-side.</p>
+      <div class="meta">
+        <span class="chip">🧩 Reusable UI</span>
+        <span class="chip">🔗 URL state (search params)</span>
+        <span class="chip">⬇️⬆️ Asc/Desc sorting</span>
+        <span class="chip">🧠 Controlled components</span>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>✅ What you’ll build</h2>
+      <ul>
+        <li>📌 A <span class="inline-code">SortBy</span> component (dropdown/select) that you can reuse later (e.g., bookings table).</li>
+        <li>🔗 Persist sorting choice in the URL using <span class="inline-code">useSearchParams</span> so it’s shareable/bookmarkable.</li>
+        <li>🧮 Sort the cabin table based on a combined value like <span class="inline-code">regularPrice-asc</span> or <span class="inline-code">name-desc</span>.</li>
+        <li>🧼 A reusable <span class="inline-code">Select</span> component for consistent dropdown styling in the app.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧩 Key idea</h2>
+      <div class="callout">
+        <p><span class="label">Why URL state?</span> Because the selected sort option becomes part of the URL (query string). If you reload or share the URL, the UI keeps the same sort selection and the table stays consistent.</p>
+        <p class="small">Example query: <span class="inline-code">?discount=with-discount&amp;sortBy=regularPrice-desc</span></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>1) Small improvement to Filter buttons (disabled on active)</h2>
+      <p>Before adding sorting, we quickly fix a UX detail: if a filter option is already active (blue background), it shouldn’t be clickable.</p>
+      <pre><code>// Filter button (idea)
+// When active === true, also pass disabled
+&lt;FilterButton
+  active={currentFilter === option.value}
+  disabled={currentFilter === option.value}
+  onClick={() =&gt; handleClick(option.value)}
+&gt;
+  {option.label}
+&lt;/FilterButton&gt;</code></pre>
+      <div class="callout good">
+        <p><span class="label">✅ Benefit:</span> clearer UI feedback and fewer unnecessary URL updates.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Build the Sort UI</h2>
+      <h3>2.1 Sort options structure</h3>
+      <p>Each option has:</p>
+      <ul>
+        <li><span class="inline-code">value</span>: includes <span class="inline-code">field-direction</span> (2 pieces of info in one string)</li>
+        <li><span class="inline-code">label</span>: human-friendly UI text</li>
+      </ul>
+      <pre><code>// Example options you pass to SortBy
+const sortOptions = [
+  { value: "name-asc", label: "Sort by name (A → Z)" },
+  { value: "name-desc", label: "Sort by name (Z → A)" },
+  { value: "regularPrice-asc", label: "Sort by price (low first)" },
+  { value: "regularPrice-desc", label: "Sort by price (high first)" },
+  { value: "maxCapacity-asc", label: "Sort by capacity (low first)" },
+  { value: "maxCapacity-desc", label: "Sort by capacity (high first)" },
+];</code></pre>
+
+      <div class="callout warn">
+        <p><span class="label">⚠️ Naming tip:</span> use the <em>API/database field names</em> for sorting (e.g., <span class="inline-code">regularPrice</span>, <span class="inline-code">maxCapacity</span>) so your sorting logic matches your data shape.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Create a reusable Select component</h2>
+      <p>Because you’ll need dropdowns many times (sorting, filters, etc.), it’s cleaner to standardize it into a <span class="inline-code">Select</span> component.</p>
+
+      <h3>3.1 Select component responsibilities</h3>
+      <ul>
+        <li>Render a styled <span class="inline-code">&lt;select&gt;</span></li>
+        <li>Receive <span class="inline-code">options</span> array and map to <span class="inline-code">&lt;option&gt;</span></li>
+        <li>Be a <span class="label">controlled component</span> via <span class="inline-code">value</span> + <span class="inline-code">onChange</span></li>
+        <li>Support extra props via <span class="inline-code">...rest</span> (e.g., <span class="inline-code">type="white"</span>)</li>
+      </ul>
+
+      <pre><code>// UI/Select.jsx (conceptual)
+function Select({ options, value, onChange, type, ...rest }) {
+  return (
+    &lt;StyledSelect value={value} onChange={onChange} type={type} {...rest}&gt;
+      {options.map((option) =&gt; (
+        &lt;option value={option.value} key={option.value}&gt;
+          {option.label}
+        &lt;/option&gt;
+      ))}
+    &lt;/StyledSelect&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><span class="label">🧠 Rest props trick:</span> If you want to pass many props to a child element without manually listing them all, accept them as <span class="inline-code">...rest</span> and spread: <span class="inline-code">{...rest}</span>.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) SortBy component: write to URL with useSearchParams</h2>
+      <p>The <span class="inline-code">SortBy</span> component updates the query string field <span class="inline-code">sortBy</span>.</p>
+
+      <pre><code>// SortBy.jsx (conceptual)
+import { useSearchParams } from "react-router-dom";
+
+function SortBy({ options }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const sortBy = searchParams.get("sortBy") || "name-asc";
+
+  function handleChange(e) {
+    searchParams.set("sortBy", e.target.value);
+    setSearchParams(searchParams);
+  }
+
+  return (
+    &lt;Select
+      options={options}
+      value={sortBy}
+      onChange={handleChange}
+      type="white"
+    /&gt;
+  );
+}</code></pre>
+
+      <div class="callout good">
+        <p><span class="label">✅ Result:</span> selecting a value instantly updates the URL, e.g. <span class="inline-code">?sortBy=maxCapacity-desc</span></p>
+      </div>
+
+      <div class="callout warn">
+        <p><span class="label">⚠️ Default selection:</span> If <span class="inline-code">sortBy</span> is missing, you must provide a default (e.g., <span class="inline-code">name-asc</span>) so the table can sort deterministically.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Read URL sort state in CabinTable and sort the data</h2>
+
+      <h3>5.1 Split “field-direction”</h3>
+      <p>We encoded two pieces of information into one string. Now we decode it:</p>
+      <pre><code>const sortBy = searchParams.get("sortBy") || "name-asc";
+const [field, direction] = sortBy.split("-");</code></pre>
+
+      <h3>5.2 Create a direction modifier</h3>
+      <p>JavaScript <span class="inline-code">sort</span> is ascending by default. For descending, flip the result with <span class="inline-code">-1</span>.</p>
+      <pre><code>const modifier = direction === "asc" ? 1 : -1;</code></pre>
+
+      <h3>5.3 Sort AFTER filtering (pipeline)</h3>
+      <p>Typical flow:</p>
+      <ol>
+        <li>Start with <span class="inline-code">cabins</span></li>
+        <li>Apply filter → <span class="inline-code">filteredCabins</span></li>
+        <li>Apply sort → <span class="inline-code">sortedCabins</span></li>
+      </ol>
+
+      <pre><code>// IMPORTANT: copy the array before sorting (avoid mutating original)
+const sortedCabins = [...filteredCabins].sort((a, b) =&gt; {
+  return (a[field] - b[field]) * modifier;
+});</code></pre>
+
+      <div class="callout bad">
+        <p><span class="label">🧨 Common bug:</span> Don’t multiply the array by the modifier. Multiply the <em>numeric comparison result</em> instead.</p>
+        <pre><code>// ❌ wrong
+const sortedCabins = filteredCabins.sort(...) * modifier;
+
+// ✅ correct
+const sortedCabins = [...filteredCabins].sort((a,b) =&gt; (a[field] - b[field]) * modifier);</code></pre>
+      </div>
+
+      <div class="callout warn">
+        <p><span class="label">⚠️ Sorting strings:</span> If the field is <span class="inline-code">name</span> (string), subtraction won’t work. Use <span class="inline-code">localeCompare</span>:</p>
+        <pre><code>const sortedCabins = [...filteredCabins].sort((a, b) =&gt; {
+  if (typeof a[field] === "string")
+    return a[field].localeCompare(b[field]) * modifier;
+
+  return (a[field] - b[field]) * modifier;
+});</code></pre>
+        <p class="small">Some projects avoid this branching by only sorting numeric fields client-side, or by storing a derived numeric key.</p>
+      </div>
+
+      <div class="callout good">
+        <p><span class="label">✅ Outcome:</span> the table instantly reorders based on dropdown selection, and refresh/share keeps the same behavior.</p>
+      </div>
+    </section>
+
+    <hr />
+
+    <section class="card">
+      <h2>🧪 Quick self-check (mini quiz)</h2>
+      <ol>
+        <li>Why is URL-based state useful for sorting/filtering?</li>
+        <li>What two pieces of info do we encode into <span class="inline-code">regularPrice-desc</span>?</li>
+        <li>Why do we often write <span class="inline-code">[...array].sort(...)</span> instead of <span class="inline-code">array.sort(...)</span>?</li>
+        <li>What does the <span class="inline-code">modifier</span> do?</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>📌 Summary</h2>
+      <ul>
+        <li>🧭 <span class="label">Sort UI</span> is a reusable dropdown driven by options.</li>
+        <li>🔗 Sorting choice is stored in the URL via <span class="inline-code">useSearchParams</span>.</li>
+        <li>🧩 We decode the sort string with <span class="inline-code">split("-")</span> → <span class="inline-code">field</span> + <span class="inline-code">direction</span>.</li>
+        <li>🧮 Sort is applied after filtering. Use a modifier (<span class="inline-code">1</span> / <span class="inline-code">-1</span>) to flip direction.</li>
+        <li>🛠️ Build reusable primitives (like <span class="inline-code">Select</span>) for consistency across the app.</li>
+      </ul>
+    </section>
+
+    <footer class="small" style="margin-top: 18px; border-top: 1px solid var(--border); padding-top: 10px;">
+      <div>Print tip: Browser Print → Destination: Save as PDF → Paper size: A4 → Margins: Default.</div>
+      <div>Single-column layout is enforced to avoid cut-off when printing.</div>
+    </footer>
+  </main>
+</body>
+
+</html>

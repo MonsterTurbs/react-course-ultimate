@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Defining Routes and Pages (App Router) — Reviewer & Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --warnbg: #fff7ed;
+      --warnborder: #fdba74;
+      --goodbg: #f0fdf4;
+      --goodborder: #86efac;
+      --codebg: #0b0f14;
+      --codetext: #e8e8e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 20px 52px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.65rem;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.86rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 1.25rem;
+      border-left: 5px solid var(--border);
+      padding-left: 10px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { margin: 8px 0 10px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .box {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+    .box strong { display: inline-block; margin-bottom: 6px; }
+
+    .callout {
+      border-left: 5px solid var(--border);
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    .warn {
+      border-left: 6px solid var(--warnborder);
+      background: var(--warnbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #fed7aa;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 6px solid var(--goodborder);
+      background: var(--goodbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #bbf7d0;
+      margin: 12px 0;
+    }
+
+    .steps {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      margin: 12px 0;
+    }
+    .steps .row {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .steps .row:first-child { border-top: 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .code {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0;
+      background: #fff;
+    }
+    .code .label {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    pre {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow: auto;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      white-space: pre;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    /* Print styles (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      .chip, .box, .callout, .warn, .good, .steps, .code {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .box, .callout, .warn, .good, .steps, .code { break-inside: avoid; }
+      a[href]::after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Defining Routes and Pages (App Router) — Reviewer & Study Guide</h1>
+      <p class="subtitle">Beginner-friendly notes • Single-column • Print-ready (A4) • Icons & emoticons included</p>
+      <div class="meta">
+        <span class="chip">🧭 File-based routing</span>
+        <span class="chip">📁 app/ folder</span>
+        <span class="chip">📄 page.js convention</span>
+        <span class="chip">🧩 URL segments</span>
+        <span class="chip">🛠️ VS Code labels</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Goal: Add routes quickly in Next.js 🎯</h2>
+      <p>
+        You want three routes in your Next.js app:
+        <strong>/cabins</strong>, <strong>/about</strong>, and <strong>/account</strong>.
+        In classic React SPAs, you might use React Router and write lots of setup code.
+        In Next.js (App Router), you usually don’t need routing boilerplate.
+      </p>
+
+      <div class="good">
+        <strong>Big idea:</strong>
+        <p>
+          Routes are created by <strong>folders</strong> and <strong>special file names</strong> inside the <code>app/</code> directory.
+          This is called <strong>file-system based routing</strong>.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) The rule: “Folder = URL segment” 🧩</h2>
+      <p>
+        Think of a URL as being built from segments (parts separated by <code>/</code>).
+        Each segment usually maps to a folder.
+      </p>
+
+      <div class="code">
+        <div class="label">Mental model</div>
+        <pre><code>/cabins          → app/cabins/
+/about           → app/about/
+/account         → app/account/</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Important:</strong>
+        <p>
+          Creating just a folder is not enough. You need a file named <code>page.js</code> in that folder.
+          That file must export a React component.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Create your first route: <code>/cabins</code> 🏕️</h2>
+      <p>
+        Steps:
+      </p>
+
+      <div class="steps" role="region" aria-label="Create /cabins">
+        <div class="row">1) Create folder: <code>app/cabins</code></div>
+        <div class="row">2) Create file: <code>app/cabins/page.js</code></div>
+        <div class="row">3) Export a React component from <code>page.js</code></div>
+      </div>
+
+      <div class="code">
+        <div class="label">app/cabins/page.js (example)</div>
+        <pre><code>export default function Page() {
+  return &lt;h1&gt;This is the cabins page&lt;/h1&gt;;
+}</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>Why this works:</strong>
+        <p>
+          Next.js looks for <code>page.js</code> files inside <code>app/</code>. If it finds one, it creates a route.
+          The exported component is rendered for that route.
+        </p>
+      </div>
+
+      <div class="callout">
+        <strong>Server-side note:</strong>
+        <p>
+          In the App Router, these pages are typically <strong>React Server Components</strong> by default.
+          Meaning: the code can be rendered on the server (more details later in the course).
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Nested route example: <code>/cabins/test</code> 🧪</h2>
+      <p>
+        Want <code>/cabins/test</code>? Create a nested folder inside <code>cabins</code>.
+      </p>
+
+      <div class="code">
+        <div class="label">Folder structure</div>
+        <pre><code>app/
+  cabins/
+    page.js
+    test/
+      page.js</code></pre>
+      </div>
+
+      <div class="code">
+        <div class="label">app/cabins/test/page.js (example)</div>
+        <pre><code>export default function Page() {
+  return &lt;h3&gt;Cabins Test Page&lt;/h3&gt;;
+}</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>Key takeaway:</strong>
+        <p>
+          Each folder adds another segment to the URL.
+          <code>app/cabins/test</code> → <code>/cabins/test</code>
+        </p>
+      </div>
+
+      <div class="warn">
+        <strong>⚠️ This was just a demo:</strong>
+        <p>
+          The lecture deletes this <code>test</code> route afterward since the real app doesn’t need it.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Add the remaining routes: <code>/about</code> and <code>/account</code> 👤</h2>
+      <p>
+        Repeat the same pattern:
+      </p>
+
+      <div class="code">
+        <div class="label">Folder structure (simple routes)</div>
+        <pre><code>app/
+  page.js           → /
+  cabins/
+    page.js         → /cabins
+  about/
+    page.js         → /about
+  account/
+    page.js         → /account</code></pre>
+      </div>
+
+      <div class="grid">
+        <div class="code">
+          <div class="label">app/about/page.js</div>
+          <pre><code>export default function Page() {
+  return &lt;h1&gt;This is about The Wild Oasis&lt;/h1&gt;;
+}</code></pre>
+        </div>
+        <div class="code">
+          <div class="label">app/account/page.js</div>
+          <pre><code>export default function Page() {
+  return &lt;h1&gt;Your account&lt;/h1&gt;;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="code">
+        <div class="label">app/page.js (homepage)</div>
+        <pre><code>export default function Page() {
+  return (
+    &lt;&gt;
+      &lt;h1&gt;The Wild Oasis&lt;/h1&gt;
+      &lt;p&gt;Welcome to paradise.&lt;/p&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>What you can do now:</strong>
+        <p>
+          Type the URLs directly in the browser (<code>/about</code>, <code>/cabins</code>, <code>/account</code>) and each should render.
+        </p>
+      </div>
+
+      <div class="warn">
+        <strong>⚠️ What’s missing (for now):</strong>
+        <p>
+          You still don’t have navigation links between pages yet.
+          That’s covered in the next lecture.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Small VS Code trick: Custom Labels for <code>page.js</code> 🏷️</h2>
+      <p>
+        In App Router projects, you’ll often have many files named <code>page.js</code>.
+        That can get confusing in open tabs.
+      </p>
+
+      <div class="callout">
+        <strong>Idea:</strong>
+        <p>
+          Use a newer VS Code feature called <strong>Custom Labels</strong> to rename how tabs appear.
+          Example: show something like <em>page — cabins</em>, <em>page — account</em>, etc.
+        </p>
+      </div>
+
+      <div class="box">
+        <strong>How it helps:</strong>
+        <ul>
+          <li>Less confusion when many <code>page.js</code> tabs are open 😵‍💫</li>
+          <li>Faster navigation while coding 🧭</li>
+          <li>Better clarity in App Router projects ✅</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Wrap-up: What you learned ✅</h2>
+      <div class="box">
+        <ul>
+          <li>📁 Routes in App Router are created in the <code>app/</code> folder</li>
+          <li>📄 Each route needs a <code>page.js</code> file that exports a component</li>
+          <li>🧩 Nested folders create nested URL segments (e.g., <code>/cabins/test</code>)</li>
+          <li>🧱 Next.js has other conventions too (e.g., <code>layout.js</code>, <code>loading.js</code>, <code>error.js</code>)</li>
+          <li>➡️ Next: learn how to navigate between routes (links) without typing URLs manually</li>
+        </ul>
+      </div>
+    </section>
+
+    <p class="footer" style="color: var(--muted); border-top: 1px solid var(--border); padding-top: 12px; margin-top: 26px; font-size: 0.92rem;">
+      End of reviewer. Next lecture: navigating between routes in Next.js.
+    </p>
+  </main>
+</body>
+</html>

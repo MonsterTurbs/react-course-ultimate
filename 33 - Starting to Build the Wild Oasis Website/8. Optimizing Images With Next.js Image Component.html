@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Image Optimization — Study Guide (Print-Friendly)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --soft2: #fbfbfb;
+      --accent: #0b57d0;
+      --ok: #0f7b2d;
+      --warn: #8a4b00;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .title {
+      font-size: 1.55rem;
+      line-height: 1.2;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      margin: 22px 0 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.02rem;
+      margin: 16px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul { margin: 8px 0 12px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92em;
+    }
+
+    pre {
+      margin: 10px 0 14px;
+      padding: 12px 12px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow-x: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--accent);
+      background: var(--soft2);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+
+    .callout .label {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    /* Keep single-column always (requested). */
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92em;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print rules: A4, clean margins, no link URLs */
+    @media print {
+      @page { size: A4; margin: 14mm 14mm; }
+
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+
+      /* Avoid printing link URLs */
+      a[href]:after { content: "" !important; }
+
+      /* Better page breaks */
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+      pre, .callout, ul, li { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Ensure colors print clearly */
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1 class="title">🖼️ Next.js Image Optimization — Reviewer / Study Guide</h1>
+      <p class="subtitle">Topic: Using Next.js <code>&lt;Image /&gt;</code> to optimize images (logo example) for performance and UX.</p>
+      <div class="meta">
+        <span class="chip">Single-column</span>
+        <span class="chip">A4 print-ready</span>
+        <span class="chip">Beginner-friendly</span>
+        <span class="chip">Next.js App Router context</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Why image optimization matters</h2>
+      <p>
+        ✅ Images are usually the <strong>biggest contributor</strong> to page size. If images are heavy, page loads slow down, which can hurt:
+      </p>
+      <ul>
+        <li>⚡ <strong>Performance</strong> (slower loading, higher bandwidth use)</li>
+        <li>🙂 <strong>User experience</strong> (users leave faster if the page is slow)</li>
+        <li>📈 <strong>SEO</strong> (page speed is a ranking/quality signal in many cases)</li>
+      </ul>
+      <p>
+        Next.js helps by giving you a built-in way to optimize images without manually resizing/compressing them using external tools.
+      </p>
+    </section>
+
+    <section>
+      <h2>2) The key tool: Next.js <code>&lt;Image /&gt;</code> component</h2>
+      <p>
+        Instead of using the native HTML <code>&lt;img&gt;</code>, Next.js provides <code>Image</code> from <code>next/image</code>.
+      </p>
+
+      <div class="callout">
+        <div class="label">🧠 Quick definition</div>
+        <p>
+          <code>&lt;Image /&gt;</code> is a special Next.js component that automatically optimizes images in production.
+          In many cases, you simply replace <code>&lt;img&gt;</code> with <code>&lt;Image&gt;</code> and configure a few props.
+        </p>
+      </div>
+
+      <h3>What <code>&lt;Image /&gt;</code> does (3 major benefits)</h3>
+      <ul>
+        <li>
+          🚀 <strong>Serves correctly-sized images in modern formats</strong> (e.g., WebP) and only when needed (on demand).
+        </li>
+        <li>
+          📏 <strong>Prevents layout shifts</strong> by enforcing known image dimensions (so the page layout doesn’t jump while loading).
+        </li>
+        <li>
+          💤 <strong>Lazy loads by default</strong> (loads images only when they’re about to enter the viewport).
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>3) Basic usage: Replace <code>&lt;img&gt;</code> with <code>&lt;Image&gt;</code></h2>
+      <p>
+        Step 1: import the component.
+      </p>
+      <pre><code>import Image from "next/image";</code></pre>
+
+      <p>
+        Step 2: swap your markup.
+      </p>
+      <pre><code>// Before
+&lt;img src="/logo.png" alt="The Wild Oasis" /&gt;
+
+// After
+&lt;Image src="/logo.png" alt="The Wild Oasis" width={60} height={60} /&gt;</code></pre>
+
+      <div class="callout warn">
+        <div class="label">⚠️ Important</div>
+        <p>
+          If you use a <strong>string</strong> <code>src</code> (e.g., <code>"/logo.png"</code>), Next.js requires <code>width</code> and <code>height</code>.
+          If you omit them, you’ll see an error like “missing required width/height”.
+        </p>
+      </div>
+
+      <h3>What you’ll observe in DevTools</h3>
+      <ul>
+        <li>✅ <code>srcset</code> appears (responsive image variants)</li>
+        <li>✅ <code>loading="lazy"</code> is applied by default</li>
+        <li>✅ extra attributes like decoding may be applied</li>
+      </ul>
+
+      <div class="callout ok">
+        <div class="label">✅ Beginner tip</div>
+        <p>
+          The <code>srcset</code> helps the browser choose the best image size for the device, which reduces wasted downloads.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Alternative usage: Static image import (no mandatory width/height)</h2>
+      <p>
+        Another approach is to <strong>import</strong> the image file first, then use it as the <code>src</code>.
+        This is sometimes called a “statically imported image”.
+      </p>
+
+      <pre><code>import Image from "next/image";
+import logo from "@/public/logo.png";
+
+export default function Logo() {
+  return (
+    &lt;Image
+      src={logo}
+      alt="The Wild Oasis"
+      width={60}
+      height={60}
+    /&gt;
+  );
+}</code></pre>
+
+      <p>
+        ✅ With a static import, Next.js can analyze the file, and <code>width</code>/<code>height</code> are typically not strictly required.
+        However, <strong>you still usually want to set them</strong> (or use another sizing strategy) so the image displays at the intended size.
+      </p>
+
+      <div class="callout">
+        <div class="label">🧩 Why still specify width/height?</div>
+        <p>
+          Without a target size, the image may render at its original dimensions, which can break layout and design consistency.
+          Also, defined dimensions help prevent layout shifts.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Controlling image quality (easy win)</h2>
+      <p>
+        You can control output quality directly in code using the <code>quality</code> prop.
+        This is convenient because you don’t need external image optimization tools.
+      </p>
+
+      <pre><code>&lt;Image
+  src={logo}
+  alt="The Wild Oasis"
+  width={60}
+  height={60}
+  quality={90}
+/&gt;</code></pre>
+
+      <ul>
+        <li>🎚️ Lower quality (e.g., 10) → smaller file, blurrier image</li>
+        <li>🎚️ Higher quality (e.g., 90–100) → sharper image, larger file</li>
+      </ul>
+
+      <div class="callout warn">
+        <div class="label">⚠️ Practical guideline</div>
+        <p>
+          Don’t blindly set <code>quality={100}</code> everywhere. Choose a sensible value based on image type:
+          logos/icons can often be high-quality, but large photos may be fine at 70–85.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) “What happened to my HTML?” (what to expect)</h2>
+      <p>
+        When you inspect the output, you may notice that Next.js generates additional attributes and responsive behavior.
+        That’s expected and is part of the optimization pipeline.
+      </p>
+
+      <div class="callout">
+        <div class="label">🔍 Quick checklist in DevTools</div>
+        <ul>
+          <li>✅ <code>srcset</code> present (responsive sizes)</li>
+          <li>✅ lazy-loading behavior enabled</li>
+          <li>✅ image is served in an optimized format when possible</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Common pitfalls and fixes</h2>
+
+      <h3>Problem: “Missing required width property”</h3>
+      <p>
+        ✅ Fix: If your <code>src</code> is a string path (e.g., <code>"/logo.png"</code>), add both <code>width</code> and <code>height</code>.
+      </p>
+
+      <h3>Problem: image appears too big or wrong size</h3>
+      <p>
+        ✅ Fix: Set explicit dimensions (or apply an intentional sizing strategy). Static import doesn’t automatically mean the rendered size matches your design.
+      </p>
+
+      <h3>Problem: quality looks blurry</h3>
+      <p>
+        ✅ Fix: Raise the <code>quality</code> value (e.g., from 10 to 85/90). Balance size vs clarity.
+      </p>
+
+      <h3>Problem: “Why is this so confusing?”</h3>
+      <p>
+        🧠 The <code>&lt;Image /&gt;</code> API has many options (responsive modes, fill layouts, priorities, placeholders, etc.).
+        Start with the simple pattern used here, then expand as you encounter real needs.
+      </p>
+    </section>
+
+    <section>
+      <h2>8) Quick reviewer: memorize these</h2>
+      <div class="callout ok">
+        <div class="label">✅ Must-remember points</div>
+        <ul>
+          <li>🖼️ Images are often the #1 weight on a webpage → optimize them.</li>
+          <li>📦 Use <code>Image</code> from <code>next/image</code> instead of <code>&lt;img&gt;</code>.</li>
+          <li>📏 String <code>src</code> needs <code>width</code> + <code>height</code> (prevents layout shifts).</li>
+          <li>💤 Lazy loading is automatic (loads when near viewport).</li>
+          <li>🎚️ <code>quality</code> lets you trade off size vs sharpness quickly.</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3>Mini self-check (quick quiz) 🧩</h3>
+      <ul>
+        <li><strong>Q:</strong> Why does Next.js require width/height? <br /><strong>A:</strong> To prevent layout shifts and keep layout stable.</li>
+        <li><strong>Q:</strong> What does lazy loading do? <br /><strong>A:</strong> Loads images only when they’re about to enter the viewport.</li>
+        <li><strong>Q:</strong> What prop changes output file quality? <br /><strong>A:</strong> <code>quality</code>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>9) Practical workflow tip (VS Code)</h2>
+      <p>
+        When testing image optimizations, keep these open:
+      </p>
+      <ul>
+        <li>🧪 Browser DevTools → <strong>Elements</strong> (to see <code>srcset</code>)</li>
+        <li>📡 Browser DevTools → <strong>Network</strong> (to see image file sizes)</li>
+        <li>🧩 Next.js terminal logs (to catch warnings/errors quickly)</li>
+      </ul>
+      <p>
+        Helpful shortcut: use <span class="kbd">Cmd/Ctrl + P</span> in VS Code to quickly open files like <code>components/Logo.js</code> or your header.
+      </p>
+    </section>
+
+  </main>
+</body>
+</html>

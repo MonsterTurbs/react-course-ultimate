@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redux Toolkit — Modeling the Cart State (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --code:#0b1020;
+      --codebg:#f6f8fa;
+      --accent:#0b57d0;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border-bottom:1px solid var(--border);
+      padding-bottom:14px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      font-size: 24px;
+      margin: 0 0 6px;
+      line-height: 1.25;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 14px;
+    }
+
+    h2{
+      font-size: 18px;
+      margin: 22px 0 10px;
+      line-height: 1.3;
+    }
+
+    h3{
+      font-size: 15px;
+      margin: 16px 0 8px;
+      line-height: 1.35;
+    }
+
+    p{ margin: 10px 0; }
+
+    .callout{
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-bottom:4px; }
+
+    ul,ol{ padding-left: 20px; }
+    li{ margin: 6px 0; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .label{ color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--codebg);
+      overflow: hidden;
+      white-space: pre-wrap;       /* IMPORTANT: wraps to avoid cutting when printing */
+      word-break: break-word;
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      color: var(--code);
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .mini{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .divider{ height:1px; background: var(--border); margin: 16px 0; }
+
+    /* Print rules: A4, clean margins, hide URL expansions */
+    @page{ size: A4; margin: 14mm; }
+
+    @media print{
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]::after{ content: "" !important; } /* do NOT print URLs */
+      pre{ page-break-inside: avoid; }
+      .card{ break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🛒 Redux Toolkit — Modeling the Cart State</h1>
+      <p class="subtitle">Reviewer / Study Guide • Focus: how to model a more complex cart slice (reducers + payloads) and connect it to the Redux store.</p>
+    </header>
+
+    <section>
+      <h2>🎯 Learning goals</h2>
+      <ul>
+        <li>Model cart state in a <strong>Redux Toolkit slice</strong> (a “feature folder” approach).</li>
+        <li>Choose <strong>what to store</strong> vs <strong>what to derive</strong> (avoid duplicated/derived state when possible).</li>
+        <li>Implement core cart reducers: <code>addItem</code>, <code>deleteItem</code>, <code>increaseItemQuantity</code>, <code>decreaseItemQuantity</code>, <code>clearCart</code>.</li>
+        <li>Wire the cart reducer into <code>store.js</code>.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>✅ Key idea</strong><br />
+        In Redux, your state shape is your “source of truth.” Keep it minimal and consistent. Derive values like totals when it’s easy, to avoid sync bugs.
+        <span aria-hidden="true">🙂</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>📦 Why a “features” folder is useful</h2>
+      <p>
+        Tailwind section already showed this pattern: a <strong>feature folder</strong> keeps everything related to one feature together (slice, components, hooks, tests).
+        That reduces “jumping around” the project and makes maintenance easier.
+      </p>
+      <ul>
+        <li>📁 <strong>features/cart/</strong> → cart slice + cart UI logic</li>
+        <li>📁 <strong>features/user/</strong> → user slice + user UI logic</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧠 Modeling the cart state</h2>
+      <div class="card">
+        <div class="label">State shape</div>
+        <p><strong>Store only the cart array</strong> as the core state.</p>
+        <pre><code>const initialState = {
+  cart: [],
+};</code></pre>
+        <p class="mini">✅ Simple and predictable. Most cart totals can be computed from this array.</p>
+      </div>
+
+      <h3>🧮 Derived state vs stored state</h3>
+      <ul>
+        <li>✅ Good to <strong>derive</strong>: total cart price, total quantity, number of items.</li>
+        <li>⚠️ Risky to store: totals that must be updated everywhere (easy to get out of sync).</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Small exception (case-by-case)</strong><br />
+        The lecture stores <code>totalPrice</code> per item (quantity × unitPrice). This can be derived too, but storing it can be acceptable if you keep updates centralized in reducers.
+        <span aria-hidden="true">🧩</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧱 Cart item data model</h2>
+      <p>Example item object stored inside <code>state.cart</code>:</p>
+      <pre><code>{
+  pizzaId: 12,
+  name: "Mediterranean",
+  quantity: 2,
+  unitPrice: 16,
+  totalPrice: 32,
+}</code></pre>
+
+      <p class="mini">📌 This shape mirrors the menu API response (id, name, unitPrice), then adds cart-specific fields (quantity, totalPrice).</p>
+    </section>
+
+    <section>
+      <h2>🧰 Cart reducers you need</h2>
+      <p>Think in terms of user actions (operations):</p>
+      <ol>
+        <li>➕ Add an item</li>
+        <li>🗑️ Delete an item</li>
+        <li>⬆️ Increase quantity</li>
+        <li>⬇️ Decrease quantity</li>
+        <li>🧹 Clear the entire cart</li>
+      </ol>
+
+      <div class="callout">
+        <strong>Redux Toolkit reminder</strong><br />
+        In RTK reducers, you can “mutate” state because RTK uses <strong>Immer</strong> under the hood. It produces immutable updates safely.
+        <span aria-hidden="true">✨</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 Implementation (slice code)</h2>
+      <p>Below is a clean, realistic cart slice based on the transcript.</p>
+
+      <pre><code>import { createSlice } from "@reduxjs/toolkit";
+
+const initialState = {
+  cart: [],
+};
+
+const cartSlice = createSlice({
+  name: "cart",
+  initialState,
+  reducers: {
+    addItem(state, action) {
+      // payload: new cart item object
+      state.cart.push(action.payload);
+    },
+
+    deleteItem(state, action) {
+      // payload: pizzaId
+      const pizzaId = action.payload;
+      state.cart = state.cart.filter(item =&gt; item.pizzaId !== pizzaId);
+    },
+
+    increaseItemQuantity(state, action) {
+      // payload: pizzaId
+      const pizzaId = action.payload;
+      const item = state.cart.find(item =&gt; item.pizzaId === pizzaId);
+
+      if (!item) return; // guard
+
+      item.quantity++;
+      item.totalPrice = item.quantity * item.unitPrice;
+    },
+
+    decreaseItemQuantity(state, action) {
+      // payload: pizzaId
+      const pizzaId = action.payload;
+      const item = state.cart.find(item =&gt; item.pizzaId === pizzaId);
+
+      if (!item) return; // guard
+
+      item.quantity--;
+      item.totalPrice = item.quantity * item.unitPrice;
+
+      // Optional improvement (common pattern): remove if quantity hits 0
+      // if (item.quantity === 0) state.cart = state.cart.filter(i =&gt; i.pizzaId !== pizzaId);
+    },
+
+    clearCart(state) {
+      state.cart = [];
+    },
+  },
+});
+
+export const {
+  addItem,
+  deleteItem,
+  increaseItemQuantity,
+  decreaseItemQuantity,
+  clearCart,
+} = cartSlice.actions;
+
+export default cartSlice.reducer;</code></pre>
+
+      <div class="callout">
+        <strong>Payload cheat-sheet</strong><br />
+        ➕ <code>addItem(payload)</code> → payload is an <em>entire item object</em><br />
+        🗑️ <code>deleteItem(payload)</code> → payload is <em>pizzaId</em><br />
+        ⬆️⬇️ <code>increase/decreaseItemQuantity(payload)</code> → payload is <em>pizzaId</em><br />
+        🧹 <code>clearCart()</code> → no payload
+        <span aria-hidden="true">🧠</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧷 Connect the cart slice to the Redux store</h2>
+      <p>
+        After creating the slice, you must register its reducer in <code>store.js</code> so Redux knows it exists.
+      </p>
+
+      <pre><code>import { configureStore } from "@reduxjs/toolkit";
+import userReducer from "./features/user/userSlice";
+import cartReducer from "./features/cart/cartSlice";
+
+export const store = configureStore({
+  reducer: {
+    user: userReducer,
+    cart: cartReducer,
+  },
+});</code></pre>
+
+      <p class="mini">✅ After this, your global state shape becomes: <code>{ user: {...}, cart: { cart: [...] } }</code> (depending on what you named your keys).</p>
+    </section>
+
+    <section>
+      <h2>🧪 Quick practice (mental checklist)</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="label">Check 1</div>
+          <p>Do you store <strong>only</strong> the minimal cart state (array) and derive totals when possible?</p>
+        </div>
+        <div class="card">
+          <div class="label">Check 2</div>
+          <p>Do your reducers match real user actions (add, delete, inc/dec, clear)?</p>
+        </div>
+        <div class="card">
+          <div class="label">Check 3</div>
+          <p>Do you know each reducer’s <strong>payload shape</strong>?</p>
+        </div>
+        <div class="card">
+          <div class="label">Check 4</div>
+          <p>Did you register the reducer in <code>store.js</code>?</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3>🧩 Mini-quiz</h3>
+      <ol>
+        <li>Why is storing <code>totalCartPrice</code> often a bad idea? <span aria-hidden="true">🤔</span></li>
+        <li>What should the payload be for <code>deleteItem</code>?</li>
+        <li>Why can we “mutate” state in RTK reducers?</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>✅ Summary</h2>
+      <ul>
+        <li>Cart slice stores the <strong>cart array</strong> as the core state.</li>
+        <li>Totals are usually <strong>derived</strong>; storing <code>totalPrice</code> per item can be acceptable if synced in reducers.</li>
+        <li>Reducers are modeled from real user actions (add/delete/inc/dec/clear).</li>
+        <li>Finally, register the cart reducer in <code>store.js</code>.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Next lecture preview</strong><br />
+        You’ll start dispatching these actions from the UI to actually add pizzas to the cart.
+        <span aria-hidden="true">🚀</span>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

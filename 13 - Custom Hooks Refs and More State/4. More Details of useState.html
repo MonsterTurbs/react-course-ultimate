@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React useState — Important Details (Initial State, Derived State, Async Updates)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --chip:#f3f4f6;
+
+      --ok:#0a7a2f;
+      --warn:#9a5b00;
+      --bad:#b00020;
+      --info:#0b57d0;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px 60px;
+    }
+
+    header{
+      border-bottom:1px solid var(--border);
+      padding-bottom:14px;
+      margin-bottom:18px;
+    }
+    h1{
+      font-size: 22px;
+      margin: 0 0 8px 0;
+      letter-spacing: 0.2px;
+    }
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      display:inline-block;
+      padding: 6px 10px;
+      border:1px solid var(--border);
+      background:var(--chip);
+      border-radius: 999px;
+      font-size: 12px;
+      color:#222;
+    }
+
+    h2{
+      font-size: 18px;
+      margin: 22px 0 10px;
+    }
+    h3{
+      font-size: 15px;
+      margin: 16px 0 8px;
+    }
+    p{ margin: 10px 0; }
+    ul{
+      margin: 8px 0 8px 18px;
+      padding:0;
+    }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-color: rgba(10,122,47,.35); }
+    .callout.warn{ border-color: rgba(154,91,0,.35); }
+    .callout.bad{ border-color: rgba(176,0,32,.35); }
+    .callout.info{ border-color: rgba(11,87,208,.35); }
+
+    .badge{
+      display:inline-block;
+      font-weight:700;
+      font-size:12px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      margin-right: 6px;
+      white-space: nowrap;
+    }
+    .badge.ok{ color: var(--ok); border-color: rgba(10,122,47,.35); }
+    .badge.warn{ color: var(--warn); border-color: rgba(154,91,0,.35); }
+    .badge.bad{ color: var(--bad); border-color: rgba(176,0,32,.35); }
+    .badge.info{ color: var(--info); border-color: rgba(11,87,208,.35); }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 10px;
+      overflow:auto;
+      font-size: 12.5px;
+      line-height: 1.45;
+      white-space: pre-wrap;  /* Wrap for print */
+      word-break: break-word;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .table{
+      width:100%;
+      border-collapse:collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    .table th, .table td{
+      border:1px solid var(--border);
+      padding:8px 10px;
+      vertical-align: top;
+    }
+    .table th{
+      background: var(--soft);
+      text-align:left;
+    }
+
+    .mini{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* Print settings (A4, clean margins, single column) */
+    @page{
+      size: A4;
+      margin: 14mm 14mm 16mm 14mm;
+    }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width:none; padding: 0; }
+      header{ margin-bottom: 12px; }
+      .chip{ background:#fff; }
+      .callout{ background:#fff; }
+      pre{ page-break-inside: avoid; }
+      h2, h3{ page-break-after: avoid; }
+      .callout{ page-break-inside: avoid; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>⚛️ React <code>useState</code> — Important Details Review</h1>
+      <p class="subtitle">
+        Beginner-friendly notes: initial state runs once, derived state, and why state updates can look “asynchronous” (stale state).
+      </p>
+      <div class="meta">
+        <span class="chip">🪝 Hook: useState</span>
+        <span class="chip">🧠 Key idea: initial value is used only on mount</span>
+        <span class="chip">🧾 Key idea: derived state vs real state</span>
+        <span class="chip">🧪 Experiment: stale state + callback updates</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Core Reminder: <code>useState(initialValue)</code> uses the initial value only once</h2>
+
+      <div class="callout info">
+        <strong><span class="badge info">💡 Rule</span> Initial state is read only on the initial render (mount)</strong><br />
+        React looks at the value you pass to <code>useState(...)</code> only when the component first mounts.
+        On later re-renders, React ignores that “initial value” and uses the stored state instead.
+      </div>
+
+      <h3>Example scenario: “isTop” depends on IMDB rating</h3>
+      <p>
+        You might want a piece of state called <code>isTop</code> which is <code>true</code> when
+        <code>imdbRating &gt; 8</code>.
+      </p>
+
+      <h3>❌ Common mistake</h3>
+      <pre><code>// ❌ Looks reasonable, but can fail in async data scenarios
+const [isTop, setIsTop] = useState(Number(imdbRating) &gt; 8);</code></pre>
+
+      <div class="callout warn">
+        <strong><span class="badge warn">🤔 Why this fails</span></strong>
+        <ul>
+          <li>When the component mounts, the movie data often hasn’t arrived yet.</li>
+          <li>So <code>imdbRating</code> is initially <code>undefined</code>.</li>
+          <li><code>Number(undefined) &gt; 8</code> becomes <code>false</code>.</li>
+          <li>That <code>false</code> becomes the initial state, and it stays that way until you explicitly update it.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Fix Option A: Update the state when the rating changes (using <code>useEffect</code>)</h2>
+      <p>
+        If you truly need <code>isTop</code> as state (usually you don’t), you can sync it when <code>imdbRating</code> changes.
+      </p>
+
+      <pre><code>const [isTop, setIsTop] = useState(false);
+
+useEffect(() =&gt; {
+  if (!imdbRating) return;                 // prevent undefined issues
+  setIsTop(Number(imdbRating) &gt; 8);
+}, [imdbRating]);</code></pre>
+
+      <div class="callout ok">
+        <strong><span class="badge ok">✅ Works</span></strong><br />
+        Now <code>isTop</code> becomes correct after the movie data arrives because the effect re-runs when the rating updates.
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Best Option (Most cases): Use derived state instead of real state</h2>
+      <p>
+        In this case, <code>isTop</code> is fully determined by other data (<code>imdbRating</code>).
+        That means it’s typically better as <span style="font-weight:700;">derived state</span>.
+      </p>
+
+      <pre><code>// ✅ Derived state: recomputed every render
+const isTop = Number(imdbRating) &gt; 8;</code></pre>
+
+      <div class="callout ok">
+        <strong><span class="badge ok">✅ Why derived state is powerful</span></strong>
+        <ul>
+          <li>No extra state to manage.</li>
+          <li>No extra effect needed.</li>
+          <li>Always up-to-date on every render.</li>
+        </ul>
+      </div>
+
+      <div class="callout info">
+        <strong><span class="badge info">💡 Rule of thumb</span></strong><br />
+        If a value can be calculated from existing props/state, prefer derived state instead of storing it in <code>useState</code>.
+      </div>
+    </section>
+
+    <section>
+      <h2>4) State Updates “Feel Async”: You can’t read updated state immediately</h2>
+      <p>
+        Next, the lecture demonstrates a very important behavior:
+        after calling a state setter (like <code>setAvgRating(...)</code>), you cannot assume the state variable changed immediately
+        within the same event handler.
+      </p>
+
+      <h3>Experiment: set state then read it right away</h3>
+      <pre><code>const [avgRating, setAvgRating] = useState(0);
+
+function handleAdd() {
+  setAvgRating(Number(imdbRating));
+  alert(avgRating); // 🚨 still shows the old value
+}</code></pre>
+
+      <div class="callout warn">
+        <strong><span class="badge warn">⚠️ What’s happening</span></strong>
+        <ul>
+          <li>React batches updates and applies them after your event handler finishes.</li>
+          <li>So inside the same handler, <code>avgRating</code> is still the previous value.</li>
+          <li>This is why it looks “asynchronous.”</li>
+        </ul>
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width:34%;">Term</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge info">Stale state</span></td>
+            <td>
+              When you read a state variable that hasn’t been updated yet (because React hasn’t applied the update).
+            </td>
+          </tr>
+          <tr>
+            <td><span class="badge info">Batching</span></td>
+            <td>
+              React groups multiple state updates together for performance and applies them in one go.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>5) When you must use the callback form of <code>setState</code></h2>
+      <p>
+        If your new state depends on the previous state, always use the callback form:
+        <code>setState(prev =&gt; next)</code>.
+      </p>
+
+      <h3>❌ Buggy version (uses stale <code>avgRating</code>)</h3>
+      <pre><code>// ❌ avgRating might still be 0 here (stale)
+setAvgRating((avgRating + userRating) / 2);</code></pre>
+
+      <p class="mini">
+        Example: if <code>avgRating</code> is still 0 and <code>userRating</code> is 10, you get 5 (wrong).
+      </p>
+
+      <h3>✅ Correct version (callback gets the current value)</h3>
+      <pre><code>// ✅ React provides the most up-to-date value
+setAvgRating(currentAvg =&gt; (currentAvg + userRating) / 2);</code></pre>
+
+      <div class="callout ok">
+        <strong><span class="badge ok">✅ Why this works</span></strong><br />
+        React passes the latest state value into the callback, so you never compute from stale data.
+      </div>
+
+      <div class="callout info">
+        <strong><span class="badge info">🧠 Memory tip</span></strong><br />
+        If you see yourself writing <code>setX(x + 1)</code>, pause and ask:
+        “Could <code>x</code> be stale here?” If yes, use <code>setX(prev =&gt; prev + 1)</code>.
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Final recap (what to remember)</h2>
+      <div class="callout">
+        <p><span class="badge info">1</span> The value passed to <code>useState(initial)</code> matters only on mount.</p>
+        <p><span class="badge info">2</span> If a value can be calculated from other state/props, prefer <span style="font-weight:700;">derived state</span>.</p>
+        <p><span class="badge info">3</span> State updates aren’t immediately reflected within the same handler (batching).</p>
+        <p><span class="badge info">4</span> If the next state depends on the previous state, use the callback form: <code>setX(prev =&gt; ...)</code>.</p>
+      </div>
+
+      <div class="callout warn">
+        <strong>➡️ Next topic preview</strong><br />
+        You can also initialize state with a callback (lazy initialization), which is useful for expensive computations.
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:22px; border-top:1px solid var(--border); padding-top:12px;">
+      End of study guide — React useState details (initial state, derived state, stale state, callback updates).
+    </footer>
+  </main>
+</body>
+</html>

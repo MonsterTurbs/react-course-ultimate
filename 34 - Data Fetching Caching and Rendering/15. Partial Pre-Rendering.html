@@ -1,0 +1,403 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Next.js Partial Pre-Rendering (PPR) — Study Guide</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+      --warnbg:#fff7ed;
+      --warnborder:#fed7aa;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, var(--panel));
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+      margin-bottom: 16px;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color:#222;
+    }
+
+    main{ margin-top: 14px; }
+
+    section{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    h2{
+      margin:0 0 10px 0;
+      font-size: 16px;
+    }
+    h3{
+      margin:14px 0 8px 0;
+      font-size: 14px;
+    }
+
+    p{ margin: 8px 0; }
+    ul, ol{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid #111;
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .warn{
+      border: 1px solid var(--warnborder);
+      background: var(--warnbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .key{ font-weight:700; }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px 12px;
+      border-radius: 12px;
+      overflow:auto;
+      border:1px solid #1b2547;
+      white-space: pre-wrap; /* important for printing */
+      word-break: break-word;
+    }
+
+    .diagram{
+      border:1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .table{
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    .table th, .table td{
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+    .table th{
+      text-align: left;
+      background: var(--panel);
+    }
+
+    .mini{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* Print styles: A4, clean margins, no cut-off */
+    @media print{
+      @page{
+        size: A4;
+        margin: 14mm;
+      }
+      body{
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .page{
+        max-width: none;
+        padding: 0;
+      }
+      header, section{
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      pre, table, .diagram{
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #000;
+      }
+      .chip, .table th, .table td{ border-color:#000; }
+      .callout{ border-left-color:#000; }
+      .warn{ border-color:#000; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 Partial Pre-Rendering (PPR) in Next.js</h1>
+      <p class="sub">
+        Reviewer / study guide: a future-focused rendering strategy that mixes static + dynamic content in the same route using React Suspense.
+      </p>
+      <div class="meta">
+        <span class="chip">⚖️ Mix: Static + Dynamic</span>
+        <span class="chip">🧠 Concept: “Static shell + dynamic holes”</span>
+        <span class="chip">⏳ Status: Experimental in the lecture</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>✅ What problem is PPR trying to solve?</h2>
+        <p>
+          In classic Next.js behavior, each <span class="key">route</span> is either <span class="key">static</span> or <span class="key">dynamic</span>.
+          That can be wasteful when only a small part of a page truly needs request-time data.
+        </p>
+
+        <div class="callout">
+          <p>💡 Example from the lecture: A mostly-static website where only the navbar shows the currently logged-in user’s name.</p>
+          <p class="mini">Without PPR, that tiny “username” requirement can force the entire route to be dynamically rendered.</p>
+        </div>
+
+        <p>
+          <span class="key">Partial Pre-Rendering</span> allows a single route to be a blend: e.g., <span class="key">80% static</span> + <span class="key">20% dynamic</span>.
+          You keep the speed benefits of static pages while still supporting small dynamic pieces.
+        </p>
+      </section>
+
+      <section>
+        <h2>🧠 Definition (simple and memorable)</h2>
+        <ul>
+          <li>🟢 <span class="key">Pre-rendering</span> = render ahead of time (static)</li>
+          <li>🧩 <span class="key">Partial</span> = only some parts are pre-rendered</li>
+          <li>🟣 The remaining parts are rendered dynamically and <span class="key">streamed</span> into the page</li>
+        </ul>
+
+        <div class="callout">
+          <p>🧷 One-liner: PPR = <span class="key">static shell</span> first, then stream in <span class="key">dynamic parts</span> to fill the holes.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>⚙️ How PPR works (the “shell + holes” mental model)</h2>
+        <div class="row">
+          <div>
+            <h3>Step-by-step flow</h3>
+            <ol>
+              <li>🚀 A <span class="key">fully static shell</span> is served from the CDN as fast as possible.</li>
+              <li>🧱 The shell contains <span class="key">holes</span> where dynamic content will appear.</li>
+              <li>🖥️ Meanwhile, the server starts rendering the dynamic parts (slower than sending the shell).</li>
+              <li>📡 As soon as results are ready, the server <span class="key">streams</span> the dynamic HTML/segments to the client.</li>
+              <li>✅ The client fills the holes, replacing placeholders with real dynamic content.</li>
+            </ol>
+          </div>
+
+          <div>
+            <h3>Visual sketch (ASCII)</h3>
+            <div class="diagram" aria-label="PPR flow diagram">
+              <div><span class="key">CDN</span> → sends static shell quickly</div>
+              <div style="margin:8px 0;">
+                <span class="key">Static Shell</span> = [Header] [Content] [ ⬜ Hole A ] [ ⬜ Hole B ]
+              </div>
+              <div><span class="key">Server</span> → renders dynamic parts</div>
+              <div>📡 Streams: Hole A content → client</div>
+              <div>📡 Streams: Hole B content → client</div>
+              <div style="margin-top:8px;">✅ Final page: [Header] [Content] [Dynamic A] [Dynamic B]</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout">
+          <p>📌 Result: pages can be mostly delivered from the edge (CDN) even when there are small dynamic requirements.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🔄 Why PPR is a big deal</h2>
+        <p>
+          The lecture’s main point is that PPR prevents the “all or nothing” situation where one tiny dynamic piece forces the entire route to become dynamic.
+        </p>
+        <ul>
+          <li>⚡ Faster initial load (static shell from CDN)</li>
+          <li>📉 Less server work compared to fully dynamic pages</li>
+          <li>🧠 Better developer control over what becomes dynamic</li>
+          <li>🧩 Plays nicely with React Server Components + streaming</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Status in the lecture</h2>
+        <div class="warn">
+          <p>⚠️ In the lecture, PPR is described as <span class="key">not production-ready</span> (at the time of recording), and the instructor notes that as of Next.js 14 it wasn’t really usable in production.</p>
+          <p class="mini">Practical tip: Always check the official Next.js docs for the current status before using PPR in a real app.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🛠️ How you will implement PPR (conceptually)</h2>
+        <p>
+          PPR is designed to be an <span class="key">opt-in</span> feature. In the future, you may enable it in <code>next.config.js</code>.
+          Once enabled, Next.js still tries to statically render as much as possible (static rendering remains the default).
+        </p>
+
+        <h3>Core technique: wrap dynamic parts in <code>&lt;Suspense&gt;</code></h3>
+        <p>
+          Instead of letting a dynamic component (e.g., using cookies or an uncached request) make the entire route dynamic,
+          you isolate it inside a Suspense boundary.
+        </p>
+
+        <pre><code>// Conceptual example
+// The page can be mostly static, but the user section is dynamic.
+
+import { Suspense } from 'react';
+
+function UserNavDynamic() {
+  // Example: cookies() or request-specific data
+  // This part is dynamic
+  return &lt;span&gt;Hello, Reymond&lt;/span&gt;;
+}
+
+export default function Page() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Mostly Static Page&lt;/h1&gt;
+
+      &lt;Suspense fallback={&lt;span&gt;👤 Loading user...&lt;/span&gt;}&gt;
+        &lt;UserNavDynamic /&gt;
+      &lt;/Suspense&gt;
+
+      &lt;p&gt;This content can be pre-rendered at build time.&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout">
+          <p>✅ Why Suspense makes sense: it creates a clear boundary so dynamic behavior doesn’t “spread” and force the rest of the route to become dynamic.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧱 The “holes” are just Suspense boundaries</h2>
+        <p>
+          In the PPR model from the lecture:
+        </p>
+        <ul>
+          <li>🟢 The <span class="key">static shell</span> is what Next.js can pre-render immediately.</li>
+          <li>⬜ The <span class="key">holes</span> are the Suspense regions containing dynamic components/subtrees.</li>
+          <li>🧩 The <span class="key">fallback</span> is the placeholder rendered instantly while dynamic content is rendering.</li>
+          <li>📡 After rendering finishes, dynamic content is streamed and replaces the fallback.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧯 Common misconceptions (quick clarifications)</h2>
+        <table class="table" aria-label="PPR misconceptions">
+          <thead>
+            <tr>
+              <th>Misconception</th>
+              <th>Reality</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>“PPR means the whole page is dynamic.”</td>
+              <td>No — the point is that <span class="key">most</span> can be static; only isolated parts are dynamic.</td>
+            </tr>
+            <tr>
+              <td>“I need to learn a new Next.js API.”</td>
+              <td>PPR leverages <span class="key">React Suspense</span>, which you already know.</td>
+            </tr>
+            <tr>
+              <td>“If I use cookies in one component, the whole route must be dynamic.”</td>
+              <td>With PPR, cookies/header-based components can be isolated in Suspense boundaries (conceptually).</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>🧾 Summary (memorize this)</h2>
+        <ul>
+          <li>⚖️ PPR is a middle ground between fully static and fully dynamic rendering.</li>
+          <li>🧱 Serve a static shell quickly from the CDN.</li>
+          <li>⬜ Leave holes for dynamic parts; stream them in later.</li>
+          <li>🧩 Use <code>&lt;Suspense&gt;</code> to isolate dynamic subtrees and prevent “dynamic spreading.”</li>
+          <li>⏳ Check docs for availability/stability before using in production.</li>
+        </ul>
+      </section>
+
+      <p class="mini" style="margin-top:12px;">
+        End of reviewer. Print tip: Use your browser’s Print dialog and set paper to A4 (margins are already configured in CSS).
+      </p>
+    </main>
+  </div>
+</body>
+</html>

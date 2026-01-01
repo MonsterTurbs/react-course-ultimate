@@ -1,0 +1,494 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Destructuring Objects and Arrays (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 20px 44px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .muted { color: var(--muted); }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-right: 6px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th { background: var(--soft); }
+
+    /* Screen links are fine, but never print URLs */
+    a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      .toolbar { display: none !important; }
+
+      /* Don’t print any URL after links */
+      a[href]:after { content: "" !important; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 Destructuring Objects and Arrays — Reviewer / Study Guide</h1>
+      <p class="subtitle">Learn how to quickly extract values from objects and arrays (a daily React skill). Includes Quokka setup, examples, and practice tasks. A4 print-ready.</p>
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Single-column, word-wrapped, designed for clean A4 printing (no URLs printed).</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Table of Contents</strong>
+        <ol>
+          <li><a href="#setup">Setup used in the lecture (JS Review folder + starter script)</a></li>
+          <li><a href="#quokka">Run JS inside VS Code with Quokka</a></li>
+          <li><a href="#what">What is destructuring?</a></li>
+          <li><a href="#object">Object destructuring (most common in React)</a></li>
+          <li><a href="#array">Array destructuring (order matters)</a></li>
+          <li><a href="#common">Common mistakes & fixes</a></li>
+          <li><a href="#react">Where you’ll see this in React</a></li>
+          <li><a href="#practice">Practice drills</a></li>
+          <li><a href="#self-check">Quick self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="setup">
+      <h2>📁 Setup used in the lecture</h2>
+      <p>
+        The instructor creates a folder (e.g., <span class="pill">JavaScript Review</span>) and copies a starter file (e.g., <code>script.js</code>) into it.
+        That starter file contains:
+      </p>
+      <ul>
+        <li>📚 An array of book objects (title, author, pages, genres, etc.)</li>
+        <li>🧪 Helper functions like <code>getBooks()</code> (returns the array) and <code>getBook(id)</code> (returns one book)</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Why this data?</strong> ✅</p>
+        <p class="muted">
+          It simulates “data from an API.” In React, you constantly receive objects/arrays and you often need to extract specific fields.
+        </p>
+      </div>
+    </section>
+
+    <section id="quokka">
+      <h2>⚡ Run JavaScript inside VS Code with Quokka</h2>
+      <p>
+        Instead of attaching JS to an HTML file, the lecture uses the <strong>Quokka</strong> extension to execute JavaScript directly in VS Code.
+      </p>
+
+      <h3>Steps (as shown in the lecture) 🧭</h3>
+      <ol>
+        <li>Install the extension: <strong>Quokka</strong></li>
+        <li>Open the Command Palette <span class="pill">(very useful shortcut)</span></li>
+        <li>Type <code>Quokka</code> → choose <strong>Start on Current File</strong></li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>What you’ll see</strong> 👀</p>
+        <ul>
+          <li>📥 Output panel (Quokka console)</li>
+          <li>🧷 Values shown inline (next to expressions)</li>
+          <li>🗂️ Objects/arrays are easy to inspect in the sidebar</li>
+        </ul>
+      </div>
+
+      <p class="muted">Example: printing a variable in Quokka can be as simple as writing the variable name:</p>
+      <pre><code>const books = getBooks();
+books; // Quokka shows the array</code></pre>
+    </section>
+
+    <section id="what">
+      <h2>🧠 What is destructuring?</h2>
+      <p>
+        <strong>Destructuring</strong> is a JavaScript feature that lets you quickly “unpack” values from:
+      </p>
+      <ul>
+        <li>🧱 Objects (by property name)</li>
+        <li>🧺 Arrays (by position / order)</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Why it matters</strong> ✅</p>
+        <p class="muted">
+          Without destructuring, extracting many fields becomes repetitive (and messy). With destructuring, you can create multiple variables in one line.
+        </p>
+      </div>
+    </section>
+
+    <section id="object">
+      <h2>🧱 Object destructuring</h2>
+      <p>
+        When you destructure an object, you use <strong>curly braces</strong> <code>{ }</code>.
+        The key rule: the variable names must match the object’s property names (unless you rename).
+      </p>
+
+      <h3>Without destructuring (more typing) ✍️</h3>
+      <pre><code>const book = getBook(2);
+
+const title = book.title;
+const author = book.author;
+// ...more lines for more properties</code></pre>
+
+      <h3>With destructuring (cleaner) ✅</h3>
+      <pre><code>const book = getBook(2);
+
+const { title, author } = book;
+// title and author are now variables</code></pre>
+
+      <div class="callout">
+        <p><strong>Important rule</strong> ⚠️</p>
+        <p class="muted">
+          If you write <code>{ titles }</code> but the object property is <code>title</code>, you’ll get <code>undefined</code>.
+          Object destructuring is name-based.
+        </p>
+      </div>
+
+      <h3>Extracting multiple fields (like the lecture) 📚</h3>
+      <pre><code>const book = getBook(2);
+
+const {
+  title,
+  author,
+  pages,
+  publicationDate,
+  genres,
+  hasMovieAdaptation
+} = book;</code></pre>
+
+      <p class="muted">
+        This pattern is very common after fetching data from an API: you get a big object, but you only use a handful of properties.
+      </p>
+
+      <h3>Bonus: Renaming while destructuring (optional but useful) ✨</h3>
+      <pre><code>const { publicationDate: pubDate } = book;
+// Now you use pubDate instead of publicationDate</code></pre>
+    </section>
+
+    <section id="array">
+      <h2>🧺 Array destructuring</h2>
+      <p>
+        When you destructure an array, you use <strong>square brackets</strong> <code>[ ]</code>.
+        The key rule: array destructuring depends on the <strong>order</strong> of elements.
+      </p>
+
+      <h3>Example (genres ordered by importance) 🏷️</h3>
+      <p class="muted">
+        Imagine <code>genres</code> is ordered like this: first genre = primary, second genre = secondary.
+      </p>
+
+      <h3>Without destructuring (index access) 🔢</h3>
+      <pre><code>const primaryGenre = genres[0];
+const secondaryGenre = genres[1];</code></pre>
+
+      <h3>With array destructuring ✅</h3>
+      <pre><code>const [primaryGenre, secondaryGenre] = genres;
+console.log(primaryGenre, secondaryGenre);</code></pre>
+
+      <div class="callout">
+        <p><strong>Array destructuring cheat code</strong> 🧠</p>
+        <p class="muted">
+          First variable gets element #1, second variable gets element #2, and so on.
+        </p>
+      </div>
+
+      <h3>Skipping positions (optional) ⏭️</h3>
+      <pre><code>// Skip the first genre, grab the second and third
+const [, second, third] = genres;</code></pre>
+    </section>
+
+    <section id="common">
+      <h2>🛠️ Common mistakes & fixes</h2>
+
+      <table aria-label="Common destructuring mistakes">
+        <thead>
+          <tr>
+            <th>Mistake</th>
+            <th>What happens</th>
+            <th>Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>❌ Wrong property name in object destructuring</td>
+            <td>You get <code>undefined</code></td>
+            <td>✅ Match the exact property name (or rename properly)</td>
+          </tr>
+          <tr>
+            <td>❌ Using <code>{ }</code> for arrays</td>
+            <td>Syntax/logic error</td>
+            <td>✅ Arrays use <code>[ ]</code>, objects use <code>{ }</code></td>
+          </tr>
+          <tr>
+            <td>❌ Assuming array destructuring is name-based</td>
+            <td>Wrong values assigned</td>
+            <td>✅ Arrays are order-based</td>
+          </tr>
+          <tr>
+            <td>❌ Destructuring from <code>undefined</code></td>
+            <td>Runtime error (cannot destructure…)</td>
+            <td>✅ Make sure the object/array exists (or use defaults)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Defaults (optional safety net) 🧯</h3>
+      <pre><code>// Object defaults
+const { title = "(No title)" } = book;
+
+// Array defaults
+const [first = "(none)"] = genres;</code></pre>
+    </section>
+
+    <section id="react">
+      <h2>⚛️ Where you’ll see destructuring in React</h2>
+      <ul>
+        <li><strong>Props</strong> 📦
+          <pre><code>function Pizza({ name, price }) {
+  return &lt;p&gt;{name} — {price}&lt;/p&gt;;
+}</code></pre>
+        </li>
+        <li><strong>Hooks</strong> 🪝
+          <pre><code>const [count, setCount] = useState(0);
+const [isOpen, setIsOpen] = useState(false);</code></pre>
+        </li>
+        <li><strong>API responses</strong> 🌐
+          <pre><code>const res = await fetch("/api/book/2");
+const data = await res.json();
+const { title, author } = data;</code></pre>
+        </li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>React developer reality</strong> ✅</p>
+        <p class="muted">
+          Destructuring isn’t just “nice to have” — it’s one of the most common patterns you’ll write every day.
+        </p>
+      </div>
+    </section>
+
+    <section id="practice">
+      <h2>🏋️ Practice drills</h2>
+      <ol>
+        <li>
+          <strong>Object destructuring:</strong> From a <code>book</code> object, extract <code>title</code>, <code>pages</code>, and <code>hasMovieAdaptation</code>.
+        </li>
+        <li>
+          <strong>Rename:</strong> Extract <code>publicationDate</code> into a variable named <code>pubDate</code>.
+        </li>
+        <li>
+          <strong>Array destructuring:</strong> From <code>genres</code>, extract the first 2 genres into <code>primary</code> and <code>secondary</code>.
+        </li>
+        <li>
+          <strong>Skip items:</strong> Extract only the 2nd genre.
+        </li>
+        <li>
+          <strong>Challenge:</strong> Get a book using <code>getBook(2)</code>, destructure needed fields, then log a sentence using template literals.
+          <span class="muted">Example output idea:</span> “The book TITLE by AUTHOR has PAGES pages.”
+        </li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>Tip</strong> 💡</p>
+        <p class="muted">
+          Use Quokka to experiment quickly and see results immediately.
+        </p>
+      </div>
+    </section>
+
+    <section id="self-check">
+      <h2>📝 Quick self-check</h2>
+      <ol>
+        <li>What’s the difference between object vs array destructuring?</li>
+        <li>Why does <code>const { titles } = book</code> produce <code>undefined</code>?</li>
+        <li>In array destructuring, what determines which value goes into which variable?</li>
+        <li>Where have you already seen destructuring in React code?</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>✅ If you can answer these, you’re ready for the next JS topic.</strong> 😄</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>
+        Reviewer generated from the provided transcript. Designed for clean A4 printing (single column, word-wrapped).
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

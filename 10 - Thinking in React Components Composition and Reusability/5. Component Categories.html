@@ -1,0 +1,372 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Component Categories (Presentational, Stateful, Structural)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      line-height: 1.25;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 8px;
+      line-height: 1.25;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 6px;
+      line-height: 1.25;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 8px 20px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 4px solid #111;
+      background: #fff;
+      padding: 12px 12px 12px 14px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout .title {
+      margin: 0 0 6px;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 12px 10px;
+      background: #fff;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .kpi {
+      display: inline-block;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--soft);
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .checklist li { margin: 8px 0; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    /* Print (A4) */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; max-width: none; }
+      header, .card, .callout, pre {
+        border-color: #d7d7d7;
+        background: #fff;
+        box-shadow: none;
+      }
+      .chip { border-color: #d7d7d7; background: #fff; }
+      a { color: inherit; text-decoration: none; }
+      a::after { content: "" !important; } /* prevents printing URLs */
+      pre { page-break-inside: avoid; }
+      .card { page-break-inside: avoid; }
+      h2, h3 { page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 React Component Categories</h1>
+      <p class="subtitle">Study guide on <strong>presentational</strong>, <strong>stateful</strong>, and <strong>structural</strong> components — with beginner-friendly explanations and examples.</p>
+      <div class="meta">
+        <span class="chip">Single-column • A4 print-ready</span>
+        <span class="chip">Topic: Thinking in React (Components & Reusability)</span>
+        <span class="chip">Key idea: Don’t force categories</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>🎯 What this lecture is really saying</h2>
+      <p>
+        In real React codebases, components often <strong>naturally</strong> fall into three categories:
+        <span class="kpi">Presentational</span>, <span class="kpi">Stateful</span>, and <span class="kpi">Structural</span>.
+        These are not strict rules — they’re a helpful mental model.
+      </p>
+
+      <div class="callout">
+        <p class="title">✅ Important reminder</p>
+        <p>
+          You should <strong>not</strong> force every component into a box. A component can evolve over time,
+          and it can also mix concerns (especially in smaller apps).
+        </p>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>1) 🎨 Stateless / Presentational Components</h2>
+      <p>
+        These components usually have <strong>no local state</strong>. They receive data via <code>props</code>
+        (or <code>children</code>) and focus on <strong>displaying UI</strong>.
+      </p>
+      <ul class="checklist">
+        <li>🧾 They <strong>present</strong> data (UI only).</li>
+        <li>📦 Often small and easy to reuse.</li>
+        <li>🧠 Easier to test (output depends mostly on props).</li>
+      </ul>
+
+      <div class="card">
+        <h3>Example: simple presentational component</h3>
+        <pre><code>function NumResults({ movies }) {
+  return (
+    &lt;p className="num-results"&gt;
+      Found &lt;strong&gt;{movies.length}&lt;/strong&gt; results
+    &lt;/p&gt;
+  );
+}</code></pre>
+        <p class="subtitle">No state. It receives <code>movies</code> and renders text.</p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Common examples in your “usePopcorn” refactor</h3>
+          <ul>
+            <li>🧩 <code>Logo</code></li>
+            <li>📊 <code>NumResults</code></li>
+            <li>🎞️ <code>Movie</code> (list item renderer)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>2) 🧠 Stateful Components</h2>
+      <p>
+        These components contain <strong>state</strong> (e.g., <code>useState</code>) and often handle events.
+        The key point: <strong>stateful does NOT mean “not reusable”</strong>.
+      </p>
+
+      <div class="callout">
+        <p class="title">💡 Beginner-friendly way to spot state</p>
+        <p>
+          If the UI should change after a user action (typing, clicking, selecting), you likely need state somewhere.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Example: stateful input (still reusable)</h3>
+        <pre><code>function Search({ query, onSetQuery }) {
+  return (
+    &lt;input
+      className="search"
+      value={query}
+      onChange={(e) =&gt; onSetQuery(e.target.value)}
+      placeholder="Search movies..."
+    /&gt;
+  );
+}</code></pre>
+        <p class="subtitle">Even though it’s interactive, it can be reused anywhere you need a search input.</p>
+      </div>
+
+      <h3>Practical notes</h3>
+      <ul>
+        <li>🔁 Stateful components often <strong>coordinate behavior</strong> (e.g., “open/close”, “selected item”).</li>
+        <li>🧩 They can still be small (stateful does not automatically mean “big”).</li>
+        <li>🧱 They often sit near the data that they control (or they get that data via props).</li>
+      </ul>
+
+      <div class="hr"></div>
+
+      <h2>3) 🏗️ Structural Components</h2>
+      <p>
+        Structural components provide <strong>structure</strong> to your app: pages, layouts, or screens.
+        They’re often built by <strong>composing</strong> smaller components.
+      </p>
+      <ul class="checklist">
+        <li>🧱 They arrange components (layout composition).</li>
+        <li>📌 They may be larger and less reusable (and that can be totally fine).</li>
+        <li>🧭 Often represent parts of the UI like “Main”, “Sidebar”, “Page”, “Layout”.</li>
+      </ul>
+
+      <div class="card">
+        <h3>Example: structural composition</h3>
+        <pre><code>function MainLayout() {
+  return (
+    &lt;main className="main"&gt;
+      &lt;ListBox /&gt;
+      &lt;WatchedBox /&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+        <p class="subtitle">This component mainly composes other components to create an app “screen”.</p>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>🧠 Quick “Which category is this?” checklist</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Presentational</h3>
+          <ul>
+            <li>✅ Mostly UI rendering</li>
+            <li>✅ Depends on props/children</li>
+            <li>✅ Little or no state</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Stateful</h3>
+          <ul>
+            <li>✅ Has state (useState, etc.)</li>
+            <li>✅ Handles user interaction</li>
+            <li>✅ May still be reusable</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Structural</h3>
+          <ul>
+            <li>✅ Composes many components</li>
+            <li>✅ Defines page/layout structure</li>
+            <li>✅ Often “screen-level”</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p class="title">🧩 Key takeaway</p>
+        <p>
+          You can think of these categories as roles in a team:
+          <strong>presentational</strong> components “display”,
+          <strong>stateful</strong> components “coordinate behavior”,
+          and <strong>structural</strong> components “compose the app layout”.
+        </p>
+      </div>
+
+      <h2>✅ Mini recap</h2>
+      <ul>
+        <li>🎨 <strong>Presentational</strong>: display-only (props in → UI out).</li>
+        <li>🧠 <strong>Stateful</strong>: manages state and interactions (still can be reusable).</li>
+        <li>🏗️ <strong>Structural</strong>: pages/layout/screens built by composition.</li>
+      </ul>
+
+      <p class="subtitle">
+        Tip: As your app grows, structural components become more common (layouts, pages, screens),
+        while presentational components remain the building blocks.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

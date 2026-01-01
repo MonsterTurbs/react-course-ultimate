@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — The Mechanics of State (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codefg: #e6edf3;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 20px 56px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 14px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul { margin: 10px 0 0; padding-left: 18px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid #111;
+      padding: 10px 12px;
+      background: var(--soft);
+      border-radius: 10px;
+    }
+
+    .callout p { margin: 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      overflow: auto;
+      font-size: 12.5px;
+      line-height: 1.5;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .mini {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* Print (A4) */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+
+      /* Keep sections tidy across pages */
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Don’t print link URLs */
+      a[href]:after { content: "" !important; }
+
+      /* Avoid clipped code */
+      pre { white-space: pre-wrap; word-break: break-word; overflow: visible; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>⚙️ React — The Mechanics of State</h1>
+      <p class="subtitle">Reviewer / study guide (beginner-friendly) — how state updates cause re-renders (and why React is called “React”).</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: State + Re-rendering</span>
+        <span class="chip">🧠 Key skill: Mental model</span>
+        <span class="chip">✅ Goal: Predict UI updates</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Learning goals</h2>
+        <ul>
+          <li>Explain how React updates the UI <em>without manually manipulating the DOM</em>.</li>
+          <li>Understand what “re-render” means in practice (React calls your component function again).</li>
+          <li>Know when state resets (hint: unmounting).</li>
+          <li>Build the correct habit: <strong>“To update the view, update the state.”</strong> 🙂</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧩 Two fundamental principles (from first principles)</h2>
+        <div class="grid">
+          <div class="box">
+            <div class="label">1) React is declarative (not imperative)</div>
+            <p>✅ In React, you typically <strong>do not</strong> do DOM operations like:</p>
+            <ul>
+              <li><code>document.querySelector(...)</code></li>
+              <li><code>addEventListener(...)</code></li>
+              <li><code>element.textContent = ...</code></li>
+              <li><code>classList.add(...)</code></li>
+            </ul>
+            <p class="mini">Instead, you describe what the UI should look like based on data.</p>
+          </div>
+
+          <div class="box">
+            <div class="label">2) React updates the view by re-rendering</div>
+            <p>✅ When underlying data changes, React updates the view by <strong>re-rendering the component</strong>.</p>
+            <p class="mini">Conceptually: React “recomputes” the UI by calling the component again and producing fresh JSX.</p>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="callout">
+          <p><strong>Key idea 🧠:</strong> A “re-render” basically means <strong>React calls your component function again</strong> to get new JSX.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🔁 The state → re-render → updated view loop</h2>
+        <p>Here’s the mental model you should memorize (it will make React feel much less “magical”).</p>
+
+        <pre><code>USER ACTION (e.g., click) 
+   ↓
+EVENT HANDLER runs
+   ↓
+setState(...) updates state
+   ↓
+React notices state changed
+   ↓
+React re-renders component (calls it again)
+   ↓
+New JSX is produced
+   ↓
+Updated view appears on screen 🙂
+</code></pre>
+
+        <h3>What does React “preserve”?</h3>
+        <ul>
+          <li>✅ React preserves <strong>state</strong> across re-renders.</li>
+          <li>✅ Local variables inside the component function are <strong>re-created</strong> on each render (unless they are state, refs, etc.).</li>
+        </ul>
+
+        <h3>When does state reset?</h3>
+        <ul>
+          <li>State usually resets when the component <strong>disappears from the UI entirely</strong>.</li>
+          <li>This is called <strong>unmounting</strong>. (Think: the component is removed from the component tree.)</li>
+        </ul>
+
+        <div class="callout">
+          <p><strong>Shortcut 💡:</strong> <em>Re-render = component function runs again.</em> <em>Unmount = component removed → state reset.</em></p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Tiny example: why clicking changes what you see</h2>
+        <p>When you call the setter from <code>useState</code>, React “reacts” by re-rendering.</p>
+
+        <pre><code>import { useState } from "react";
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  function handleClick() {
+    setCount(count + 1);
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
+      &lt;button onClick={handleClick}&gt;Increase&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+        <ul>
+          <li>Click happens → <code>handleClick</code> runs 🖱️</li>
+          <li><code>setCount(...)</code> updates state ✅</li>
+          <li>React re-renders <code>Counter()</code> 🔁</li>
+          <li>New JSX shows updated <code>count</code> 🎉</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>📌 Real example from earlier: “Advice App”</h2>
+        <p>The same mechanism applies even when data comes from an API:</p>
+        <ul>
+          <li>User clicks <strong>Get Advice</strong> 🖱️</li>
+          <li>App fetches advice from an API 🌐</li>
+          <li>When the response arrives, we store it in state (e.g., <code>setAdvice(newAdvice)</code>) ✅</li>
+          <li>React sees state changed and re-renders → UI shows the new advice ✨</li>
+        </ul>
+
+        <div class="callout">
+          <p><strong>Remember 🙂:</strong> React keeps the UI in sync with data by re-rendering when state changes.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>✅ The “React Developer” rule of thumb</h2>
+        <div class="box">
+          <p><strong>Whenever you want to update a component’s view, update its state.</strong></p>
+          <p class="mini">React will then do its thing (re-render) — no manual DOM work needed.</p>
+        </div>
+
+        <h3>Why is it called React?</h3>
+        <p>Because the library <strong>reacts</strong> to state changes by re-rendering the UI. 🤓</p>
+      </section>
+
+      <section>
+        <h2>📝 Quick self-check (mini quiz)</h2>
+        <ol>
+          <li><strong>What is a re-render?</strong> (Answer: React calls the component function again to produce fresh JSX.)</li>
+          <li><strong>What triggers a re-render?</strong> (Answer: Updating state, among other triggers.)</li>
+          <li><strong>When does component state reset?</strong> (Answer: Typically when the component unmounts.)</li>
+          <li><strong>Do we update the DOM directly in React?</strong> (Answer: Usually no; React is declarative.)</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>⚠️ Common beginner misunderstandings</h2>
+        <ul>
+          <li><strong>“If I change a local variable, the UI should update.”</strong> ❌
+            <br><span class="mini">Local variables reset each render; React doesn’t know it should re-render.</span>
+          </li>
+          <li><strong>“React changes the DOM directly like jQuery.”</strong> ❌
+            <br><span class="mini">React computes the next UI from state/props and updates efficiently behind the scenes.</span>
+          </li>
+          <li><strong>“Re-render means React redraws the entire page.”</strong> ❌
+            <br><span class="mini">Conceptually you can think that way, but React updates efficiently (details later).</span>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>📌 Summary (memorize this)</h2>
+        <ul>
+          <li>🧠 React is <strong>declarative</strong>: you describe UI from data, not DOM steps.</li>
+          <li>🔁 React updates a component by <strong>re-rendering</strong> it when data changes.</li>
+          <li>🧷 <strong>State is preserved</strong> across re-renders; it resets on <strong>unmount</strong>.</li>
+          <li>✅ To update the view: <strong>update state</strong> (React “reacts” and re-renders).</li>
+        </ul>
+      </section>
+
+      <p class="mini" style="margin-top: 14px;">
+        End of reviewer — next: applying this mental model to events + state updates in interactive components.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

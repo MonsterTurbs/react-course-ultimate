@@ -1,0 +1,433 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Extracting JSX Into a New Component (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --hint: #eef6ff;
+      --warn: #fff3cd;
+      --ok: #eaffea;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.hint { border-left-color: #90caf9; background: var(--hint); }
+    .callout.warn { border-left-color: #ffe08a; background: var(--warn); }
+    .callout.ok { border-left-color: #7ad27a; background: var(--ok); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .term {
+      display: inline-block;
+      padding: 1px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 Extracting JSX Into a New Component — Reviewer</h1>
+      <p class="subtitle">When JSX inside a component gets too long, extract it into a smaller component and pass needed values via props. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print dialog, set Paper size = A4, Margins = Default.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#why">Why extract JSX into a new component?</a></li>
+          <li><a href="#steps">Step-by-step: Footer → Order component</a></li>
+          <li><a href="#props">Fixing scope errors using props</a></li>
+          <li><a href="#bug">Common bug: wrong prop name (openHour vs closeHour)</a></li>
+          <li><a href="#guidelines">Practical guidelines (when to extract)</a></li>
+          <li><a href="#exercise">Mini exercise: draw the component tree</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="why">
+      <h2>🧠 Why extract JSX into a new component?</h2>
+      <p>
+        As your app grows, some components (like <code>Footer</code>) can become hard to read because the returned JSX
+        gets too long. A common React refactor is to <strong>extract part of the JSX</strong> into a new component.
+      </p>
+
+      <div class="callout ok">
+        <p><strong>Benefits ✅</strong></p>
+        <ul>
+          <li>🔎 Better readability: smaller components are easier to scan</li>
+          <li>🧪 Easier testing and debugging</li>
+          <li>♻️ Potential reusability (if the extracted UI can be reused elsewhere)</li>
+          <li>🧱 Cleaner structure: parent = layout/orchestration, child = specific UI block</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="steps">
+      <h2>🛠️ Step-by-step: Footer → Order component</h2>
+      <p>
+        The lecture example: the <code>Footer</code> has a ternary that renders an “order box” when open.
+        That JSX block becomes a new component called <code>Order</code>.
+      </p>
+
+      <h3>1) Identify the long JSX block ✂️</h3>
+      <p class="muted">Cut the “order box” JSX from inside <code>Footer</code> and move it into <code>Order</code>.</p>
+
+      <h3>2) Create the new component ✅</h3>
+      <pre><code>function Order() {
+  return (
+    &lt;div className="order"&gt;
+      &lt;p&gt;We&apos;re open until {closeHour}:00. Come visit us or order online. 🍕&lt;/p&gt;
+      &lt;button className="btn"&gt;Order&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout warn">
+        <p><strong>This will break at first ⚠️</strong></p>
+        <p class="muted">Because <code>closeHour</code> is not defined inside <code>Order</code> yet (scope problem).</p>
+      </div>
+
+      <h3>3) Replace the extracted JSX with the new component 🧩</h3>
+      <pre><code>// Before (inside Footer): isOpen ? ( ...big JSX... ) : ( ... )
+// After:
+return (
+  &lt;footer className="footer"&gt;
+    {isOpen ? &lt;Order /&gt; : &lt;p&gt;We&apos;re closed…&lt;/p&gt;}
+  &lt;/footer&gt;
+);</code></pre>
+
+      <div class="callout hint">
+        <p><strong>Why you got a ternary bug in the lecture 🧠</strong></p>
+        <p class="muted">When you cut the JSX out, the ternary was missing its “true” branch until you replaced it with <code>&lt;Order /&gt;</code>.</p>
+      </div>
+    </section>
+
+    <section id="props">
+      <h2>📦 Fixing scope errors using props</h2>
+      <p>
+        <code>closeHour</code> was defined inside <code>Footer</code>. After extracting JSX into <code>Order</code>, the new component
+        doesn’t have access to that variable anymore.
+      </p>
+
+      <div class="callout ok">
+        <p><strong>Solution ✅ Pass the needed value as a prop</strong></p>
+        <ul>
+          <li>Parent (<code>Footer</code>) owns the data: <code>closeHour</code></li>
+          <li>Child (<code>Order</code>) receives it through props</li>
+        </ul>
+      </div>
+
+      <h3>Footer: pass the prop ⬇️</h3>
+      <pre><code>function Footer() {
+  const hour = new Date().getHours();
+  const openHour = 12;
+  const closeHour = 22;
+  const isOpen = hour &gt;= openHour &amp;&amp; hour &lt;= closeHour;
+
+  return (
+    &lt;footer className="footer"&gt;
+      {isOpen ? &lt;Order closeHour={closeHour} /&gt; : &lt;p&gt;We&apos;re closed… 😴&lt;/p&gt;}
+    &lt;/footer&gt;
+  );
+}</code></pre>
+
+      <h3>Order: receive props and use the value ✅</h3>
+      <pre><code>function Order(props) {
+  return (
+    &lt;div className="order"&gt;
+      &lt;p&gt;We&apos;re open until {props.closeHour}:00. Come visit us or order online. 🍕&lt;/p&gt;
+      &lt;button className="btn"&gt;Order&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout hint">
+        <p><strong>Props feel like function arguments 🧠</strong></p>
+        <p class="muted">Parent passes data in; child receives it as a parameter (props object).</p>
+      </div>
+    </section>
+
+    <section id="bug">
+      <h2>🐛 Common bug: wrong prop name (openHour vs closeHour)</h2>
+      <p>
+        In the lecture, a bug happened because the prop name didn’t match what was being used.
+        Example: passing <code>openHour</code> but trying to read <code>closeHour</code>.
+      </p>
+
+      <div class="callout warn">
+        <p><strong>Bug pattern ⚠️</strong></p>
+        <pre><code>// Passing one prop name...
+&lt;Order openHour={closeHour} /&gt;
+
+// ...but reading a different one
+props.closeHour</code></pre>
+        <p class="muted">Result: <code>props.closeHour</code> is <code>undefined</code>, so your UI shows wrong data or errors.</p>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Fix ✅ Be consistent</strong></p>
+        <pre><code>&lt;Order closeHour={closeHour} /&gt;
+// and inside Order:
+props.closeHour</code></pre>
+      </div>
+
+      <div class="callout hint">
+        <p><strong>Pro tip 🧩</strong></p>
+        <p class="muted">You can name the prop the same as the variable (<code>closeHour</code>) to avoid confusion.</p>
+      </div>
+    </section>
+
+    <section id="guidelines">
+      <h2>🧭 Practical guidelines (when to extract)</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Extract when… ✅</h3>
+          <ul>
+            <li>The returned JSX is getting long and hard to read</li>
+            <li>You notice a “chunk” of UI that feels like a separate responsibility</li>
+            <li>You might reuse the same block elsewhere</li>
+            <li>You want a parent component to stay focused on layout / orchestration</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Don’t extract when… ⚠️</h3>
+          <ul>
+            <li>It creates too many tiny components that add confusion</li>
+            <li>The extracted JSX depends on many variables → prop drilling explosion</li>
+            <li>The logic is trivial and the component is still readable</li>
+          </ul>
+          <p class="muted">(You’ll learn patterns to manage deep prop passing later.)</p>
+        </div>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>One-sentence summary ✅</strong></p>
+        <p class="muted">Extract JSX into a new component to keep components small; pass required parent data via props.</p>
+      </div>
+    </section>
+
+    <section id="exercise">
+      <h2>✍️ Mini exercise: draw the component tree</h2>
+      <p>
+        The lecture suggests a practical exercise: draw the component structure of the pizza app.
+        This helps you understand how components are composed.
+      </p>
+
+      <div class="callout hint">
+        <p><strong>Example component tree sketch 🗺️</strong></p>
+        <pre><code>App
+├─ Header
+├─ Menu
+│  └─ Pizza (rendered many times from pizzaData)
+└─ Footer
+   └─ Order (only when open)</code></pre>
+        <p class="muted">Use pen and paper and adjust based on your exact code version.</p>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Quick self-check ✅</strong></p>
+        <ul>
+          <li>Which component owns <code>closeHour</code>?</li>
+          <li>Which component needs <code>closeHour</code> to render UI?</li>
+          <li>How does the value flow from parent → child?</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

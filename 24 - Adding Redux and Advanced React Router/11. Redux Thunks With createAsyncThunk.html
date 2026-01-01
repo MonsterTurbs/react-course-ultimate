@@ -1,0 +1,480 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redux Thunks with createAsyncThunk — Geolocation + Reverse Geocoding (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f7f7f9;
+      --warn: #8a4b00;
+      --ok: #0b7a2a;
+      --info: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 36px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout strong { color: var(--text); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.info { border-left-color: var(--info); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 860px) {
+      .two-col { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 18mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      pre { overflow: visible; white-space: pre-wrap; word-break: break-word; }
+      .chip { border-color: #dcdcdc; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>📍 Redux Thunks with <code>createAsyncThunk</code> (Geolocation + Address)</h1>
+      <p class="subtitle">
+        Study guide from the lecture transcript: use Redux Toolkit’s <code>createAsyncThunk</code> to fetch the user’s GPS position and reverse‑geocoded address, then store it in <code>userSlice</code> with pending/fulfilled/rejected reducers.
+      </p>
+      <div class="meta">
+        <span class="chip">🧠 Concept: Thunk middleware</span>
+        <span class="chip">🧩 RTK: <code>createAsyncThunk</code></span>
+        <span class="chip">📦 Slice: <code>userSlice</code></span>
+        <span class="chip">🌍 Feature: Geolocation → Reverse Geocoding</span>
+        <span class="chip">🛠️ DevTools: pending / fulfilled / rejected</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goal of this lesson</h2>
+        <p>You will implement a feature where the user can click a button to:</p>
+        <ol>
+          <li>📡 Request geolocation permission</li>
+          <li>🧭 Read the user’s <strong>latitude/longitude</strong> (GPS)</li>
+          <li>🏠 Convert GPS to an <strong>address string</strong> using a reverse‑geocoding API</li>
+          <li>📝 Auto-fill the address input in the order form later</li>
+        </ol>
+        <p>
+          Because this is async work, you cannot do it in a normal reducer. That’s why you use a <strong>Thunk</strong>.
+        </p>
+      </section>
+
+      <section>
+        <h2>🧠 Quick refresher: What is a Thunk?</h2>
+        <div class="callout info">
+          <p><strong>Thunk = middleware between dispatch and reducer</strong></p>
+          <p>
+            A thunk can run async code (fetching, timers, etc.) and then dispatch “real” actions when finished.
+            Redux reducers must remain <strong>synchronous</strong>.
+          </p>
+        </div>
+
+        <div class="two-col">
+          <div class="callout">
+            <p><strong>Redux (normal flow)</strong></p>
+            <p>dispatch → reducer → state updates</p>
+          </div>
+          <div class="callout ok">
+            <p><strong>Redux with thunk (async flow)</strong></p>
+            <p>dispatch thunk → async work → dispatch pending/fulfilled/rejected → reducers update state</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🌍 The async work we need: GPS + reverse geocoding</h2>
+        <p>The transcript describes a function (conceptually) called <code>fetchAddress</code> that does two steps:</p>
+        <ol>
+          <li>📍 <strong>Get position</strong> using the browser Geolocation API (wrapped in a Promise so we can <code>await</code>)</li>
+          <li>🏠 <strong>Get address</strong> from a reverse‑geocoding API using <code>lat/lng</code></li>
+        </ol>
+
+        <h3>1) Wrap geolocation in a Promise (so you can <code>await</code>)</h3>
+        <pre><code>// getPosition.js (conceptual)
+export function getPosition() {
+  return new Promise((resolve, reject) =&gt;
+    navigator.geolocation.getCurrentPosition(resolve, reject)
+  );
+}
+</code></pre>
+
+        <h3>2) Reverse geocoding service</h3>
+        <pre><code>// apiGeocoding.js (conceptual)
+export async function getAddress({ latitude, longitude }) {
+  const res = await fetch(
+    `https://some-reverse-geocoding-api?lat=${latitude}&lng=${longitude}`
+  );
+  if (!res.ok) throw new Error("Failed to fetch address");
+  return res.json();
+}
+</code></pre>
+
+        <div class="callout">
+          <p><strong>🧠 Reverse geocoding</strong></p>
+          <p>
+            It means “GPS → human-readable address” (street, city, etc.).
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Step-by-step: Create a thunk using <code>createAsyncThunk</code></h2>
+        <p>
+          Instead of manually creating a thunk action creator, Redux Toolkit provides a built-in helper:
+          <strong><code>createAsyncThunk</code></strong>.
+        </p>
+
+        <div class="callout info">
+          <p><strong>It takes 2 arguments</strong></p>
+          <ol>
+            <li>🧾 The action “base type” name (example: <code>"user/fetchAddress"</code>)</li>
+            <li>⚙️ An async function that returns the payload</li>
+          </ol>
+        </div>
+
+        <pre><code>// userSlice.js (conceptual)
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { getPosition } from "../utils/getPosition"; // path may vary
+import { getAddress } from "../services/apiGeocoding"; // path may vary
+
+export const fetchAddress = createAsyncThunk(
+  "user/fetchAddress",
+  async function () {
+    // 1) GPS position
+    const positionObj = await getPosition();
+    const position = {
+      latitude: positionObj.coords.latitude,
+      longitude: positionObj.coords.longitude,
+    };
+
+    // 2) Reverse geocoding
+    const addressObj = await getAddress(position);
+
+    // 3) Build an address string
+    const address = `${addressObj.locality}, ${addressObj.city} ${addressObj.postcode}, ${addressObj.countryName}`;
+
+    // Returned value becomes action.payload for the fulfilled case
+    return { position, address };
+  }
+);
+</code></pre>
+
+        <div class="callout warn">
+          <p><strong>⚠️ Naming convention</strong></p>
+          <p>
+            Do not name async thunks with <code>get...</code>. That prefix is commonly reserved for selectors.
+            Using <code>fetchAddress</code> is clearer.
+          </p>
+        </div>
+
+        <div class="callout ok">
+          <p><strong>✅ Important behavior</strong></p>
+          <p>
+            <code>createAsyncThunk</code> automatically creates 3 related action types:
+            <code>pending</code>, <code>fulfilled</code>, and <code>rejected</code>.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧱 Step-by-step: Handle pending/fulfilled/rejected with <code>extraReducers</code></h2>
+        <p>
+          Because thunk actions aren’t part of the slice’s normal <code>reducers</code>, you handle them in
+          <strong><code>extraReducers</code></strong> using the builder API.
+        </p>
+
+        <h3>1) Expand the user initial state</h3>
+        <pre><code>// userSlice.js (conceptual)
+const initialState = {
+  username: "",
+  status: "idle",      // idle | loading | error
+  position: {},
+  address: "",
+  error: "",
+};
+</code></pre>
+
+        <h3>2) Add the three cases</h3>
+        <pre><code>// userSlice.js (conceptual)
+const userSlice = createSlice({
+  name: "user",
+  initialState,
+  reducers: {
+    updateName(state, action) {
+      state.username = action.payload;
+    },
+  },
+  extraReducers: (builder) =&gt;
+    builder
+      .addCase(fetchAddress.pending, (state) =&gt; {
+        state.status = "loading";
+      })
+      .addCase(fetchAddress.fulfilled, (state, action) =&gt; {
+        state.status = "idle";
+        state.position = action.payload.position;
+        state.address = action.payload.address;
+      })
+      .addCase(fetchAddress.rejected, (state, action) =&gt; {
+        state.status = "error";
+        state.error = action.error.message;
+      }),
+});
+</code></pre>
+
+        <div class="callout info">
+          <p><strong>🧠 What does “fulfilled payload” mean?</strong></p>
+          <p>
+            Whatever you <code>return</code> from the thunk async function becomes
+            <code>action.payload</code> in <code>fulfilled</code>.
+          </p>
+        </div>
+
+        <div class="callout warn">
+          <p><strong>Common error to watch</strong></p>
+          <p>
+            In the rejected case, the message is on <code>action.error.message</code>, not <code>action.payload</code>.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Quick test: dispatch the thunk from the UI</h2>
+        <p>
+          The transcript adds a temporary button in the CreateOrder form just to verify the thunk works.
+          When clicked, it dispatches <code>fetchAddress()</code>.
+        </p>
+
+        <pre><code>// CreateOrder.jsx (conceptual)
+import { useDispatch } from "react-redux";
+import { fetchAddress } from "../user/userSlice"; // path may vary
+
+const dispatch = useDispatch();
+
+&lt;button type="button" onClick={() =&gt; dispatch(fetchAddress())}&gt;
+  Get position
+&lt;/button&gt;
+</code></pre>
+
+        <div class="callout">
+          <p><strong>✅ What you should see</strong></p>
+          <ul>
+            <li>Browser asks permission for geolocation</li>
+            <li>Redux DevTools shows <code>user/fetchAddress/pending</code></li>
+            <li>Then <code>user/fetchAddress/fulfilled</code> (or <code>rejected</code> if blocked)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🕵️ Redux DevTools: what happens when you click “Get position”</h2>
+        <p>The transcript walks through the timeline:</p>
+        <ol>
+          <li>🟡 <code>pending</code> is dispatched immediately → <code>status: "loading"</code></li>
+          <li>✅ If the promise resolves: <code>fulfilled</code> is dispatched → store gets <code>position</code> and <code>address</code></li>
+          <li>❌ If user blocks geolocation: <code>rejected</code> is dispatched → store gets <code>status: "error"</code> and <code>error</code></li>
+        </ol>
+
+        <div class="two-col">
+          <div class="callout ok">
+            <p><strong>✅ Fulfilled path</strong></p>
+            <p>
+              status: idle<br>
+              position: { latitude, longitude }<br>
+              address: "..."
+            </p>
+          </div>
+          <div class="callout warn">
+            <p><strong>❌ Rejected path</strong></p>
+            <p>
+              status: error<br>
+              error: "User denied Geolocation" (or similar)
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧯 Common mistakes and quick fixes</h2>
+        <ul>
+          <li>
+            ❌ <strong>Thunk never runs</strong>
+            <div class="callout"><strong>Fix:</strong> dispatch the thunk action creator: <code>dispatch(fetchAddress())</code> (note the parentheses when dispatching).</div>
+          </li>
+          <li>
+            ❌ <strong>No state updates</strong>
+            <div class="callout"><strong>Fix:</strong> ensure <code>extraReducers</code> handles <code>pending/fulfilled/rejected</code> using <code>builder.addCase</code>.</div>
+          </li>
+          <li>
+            ❌ <strong>Address never appears</strong>
+            <div class="callout"><strong>Fix:</strong> confirm the thunk returns <code>{ position, address }</code>; then in fulfilled reducer, map <code>action.payload.address</code> correctly.</div>
+          </li>
+          <li>
+            ❌ <strong>Error handling not showing anything</strong>
+            <div class="callout"><strong>Fix:</strong> use <code>action.error.message</code> in rejected reducer.</div>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Mini-quiz (for retention)</h2>
+        <ol>
+          <li>Why can’t a reducer call <code>await</code> or fetch directly?</li>
+          <li>What three action types does <code>createAsyncThunk</code> generate?</li>
+          <li>What becomes <code>action.payload</code> in the fulfilled case?</li>
+          <li>Where do you read the error message in the rejected case?</li>
+          <li>Why is the builder API used in <code>extraReducers</code>?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🧾 Quick recap</h2>
+        <ul>
+          <li>📌 Async logic (GPS + fetch) must run in a thunk, not a reducer</li>
+          <li>🧩 <code>createAsyncThunk</code> creates a thunk action creator + pending/fulfilled/rejected action types</li>
+          <li>🧱 Handle those cases in <code>extraReducers</code> with <code>builder.addCase</code></li>
+          <li>🗃️ Store status, position, address, and error in <code>userSlice</code></li>
+          <li>🧪 Test by dispatching <code>fetchAddress()</code> and watching Redux DevTools</li>
+          <li>➡️ Next: integrate this into the order form (auto-fill address field)</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

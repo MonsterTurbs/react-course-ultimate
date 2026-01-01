@@ -1,0 +1,430 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Setting Up Our Development Environment (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 20px 44px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .muted { color: var(--muted); }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-right: 6px;
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+      margin: 8px 0 0;
+    }
+
+    .checklist li { margin: 8px 0; }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    /* Keep links readable on screen, but never print URLs */
+    a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      .toolbar { display: none !important; }
+
+      /* Don’t print any URL after links */
+      a[href]:after { content: "" !important; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🛠️ Setting Up Our Development Environment (Reviewer)</h1>
+      <p class="subtitle">Install the core tools (VS Code, Chrome, Node.js ≥ 18), configure VS Code, and add useful snippets. A4 print-ready.</p>
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: Single-column, word-wrapped, designed for clean A4 printing (no URLs printed).</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Table of Contents</strong>
+        <ol>
+          <li><a href="#tools">Tools you need</a></li>
+          <li><a href="#vscode-extensions">VS Code extensions (ESLint + Prettier)</a></li>
+          <li><a href="#themes">VS Code themes (optional)</a></li>
+          <li><a href="#settings">Important VS Code settings</a></li>
+          <li><a href="#node-check">Check your Node.js version</a></li>
+          <li><a href="#snippets">Snippets setup</a></li>
+          <li><a href="#checklist">Final checklist</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="tools">
+      <h2>🧰 Tools you need</h2>
+      <p>
+        Before coding React, set up three essentials:
+      </p>
+      <ol>
+        <li>
+          <strong>Code editor:</strong> VS Code 🧑‍💻
+          <div class="callout">
+            <p><strong>Why VS Code?</strong> ✅</p>
+            <p class="muted">
+              It’s widely used, easy to customize, and the course setup will match more closely if you use the same editor.
+            </p>
+          </div>
+        </li>
+        <li>
+          <strong>Browser:</strong> Google Chrome 🌐
+          <p class="muted">Recommended so your results match what you see in the course videos.</p>
+        </li>
+        <li>
+          <strong>Node.js:</strong> version <strong>18 or higher</strong> 🟢
+          <div class="callout">
+            <p><strong>Important note</strong> 📌</p>
+            <p class="muted">
+              You’re not installing Node because you’ll build Node apps here.
+              You need it because React tooling (and many front-end tools) run on Node.
+            </p>
+          </div>
+        </li>
+      </ol>
+
+      <p class="muted">
+        Node versions change over time (18/20/22/etc.). The key requirement is: <strong>at least Node 18</strong>.
+      </p>
+    </section>
+
+    <section id="vscode-extensions">
+      <h2>🧩 VS Code extensions (ESLint + Prettier)</h2>
+      <p>
+        Install these two essential extensions from the VS Code Extensions panel:
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>1) ESLint ✅ <span class="pill">Code quality</span></h3>
+          <p class="muted">
+            ESLint is a linter — it helps spot errors and warns you about best practices you might be violating.
+          </p>
+        </div>
+        <div class="card">
+          <h3>2) Prettier ✨ <span class="pill">Auto-format</span></h3>
+          <p class="muted">
+            Prettier formats code consistently (spacing, line breaks, etc.).
+            This helps your code look exactly like the instructor’s code, making it easier to follow and debug.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Beginner tip</strong> 🧠</p>
+        <p class="muted">
+          When your formatting matches the instructor, it’s easier to spot real bugs (instead of fighting style differences).
+        </p>
+      </div>
+    </section>
+
+    <section id="themes">
+      <h2>🎨 VS Code themes (optional, but helpful)</h2>
+      <p class="muted">
+        These are optional, only if you want your editor to look similar to the instructor’s.
+      </p>
+      <ul>
+        <li>🌈 Color theme: <strong>One Monokai</strong></li>
+        <li>📁 File icon theme: <strong>Material Icons</strong></li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Why bother?</strong> ✅</p>
+        <p class="muted">Matching visuals makes it easier to follow along quickly in video tutorials.</p>
+      </div>
+    </section>
+
+    <section id="settings">
+      <h2>⚙️ Important VS Code settings</h2>
+      <p>
+        These settings reduce friction and make your workflow consistent.
+      </p>
+
+      <h3>1) Auto Save 💾</h3>
+      <ul>
+        <li>Set <strong>Auto Save</strong> to <code>onFocusChange</code></li>
+      </ul>
+      <p class="muted">This saves your file when you switch tabs or windows.</p>
+
+      <h3>2) Prettier as Default Formatter ✨</h3>
+      <ul>
+        <li>Set <strong>Default Formatter</strong> to <code>Prettier - Code formatter</code></li>
+        <li>Turn <strong>Format on Save</strong> ON</li>
+      </ul>
+
+      <h3>3) ESLint run mode ✅</h3>
+      <p class="muted">
+        ESLint can run <code>onType</code> (every keystroke) which may feel too aggressive.
+        The lecture recommends:
+      </p>
+      <ul>
+        <li>Set <strong>ESLint: Run</strong> to <code>onSave</code></li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Simple rule</strong> ✅</p>
+        <p class="muted">
+          Prettier fixes formatting, ESLint helps find problems. Both together make your code cleaner and easier to maintain.
+        </p>
+      </div>
+    </section>
+
+    <section id="node-check">
+      <h2>🟢 Check your Node.js version</h2>
+      <p>
+        Open a terminal in VS Code and run:
+      </p>
+      <pre><code>node -v</code></pre>
+      <p class="muted">
+        Ensure the result is <strong>v18</strong> or higher. If not, reinstall/update Node.js.
+      </p>
+    </section>
+
+    <section id="snippets">
+      <h2>⚡ Snippets setup</h2>
+      <p>
+        Snippets are predefined code shortcuts that speed up development.
+      </p>
+
+      <h3>Where to get the snippet file 📁</h3>
+      <p class="muted">
+        The course provides a file with three snippets inside the starter files (downloaded from GitHub),
+        in a folder named <strong>setup</strong>.
+      </p>
+
+      <h3>How to install snippets ✅</h3>
+      <ol>
+        <li>Open the snippets file from the course starter files</li>
+        <li>Select all and copy the snippet JSON</li>
+        <li>In VS Code: open <strong>User Snippets</strong></li>
+        <li>Create a new snippets file or open an existing one</li>
+        <li>Paste the snippet JSON and save</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>What the 3 snippets do (high-level)</strong> 🧠</p>
+        <ul>
+          <li>⌨️ <strong>cl</strong> → expands to <code>console.log()</code> (and places cursor inside)</li>
+          <li>🧩 <strong>rfc</strong> → creates a React functional component template</li>
+          <li>➡️ Another React snippet (forward-style component) used later in the course</li>
+        </ul>
+      </div>
+
+      <h3>Example: “cl” snippet in action ✨</h3>
+      <pre><code>// You type:
+cl
+
+// It becomes:
+console.log(|)
+// (cursor goes inside the parentheses)</code></pre>
+    </section>
+
+    <section id="checklist">
+      <h2>✅ Final checklist</h2>
+      <ul class="checklist">
+        <li>✅ VS Code installed</li>
+        <li>✅ Google Chrome installed</li>
+        <li>✅ Node.js installed (v18+)</li>
+        <li>✅ ESLint extension installed</li>
+        <li>✅ Prettier extension installed</li>
+        <li>✅ Auto Save = onFocusChange</li>
+        <li>✅ Default Formatter = Prettier</li>
+        <li>✅ Format on Save = ON</li>
+        <li>✅ ESLint Run = onSave (recommended)</li>
+        <li>✅ Snippets installed from starter files</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Next step</strong> 🚀</p>
+        <p class="muted">
+          With the environment ready, you can now start learning React seriously and begin writing your own code.
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      <p>
+        Reviewer generated from the provided transcript. Designed for clean A4 printing (single column, word-wrapped).
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

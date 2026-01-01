@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Advanced — Server Components in Client Components (Next.js App Router)</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+
+      --warnbg:#fff7ed;
+      --warnborder:#fed7aa;
+
+      --goodbg:#f0fdf4;
+      --goodborder:#bbf7d0;
+
+      --tipbg:#eff6ff;
+      --tipborder:#bfdbfe;
+
+      --purplebg:#faf5ff;
+      --purpleborder:#ddd6fe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 26px 18px 64px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, var(--panel));
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+      margin-bottom: 14px;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color:#222;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    h2{ margin:0 0 10px 0; font-size: 16px; }
+    h3{ margin:14px 0 8px 0; font-size: 14px; }
+
+    p{ margin: 8px 0; }
+    ul, ol{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .key{ font-weight:700; }
+
+    .callout{
+      border-left: 4px solid #111;
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .good{
+      border: 1px solid var(--goodborder);
+      background: var(--goodbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .warn{
+      border: 1px solid var(--warnborder);
+      background: var(--warnbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .tip{
+      border: 1px solid var(--tipborder);
+      background: var(--tipbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .purple{
+      border: 1px solid var(--purpleborder);
+      background: var(--purplebg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px;
+      border-radius: 12px;
+      overflow:auto;
+      border:1px solid #1b2547;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .mini{ font-size: 13px; color: var(--muted); }
+
+    /* Print CSS */
+    @media print{
+      @page{ size: A4; margin: 14mm; }
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width:none; padding:0; }
+      header, section{ break-inside: avoid; page-break-inside: avoid; }
+      pre{ break-inside: avoid; page-break-inside: avoid; border: 1px solid #000; }
+      .chip{ border-color:#000; }
+      .callout{ border-left-color:#000; }
+      .good, .warn, .tip, .purple{ border-color:#000; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 Advanced: Rendering Server Components inside Client Components</h1>
+      <p class="sub">
+        Reviewer / study guide: the safe pattern for using a Server Component (data fetching) inside a Client Component (stateful UI) in the Next.js App Router.
+      </p>
+      <div class="meta">
+        <span class="chip">🟡 Server Component</span>
+        <span class="chip">🔵 Client Component</span>
+        <span class="chip">🧶 “Knitting”</span>
+        <span class="chip">🧠 Dependency tree rule</span>
+        <span class="chip">🧷 Pass server component as prop</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>✅ Goal of the lecture</h2>
+      <p>
+        You’ve already seen the common case: <span class="key">Client Components inside Server Components</span>.
+        This lecture covers the opposite (more advanced) case:
+      </p>
+      <div class="callout">
+        <p>🔁 <span class="key">Server Component rendered inside a Client Component</span></p>
+      </div>
+      <p>
+        Example: a “Select Country” dropdown (needs server-side data fetching) inside a profile update form (needs client-side state).
+      </p>
+    </section>
+
+    <section>
+      <h2>1) 📌 Starting point: <code>SelectCountry</code> is a Server Component</h2>
+      <p>
+        In the Guest Profile page, the app renders a country selector with all countries.
+        The key reason this component is server-side:
+      </p>
+      <ul>
+        <li>It is <span class="key">async</span> and fetches data from an external Countries API</li>
+        <li>It builds markup (e.g., flags + list items) after fetching</li>
+      </ul>
+
+      <pre><code>// SelectCountry.jsx (server component)
+export default async function SelectCountry({ defaultCountry }) {
+  const countries = await getCountries();
+
+  return (
+    &lt;select name="nationality" defaultValue={defaultCountry}&gt;
+      {countries.map(c =&gt; (
+        &lt;option key={c.name} value={c.name}&gt;
+          {c.flag} {c.name}
+        &lt;/option&gt;
+      ))}
+    &lt;/select&gt;
+  );
+}
+</code></pre>
+
+      <div class="tip">
+        <p>💡 In App Router, a component without <code>'use client'</code> is a Server Component by default.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) 🧨 The problem: moving the form into a Client Component</h2>
+      <p>
+        You refactor the profile page to extract the entire form into <code>UpdateProfileForm.jsx</code>.
+        This form eventually needs state (e.g., <code>useState</code>), so it becomes a Client Component.
+      </p>
+
+      <pre><code>// UpdateProfileForm.jsx
+'use client'
+
+import { useState } from 'react';
+import SelectCountry from './SelectCountry'; // ❌ Problem
+
+export default function UpdateProfileForm() {
+  const [count, setCount] = useState(0);
+
+  return (
+    &lt;form&gt;
+      {/* other fields... */}
+      &lt;SelectCountry /&gt;
+    &lt;/form&gt;
+  );
+}
+</code></pre>
+
+      <div class="warn">
+        <p>
+          ❌ This violates the rule: <span class="key">Client Components cannot import Server Components</span>.
+        </p>
+      </div>
+
+      <p>
+        In the lecture, this shows up as runtime errors (e.g., Supabase env vars not available), because code that must run on the server
+        gets dragged into the browser bundle when imported from a client boundary.
+      </p>
+    </section>
+
+    <section>
+      <h2>3) ✅ The correct solution: pass the Server Component as a prop</h2>
+      <p>
+        The only allowed way to “render a Server Component inside a Client Component” is:
+      </p>
+      <div class="good">
+        <p>✅ Create the Server Component instance in a Server Component, then pass it down as <span class="key">children</span> (or another prop).</p>
+      </div>
+
+      <h3>Step A — Server page imports both components</h3>
+      <pre><code>// app/account/profile/page.js (server component)
+import SelectCountry from '@/components/SelectCountry';
+import UpdateProfileForm from '@/components/UpdateProfileForm';
+
+export default function Page() {
+  return (
+    &lt;UpdateProfileForm&gt;
+      &lt;SelectCountry /&gt;
+    &lt;/UpdateProfileForm&gt;
+  );
+}
+</code></pre>
+
+      <h3>Step B — Client component renders what it receives</h3>
+      <pre><code>// UpdateProfileForm.jsx (client component)
+'use client'
+
+export default function UpdateProfileForm({ children }) {
+  return (
+    &lt;form&gt;
+      {/* other fields... */}
+      {children}
+    &lt;/form&gt;
+  );
+}
+</code></pre>
+
+      <div class="tip">
+        <p>
+          🧠 Why this works: <span class="key">SelectCountry runs on the server first</span> (fetch happens there). The client receives an already-created React element.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) 🧠 Mental model: dependency tree vs component tree</h2>
+      <p>
+        The “no importing Server Components from Client Components” rule is enforced in the <span class="key">dependency tree</span> (imports), not the visual component tree.
+      </p>
+
+      <ul>
+        <li>✅ Server components can import server components and client components.</li>
+        <li>❌ Client components can only import client components.</li>
+        <li>✅ Client components can <span class="key">render</span> server component instances if they arrive via props.</li>
+      </ul>
+
+      <div class="purple">
+        <p>
+          🧶 This pattern is part of the “knitting” idea: server + client logic interweave safely as long as imports respect the boundary.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) 🔎 DevTools clue</h2>
+      <p>
+        If you inspect the React component tree in the browser DevTools:
+      </p>
+      <ul>
+        <li>You will see the <span class="key">client</span> form component (e.g., <code>UpdateProfileForm</code>).</li>
+        <li>You will <span class="key">not</span> see <code>SelectCountry</code> as a client component (it was server-rendered already).</li>
+        <li>You may see something like <span class="key">children</span> containing a React element payload.</li>
+      </ul>
+      <div class="tip">
+        <p>💡 Server-rendered components usually don’t show up as named nodes in the client-only tree.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 Quick recap</h2>
+      <ol>
+        <li>Server Component (data fetching) must stay on the server.</li>
+        <li>If the parent needs state → make parent a Client Component.</li>
+        <li>Client components cannot import server components.</li>
+        <li>✅ Fix: import server component in a server component above, then pass it as <span class="key">props/children</span>.</li>
+      </ol>
+
+      <div class="good">
+        <p>✅ This is an advanced pattern, but very useful when forms need client-side state and still rely on server-fetched UI fragments.</p>
+      </div>
+    </section>
+
+    <p class="mini" style="margin-top:12px;">
+      Print tip: Use browser Print → A4. Margins and line-height are tuned to avoid cut-off.
+    </p>
+  </div>
+</body>
+</html>

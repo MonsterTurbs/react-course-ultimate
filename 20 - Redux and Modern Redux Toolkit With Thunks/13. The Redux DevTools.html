@@ -1,0 +1,361 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redux DevTools — Study Guide (Print-Friendly)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codetext: #e8ecf6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 14px; }
+
+    section {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      page-break-inside: avoid;
+    }
+
+    .sec-h {
+      padding: 12px 14px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sec-h h2 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .sec-b {
+      padding: 12px 14px;
+    }
+
+    ul { margin: 8px 0 0; padding-left: 18px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 12px 12px;
+      margin-top: 10px;
+    }
+
+    .callout p { margin: 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #fff;
+      page-break-inside: avoid;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow: auto;
+      border: 1px solid #0b1a3d;
+    }
+
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    /* Print */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { padding: 0; max-width: none; }
+
+      /* Keep it clean for print */
+      a { color: inherit; text-decoration: none; }
+      a[href]:after { content: "" !important; }
+
+      section, header, .card { break-inside: avoid; page-break-inside: avoid; }
+      pre { white-space: pre-wrap; word-break: break-word; overflow: visible; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧰 Redux DevTools — Reviewer / Study Guide</h1>
+      <p class="subtitle">Goal: learn how to install Redux DevTools, wire it into a classic Redux store (with middleware), and use time-travel debugging to find bugs faster.</p>
+      <div class="meta">
+        <span class="chip">🧩 Topic: Redux DevTools</span>
+        <span class="chip">⚙️ Works with: classic Redux + middleware</span>
+        <span class="chip">🧠 Skill: Time-travel debugging</span>
+        <span class="chip">🖨️ A4 Print-ready</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <div class="sec-h"><h2>1) What Redux DevTools gives you</h2></div>
+        <div class="sec-b">
+          <ul>
+            <li>🔎 Inspect every <strong>action</strong> dispatched (type + payload).</li>
+            <li>🧾 See the <strong>state before/after</strong> each action.</li>
+            <li>⏪ <strong>Time travel</strong>: jump back to any previous state transition.</li>
+            <li>🧪 Manually dispatch actions (useful for testing reducers without building UI first).</li>
+          </ul>
+          <div class="callout">
+            <p>✅ Mental model: DevTools is like a <strong>timeline recorder</strong> for Redux. Each dispatched action is a “frame” that you can inspect and replay.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-h"><h2>2) Install Redux DevTools (3 steps)</h2></div>
+        <div class="sec-b">
+          <div class="grid">
+            <div class="card">
+              <h3>Step 1 — Install the Chrome Extension</h3>
+              <p class="muted">🧩 Like React DevTools, Redux DevTools is primarily a browser extension. After installing, you’ll get a <span class="kbd">Redux</span> tab in DevTools.</p>
+            </div>
+            <div class="card">
+              <h3>Step 2 — Install the NPM helper</h3>
+              <p class="muted">📦 You need the integration helper so your Redux store can talk to the extension.</p>
+              <pre><code>npm install redux-devtools-extension</code></pre>
+            </div>
+            <div class="card">
+              <h3>Step 3 — Wrap middleware setup with DevTools compose</h3>
+              <p class="muted">🧠 You’ll wrap your store enhancer (middleware) using <code>composeWithDevTools</code>.</p>
+              <pre><code>import { createStore, combineReducers, applyMiddleware } from "redux";
+import thunk from "redux-thunk";
+import { composeWithDevTools } from "redux-devtools-extension";
+
+const rootReducer = combineReducers({
+  account: accountReducer,
+  customer: customerReducer,
+});
+
+const store = createStore(
+  rootReducer,
+  composeWithDevTools(applyMiddleware(thunk))
+);
+
+export default store;</code></pre>
+              <div class="callout">
+                <p>📝 If you don’t see the Redux tab after wiring this up: restart the browser (or the devtools panel).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-h"><h2>3) Using DevTools in practice</h2></div>
+        <div class="sec-b">
+          <div class="grid">
+            <div class="card">
+              <h3>Action + State inspection</h3>
+              <ul>
+                <li>Click an action in the left timeline (e.g., <code>customer/createCustomer</code>).</li>
+                <li>Inspect the <strong>action object</strong> (type + payload).</li>
+                <li>Inspect the <strong>resulting state</strong> after the reducer runs.</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h3>Thunks show multiple actions (expected ✅)</h3>
+              <p class="muted">When depositing foreign currency (Thunk), you often see a sequence like:</p>
+              <ul>
+                <li>🚦 <code>account/convertingCurrency</code> → sets <code>isLoading: true</code></li>
+                <li>💰 <code>account/deposit</code> → deposits converted amount and resets <code>isLoading: false</code></li>
+              </ul>
+              <div class="callout">
+                <p>✅ This is normal: thunks commonly dispatch a “loading” action and then a “success” action.</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>⏪ Time travel debugging (the “coolest feature”)</h3>
+              <ul>
+                <li>Jump back to an earlier action to see the UI/state exactly as it was then.</li>
+                <li>Use the bottom slider to scrub through history (like a video timeline).</li>
+              </ul>
+              <div class="callout">
+                <p>🎯 Use case: when the app reaches a weird state, time travel backwards to find the exact action that caused it.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-h"><h2>4) Manual action dispatch (useful for testing)</h2></div>
+        <div class="sec-b">
+          <ul>
+            <li>🧪 You can dispatch actions from DevTools without clicking UI buttons.</li>
+            <li>Great for verifying action types and reducer logic quickly.</li>
+          </ul>
+          <div class="callout">
+            <p>⚠️ If manual dispatch doesn’t change state, check for typos in the action type string (e.g., <code>customer/updateName</code> vs <code>customer/updatename</code>).</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-h"><h2>5) Debugging example from the lecture: “Why is it converting when currency is USD?”</h2></div>
+        <div class="sec-b">
+          <p class="muted">Symptom: Clicking deposit triggers <code>account/convertingCurrency</code> even though the UI shows USD.</p>
+
+          <div class="grid">
+            <div class="card">
+              <h3>What DevTools reveals 🔎</h3>
+              <ul>
+                <li>You see <code>account/convertingCurrency</code> dispatched unexpectedly.</li>
+                <li>This implies the thunk thinks currency is <em>not</em> USD.</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h3>Root cause 🧠</h3>
+              <p class="muted">After a deposit, the UI resets currency to an empty string (<code>""</code>) instead of resetting it back to <code>"USD"</code>. Next deposit sends <code>currency=""</code> to the thunk, which triggers conversion.</p>
+              <pre><code>// Buggy reset (after deposit)
+setCurrency("");
+
+// Better reset
+setCurrency("USD");</code></pre>
+            </div>
+
+            <div class="card">
+              <h3>Lesson ✅</h3>
+              <ul>
+                <li>DevTools helps you confirm: “Which action fired? What payload did it receive?”</li>
+                <li>Then you trace back to the UI code that built the payload (state reset bugs are very common).</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-h"><h2>6) Quick checklist (Dos & Don’ts)</h2></div>
+        <div class="sec-b">
+          <ul>
+            <li>✅ Do verify action type strings (typos are invisible until you inspect actions).</li>
+            <li>✅ Do use DevTools slider/time-travel to pinpoint the first “bad” state.</li>
+            <li>✅ Do expect multiple actions when using thunks (loading → success/failure).</li>
+            <li>❌ Don’t rely on “UI looks like USD” — always confirm what payload is actually dispatched.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-h"><h2>Mini self-test (for retention)</h2></div>
+        <div class="sec-b">
+          <ol>
+            <li>🧠 What are the 3 steps to enable Redux DevTools?</li>
+            <li>🔁 Why do thunks often create 2+ actions in the timeline?</li>
+            <li>⏪ What does “time travel debugging” mean in Redux DevTools?</li>
+            <li>🐛 If an action does nothing, what is your first suspicion?</li>
+          </ol>
+        </div>
+      </section>
+
+      <p class="muted" style="margin-top: 14px;">
+        End of notes — next topic: modern Redux Toolkit and advanced async patterns.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

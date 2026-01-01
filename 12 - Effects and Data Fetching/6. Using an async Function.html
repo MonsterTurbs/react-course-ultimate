@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — useEffect with async/await (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --codebg: #fbfbfb;
+      --accent: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 64px;
+    }
+
+    header {
+      padding: 18px 18px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 12px;
+      color: #222;
+    }
+
+    nav {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+    }
+
+    nav .toc-title {
+      margin: 0 0 8px;
+      font-weight: 700;
+      font-size: 13px;
+      color: #222;
+    }
+
+    nav ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #222;
+    }
+
+    nav li { margin: 4px 0; }
+    nav a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    nav a:hover { text-decoration: underline; }
+
+    section {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: -0.1px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 10px 0; }
+    ul { margin: 8px 0; padding-left: 18px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      margin: 12px 0;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-left: 4px solid #111;
+      border-radius: 12px;
+    }
+
+    .callout .title {
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .callout p { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--codebg);
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 12px;
+    }
+
+    .hr {
+      margin: 12px 0 0;
+      border-top: 1px dashed var(--border);
+    }
+
+    footer {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    /* Print (A4) */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-color: #ddd; box-shadow: none; }
+      a { color: #000; text-decoration: none; }
+      a[href]::after { content: ""; } /* do NOT print URLs */
+      nav { page-break-after: avoid; }
+      pre { border-color: #ddd; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 useEffect + async/await (Using an async Function)</h1>
+      <p class="subtitle">
+        Beginner-friendly reviewer on converting a <code>useEffect</code> data fetch from <code>.then()</code> chains to <code>async/await</code>,
+        understanding <em>stale state</em>, and why effects run twice in React 18 Strict Mode (development).
+      </p>
+
+      <div class="meta">
+        <span class="chip">📄 Single-column</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+        <span class="chip">⚛️ React (useEffect)</span>
+        <span class="chip">⏳ Async state updates</span>
+      </div>
+
+      <nav aria-label="Table of contents">
+        <p class="toc-title">Table of Contents</p>
+        <ul>
+          <li><a href="#goal">Goal of this lecture</a></li>
+          <li><a href="#why-not-async-effect">Why you can’t make the effect callback async</a></li>
+          <li><a href="#pattern">Correct pattern: define async inside, then call it</a></li>
+          <li><a href="#stale-state">Stale state after setState</a></li>
+          <li><a href="#strict-mode">Why effects run twice in React 18 Strict Mode</a></li>
+          <li><a href="#next">What’s next: add a loading state</a></li>
+          <li><a href="#quick-check">Quick self-check</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <section id="goal">
+      <h2>🎯 Goal of this lecture</h2>
+      <ul>
+        <li>✅ Convert promise handling (<code>.then()</code>) to <code>async/await</code> for cleaner code.</li>
+        <li>✅ Understand the ESLint warning: “effect callbacks are synchronous”.</li>
+        <li>✅ Learn why logging state right after <code>setState</code> shows the <em>old</em> value (stale state).</li>
+        <li>✅ Understand why React 18 Strict Mode runs effects twice in <strong>development</strong>.</li>
+      </ul>
+      <div class="callout">
+        <p class="title">💡 Key takeaway</p>
+        <p>
+          In <code>useEffect</code>, you don’t make the effect callback <code>async</code>. Instead, create an inner <code>async</code>
+          function (e.g., <code>fetchMovies</code>) and call it.
+        </p>
+      </div>
+    </section>
+
+    <section id="why-not-async-effect">
+      <h2>⚠️ Why you can’t make the effect callback async</h2>
+      <p>
+        You might try this:
+      </p>
+      <pre><code>useEffect(async () =&gt; {
+  const res = await fetch(url);
+  const data = await res.json();
+  setMovies(data.Search);
+}, []);</code></pre>
+      <p>
+        But ESLint warns because an <code>async</code> function always returns a <strong>Promise</strong>.
+        React expects the effect callback to either return:
+      </p>
+      <ul>
+        <li><strong>Nothing</strong> (most common), or</li>
+        <li>A <strong>cleanup function</strong> (for cleanup before re-render/unmount).</li>
+      </ul>
+      <div class="callout">
+        <p class="title">🧩 Beginner explanation</p>
+        <p>
+          React uses the return value of an effect for cleanup. If you return a Promise, React can’t treat it as cleanup.
+          That’s why the effect callback should be synchronous.
+        </p>
+      </div>
+    </section>
+
+    <section id="pattern">
+      <h2>✅ Correct pattern: define async inside, then call it</h2>
+      <p>
+        Use this structure:
+      </p>
+      <pre><code>useEffect(() =&gt; {
+  async function fetchMovies() {
+    const res = await fetch(`https://www.omdbapi.com/?apikey=${KEY}&amp;s=${query}`);
+    const data = await res.json();
+    setMovies(data.Search);
+  }
+
+  fetchMovies();
+}, []);</code></pre>
+
+      <h3>📌 What’s happening line-by-line</h3>
+      <ul>
+        <li>🧱 <code>useEffect(() =&gt; { ... }, [])</code> registers code to run <strong>after render</strong>, not during render logic.</li>
+        <li>🧑‍🍳 You create an <code>async</code> helper inside the effect (so you can use <code>await</code>).</li>
+        <li>📞 You <strong>must call</strong> it (<code>fetchMovies()</code>) or nothing will happen.</li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">🧠 Micro-rule to remember</p>
+        <p>
+          <strong>Effect callback: synchronous.</strong> <span class="kbd">async</span> goes inside, not on the effect callback.
+        </p>
+      </div>
+    </section>
+
+    <section id="stale-state">
+      <h2>⏳ Stale state after setState</h2>
+      <p>
+        If you do this:
+      </p>
+      <pre><code>setMovies(data.Search);
+console.log(movies);</code></pre>
+      <p>
+        You’ll often see the <strong>old</strong> value (e.g., an empty array) because:
+      </p>
+      <ul>
+        <li>🔁 <code>setMovies(...)</code> <strong>schedules</strong> a state update.</li>
+        <li>🧾 The <code>movies</code> variable in the current render is still the old snapshot.</li>
+        <li>✅ The new value becomes available after React re-renders the component.</li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">✅ Fix: log the data you already have</p>
+        <p>
+          Log <code>data.Search</code> (or handle logging in a separate effect that depends on <code>movies</code>):
+        </p>
+        <pre><code>console.log(data.Search);</code></pre>
+      </div>
+
+      <h3>🔍 Practical mental model</h3>
+      <p>
+        Think of state like a photo taken at render time. Inside the same render/effect call stack, you still see the old photo.
+        The updated photo appears on the next render.
+      </p>
+    </section>
+
+    <section id="strict-mode">
+      <h2>🧪 Why effects run twice in React 18 Strict Mode (development)</h2>
+      <p>
+        If you notice two console logs or two requests while developing, it might be React Strict Mode.
+        In React 18, Strict Mode can intentionally run effects twice <strong>in development only</strong> to help detect issues.
+      </p>
+
+      <div class="callout">
+        <p class="title">📌 Important</p>
+        <p>
+          This double-invocation is a development-time safety check. In production builds, effects won’t run twice like this.
+        </p>
+      </div>
+
+      <h3>🛠 How the lecture demonstrates it</h3>
+      <ul>
+        <li>With Strict Mode enabled: you may see <strong>two logs</strong> / <strong>two requests</strong>.</li>
+        <li>Removing <code>&lt;React.StrictMode&gt;</code> in <code>index.js</code> usually makes it run once.</li>
+        <li>But keeping Strict Mode is recommended while learning and developing.</li>
+      </ul>
+
+      <div class="hr"></div>
+      <h3>✅ Best practice</h3>
+      <p>
+        Write effects that are safe to run more than once (idempotent), and add cleanup where needed.
+      </p>
+    </section>
+
+    <section id="next">
+      <h2>⏭️ What’s next: add a loading state</h2>
+      <p>
+        The lecture ends by saying the next step is making data fetching more complete using a loading state.
+        That typically means:
+      </p>
+      <ul>
+        <li>⏳ <code>isLoading</code> state that becomes <code>true</code> before the request</li>
+        <li>✅ set <code>false</code> when the request finishes (success or error)</li>
+        <li>❌ handle errors (e.g., show a message instead of crashing)</li>
+      </ul>
+
+      <pre><code>useEffect(() =&gt; {
+  async function fetchMovies() {
+    try {
+      setIsLoading(true);
+      const res = await fetch(url);
+      const data = await res.json();
+      setMovies(data.Search);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  fetchMovies();
+}, [url]);</code></pre>
+      <div class="callout">
+        <p class="title">📝 Note</p>
+        <p>
+          We’ll refine the dependency array later. For now, the main skill is: <strong>async inside effect + safe state handling</strong>.
+        </p>
+      </div>
+    </section>
+
+    <section id="quick-check">
+      <h2>✅ Quick self-check</h2>
+      <ul>
+        <li>1) Why shouldn’t the effect callback itself be <code>async</code>?</li>
+        <li>2) What two steps are needed when using an inner <code>async</code> function inside an effect?</li>
+        <li>3) Why does <code>console.log(movies)</code> after <code>setMovies(...)</code> show stale state?</li>
+        <li>4) Why might you see two requests in development even with <code>[]</code> dependencies?</li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">🎓 Answers (short)</p>
+        <ul>
+          <li>1) Because <code>async</code> returns a Promise; React expects cleanup or nothing.</li>
+          <li>2) Define the async function, then call it.</li>
+          <li>3) State updates apply after re-render; current render has the old snapshot.</li>
+          <li>4) React 18 Strict Mode can run effects twice in development.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      Study guide generated from lecture transcript — optimized for A4 printing (single column).
+    </footer>
+  </main>
+</body>
+</html>

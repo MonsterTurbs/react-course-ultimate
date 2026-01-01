@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Part 5 (Next.js) — Introduction (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --soft2: #fbfbfb;
+      --chip: #f2f4f7;
+      --callout: #f6f9ff;
+      --callout-border: #d7e3ff;
+      --ok: #0a7a2f;
+      --warn: #8a5a00;
+      --focus: #1a73e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 12px;
+      padding: 18px 18px 14px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      margin: 0 0 8px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .chips {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: #1f2937;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    h2 {
+      margin: 18px 0 8px;
+      font-size: 1.18rem;
+      letter-spacing: -0.15px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.03rem;
+      letter-spacing: -0.1px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol { margin: 8px 0 12px 20px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--callout-border);
+      background: var(--callout);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 6px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: var(--soft2);
+    }
+
+    .muted { color: var(--muted); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92rem;
+    }
+
+    pre {
+      margin: 10px 0 12px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0b1020;
+      color: #f2f4f8;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 0 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      font-family: inherit;
+      font-size: 0.92em;
+    }
+
+    details {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--soft2);
+      padding: 10px 12px;
+      margin: 12px 0;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      user-select: none;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      font-size: 0.9rem;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+
+    .ok { color: var(--ok); font-weight: 700; }
+    .warn { color: var(--warn); font-weight: 700; }
+
+    a { color: var(--focus); text-decoration: underline; }
+
+    /* Print settings */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { background: #ffffff !important; }
+      .page { padding: 0; max-width: none; }
+      header, .box, details, .callout {
+        box-shadow: none !important;
+      }
+      a { color: inherit; text-decoration: none; }
+      a[href]:after { content: "" !important; }
+      pre { page-break-inside: avoid; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Part 5 — Full Stack React with Next.js: Introduction</h1>
+      <p class="subtitle">Print-friendly reviewer / study guide (single-column, A4-ready). Topic: taking React “to the server” with Next.js ⚡</p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">🧭 Next.js overview</span>
+        <span class="chip">🖥️ Server-Side Rendering (SSR)</span>
+        <span class="chip">🗂️ File-based routing</span>
+        <span class="chip">⏳ Suspense</span>
+        <span class="chip">🧩 Server Components</span>
+        <span class="chip">🚀 Performance mindset</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="callout">
+        <strong>🎯 Big idea (in one sentence)</strong>
+        <div>
+          In Part 5, you’ll build a <em>customer-facing</em> website for <span class="pill">The Wild Oasis</span> using <strong>Next.js</strong>, learning how modern React apps use the <strong>server</strong> for better performance and user experience.
+        </div>
+      </section>
+
+      <section class="box">
+        <h2>🧠 What you will build</h2>
+        <ul>
+          <li>🏨 A <strong>customer-facing website</strong> for The Wild Oasis (from Part 4), not just an internal admin app.</li>
+          <li>🧱 A project that uses Next.js features that are common in real-world React stacks today.</li>
+        </ul>
+        <p class="muted"><strong>Why it matters:</strong> many production React apps aren’t purely “browser-only.” They mix server + client work to load pages faster, improve SEO, and simplify data fetching.</p>
+      </section>
+
+      <section>
+        <h2>🧩 Core concepts (beginner-friendly)</h2>
+
+        <div class="grid">
+          <div class="box">
+            <h3>1) What is Next.js? 🧭</h3>
+            <p>
+              <strong>Next.js</strong> is a React framework that adds a “full-stack” toolbox: routing, server rendering, optimizations, and flexible ways to fetch data.
+            </p>
+            <p>
+              Think of it as: <span class="pill">React + batteries included</span>.
+            </p>
+          </div>
+
+          <div class="box">
+            <h3>2) “Taking React to the server” 🖥️</h3>
+            <p>
+              In classic React apps, most work happens in the browser (client-side rendering). With Next.js, some work can happen on the server:
+            </p>
+            <ul>
+              <li>✅ Faster first load (server can prepare the HTML)</li>
+              <li>✅ Better SEO for public pages</li>
+              <li>✅ Easier data fetching in many cases</li>
+            </ul>
+          </div>
+
+          <div class="box">
+            <h3>3) Server-Side Rendering (SSR) 🌐</h3>
+            <p>
+              <strong>SSR</strong> means the server generates HTML for a page request, then the browser receives it and becomes interactive.
+            </p>
+            <p>
+              Simple analogy: instead of sending a “blank page + instructions,” the server sends a “page that already looks finished,” then React “wires it up.”
+            </p>
+          </div>
+
+          <div class="box">
+            <h3>4) File-based routing 🗂️</h3>
+            <p>
+              Next.js can turn files/folders into routes automatically. You create pages by creating files.
+            </p>
+            <p class="muted">Example idea (conceptual):</p>
+            <pre><code>app/
+  page.jsx           → /
+  cabins/
+    page.jsx         → /cabins
+  bookings/
+    [id]/
+      page.jsx       → /bookings/:id</code></pre>
+            <p class="muted">(Exact structure can vary depending on Next.js version/app router setup.)</p>
+          </div>
+
+          <div class="box">
+            <h3>5) Suspense ⏳</h3>
+            <p>
+              <strong>Suspense</strong> lets React “pause” rendering while waiting for something (often data or code) and show a fallback UI.
+            </p>
+            <p>
+              In practice: users see a smooth loading state, not a broken/blank screen.
+            </p>
+          </div>
+
+          <div class="box">
+            <h3>6) Server Components 🧩</h3>
+            <p>
+              <strong>Server Components</strong> are React components that can run on the server, so they can fetch data and render without sending all that code to the browser.
+            </p>
+            <ul>
+              <li>✅ Potentially smaller client bundles</li>
+              <li>✅ Data fetching closer to the source</li>
+              <li class="warn">⚠️ Requires learning new mental models (what runs where)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="box">
+        <h2>🗺️ Why this is “almost mandatory” for React devs</h2>
+        <ul>
+          <li>Many companies build <strong>public, performance-sensitive</strong> apps (marketing sites, e-commerce, dashboards with SEO needs).</li>
+          <li>Next.js is widely used and often listed in job posts for React roles.</li>
+          <li>Modern patterns (SSR, routing conventions, Suspense, Server Components) are increasingly standard in new projects.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Quick examples (mental models)</h2>
+        <div class="two-col">
+          <div class="box">
+            <h3>Client-side only (classic React)</h3>
+            <ul>
+              <li>Browser downloads JS bundle first</li>
+              <li>React renders UI in the browser</li>
+              <li>Data fetched after initial load</li>
+            </ul>
+            <p class="muted">Good for: internal apps, heavy interactivity, apps without SEO requirements.</p>
+          </div>
+
+          <div class="box">
+            <h3>Server + Client (Next.js style)</h3>
+            <ul>
+              <li>Server can render HTML early</li>
+              <li>Browser hydrates + becomes interactive</li>
+              <li>Some data fetching can happen before page reaches the browser</li>
+            </ul>
+            <p class="muted">Good for: public sites, content pages, e-commerce, performance/SEO-sensitive pages.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="box">
+        <h2>📝 Mini reviewer (remember this!)</h2>
+        <ul>
+          <li><span class="ok">✅ Booking vs. staying concept from Part 4 continues:</span> You’ll now build the <strong>customer side</strong> of the same business.</li>
+          <li><span class="ok">✅ Next.js helps you ship faster:</span> routing + optimizations are built-in.</li>
+          <li><span class="ok">✅ “Server + React” is the modern baseline:</span> SSR, Suspense, and Server Components are key topics.</li>
+        </ul>
+      </section>
+
+      <section class="box">
+        <h2>🧩 Quick quiz (self-check)</h2>
+        <ol>
+          <li><strong>What is Next.js?</strong> (Answer in 1 sentence.)</li>
+          <li><strong>SSR</strong>: what happens before the page reaches the browser?</li>
+          <li>What does <strong>file-based routing</strong> mean?</li>
+          <li>What problem does <strong>Suspense</strong> help with?</li>
+          <li>Why can <strong>Server Components</strong> reduce client bundle size?</li>
+        </ol>
+        <details>
+          <summary>✅ Suggested answers</summary>
+          <ol>
+            <li>Next.js is a React framework that adds full-stack capabilities like routing and server rendering.</li>
+            <li>The server generates HTML (often with data) so the first view can appear faster.</li>
+            <li>Your routes can be created by your folder/file structure (e.g., folders map to URLs).</li>
+            <li>It provides a clean way to show fallback UI while something is loading.</li>
+            <li>Because some components run/render on the server, less code needs to be shipped to the browser.</li>
+          </ol>
+        </details>
+      </section>
+
+      <details>
+        <summary>📜 Transcript (reference)</summary>
+        <p>
+          Welcome back to the final stage of the course, Part 5. This part is all about taking React to the server and taking advantage of its most cutting-edge features using the powerful and super popular Next.js framework.
+        </p>
+        <p>
+          Over the next few sections, we’re gonna be building a customer-facing website for The Wild Oasis that we worked with in Part 4, while exploring server-side rendering, file-based routing, and cutting-edge React features like Suspense and Server Components.
+        </p>
+        <p>
+          These are becoming part of the standard way of building modern and performant React applications. Therefore, it’s getting almost mandatory for React developers to also master Next.js.
+        </p>
+        <p>
+          So, have fun — and let’s dive right in.
+        </p>
+      </details>
+
+      <footer class="muted" style="margin-top: 18px;">
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 14px 0;" />
+        <div>
+          Tip for printing: Use <span class="kbd">Ctrl</span> + <span class="kbd">P</span> / <span class="kbd">Cmd</span> + <span class="kbd">P</span> → Paper size: <strong>A4</strong> → Margins: <strong>Default</strong>.
+        </div>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

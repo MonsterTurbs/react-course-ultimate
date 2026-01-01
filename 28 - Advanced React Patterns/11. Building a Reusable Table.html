@@ -1,0 +1,346 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced React Patterns — Building a Reusable Table (Compound Components)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --ink:#111111;
+      --muted:#555555;
+      --soft:#f6f7f9;
+      --border:#e6e6e6;
+      --accent:#0b57d0;
+      --good:#0f7b3a;
+      --warn:#8a5a00;
+      --bad:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column, print-friendly page */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(0deg, #fff, var(--soft));
+      padding:16px 16px;
+      border-radius:12px;
+    }
+
+    h1{
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-block;
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:#fff;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+
+    main{ margin-top: 16px; }
+
+    h2{
+      font-size: 16px;
+      margin: 18px 0 8px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3{
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p{ margin: 8px 0; }
+
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background: #fff;
+      border-left: 5px solid var(--accent);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.good{ border-left-color: var(--good); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.bad{ border-left-color: var(--bad); }
+
+    .label{
+      font-weight:700;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .kbd{
+      display:inline-block;
+      border:1px solid var(--border);
+      background: var(--soft);
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      color: var(--ink);
+    }
+
+    pre{
+      margin: 10px 0;
+      border:1px solid var(--border);
+      background: #0b0f14;
+      color: #e8eef5;
+      padding: 12px;
+      border-radius: 10px;
+      overflow:auto;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 0.95em;
+    }
+
+    .divider{ height: 1px; background: var(--border); margin: 14px 0; }
+
+    .checklist li{ list-style: "✅  "; }
+    .tips li{ list-style: "💡  "; }
+    .pitfalls li{ list-style: "⚠️  "; }
+
+    .mini{
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* Print rules */
+    @page{
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header{ break-inside: avoid; }
+      pre{ break-inside: avoid; }
+      .callout{ break-inside: avoid; }
+      a{ color: inherit; text-decoration: none; }
+      a::after{ content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 Advanced React Patterns: Building a Reusable Table (Compound Components)</h1>
+      <p class="subtitle">Reviewer / Study Guide — turning a hardcoded Cabin table into a reusable, flexible Table component using Context + Compound Components.</p>
+      <div class="meta">
+        <span class="chip">📄 Single-column</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+        <span class="chip">⚛️ React + Context</span>
+        <span class="chip">🧱 Compound Components</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>1) What you’re building</h2>
+      <div class="callout good">
+        <div class="label">Goal ✅</div>
+        <p>
+          Replace a <strong>hardcoded table</strong> (fixed headers + fixed grid columns) with a <strong>reusable</strong> Table component.
+          The key improvement: define the grid columns <em>once</em> and automatically apply them to both the header and each row.
+        </p>
+      </div>
+
+      <h3>Why the old Cabin table is not reusable</h3>
+      <ul>
+        <li>😵 Column layout (CSS grid template) is duplicated in the header and in each row.</li>
+        <li>🔁 Any changes to columns require editing multiple files/sections.</li>
+        <li>🚫 Reusing the same table for other resources (e.g., Bookings) becomes painful.</li>
+      </ul>
+
+      <h2>2) Core idea</h2>
+      <div class="callout">
+        <div class="label">Big idea 🧠</div>
+        <p>
+          Use a <strong>Compound Component</strong> for the table and share configuration (like <code>columns</code>) through <strong>Context</strong>.
+          This lets child components like <code>Table.Header</code> and <code>Table.Row</code> automatically “know” the table column layout.
+        </p>
+      </div>
+
+      <h3>What gets passed once</h3>
+      <ul class="checklist">
+        <li><strong>columns</strong> = a CSS grid template string like <code>"0.6fr 1.8fr 1fr 1fr 1fr 0.2fr"</code></li>
+        <li>Then both header and rows use it via Context</li>
+      </ul>
+
+      <h2>3) Step-by-step recipe (Compound Component Table)</h2>
+      <ol>
+        <li>🧩 Create a <strong>TableContext</strong> using <code>createContext()</code></li>
+        <li>🏗️ Create the parent component <code>Table</code> that stores <code>columns</code> in Context</li>
+        <li>🧱 Create child components: <code>Table.Header</code>, <code>Table.Row</code>, <code>Table.Body</code>, <code>Table.Footer</code></li>
+        <li>🔌 Attach child components: <code>Table.Header = Header</code>, etc.</li>
+      </ol>
+
+      <div class="callout warn">
+        <div class="label">Important ⚠️</div>
+        <p>
+          Only the components that need the grid layout (usually <code>Header</code> and <code>Row</code>) must read <code>columns</code> from context.
+          <code>Footer</code> often doesn’t need it.
+        </p>
+      </div>
+
+      <h2>4) Minimal example code (what the lecture is doing)</h2>
+      <p class="mini">This is a simplified “mental model” version. Your project will use styled-components you already have in <code>Table.jsx</code>.</p>
+
+      <pre><code>// Table.jsx
+import { createContext, useContext } from "react";
+
+const TableContext = createContext();
+
+function Table({ columns, children }) {
+  return (
+    &lt;TableContext.Provider value={{ columns }}&gt;
+      &lt;div role="table"&gt;{children}&lt;/div&gt;
+    &lt;/TableContext.Provider&gt;
+  );
+}
+
+function Header({ children }) {
+  const { columns } = useContext(TableContext);
+  return (
+    &lt;header role="row" style={{ display: "grid", gridTemplateColumns: columns }}&gt;
+      {children}
+    &lt;/header&gt;
+  );
+}
+
+function Row({ children }) {
+  const { columns } = useContext(TableContext);
+  return (
+    &lt;div role="row" style={{ display: "grid", gridTemplateColumns: columns }}&gt;
+      {children}
+    &lt;/div&gt;
+  );
+}
+
+Table.Header = Header;
+Table.Row = Row;
+
+export default Table;</code></pre>
+
+      <h2>5) Using the Table in CabinTable</h2>
+      <div class="callout good">
+        <div class="label">Result ✅</div>
+        <p>
+          You define <code>columns</code> once on <code>&lt;Table /&gt;</code>. Both <code>Table.Header</code> and every <code>Table.Row</code> align automatically.
+        </p>
+      </div>
+
+      <pre><code>// CabinTable.jsx (conceptual)
+import Table from "../ui/Table";
+
+function CabinTable() {
+  return (
+    &lt;Table columns="0.6fr 1.8fr 1fr 1fr 1fr 0.2fr"&gt;
+      &lt;Table.Header&gt;
+        &lt;div&gt;Cabin&lt;/div&gt;
+        &lt;div&gt;Capacity&lt;/div&gt;
+        &lt;div&gt;Price&lt;/div&gt;
+        &lt;div&gt;Discount&lt;/div&gt;
+        &lt;div&gt;Actions&lt;/div&gt;
+      &lt;/Table.Header&gt;
+
+      {/* Rows */}
+      {/* cabin data mapped into Table.Row */}
+    &lt;/Table&gt;
+  );
+}</code></pre>
+
+      <h2>6) Accessibility notes</h2>
+      <ul class="tips">
+        <li>♿ Add <code>role="table"</code> on the container, and <code>role="row"</code> for header/rows.</li>
+        <li>🧠 This helps screen readers interpret grid-based layouts like real tables.</li>
+        <li>🧱 Using <code>&lt;header&gt;</code> for the header can be more semantic than a generic <code>&lt;div&gt;</code>.</li>
+      </ul>
+
+      <h2>7) Quick bug fix mentioned at the start</h2>
+      <div class="callout">
+        <div class="label">Modal naming fix 🛠️</div>
+        <p>
+          In <code>CabinRow</code>, ensure the delete modal has a matching <code>name</code> and <code>opens</code> value:
+        </p>
+        <ul>
+          <li>🪟 Window: <code>&lt;Modal.Window name="delete"&gt;...</code></li>
+          <li>🔘 Open: <code>&lt;Modal.Open opens="delete"&gt;...</code></li>
+        </ul>
+        <p class="mini">
+          If you only have one modal window, missing names may still “work” (because it becomes <code>undefined</code>), but it breaks as soon as you add more windows.
+        </p>
+      </div>
+
+      <h2>8) Common pitfalls</h2>
+      <ul class="pitfalls">
+        <li>Forgetting to wrap children in <code>TableContext.Provider</code> → header/rows can’t read <code>columns</code>.</li>
+        <li>Defining <code>columns</code> in multiple places again (header + row) → defeats the purpose.</li>
+        <li>Not setting roles for a grid-based table → less accessible.</li>
+      </ul>
+
+      <h2>9) Memory check (quick self-quiz)</h2>
+      <ul>
+        <li>❓ Why do we use Context for <code>columns</code>?</li>
+        <li>❓ Which child components need <code>columns</code>?</li>
+        <li>❓ What is the benefit of making Table a compound component?</li>
+        <li>❓ How does changing <code>columns</code> affect header + rows?</li>
+      </ul>
+
+      <div class="divider"></div>
+      <p class="mini">
+        End of reviewer. Tip: Use <span class="kbd">Ctrl</span> + <span class="kbd">P</span> (or <span class="kbd">Cmd</span> + <span class="kbd">P</span>) → Print → Save as PDF (A4).
+      </p>
+    </main>
+  </div>
+</body>
+</html>

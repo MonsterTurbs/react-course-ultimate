@@ -1,0 +1,418 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — Exercise 1: Accordion Component (v1) — Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --ink: #111111;
+      --muted: #555555;
+      --soft: #f6f7f9;
+      --border: #e6e6e6;
+      --accent: #0b57d0;
+      --ok: #0a7a2f;
+      --warn: #8a4b00;
+      --danger: #b00020;
+
+      --page-max: 820px;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: var(--page-max);
+      margin: 0 auto;
+      padding: 28px 18px 36px;
+    }
+
+    header {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 100%);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.6rem;
+      line-height: 1.2;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 0.88rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    h2 {
+      margin: 18px 0 10px;
+      font-size: 1.2rem;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+      line-height: 1.25;
+    }
+
+    p { margin: 8px 0; }
+    ul, ol { margin: 8px 0 8px 22px; }
+    li { margin: 6px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .callout {
+      border-left: 6px solid var(--accent);
+      background: var(--soft);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.danger { border-left-color: var(--danger); }
+
+    .k {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      padding: 0 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #0f172a;
+      color: #f8fafc;
+      overflow: auto;
+      tab-size: 2;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .checklist li { list-style: "✅ "; margin-left: 2px; }
+
+    .mini {
+      font-size: 0.94rem;
+      color: var(--muted);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    /* Print styles (A4) */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      :root { --page-max: 100%; }
+
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { padding: 0; }
+
+      header, .card, .callout, pre {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      a { color: inherit; text-decoration: none; }
+      a::after { content: ""; }
+
+      /* Avoid printing UI-only elements if ever added */
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 Exercise 1: Accordion Component (v1) — Reviewer / Study Guide</h1>
+      <p class="subtitle">Practice state management and the “Thinking in React” workflow by building a simple accordion where each item opens/closes independently.</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: State + Thinking in React</span>
+        <span class="chip">🧱 Pattern: Component composition</span>
+        <span class="chip">🖱️ Events: onClick</span>
+        <span class="chip">🔁 Lists: map + key</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>🎯 What you are building</h2>
+        <p>An <strong>Accordion</strong> with multiple <strong>AccordionItem</strong> entries:</p>
+        <ul>
+          <li>Click a closed item → it opens (shows the answer/content).</li>
+          <li>Click an open item → it closes again.</li>
+          <li>In <strong>v1</strong>, each item is <strong>independent</strong> (many can be open at once).</li>
+        </ul>
+        <p class="mini">Think of it like an FAQ list: question (title) on top, answer (text) hidden until opened.</p>
+      </section>
+
+      <section class="callout ok">
+        <h2>🧠 Thinking in React (the workflow used here)</h2>
+        <ol>
+          <li><strong>Break UI into components</strong> (Accordion → AccordionItem).</li>
+          <li><strong>Build static version first</strong> (render list, layout, CSS classes).</li>
+          <li><strong>Add state</strong> only when UI must change over time.</li>
+          <li><strong>Wire events</strong> to update state (click toggles open/close).</li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <h2>📦 Starter files you typically get</h2>
+        <ul>
+          <li>📚 <strong>Data array</strong>: FAQ objects, usually like <span class="k">{ title, text }</span> (sometimes with an <span class="k">id</span>).</li>
+          <li>🎨 <strong>CSS</strong>: class names such as <span class="k">accordion</span>, <span class="k">item</span>, <span class="k">open</span>, <span class="k">number</span>, <span class="k">title</span>, <span class="k">icon</span>, <span class="k">content-box</span>.</li>
+        </ul>
+        <p class="mini">You can build locally in VS Code or fork a CodeSandbox. The logic is the same.</p>
+      </section>
+
+      <section class="card">
+        <h2>🧱 Component plan</h2>
+        <div class="grid">
+          <div class="callout">
+            <h3>1) Accordion</h3>
+            <ul>
+              <li>Receives a prop like <span class="k">data</span> (array of FAQ objects).</li>
+              <li>Renders a wrapper <span class="k">div.accordion</span>.</li>
+              <li>Uses <span class="k">data.map(...)</span> to render one <span class="k">AccordionItem</span> per entry.</li>
+            </ul>
+          </div>
+
+          <div class="callout">
+            <h3>2) AccordionItem</h3>
+            <ul>
+              <li>Receives <span class="k">num</span>, <span class="k">title</span>, <span class="k">text</span>.</li>
+              <li>Controls its own open/close UI using local state: <span class="k">isOpen</span>.</li>
+              <li>Handles click to toggle open/close.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="callout warn">
+        <h2>🔍 Key observation: “UI changed” ⇒ you need state</h2>
+        <p>When you click and something visibly changes (content appears/disappears, icon changes, styles change), that’s a signal that you need state.</p>
+        <p><strong>In v1</strong>, each item opens/closes independently, so each item can hold <strong>its own local state</strong>.</p>
+      </section>
+
+      <section class="card">
+        <h2>🧰 Step-by-step build</h2>
+
+        <h3>Step A — Build AccordionItem (static first) 🧱</h3>
+        <p>Create the markup and CSS class wiring before state:</p>
+        <pre><code>function AccordionItem({ num, title, text }) {
+  return (
+    &lt;div className="item"&gt;
+      &lt;p className="number"&gt;{num}&lt;/p&gt;
+      &lt;p className="title"&gt;{title}&lt;/p&gt;
+      &lt;p className="icon"&gt;-&lt;/p&gt;
+      &lt;div className="content-box"&gt;{text}&lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+        <p class="mini">Later, the icon and content will become conditional (plus/minus, show/hide content).</p>
+
+        <div class="divider"></div>
+
+        <h3>Step B — Render list in Accordion using <span class="k">map</span> 🔁</h3>
+        <pre><code>function Accordion({ data }) {
+  return (
+    &lt;div className="accordion"&gt;
+      {data.map((el, i) =&gt; (
+        &lt;AccordionItem
+          key={el.title}
+          num={i}
+          title={el.title}
+          text={el.text}
+        /&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          <h3>🧷 About <span class="k">key</span></h3>
+          <ul>
+            <li>React needs a stable unique <span class="k">key</span> for each rendered list element.</li>
+            <li>Best: use <span class="k">el.id</span> if the data provides it.</li>
+            <li>Fallback: use something truly unique and stable (title only if guaranteed unique).</li>
+            <li>Avoid using index as key in real apps when list can reorder; for this exercise it’s often okay, but prefer real ids.</li>
+          </ul>
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>Step C — Format the number like <span class="k">01</span>, <span class="k">02</span> 🧮</h3>
+        <p>In the transcript, the numbering is shown as <span class="k">01</span>, <span class="k">02</span>, <span class="k">03</span>.</p>
+        <pre><code>const displayNum = num &lt; 9 ? `0${num + 1}` : `${num + 1}`;</code></pre>
+        <p>Then render <span class="k">displayNum</span> inside <span class="k">.number</span>.</p>
+
+        <div class="divider"></div>
+
+        <h3>Step D — Add state to AccordionItem (v1) 🧠</h3>
+        <p>Each item is independent, so we store state inside each item:</p>
+        <pre><code>import { useState } from "react";
+
+function AccordionItem({ num, title, text }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  function handleToggle() {
+    setIsOpen(cur =&gt; !cur);
+  }
+
+  return (
+    &lt;div className="item" onClick={handleToggle}&gt;
+      &lt;p className="number"&gt;{num &lt; 9 ? `0${num + 1}` : num + 1}&lt;/p&gt;
+      &lt;p className="title"&gt;{title}&lt;/p&gt;
+      &lt;p className="icon"&gt;{isOpen ? "-" : "+"}&lt;/p&gt;
+
+      {isOpen &amp;&amp; (
+        &lt;div className="content-box"&gt;{text}&lt;/div&gt;
+      )}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+        <div class="callout ok">
+          <h3>✅ What this demonstrates</h3>
+          <ul>
+            <li>State is declared: <span class="k">const [isOpen, setIsOpen] = useState(false)</span></li>
+            <li>State is used in JSX: conditional content and icon</li>
+            <li>State is updated via event: click triggers <span class="k">setIsOpen</span></li>
+            <li>Update uses callback form: <span class="k">setIsOpen(cur =&gt; !cur)</span> (safe when new state depends on current state)</li>
+          </ul>
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>Step E — Add “open” styling class when expanded 🎨</h3>
+        <p>The demo shows a special style (green border / green title) when open. Usually CSS expects a class like <span class="k">open</span>.</p>
+        <pre><code>&lt;div className={`item ${isOpen ? "open" : ""}`} onClick={handleToggle}&gt;
+  ...
+&lt;/div&gt;</code></pre>
+        <p class="mini">This is “conditional classes” using template literals.</p>
+      </section>
+
+      <section class="callout">
+        <h2>🧩 Why local state is correct in v1</h2>
+        <p>In v1, items do not affect each other. That means each item can own its own state.</p>
+        <ul>
+          <li>Item #1 open does not force Item #2 to close.</li>
+          <li>So there is no shared rule across siblings.</li>
+          <li>Therefore: keep state local and simple. ✅</li>
+        </ul>
+      </section>
+
+      <section class="callout warn">
+        <h2>🧠 Heads-up: v2 will require “lifted state”</h2>
+        <p>The transcript hints that later you will build a more realistic accordion where <strong>only one item can be open at a time</strong>.</p>
+        <p>That is a different requirement and usually means:</p>
+        <ul>
+          <li>Store a single <span class="k">openItemId</span> (or index) in the parent Accordion.</li>
+          <li>Pass down whether each item is open and a handler to change it.</li>
+        </ul>
+        <p class="mini">That is the classic “lifting state up” pattern. In v1, you do not need it.</p>
+      </section>
+
+      <section class="card">
+        <h2>🧯 Common mistakes (and quick fixes)</h2>
+        <ul>
+          <li><strong>Nothing happens on click</strong> → ensure <span class="k">onClick={handleToggle}</span> is on the clickable container.</li>
+          <li><strong>Content always visible</strong> → wrap content with conditional rendering: <span class="k">{isOpen &amp;&amp; (...)}</span></li>
+          <li><strong>Icon never changes</strong> → render icon conditionally: <span class="k">{isOpen ? "-" : "+"}</span></li>
+          <li><strong>React warning: missing key</strong> → add <span class="k">key</span> in the <span class="k">map</span> output.</li>
+          <li><strong>Open styles not applying</strong> → verify conditional class: <span class="k">item open</span> matches CSS selector.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>✅ Self-check checklist</h2>
+        <ul class="checklist">
+          <li>Accordion renders from data array using <span class="k">map</span>.</li>
+          <li>Each item shows number, title, and plus/minus icon.</li>
+          <li>Clicking an item toggles content visibility.</li>
+          <li>Multiple items can be open at once (v1 behavior).</li>
+          <li>Keys are present and unique enough.</li>
+          <li>Layout stays single-column and print-friendly.</li>
+        </ul>
+      </section>
+
+      <section class="callout ok">
+        <h2>🏁 Summary</h2>
+        <p>You practiced a clean “Thinking in React” approach:</p>
+        <ul>
+          <li>Build static UI first 🧱</li>
+          <li>Identify where UI changes → add state 🧠</li>
+          <li>Use event handlers to update state 🖱️</li>
+          <li>Use conditional rendering and conditional classes 🎨</li>
+        </ul>
+        <p class="mini">Next upgrade (v2): allow only one open item → lift state up to Accordion.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

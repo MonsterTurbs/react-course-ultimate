@@ -1,0 +1,409 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Next.js Caching in Practice + ISR — Reviewer</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+      --warnbg:#fff7ed;
+      --warnborder:#fed7aa;
+      --goodbg:#f0fdf4;
+      --goodborder:#bbf7d0;
+      --tipbg:#eff6ff;
+      --tipborder:#bfdbfe;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 26px 18px 64px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, var(--panel));
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+      margin-bottom: 14px;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color:#222;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    h2{
+      margin:0 0 10px 0;
+      font-size: 16px;
+    }
+
+    h3{
+      margin:14px 0 8px 0;
+      font-size: 14px;
+    }
+
+    p{ margin: 8px 0; }
+    ul, ol{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .key{ font-weight:700; }
+
+    .callout{
+      border-left: 4px solid #111;
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .good{
+      border: 1px solid var(--goodborder);
+      background: var(--goodbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .warn{
+      border: 1px solid var(--warnborder);
+      background: var(--warnbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .tip{
+      border: 1px solid var(--tipborder);
+      background: var(--tipbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px;
+      border-radius: 12px;
+      overflow:auto;
+      border:1px solid #1b2547;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .table{
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .table th, .table td{
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+
+    .table th{ text-align:left; background: var(--panel); }
+
+    .diagram{
+      border:1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background:#fff;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .mini{ font-size: 13px; color: var(--muted); }
+
+    /* Print styles */
+    @media print{
+      @page{ size: A4; margin: 14mm; }
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width:none; padding:0; }
+      header, section{ break-inside: avoid; page-break-inside: avoid; }
+      pre, table, .diagram{ break-inside: avoid; page-break-inside: avoid; border: 1px solid #000; }
+      .chip, .table th, .table td{ border-color:#000; }
+      .callout{ border-left-color:#000; }
+      .good, .warn, .tip{ border-color:#000; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧪 Experimenting With Caching and ISR (Next.js App Router)</h1>
+      <p class="sub">
+        Print-friendly reviewer: run caching in “production mode”, force dynamic rendering, and apply Incremental Static Regeneration (ISR) using <code>revalidate</code>.
+      </p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Caching APIs</span>
+        <span class="chip">🔁 ISR: <code>revalidate</code></span>
+        <span class="chip">🏗️ Prod simulation: <code>build</code> + <code>start</code></span>
+      </div>
+    </header>
+
+    <section>
+      <h2>✅ What this lecture is about</h2>
+      <ul>
+        <li>🛠️ Fix a common Next.js error after static export (image optimization vs <code>output: 'export'</code>).</li>
+        <li>🏗️ Learn how to test caching properly by simulating production.</li>
+        <li>🟢 Observe why a static route shows stale data.</li>
+        <li>🟣 Make a route dynamic using <code>export const revalidate = 0</code>.</li>
+        <li>⚖️ Use ISR as the “middle ground”: <code>export const revalidate = N</code>.</li>
+        <li>🧩 Try component-level “no cache” using <code>noStore()</code> and relate it to Partial Pre-Rendering.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧯 Quick fix: “Image optimization is not compatible with export”</h2>
+      <p>
+        After doing Static Site Generation / export, you might see an error when running <code>npm run dev</code> again:
+        image optimization is not compatible with the export option.
+      </p>
+      <div class="callout">
+        <p><span class="key">Idea:</span> disable image optimization for the export setup (so dev can run again), then reload.</p>
+        <p class="mini">This lecture moves on quickly—goal is to get back to experimenting with caching.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Caching is “mostly off” in development</h2>
+      <p>
+        In dev mode, Next.js minimizes caching so you usually see fresh data while coding.
+        To see real caching behavior, you must simulate a production environment.
+      </p>
+      <div class="good">
+        <p>✅ Rule of thumb: test caching with a production build + production server.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🏗️ Simulate production locally</h2>
+      <h3>Option A: run build then start</h3>
+      <pre><code>npm run build
+npm run start
+</code></pre>
+
+      <h3>Option B: create a “prod” script (faster workflow)</h3>
+      <pre><code>// package.json (concept)
+{
+  "scripts": {
+    "prod": "next build && next start"
+  }
+}
+</code></pre>
+
+      <div class="warn">
+        <p>⚠️ Downside: it won’t watch files. After any code change, stop the process and run <code>npm run prod</code> again.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🟢 Static route behavior: why data becomes “stale”</h2>
+      <p>
+        The lecture uses the <code>/cabins</code> page. In production build output, it shows as a <span class="key">static route</span>.
+        When you change cabin data in Supabase and refresh the page, you still see the old value.
+      </p>
+
+      <div class="diagram" aria-label="Static caching flow">
+        <div><span class="key">Build time</span> → fetch data → render HTML/RSC → store in caches</div>
+        <div><span class="key">After build</span> → all users get the same cached output until revalidation happens</div>
+      </div>
+
+      <div class="callout">
+        <p>🧠 Not the browser cache: this happens because of the <span class="key">Data Cache</span> and <span class="key">Full Route Cache</span>.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🟣 Force dynamic: opt out of caching for the whole route</h2>
+      <p>
+        If you want fresh data on every request, set:
+      </p>
+      <pre><code>// app/cabins/page.js (concept)
+export const revalidate = 0;
+</code></pre>
+
+      <div class="warn">
+        <p>⚠️ Lecture note: this value can’t be computed; it should be a literal number.</p>
+      </div>
+
+      <div class="good">
+        <p>✅ Result: update Supabase → refresh page → you see the newest value immediately.</p>
+      </div>
+
+      <p class="mini">
+        Tradeoff: this can increase API/DB calls (every request can refetch).
+      </p>
+    </section>
+
+    <section>
+      <h2>⚖️ ISR: the practical middle ground</h2>
+      <p>
+        Many datasets change “sometimes” (not constantly). Cabin prices may update occasionally.
+        Regenerating on every request is wasteful, but staying static forever is also wrong.
+      </p>
+
+      <div class="tip">
+        <p>💡 ISR (Incremental Static Regeneration) = keep the page static, but refresh it <span class="key">every N seconds</span>.</p>
+      </div>
+
+      <h3>Enable ISR with <code>revalidate</code></h3>
+      <pre><code>// app/cabins/page.js (concept)
+export const revalidate = 15; // demo value (seconds)
+</code></pre>
+
+      <h3>More realistic example</h3>
+      <pre><code>// once per hour
+export const revalidate = 3600;
+</code></pre>
+
+      <div class="good">
+        <p>✅ Observation: when you change Supabase data, the new value appears only after the revalidation interval passes.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Key ISR detail: “who triggers the regeneration?”</h2>
+      <p>
+        After the interval passes, the <span class="key">next visitor/request</span> triggers regeneration in the background.
+        Often, the <span class="key">subsequent request</span> receives the newly cached result.
+      </p>
+
+      <table class="table" aria-label="ISR timing">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>What users see</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Before interval ends</td>
+            <td>Old cached (static) output</td>
+          </tr>
+          <tr>
+            <td>First request after interval</td>
+            <td>Triggers regeneration (background), may still see old output</td>
+          </tr>
+          <tr>
+            <td>Next request after that</td>
+            <td>Sees fresh output (new cached version)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <p>🧪 Demo trick: refresh twice quickly after the interval to see the “second request” get the updated value.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧱 Component-level control: <code>noStore()</code></h2>
+      <p>
+        Route-level <code>revalidate</code> is straightforward. But sometimes you want one component to fetch uncached data.
+        The lecture uses <code>CabinList</code> and shows:
+      </p>
+
+      <pre><code>// CabinList (concept)
+import { unstable_noStore as noStore } from 'next/cache';
+
+export default async function CabinList() {
+  noStore();
+  // ...fetch data (e.g., via Supabase client)...
+}
+</code></pre>
+
+      <div class="warn">
+        <p>⚠️ Current behavior (without PPR): if one component opts out of caching, the entire route often becomes dynamic.</p>
+      </div>
+
+      <div class="tip">
+        <p>🔮 Why it still matters: with Partial Pre-Rendering (future), you can keep the static shell and stream only this component as the dynamic “hole” (especially if wrapped in <code>&lt;Suspense&gt;</code>).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 Quick cheat sheet</h2>
+      <ul>
+        <li>🏗️ Test caching in prod: <code>next build</code> + <code>next start</code> (or <code>npm run prod</code>).</li>
+        <li>🟢 Static route + data cache = stale until revalidation.</li>
+        <li>🟣 <code>revalidate = 0</code> = dynamic (fresh every request).</li>
+        <li>⚖️ <code>revalidate = N</code> = ISR (refresh every N seconds).</li>
+        <li>🧩 ISR nuance: first request after interval triggers regen; next request often gets fresh.</li>
+        <li>🧱 <code>noStore()</code> = opt out at component level (useful for PPR thinking).</li>
+      </ul>
+    </section>
+
+    <p class="mini" style="margin-top:12px;">
+      Print tip: Use your browser’s Print dialog and set paper size to A4. Spacing and word-wrapping are configured to avoid cut-off.
+    </p>
+  </div>
+</body>
+</html>

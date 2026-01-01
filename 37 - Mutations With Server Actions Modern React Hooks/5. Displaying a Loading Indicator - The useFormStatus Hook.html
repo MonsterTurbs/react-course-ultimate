@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Server Actions — Loading Indicator with useFormStatus (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --chip: #f2f4f7;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 60px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 18px 18px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 16px 16px 10px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: -0.2px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 12px 20px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0 12px;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0 14px;
+      padding: 12px;
+      background: #0b0b0c;
+      color: #f2f2f2;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .inline-code {
+      background: #f1f1f1;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .footer {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    /* Print styles: A4, clean margins, no URL after links */
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-radius: 0; box-shadow: none; }
+
+      /* Avoid cutting blocks across pages */
+      header, section, pre, .callout { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Don’t print link URLs */
+      a[href]::after { content: "" !important; }
+
+      /* Ensure colors print cleanly */
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🛠️ Loading Indicator for Server Action Forms with <span class="inline-code">useFormStatus</span></h1>
+      <p class="subtitle">Next.js + React Server Actions — show “Updating…” and disable the submit button while a form is submitting.</p>
+      <div class="meta">
+        <span class="chip">Topic: Server Actions</span>
+        <span class="chip">Hook: <span class="inline-code">useFormStatus</span> (ReactDOM)</span>
+        <span class="chip">Goal: Better UX (feedback + disable)</span>
+        <span class="chip">Format: A4 / Single Column</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>✅ The Problem We’re Solving</h2>
+        <p>
+          When you submit a form connected to a <strong>Server Action</strong>, the mutation happens in the background — but the user can’t tell.
+          They might click the button repeatedly because nothing looks like it’s happening.
+        </p>
+        <div class="callout">
+          <strong>🎯 Desired UX</strong>
+          <ul>
+            <li>Button label changes: <em>“Update Profile” → “Updating…”</em></li>
+            <li>Button becomes disabled while submitting (prevents double-submit)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Key Idea: Why <span class="inline-code">useFormStatus</span> Exists</h2>
+        <p>
+          In classic React, you’d track loading state with <span class="inline-code">useState</span>.
+          But with Server Actions, the submission happens through a form + server execution, and the “pending” status belongs to the <strong>form submission lifecycle</strong>.
+        </p>
+        <div class="callout">
+          <strong>💡 What <span class="inline-code">useFormStatus</span> gives you</strong>
+          <ul>
+            <li><strong><span class="inline-code">pending</span></strong>: <span class="inline-code">true</span> while the form is submitting</li>
+            <li>Also provides form-related info (less commonly used): formData, method, action</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>⚠️ The Rule That Confuses Everyone (But You Must Follow)</h2>
+        <p>
+          <span class="inline-code">useFormStatus</span> <strong>must be used inside a component rendered inside the form</strong> — not in a component that merely <em>contains</em> the form.
+        </p>
+        <div class="callout">
+          <strong>Why this matters</strong>
+          <ul>
+            <li>✅ Works: <span class="inline-code">SubmitButton</span> is rendered <em>inside</em> <span class="inline-code">&lt;form&gt;</span></li>
+            <li>❌ Doesn’t work: calling <span class="inline-code">useFormStatus</span> in the parent component that returns the form</li>
+          </ul>
+          <p style="margin-top:8px;">This is “by design” because the hook reads status from the nearest parent form context.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Step-by-Step Recipe</h2>
+        <ol>
+          <li><strong>Create a new button component</strong> that is rendered inside the form (e.g., <span class="inline-code">SubmitButton</span>).</li>
+          <li><strong>Use <span class="inline-code">useFormStatus</span> inside that button component</strong> and destructure <span class="inline-code">pending</span>.</li>
+          <li><strong>Conditionally render button text</strong>: pending ? “Updating…” : “Update profile”.</li>
+          <li><strong>Disable the button</strong> while pending: <span class="inline-code">disabled={pending}</span>.</li>
+          <li><strong>Ensure this code runs on the client</strong> (because hooks require client components).</li>
+        </ol>
+        <div class="callout">
+          <strong>✅ Reminder</strong>
+          <p>
+            Even though the Server Action runs on the server, the loading indicator is a client-side UX concern, so the button component must be a <strong>Client Component</strong>.
+            If the parent file is already <span class="inline-code">"use client"</span>, you’re good 🙂.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Example Code (Copy Pattern)</h2>
+        <p>Use this pattern for an “Update Profile” form connected to a Server Action.</p>
+
+        <h3>1) Client Component form (uses the Server Action in <span class="inline-code">action</span>)</h3>
+<pre><code>"use client";
+
+import { updateGuest } from "@/app/_lib/actions";
+import SubmitButton from "./SubmitButton";
+
+export default function UpdateProfileForm() {
+  return (
+    &lt;form action={updateGuest} className="space-y-4"&gt;
+      {/* inputs... (must have name attributes) */}
+
+      &lt;SubmitButton /&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+        <h3>2) Submit button component (rendered inside the form)</h3>
+<pre><code>"use client";
+
+import { useFormStatus } from "react-dom";
+
+export default function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    &lt;button
+      type="submit"
+      disabled={pending}
+      className="px-4 py-2 rounded bg-primary-800 disabled:bg-gray-300 disabled:text-gray-600"
+    &gt;
+      {pending ? "Updating…" : "Update profile"}
+    &lt;/button&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          <strong>🧠 Mental model</strong>
+          <p>
+            The form provides “submission status context.” The button reads that status via <span class="inline-code">useFormStatus</span>.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧯 Common Pitfalls (Quick Troubleshooting)</h2>
+        <ul>
+          <li>❌ <strong>Hook used in the wrong place:</strong> If <span class="inline-code">useFormStatus</span> is in the parent component that returns the form, it won’t work. Put it in a child component rendered inside the form.</li>
+          <li>❌ <strong>No <span class="inline-code">"use client"</span>:</strong> Hooks require client components. Add <span class="inline-code">"use client"</span> at the top of the file that uses the hook.</li>
+          <li>⚠️ <strong>Auto-import may not work:</strong> It’s still new/experimental in some toolchains. Import manually from <span class="inline-code">react-dom</span>.</li>
+          <li>⚠️ <strong>Disabled inputs don’t submit:</strong> Disabled fields often don’t appear in <span class="inline-code">formData</span>. (This is standard HTML behavior.)</li>
+          <li>✅ <strong>Tailwind disabled styles:</strong> Use <span class="inline-code">disabled:</span> variants to visually communicate the pending state.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>📌 Key Takeaways</h2>
+        <ul>
+          <li>✅ Use <span class="inline-code">useFormStatus</span> to detect whether a form submission is pending.</li>
+          <li>✅ The hook must live in a component rendered <em>inside</em> the form.</li>
+          <li>✅ Disable the submit button to prevent double submissions.</li>
+          <li>✅ This improves UX for Server Actions because the mutation is otherwise “silent.”</li>
+        </ul>
+        <div class="divider"></div>
+        <p class="footer">
+          Print tip: Use your browser’s Print dialog → “Save as PDF”. This page is formatted for A4 single-column output, and link URLs are suppressed in print.
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

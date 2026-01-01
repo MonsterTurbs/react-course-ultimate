@@ -1,0 +1,360 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Far Away Travel List — Project Kickoff | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 24px;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .callout.ok{
+      border-left-color: var(--ok);
+      background: #f0fdfa;
+    }
+
+    .callout.warn{
+      border-left-color: var(--warn);
+      background: #fffbeb;
+    }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{
+      size: A4;
+      margin: 14mm;
+    }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn{ background:#ffffff; }
+      .card, .term, pre, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Starting a New Project — “Far Away” Travel List 🧳</h1>
+      <p class="subtitle">
+        Kickoff lecture summary: create the project, understand the app features, and break the UI into components.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">⚙️ create-react-app (v5)</span>
+        <span class="chip">🧠 State</span>
+        <span class="chip">🖱️ Events</span>
+        <span class="chip">📝 Forms</span>
+        <span class="chip">🧩 Component design</span>
+        <span class="chip">📋 List interactivity</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Lecture Goal</h2>
+      <div class="callout">
+        <p><strong>In this part of the course:</strong> you build your first React project with “real” interactivity. 🙂</p>
+        <p>The project is called <strong>Far Away</strong> — a simple travel checklist where you add items you need for your trip.</p>
+      </div>
+
+      <div class="card">
+        <h3>What you will practice</h3>
+        <ul>
+          <li><strong>State</strong>: the UI changes when items are added/removed/packed.</li>
+          <li><strong>Events</strong>: clicks for delete/pack/sort/clear.</li>
+          <li><strong>Forms</strong>: handle form submission to add items.</li>
+          <li><strong>Component thinking</strong>: break one screen into smaller pieces.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Create the React Project (Setup Steps)</h2>
+      <div class="callout ok">
+        <p><strong>Command line reminder:</strong></p>
+        <ul>
+          <li>Windows: open <strong>Command Prompt</strong></li>
+          <li>Mac: open <strong>Terminal</strong></li>
+          <li>Navigate to the folder where you want the project (example: Desktop)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Project creation command</h3>
+        <p class="mini">The lecture specifies Create React App version 5 and project name <code>travel-list</code>.</p>
+        <pre><code>npx create-react-app@5 travel-list</code></pre>
+        <p class="mini">After it finishes, you typically run:</p>
+        <pre><code>cd travel-list
+npm start</code></pre>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Why specify version 5?</strong> 📌</p>
+        <p class="mini">
+          Courses sometimes pin a tool version to avoid surprises from breaking changes. If you use a newer CRA version,
+          your output might differ slightly from the instructor.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) “Far Away” App Features (What the UI can do)</h2>
+
+      <div class="card">
+        <h3>Core interactions</h3>
+        <ul>
+          <li>➕ <strong>Add items</strong> (example: “2 boarding passes”).</li>
+          <li>🗑️ <strong>Delete items</strong> you no longer need.</li>
+          <li>✅ <strong>Mark items as packed</strong> (completed items).</li>
+          <li>📊 <strong>Stats update automatically</strong> (e.g., “packed 2 out of 4 = 50%”).</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Sorting + list management</h3>
+        <ul>
+          <li>↕️ Sort by:
+            <ul>
+              <li>Input order</li>
+              <li>Description</li>
+              <li>Packed status (packed items appear at the end)</li>
+            </ul>
+          </li>
+          <li>🧹 Clear the entire list (with a confirmation prompt).</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <p><strong>Beginner mental model:</strong> every time the list changes (add/delete/toggle/sort), React should re-render.
+        That means your list data will live in <strong>state</strong>. 🧠</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Component Breakdown (How to think in React)</h2>
+      <p>The lecture shows how to split the UI into smaller, reusable components. This helps you keep code clean and focused.</p>
+
+      <div class="term">
+        <div class="icon">🟨</div>
+        <div class="body">
+          <p class="title">Logo</p>
+          <p class="desc">The top “yellow” header area (branding/title of the app).</p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">📝</div>
+        <div class="body">
+          <p class="title">Form</p>
+          <p class="desc">The inputs + button to add a new item to the list (handles form submission).</p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">📦</div>
+        <div class="body">
+          <p class="title">PackingList</p>
+          <p class="desc">The container for the items list + sorting controls.</p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">📌</div>
+        <div class="body">
+          <p class="title">Item (PackingItem)</p>
+          <p class="desc">One row in the list (checkbox to mark packed + delete action).</p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">📊</div>
+        <div class="body">
+          <p class="title">Stats</p>
+          <p class="desc">Shows progress: total items, packed items, and percentage packed.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Why this decomposition makes sense ✅</h3>
+        <ul>
+          <li>Each component has a single responsibility (Logo displays, Form adds, List manages items, Stats summarizes).</li>
+          <li>It becomes easier to locate and fix UI logic.</li>
+          <li>You can pass data and event handlers via <strong>props</strong> between components.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) What to Expect Next</h2>
+      <div class="callout ok">
+        <p><strong>Next lecture:</strong> you will start implementing the layout and wiring the interactivity.</p>
+        <ul>
+          <li>Use state to store the packing list items.</li>
+          <li>Handle <strong>form submit</strong> events to add items.</li>
+          <li>Handle clicks to delete items, toggle packed, sort, and clear.</li>
+        </ul>
+      </div>
+
+      <p class="mini">
+        Design note: the lecture mentions a “retro” look that fits the app’s vibe. The main focus, however, is interactivity and state.
+      </p>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>6) Quick Self-Check Questions 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>Which UI changes in this app are driven by state?</li>
+          <li>What event adds a new item (click or form submit)?</li>
+          <li>What components do you expect to hold state vs receive props?</li>
+          <li>Why does sorting likely not permanently change the original data (hint: derived UI)?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Hints ✅</h3>
+        <ul>
+          <li>List items and packed status are state.</li>
+          <li>Adding items is best handled by <code>onSubmit</code> in a form.</li>
+          <li>Usually the top-level (App) holds the list state; children receive data + callbacks.</li>
+          <li>Sorting can be done by creating a sorted copy for rendering.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Keep margins around ~14mm and enable background graphics only if you want callout shading.
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,477 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wild Oasis — Sidebar & Main Navigation (Study Guide)</title>
+  <style>
+    :root{
+      --paper:#ffffff;
+      --ink:#111111;
+      --muted:#4b5563;
+      --border:#e5e7eb;
+      --soft:#f9fafb;
+      --accent:#1f4ed8;
+      --accent-2:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+      --codebg:#0b1020;
+      --codeink:#e5e7eb;
+
+      --font: Arial, Helvetica, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      --a4w: 210mm;
+      --a4h: 297mm;
+      --pad: 18mm;
+      --radius: 10px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--paper);
+      color:var(--ink);
+      font-family:var(--font);
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column A4-friendly container */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff 0%, var(--soft) 100%);
+      border-radius: var(--radius);
+      padding: 18px 18px 14px;
+      margin-bottom: 16px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 24px;
+      letter-spacing: .2px;
+      line-height: 1.25;
+    }
+
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size: 12px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding: 4px 8px;
+      border-radius: 999px;
+    }
+
+    nav.toc{
+      margin: 14px 0 0;
+      padding: 12px 12px 10px;
+      border:1px dashed var(--border);
+      border-radius: var(--radius);
+      background:#fff;
+    }
+
+    nav.toc h2{
+      font-size: 14px;
+      margin:0 0 8px;
+    }
+
+    nav.toc ul{
+      margin:0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    section{
+      margin: 14px 0 0;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    h2{
+      margin:0 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    h3{
+      margin:14px 0 8px;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    p{ margin: 8px 0; }
+
+    .callout{
+      border-left: 4px solid var(--accent);
+      background: #f3f6ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout.warn{
+      border-left-color: var(--warn);
+      background: #fff7ed;
+    }
+
+    .callout.danger{
+      border-left-color: var(--danger);
+      background: #fef2f2;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 860px){
+      .grid2{ grid-template-columns: 1fr 1fr; }
+    }
+
+    ul,ol{ margin: 8px 0 8px 20px; }
+    li{ margin: 6px 0; }
+
+    code{
+      font-family: var(--mono);
+      font-size: 0.95em;
+      background: #f3f4f6;
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codeink);
+      border-radius: 10px;
+      padding: 12px;
+      overflow: hidden;
+      margin: 10px 0;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    pre code{
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      display:block;
+      white-space: pre-wrap;      /* IMPORTANT: wrap to avoid print cut-off */
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .kbd{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .checklist{
+      list-style: none;
+      padding-left: 0;
+      margin-left: 0;
+    }
+    .checklist li{
+      padding-left: 28px;
+      position: relative;
+    }
+    .checklist li::before{
+      content: "☐";
+      position:absolute;
+      left:0;
+      top:0;
+      color: var(--accent-2);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .mini-quiz{
+      border-top: 1px dashed var(--border);
+      margin-top: 14px;
+      padding-top: 14px;
+    }
+
+    .answer{
+      margin-top: 6px;
+      padding: 10px 12px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    /* Print-specific */
+    @page{ size: A4; margin: 14mm; }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; margin:0; padding: 0; }
+      header, section{ box-shadow: none !important; }
+
+      /* Ensure single column and prevent cut-off */
+      *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      /* Remove link URLs and link styling in print */
+      a{ color: var(--ink); text-decoration: none; }
+      a[href]::after{ content: "" !important; }
+
+      /* Avoid splitting important blocks */
+      header, section, pre{ break-inside: avoid; page-break-inside: avoid; }
+
+      /* Slightly tighter typography for paper */
+      h1{ font-size: 20px; }
+      h2{ font-size: 16px; }
+      h3{ font-size: 13.5px; }
+      p, li{ font-size: 11.5pt; }
+      .sub{ font-size: 10.5pt; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🧭 Wild Oasis — Building the Sidebar & Main Navigation (Reviewer)</h1>
+      <p class="sub">Focus: Sidebar logo + SPA navigation using <code>NavLink</code>, styling 3rd‑party components with styled-components, and adding icons via <code>react-icons</code>.</p>
+      <div class="meta">
+        <span class="chip">📌 Single-column</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+        <span class="chip">🧠 Beginner-friendly</span>
+        <span class="chip">⚙️ Styled Components + React Router</span>
+      </div>
+
+      <nav class="toc" aria-label="Table of contents">
+        <h2>Table of Contents</h2>
+        <ul>
+          <li>Goal of this lecture</li>
+          <li>Sidebar pieces: Logo + MainNav</li>
+          <li>Why <code>&lt;a href&gt;</code> is wrong in an SPA</li>
+          <li>Fix: <code>NavLink</code> + active styling</li>
+          <li>Styling 3rd‑party components with styled-components</li>
+          <li>Icons with <code>react-icons</code> (Heroicons v2)</li>
+          <li>Checklist + common pitfalls</li>
+          <li>Mini quiz</li>
+        </ul>
+      </nav>
+    </header>
+
+    <section id="goal">
+      <h2>🎯 Goal of the Lecture</h2>
+      <p>You will complete the left sidebar by building the app’s <strong>main navigation</strong>:</p>
+      <ul>
+        <li>Show the <strong>Wild Oasis logo</strong> at the top</li>
+        <li>Render a list of navigation links (Dashboard, Bookings, Cabins, Users, Settings)</li>
+        <li>Navigate smoothly <strong>without full page reloads</strong> (Single Page App behavior)</li>
+        <li>Highlight the active link automatically</li>
+        <li>Add icons for better UX</li>
+      </ul>
+      <div class="callout">
+        ✅ Target outcome: the sidebar feels like a real professional back-office app — fast navigation, active states, and consistent styling.
+      </div>
+    </section>
+
+    <section id="sidebar">
+      <h2>🧱 Sidebar Pieces: Logo + Main Navigation</h2>
+      <div class="grid2">
+        <div>
+          <h3>1) Logo setup (public assets)</h3>
+          <p>React/Vite expects static assets like images to be served from <strong>public/</strong> when referenced directly by a path.</p>
+          <ul>
+            <li>Move logo images from starter files into <code>public/</code></li>
+            <li>Then your Logo component can safely reference them</li>
+          </ul>
+          <div class="callout warn">
+            ⚠️ If the logo shows “not found”, it’s almost always because the image is still inside <code>src/</code> or a starter folder instead of <code>public/</code>.
+          </div>
+        </div>
+        <div>
+          <h3>2) MainNav structure (semantic HTML)</h3>
+          <p>Standard navigation markup:</p>
+          <ul>
+            <li><code>&lt;nav&gt;</code> container</li>
+            <li><code>&lt;ul&gt;</code> list of items</li>
+            <li><code>&lt;li&gt;</code> per item</li>
+            <li>Link component inside each item</li>
+          </ul>
+          <p>This is clean for accessibility and matches how you style menus.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="anchors">
+      <h2>🚫 Why Regular <code>&lt;a href&gt;</code> Links Are Wrong in an SPA</h2>
+      <p>When you use an anchor tag like this:</p>
+      <pre><code>&lt;a href="/bookings"&gt;Bookings&lt;/a&gt;</code></pre>
+      <p>It triggers a <strong>full page reload</strong>. Symptoms:</p>
+      <ul>
+        <li>Noticeable “flash” as the browser reloads</li>
+        <li>App state can reset unexpectedly</li>
+        <li>Feels slower and not like a SPA</li>
+      </ul>
+      <div class="callout danger">
+        ❌ In a React Router app, prefer <code>Link</code> or <code>NavLink</code> so navigation stays client-side.
+      </div>
+    </section>
+
+    <section id="navlink">
+      <h2>✅ Fix: Use <code>NavLink</code> for Smooth Navigation + Active State</h2>
+      <p>React Router’s <code>NavLink</code> does two things you want for menus:</p>
+      <ul>
+        <li>Client-side navigation (no reload)</li>
+        <li>Automatically adds an <code>active</code> class (or provides a way to style active state)</li>
+      </ul>
+
+      <h3>Minimal Example</h3>
+      <pre><code>import { NavLink } from "react-router-dom";
+
+function MainNav() {
+  return (
+    &lt;nav&gt;
+      &lt;ul&gt;
+        &lt;li&gt;
+          &lt;NavLink to="/dashboard"&gt;Home&lt;/NavLink&gt;
+        &lt;/li&gt;
+        &lt;li&gt;
+          &lt;NavLink to="/bookings"&gt;Bookings&lt;/NavLink&gt;
+        &lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        💡 Why <code>NavLink</code> (not just <code>Link</code>)? Because menus typically need an <strong>active highlight</strong>.
+      </div>
+    </section>
+
+    <section id="styled-3p">
+      <h2>🎨 Styling a 3rd‑Party Component with styled-components</h2>
+      <p>Key trick from the lecture:</p>
+      <ul>
+        <li>You can style not only HTML tags (<code>styled.a</code>, <code>styled.ul</code>)</li>
+        <li>But also React components from other libraries by passing them in: <code>styled(NavLink)</code></li>
+      </ul>
+
+      <h3>Pattern</h3>
+      <pre><code>import styled from "styled-components";
+import { NavLink } from "react-router-dom";
+
+const StyledNavLink = styled(NavLink)`
+  /* your link styles */
+
+  &amp;.active {
+    /* styles when the link matches the current route */
+  }
+`;</code></pre>
+
+      <p><strong>Important detail:</strong> React Router applies <code>active</code> on the link that matches the current URL, so you can target it with:</p>
+      <pre><code>&amp;.active { /* active link styles */ }</code></pre>
+
+      <div class="callout warn">
+        ⚠️ Common confusion: The <code>&amp;</code> refers to the component itself (the rendered anchor). It’s like writing: <code>a.active { ... }</code> but scoped.
+      </div>
+    </section>
+
+    <section id="icons">
+      <h2>🧩 Adding Icons with <code>react-icons</code> (Heroicons v2)</h2>
+      <p>Steps:</p>
+      <ol>
+        <li>Install the library: <code>npm install react-icons</code></li>
+        <li>Pick an icon set (lecture uses <strong>Heroicons v2</strong> → <code>react-icons/hi2</code>)</li>
+        <li>Import icons as React components</li>
+        <li>Place icon component before the label</li>
+      </ol>
+
+      <h3>Example</h3>
+      <pre><code>import { HiOutlineHomeModern, HiOutlineCalendarDays } from "react-icons/hi2";
+
+&lt;StyledNavLink to="/dashboard"&gt;
+  &lt;HiOutlineHomeModern /&gt;
+  &lt;span&gt;Home&lt;/span&gt;
+&lt;/StyledNavLink&gt;
+
+&lt;StyledNavLink to="/bookings"&gt;
+  &lt;HiOutlineCalendarDays /&gt;
+  &lt;span&gt;Bookings&lt;/span&gt;
+&lt;/StyledNavLink&gt;</code></pre>
+
+      <div class="callout">
+        ✨ UX detail: Your CSS can style <code>svg</code> inside the link so icons change color on hover/active.
+      </div>
+    </section>
+
+    <section id="wrapup">
+      <h2>🧾 Wrap-up: What You Built</h2>
+      <ul class="checklist">
+        <li>Imported and displayed the Wild Oasis logo in the sidebar</li>
+        <li>Created <code>MainNav</code> structure with <code>nav</code> + <code>ul</code> + links</li>
+        <li>Replaced <code>&lt;a href&gt;</code> with React Router <code>NavLink</code> to prevent full reloads</li>
+        <li>Styled <code>NavLink</code> via <code>styled(NavLink)</code> and used <code>&amp;.active</code></li>
+        <li>Installed and used <code>react-icons</code> to add Heroicons v2</li>
+        <li>Added spacing/layout polish (logo-to-menu gap using flex column + gap)</li>
+      </ul>
+
+      <div class="callout warn">
+        🧠 Mental model: “In SPAs, route changes are <em>state changes</em>, not full document reloads.” React Router’s components are designed to keep it that way.
+      </div>
+
+      <h3>Common Pitfalls</h3>
+      <ul>
+        <li><strong>Logo not found:</strong> images not moved to <code>public/</code></li>
+        <li><strong>Page flashes/reloads:</strong> still using <code>&lt;a href&gt;</code> instead of <code>NavLink</code></li>
+        <li><strong>Active styling not working:</strong> not targeting <code>&amp;.active</code> in styled component</li>
+        <li><strong>Icons not showing:</strong> wrong import path (Heroicons v2 uses <code>react-icons/hi2</code>)</li>
+      </ul>
+
+      <div class="mini-quiz">
+        <h3>📝 Mini Quiz (Quick Check)</h3>
+        <ol>
+          <li>Why is using <code>&lt;a href&gt;</code> inside a React Router SPA a bad idea?</li>
+          <li>What’s the difference between <code>Link</code> and <code>NavLink</code>?</li>
+          <li>How do you style a 3rd‑party component (like <code>NavLink</code>) using styled-components?</li>
+          <li>Where do you put static images so they can be referenced reliably by path in a Vite app?</li>
+        </ol>
+        <div class="answer">
+          <p><strong>Answer key (brief):</strong></p>
+          <ol>
+            <li>It forces a full page reload (slower, resets state, not SPA behavior).</li>
+            <li><code>NavLink</code> provides active-state styling support (adds <code>active</code> class when matched).</li>
+            <li>Use <code>styled(NavLink)</code> and target <code>&amp;.active</code> inside the template literal.</li>
+            <li>Place them in <code>public/</code>.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

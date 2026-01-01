@@ -1,0 +1,458 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js (RSC) — Server Actions (Reviewer / Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --accent:#0b57d0;
+      --accent2:#146c2e;
+      --warn:#8a4b00;
+      --danger:#b00020;
+      --codebg:#0b1020;
+      --codetext:#e9eefc;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:linear-gradient(180deg, var(--soft), #fff);
+      padding:18px 18px 14px;
+      border-radius:12px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 26px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 14px;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size: 12px;
+      color:var(--muted);
+    }
+
+    main{
+      margin-top: 18px;
+    }
+
+    section{
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 16px 12px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    h2{
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15px;
+    }
+
+    p{margin: 8px 0;}
+
+    ul{margin: 8px 0 10px 18px;}
+    li{margin: 6px 0;}
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.success{border-left-color: var(--accent2);}
+    .callout.warn{border-left-color: var(--warn);}
+    .callout.danger{border-left-color: var(--danger);}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .two{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 860px){
+      .two{grid-template-columns: 1fr 1fr;}
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow:auto;
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .k{
+      display:inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .small{font-size: 13px; color: var(--muted);}
+
+    .divider{
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    a{color: var(--accent); text-decoration: none;}
+    a:hover{text-decoration: underline;}
+
+    /* Print styles (A4, clean output, no URLs) */
+    @page{ size: A4; margin: 14mm 14mm 16mm; }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header, section{ border-color:#dcdcdc; box-shadow:none; }
+      a{ color: inherit; text-decoration: none; }
+      /* Hide any URL reveal behavior */
+      a[href]::after{ content: "" !important; }
+      pre{ white-space: pre-wrap; word-break: break-word; }
+      .chip{ background:#fff; }
+      .no-print{ display:none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 Server Actions in Next.js (React Server Components)</h1>
+      <p class="subtitle">Reviewer / Study Guide — Beginner-friendly explanations + practical mental models</p>
+      <div class="chips">
+        <span class="chip">✅ Mutations (create/update/delete)</span>
+        <span class="chip">🧠 RSC mental model</span>
+        <span class="chip">🧾 Forms + server actions</span>
+        <span class="chip">🔁 Cache revalidation</span>
+        <span class="chip">🔒 Security reminders</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) Why Server Actions exist</h2>
+        <p>Until now, in the React Server Components (RSC) architecture, we used <b>Server Components</b> mainly for <b>data fetching</b> and rendering UI from the server.</p>
+
+        <div class="callout">
+          <b>Key idea:</b> Fetching data is not enough. Real apps must be <b>interactive</b> — users need to <b>create</b>, <b>update</b>, and <b>delete</b> data. These operations are called <b>mutations</b>.
+        </div>
+
+        <p>In RSC, the main tool for mutations is <b>Server Actions</b>.</p>
+        <ul>
+          <li>📥 <b>Server Components</b> → read/fetch data</li>
+          <li>✍️ <b>Server Actions</b> → mutate/write data (insert/update/delete)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>2) What Server Actions are (simple definition)</h2>
+        <p><b>Server Actions</b> are <b>asynchronous functions</b> that run <b>exclusively on the server</b>.</p>
+
+        <div class="callout success">
+          ✅ Because they run only on the server, you can safely:
+          <ul>
+            <li>Connect directly to databases</li>
+            <li>Use secret API keys</li>
+            <li>Read/write secure cookies (when needed)</li>
+          </ul>
+        </div>
+
+        <div class="callout warn">
+          ⚠️ They still require backend thinking:
+          <ul>
+            <li>Validate inputs (treat all inputs as untrusted)</li>
+            <li>Check authorization (user is allowed to do the mutation)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) Where you define Server Actions</h2>
+        <div class="two">
+          <div>
+            <h3>Option A: Inside a Server Component</h3>
+            <p class="small">Useful for quick one-off actions.</p>
+            <ul>
+              <li>Defined directly in a server component.</li>
+              <li>Can be used there or passed to a client component.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Option B: In a dedicated action module (recommended)</h3>
+            <p class="small">Keeps all mutations centralized and maintainable.</p>
+            <ul>
+              <li>Create a file like <span class="k">actions.js</span></li>
+              <li>Put <span class="k">"use server"</span> at the top</li>
+              <li>Export multiple actions from that file</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>Example: action module pattern</h3>
+        <pre><code>"use server";
+
+export async function createReservation(formData) {
+  // 1) Validate + authorize
+  // 2) Write to DB
+  // 3) Revalidate cache (so UI updates)
+}
+</code></pre>
+      </section>
+
+      <section>
+        <h2>4) “use client” vs “use server” (mental model)</h2>
+        <p>These directives help code cross the server/client boundary.</p>
+
+        <div class="two">
+          <div class="callout">
+            <b>🧱 "use client"</b>
+            <ul>
+              <li>Makes a component run on the <b>client</b> (browser).</li>
+              <li>Enables interactivity: state, effects, event handlers.</li>
+              <li>Think: <b>server → client bridge</b>.</li>
+            </ul>
+          </div>
+          <div class="callout">
+            <b>🔌 "use server"</b>
+            <ul>
+              <li>Marks a function/file as <b>server-only action(s)</b>.</li>
+              <li>Enables the <b>client to call the server</b> safely.</li>
+              <li>Think: <b>client → server bridge</b> (like an API endpoint).</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          ⚠️ Common beginner mistake: <b>Do not use "use server" for Server Components.</b>
+          <br />Server Components are already the default.
+        </div>
+      </section>
+
+      <section>
+        <h2>5) How Server Actions work behind the scenes</h2>
+        <p>Server Actions feel like normal async functions, but internally Next.js does something powerful:</p>
+
+        <div class="callout">
+          🪄 Next.js automatically creates an <b>API endpoint</b> for each Server Action.
+          <ul>
+            <li>The <b>function code</b> stays on the server.</li>
+            <li>The client only gets a <b>generated endpoint URL</b>.</li>
+            <li>Invoking the action triggers a <b>POST request</b> with serialized inputs.</li>
+          </ul>
+        </div>
+
+        <p class="small">As developers, you don’t manage the endpoint yourself — it’s abstracted. You just call the action.</p>
+
+        <div class="callout warn">
+          🖥️ Because actions are invoked through requests, they require a <b>running web server</b>.
+          <br />Unlike server components that may run at build time, server actions cannot run at build time.
+        </div>
+      </section>
+
+      <section>
+        <h2>6) The most common usage: forms</h2>
+        <p>Server Actions are commonly used as the <b>action</b> attribute of a regular <b>&lt;form&gt;</b>.</p>
+
+        <div class="callout success">
+          ✅ Forms “just work”:
+          <ul>
+            <li>Browser collects inputs</li>
+            <li>Next.js serializes the form data</li>
+            <li>POSTs to the generated Server Action endpoint</li>
+            <li>The Server Action runs on the server</li>
+          </ul>
+        </div>
+
+        <h3>Example: server action as a form action</h3>
+        <pre><code>// Server Action (actions.js)
+"use server";
+
+export async function updateProfile(formData) {
+  const nationalId = formData.get("nationalId");
+  const country = formData.get("country");
+
+  // validate inputs
+  if (!nationalId) throw new Error("National ID required");
+
+  // authorize user (example)
+  // await requireAuth();
+
+  // write to DB...
+
+  // revalidate cache so UI refreshes
+  // revalidatePath("/account/profile");
+}
+
+// Component
+export default function ProfileForm() {
+  return (
+    &lt;form action={updateProfile}&gt;
+      &lt;input name="nationalId" /&gt;
+      &lt;select name="country"&gt;...&lt;/select&gt;
+      &lt;button&gt;Save&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+</code></pre>
+      </section>
+
+      <section>
+        <h2>7) Other usage: event handlers and effects</h2>
+        <p>Server Actions can also be called like regular functions (from client components), for example:</p>
+        <ul>
+          <li>🖱️ Click handlers</li>
+          <li>🧠 useEffect</li>
+        </ul>
+
+        <div class="callout warn">
+          ⚠️ This only applies to <b>Client Components</b> because only they run in the browser and can handle events.
+        </div>
+      </section>
+
+      <section>
+        <h2>8) After mutation: updating the UI (cache revalidation)</h2>
+        <p>In RSC apps, server-fetched data is not stored as client state. So after a mutation:</p>
+        <div class="callout">
+          🔁 You typically <b>revalidate</b> cached data so the UI can re-fetch and show updated results.
+          <ul>
+            <li><span class="k">revalidatePath()</span> — refresh a route/path</li>
+            <li><span class="k">revalidateTag()</span> — refresh tagged fetches</li>
+          </ul>
+        </div>
+        <p class="small">This connects Server Actions tightly with Next.js caching and revalidation.</p>
+      </section>
+
+      <section>
+        <h2>9) Security checklist (must-know)</h2>
+        <div class="two">
+          <div class="callout danger">
+            <b>🛡️ Always assume inputs are unsafe</b>
+            <ul>
+              <li>Validate types, required fields, and ranges</li>
+              <li>Sanitize/escape where appropriate</li>
+            </ul>
+          </div>
+          <div class="callout danger">
+            <b>🔐 Always authorize</b>
+            <ul>
+              <li>Confirm the user is logged in</li>
+              <li>Confirm they have permission for this mutation</li>
+              <li>Do not trust the client to enforce rules</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout">
+          🧠 Quick rule: <b>Treat Server Actions like backend endpoints</b> — because they effectively are.
+        </div>
+      </section>
+
+      <section>
+        <h2>10) Quick recap (memory-friendly)</h2>
+        <ul>
+          <li>📌 <b>Server Components</b> are for <b>reading/fetching</b> data.</li>
+          <li>📌 <b>Server Actions</b> are for <b>mutating</b> data (create/update/delete).</li>
+          <li>🧩 <span class="k">"use server"</span> marks server-only actions; code never ships to the browser.</li>
+          <li>🧾 Most common use: <b>forms</b> with <span class="k">action={serverAction}</span>.</li>
+          <li>🔁 After mutation, you often need <b>revalidatePath/tag</b> so UI updates.</li>
+          <li>🔒 Validate + authorize like a backend developer.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>11) Mini self-check quiz ✅</h2>
+        <ol>
+          <li><b>What problem do Server Actions solve?</b> (Hint: mutations)</li>
+          <li><b>Do Server Actions run on the client?</b> Why or why not?</li>
+          <li><b>Why is using URL state (navigation) sometimes a bad idea</b> for highly interactive UI?</li>
+          <li><b>What must you do after mutating data</b> so the UI reflects changes?</li>
+        </ol>
+
+        <div class="callout success">
+          ✅ If you can answer these confidently, you’re ready for the next lecture where you’ll implement actions in code.
+        </div>
+      </section>
+
+      <section class="no-print">
+        <h2>Optional: Tips for using this file in VS Code</h2>
+        <ul>
+          <li>Open this <span class="k">.html</span> file in VS Code.</li>
+          <li>Use <b>Live Server</b> extension (optional) to preview quickly.</li>
+          <li>To print: open in a browser → <b>Print</b> → select <b>Save as PDF</b> → paper size <b>A4</b>.</li>
+        </ul>
+        <p class="small">This section is hidden when printing.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

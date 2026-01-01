@@ -1,0 +1,504 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — The Rules of JSX (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --hint: #eef6ff;
+      --warn: #fff3cd;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.hint { border-left-color: #90caf9; background: var(--hint); }
+    .callout.warn { border-left-color: #ffe08a; background: var(--warn); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .term {
+      display: inline-block;
+      padding: 1px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧾 The Rules of JSX — Reviewer</h1>
+      <p class="subtitle">JSX looks like HTML, but it follows JavaScript rules. Learn what is allowed inside <code>{ }</code>, why statements don’t work, and the “one root element” rule. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print dialog, set Paper size = A4, Margins = Default.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#big-picture">Big picture: JSX vs HTML</a></li>
+          <li><a href="#js-mode">JavaScript mode with curly braces { }</a></li>
+          <li><a href="#expressions">Expressions are allowed (statements are not)</a></li>
+          <li><a href="#jsx-expression">JSX itself is an expression (2 implications)</a></li>
+          <li><a href="#one-root">Rule: one root element per JSX block</a></li>
+          <li><a href="#jsx-vs-html">Common JSX vs HTML differences (reference list)</a></li>
+          <li><a href="#practice">Practice & self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="big-picture">
+      <h2>🧠 Big picture: JSX vs HTML</h2>
+      <p>
+        JSX <strong>looks</strong> like HTML and is written with a very similar syntax.
+        But JSX is actually JavaScript (an extension of JavaScript syntax).
+      </p>
+
+      <div class="callout">
+        <p><strong>Why beginners get confused 🤯</strong></p>
+        <p class="muted">Because it looks like markup (HTML) but behaves like JavaScript rules.</p>
+      </div>
+    </section>
+
+    <section id="js-mode">
+      <h2>🧩 JavaScript mode with curly braces <code>{ }</code></h2>
+      <p>
+        In JSX, you can enter “JavaScript mode” using curly braces anywhere a value is expected:
+      </p>
+      <ul>
+        <li>✅ text content: <code>&lt;p&gt;{value}&lt;/p&gt;</code></li>
+        <li>✅ attributes: <code>&lt;img src={url} /&gt;</code></li>
+        <li>✅ inline styles: <code>style={{ backgroundColor: color }}</code></li>
+      </ul>
+
+      <pre><code>function Header() {
+  const name = "Fast React Pizza";
+  const hour = new Date().getHours();
+
+  return (
+    &lt;header&gt;
+      &lt;h1&gt;{name} 🍕&lt;/h1&gt;
+      &lt;p&gt;Open hour: {hour}:00&lt;/p&gt;
+    &lt;/header&gt;
+  );
+}</code></pre>
+
+      <div class="callout hint">
+        <p><strong>Rule of thumb ✅</strong></p>
+        <p class="muted">If it’s dynamic (variable/expression), use <code>{ }</code>. If it’s plain text, write it normally.</p>
+      </div>
+    </section>
+
+    <section id="expressions">
+      <h2>✅ Expressions are allowed (statements are not)</h2>
+      <p>
+        Inside <code>{ }</code>, you can place any JavaScript <strong>expression</strong> (anything that produces a value).
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Allowed ✅ (expressions)</h3>
+          <ul>
+            <li>Variables: <code>{name}</code></li>
+            <li>Math: <code>{price + 3}</code></li>
+            <li>Ternary: <code>{isOpen ? "Open" : "Closed"}</code></li>
+            <li>Array mapping: <code>{skills.map(s =&gt; ...)}</code></li>
+            <li>Objects/arrays (inline): <code>{[1,2,3].length}</code></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Not allowed ❌ (statements)</h3>
+          <ul>
+            <li><code>if/else</code></li>
+            <li><code>for</code> / <code>while</code></li>
+            <li><code>switch</code></li>
+            <li><code>try/catch</code></li>
+            <li>Variable declarations: <code>const</code>, <code>let</code> (inside JSX braces)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Why? 🧠</strong></p>
+        <p class="muted">Because JSX curly braces expect an expression (a value). Statements do not directly produce a value.</p>
+      </div>
+
+      <h3>Common pattern: move statements above the return ✅</h3>
+      <pre><code>function Footer() {
+  const hour = new Date().getHours();
+  const isOpen = hour &gt;= 12 &amp;&amp; hour &lt;= 22;
+
+  // ✅ statements live here, BEFORE JSX
+  if (!isOpen) return &lt;footer&gt;Closed ❌&lt;/footer&gt;;
+
+  return &lt;footer&gt;Open ✅&lt;/footer&gt;;
+}</code></pre>
+    </section>
+
+    <section id="jsx-expression">
+      <h2>🧠 JSX itself is an expression (2 implications)</h2>
+      <p>
+        A key idea from the lecture: <strong>a piece of JSX produces a JavaScript expression</strong>.
+        That’s consistent with JSX being compiled into <code>React.createElement(...)</code>, which is also an expression.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Implication 1 ✅</h3>
+          <p class="muted">
+            You can place JSX inside <code>{ }</code> because JSX is an expression.
+          </p>
+          <pre><code>function Status({ isOpen }) {
+  return (
+    &lt;div&gt;
+      {isOpen ? &lt;span&gt;Open ✅&lt;/span&gt; : &lt;span&gt;Closed ❌&lt;/span&gt;}
+    &lt;/div&gt;
+  );
+}</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Implication 2 ✅</h3>
+          <p class="muted">
+            You can write JSX anywhere in a component (assign it to a variable, pass it to functions, etc.).
+          </p>
+          <pre><code>function App() {
+  const header = &lt;h1&gt;Hello JSX 👋&lt;/h1&gt;;
+
+  return (
+    &lt;div&gt;
+      {header}
+      &lt;p&gt;JSX in a variable works ✅&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="one-root">
+      <h2>🧱 Rule: one root element per JSX block</h2>
+      <p>
+        A JSX block (like what a component returns) must have exactly <strong>one root element</strong>.
+        If you try to return two sibling elements, you’ll get an error.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Wrong ❌</h3>
+          <pre><code>function App() {
+  return (
+    &lt;h1&gt;Title&lt;/h1&gt;
+    &lt;p&gt;Paragraph&lt;/p&gt;
+  );
+}</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Correct ✅ (wrap in a parent)</h3>
+          <pre><code>function App() {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Title&lt;/h1&gt;
+      &lt;p&gt;Paragraph&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="callout hint">
+        <p><strong>Fragment note (coming later) 🧩</strong></p>
+        <p class="muted">If you don’t want an extra <code>&lt;div&gt;</code>, you can use a React Fragment. The course covers it later.</p>
+      </div>
+    </section>
+
+    <section id="jsx-vs-html">
+      <h2>🔎 Common JSX vs HTML differences (reference list)</h2>
+      <p>
+        The lecture mentions there’s a list of differences (best learned while coding), but here is a practical reference.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Attributes & naming 🧾</h3>
+          <ul>
+            <li><strong><code>className</code></strong> instead of <code>class</code></li>
+            <li><strong><code>htmlFor</code></strong> instead of <code>for</code> (labels)</li>
+            <li>Most DOM attributes use <strong>camelCase</strong> (e.g., <code>tabIndex</code>)</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Styles 🎨</h3>
+          <ul>
+            <li><code>style</code> expects an object: <code>style={{ color: "red" }}</code></li>
+            <li>CSS properties use <strong>camelCase</strong>: <code>fontSize</code>, <code>backgroundColor</code></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>JavaScript in JSX 🧠</h3>
+          <ul>
+            <li>Use <code>{ }</code> for expressions/variables</li>
+            <li>Statements belong outside JSX (above <code>return</code>)</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Components & capitalization 🧩</h3>
+          <ul>
+            <li>React components must start with an uppercase letter: <code>Pizza</code>, <code>Skill</code></li>
+            <li>Lowercase tags are treated as HTML elements: <code>div</code>, <code>h1</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Don’t stress this list ✅</strong></p>
+        <p class="muted">You’ll learn these rules naturally by coding and reading lint/editor messages.</p>
+      </div>
+    </section>
+
+    <section id="practice">
+      <h2>🧪 Practice & self-check</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Practice 1: Expression vs statement 🧠</h3>
+          <p class="muted">Convert an <code>if</code> statement into a JSX-friendly expression.</p>
+          <pre><code>// Goal:
+// if (isOpen) return &lt;p&gt;Open&lt;/p&gt;;
+// else return &lt;p&gt;Closed&lt;/p&gt;;
+
+return &lt;p&gt;{isOpen ? "Open" : "Closed"}&lt;/p&gt;;</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Practice 2: Map over data 🔁</h3>
+          <p class="muted">Render a list of skills using <code>map</code>:</p>
+          <pre><code>const skills = ["React", "JS", "CSS"];
+
+return (
+  &lt;ul&gt;
+    {skills.map(s =&gt; (
+      &lt;li key={s}&gt;{s}&lt;/li&gt;
+    ))}
+  &lt;/ul&gt;
+);</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Self-check ✅</h3>
+          <ul>
+            <li>What can you put inside <code>{ }</code> in JSX?</li>
+            <li>Why doesn’t <code>if/else</code> work inside JSX braces?</li>
+            <li>What does it mean that “JSX is an expression”?</li>
+            <li>Name the “one root element” rule.</li>
+            <li>List 2 JSX vs HTML differences you often forget.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout hint">
+        <p><strong>Quick summary 🔑</strong></p>
+        <p class="muted">
+          JSX is HTML-like, but it follows JavaScript rules. Use <code>{ }</code> to embed expressions (values).
+          Statements like <code>if</code> and <code>for</code> don’t work inside braces. JSX itself is an expression,
+          which means you can nest JSX and assign it to variables. Finally, JSX must have a single root element.
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

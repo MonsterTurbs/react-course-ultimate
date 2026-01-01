@@ -1,0 +1,363 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thinking in React — What It Means (Mindset + Process) | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background: #fef2f2; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .step{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      border:1px solid var(--border);
+      border-radius: 10px;
+      background:#ffffff;
+      padding: 10px 10px;
+    }
+    .step .n{
+      flex: 0 0 auto;
+      min-width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 700;
+    }
+    .step .txt{ flex:1; }
+    .step .txt p{ margin: 0; }
+    .step .txt .muted{ color: var(--muted); font-size: 13.5px; margin-top: 4px; }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre, .step{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn, .callout.danger{ background:#ffffff; }
+      .card, .term, pre, .callout, .step{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>What Is “Thinking in React”? 🧠⚛️</h1>
+      <p class="subtitle">
+        Reviewer/study guide: the React mindset, why it differs from Vanilla JS, and a practical process for building React apps.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">🧠 Mental model</span>
+        <span class="chip">🧩 Components</span>
+        <span class="chip">📦 Props</span>
+        <span class="chip">🧠 State</span>
+        <span class="chip">🔁 State transitions</span>
+        <span class="chip">⬇️ One-way data flow</span>
+        <span class="chip">⬆️ Lifting state up</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Why You Need a New Mindset</h2>
+      <div class="callout">
+        <p>
+          Building React applications requires a <strong>different mindset</strong> compared to Vanilla JavaScript.
+          It’s not enough to only memorize the React API (like <code>useState</code>).
+          You also need to <strong>think in React</strong>.
+        </p>
+      </div>
+
+      <div class="term">
+        <div class="icon">🎯</div>
+        <div class="body">
+          <p class="title">React mastery = API skills + React mindset</p>
+          <p class="desc">When you can both write React code and choose the right tools/structure, you’re on the path to building professional apps.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Definition: “Thinking in React”</h2>
+      <div class="card">
+        <p>
+          While building an application, <strong>thinking in React</strong> means you have a strong mental model of:
+        </p>
+        <ul>
+          <li><strong>When and how to use</strong> React tools: components, state, props, data flow, effects, and more</li>
+          <li><strong>How the UI updates:</strong> think in terms of <strong>state transitions</strong> instead of <strong>element mutations</strong></li>
+        </ul>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Key mindset shift:</strong> Don’t think “change the DOM element”. Think “update state → React re-renders UI”. ✅</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) A Practical Process for Building React Apps (High-Level)</h2>
+      <div class="card">
+        <p class="mini">
+          You can also see “thinking in React” as a process that helps build apps more <strong>structured</strong>. It’s not rigid, but it’s a useful guideline.
+        </p>
+      </div>
+
+      <div class="grid" aria-label="Thinking in React process">
+        <div class="step">
+          <div class="n">1</div>
+          <div class="txt">
+            <p><strong>Break the UI into components</strong> 🧩</p>
+            <p class="muted">Create a component tree (parent/child relationships). Think about reusability and composability.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="n">2</div>
+          <div class="txt">
+            <p><strong>Build a static version first</strong> 🧱</p>
+            <p class="muted">Implement the UI without state and interactivity. This gets most of the code done before state complexity.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="n">3</div>
+          <div class="txt">
+            <p><strong>Think about state</strong> 🧠</p>
+            <p class="muted">Decide what needs to change over time, what type of state is needed, and which component should own it.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="n">4</div>
+          <div class="txt">
+            <p><strong>Establish data flow</strong> ⬇️⬆️</p>
+            <p class="muted">Plan one-way data flow, child-to-parent communication (callbacks), and how global state is accessed.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Real-world note:</strong> This isn’t a strict linear process. There’s usually back-and-forth between steps. 🔁</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) What Questions You’ll Be Able to Answer</h2>
+      <div class="card">
+        <h3>Components & UI design 🧩</h3>
+        <ul>
+          <li>How do I break my UI design into components?</li>
+          <li>Which components should be reusable?</li>
+          <li>How do I assemble a UI from reusable components?</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>State & data flow 🧠</h3>
+        <ul>
+          <li>What pieces of state do I need for the interactivity I want?</li>
+          <li>Where should each piece of state live (which component owns it)?</li>
+          <li>How should data flow through the app?</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) What This Section Focuses On: State Management ⚙️</h2>
+      <div class="callout">
+        <p>
+          Steps <strong>3 (State)</strong> and <strong>4 (Data flow)</strong> together are what we call <strong>state management</strong>.
+          That is the main focus of this section.
+        </p>
+      </div>
+
+      <div class="term">
+        <div class="icon">⚙️</div>
+        <div class="body">
+          <p class="title">State management (in this course context)</p>
+          <p class="desc">Choosing the right state, placing it correctly, deriving values safely, and ensuring data flows correctly between components.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) How You’ll Actually Master This</h2>
+      <div class="card">
+        <p>
+          You only truly master “thinking in React” by <strong>practice</strong> and writing real code.
+          The course will include lots of coding, but also occasional theory lessons like this one.
+        </p>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Takeaway:</strong> Understanding the React mindset makes you better than simply knowing the API. ✅</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>7) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>What is the “React mindset” compared to Vanilla JS?</li>
+          <li>What does it mean to think in terms of <em>state transitions</em>?</li>
+          <li>Why build a static version before adding state?</li>
+          <li>What are the 4 steps of the “Thinking in React” process?</li>
+          <li>Which steps are considered “state management”?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li>In React you update state and let React re-render, rather than manually mutating DOM elements.</li>
+          <li>UI changes are described by changes in state (before/after), not by step-by-step DOM operations.</li>
+          <li>It lets you build most UI structure first, then layer interactivity on top.</li>
+          <li>Break UI into components → build static version → decide state → plan data flow.</li>
+          <li>Steps 3 and 4.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Keep margins around ~14mm and enable background graphics only if you want shaded callouts.
+    </footer>
+  </main>
+</body>
+</html>

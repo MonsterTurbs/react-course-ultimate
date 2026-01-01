@@ -1,0 +1,533 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Router — Nested Routes & Index Routes (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#5b5b5b;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --soft2:#fbfbfc;
+      --accent:#0b57d0;
+      --good:#0f7b44;
+      --warn:#a15c00;
+      --bad:#b42318;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:var(--bg);
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:normal;
+      hyphens:auto;
+    }
+
+    /* Single-column page container */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:linear-gradient(180deg, var(--soft2), #fff);
+      padding:18px 18px 14px;
+      border-radius:14px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 26px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:5px 10px;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:999px;
+      font-size:12px;
+      color:#333;
+      white-space:nowrap;
+    }
+
+    nav.toc{
+      margin-top:14px;
+      border-top:1px dashed var(--border);
+      padding-top:12px;
+    }
+
+    nav.toc h2{
+      margin:0 0 8px;
+      font-size:14px;
+    }
+
+    nav.toc a{
+      color:var(--accent);
+      text-decoration:none;
+    }
+
+    nav.toc ul{
+      margin:0;
+      padding-left:18px;
+      columns:2;
+      column-gap:22px;
+    }
+
+    nav.toc li{ break-inside:avoid; margin:4px 0; }
+
+    main{ margin-top:16px; }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:16px 18px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    section h2{
+      margin:0 0 10px;
+      font-size:18px;
+      letter-spacing:-0.1px;
+    }
+
+    section h3{
+      margin:14px 0 8px;
+      font-size:15px;
+    }
+
+    p{ margin: 8px 0; }
+
+    .callout{
+      border-left:5px solid var(--accent);
+      background:var(--soft);
+      padding:10px 12px;
+      border-radius:10px;
+      margin:10px 0;
+    }
+
+    .callout.good{ border-left-color: var(--good); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.bad{ border-left-color: var(--bad); }
+
+    .kvs{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .kv{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 12px;
+      background:#fff;
+    }
+
+    .kv .k{
+      font-weight:700;
+      margin:0 0 4px;
+    }
+
+    .kv .v{ margin:0; color:#222; }
+
+    ul,ol{ margin: 8px 0 8px 20px; }
+    li{ margin: 6px 0; }
+
+    code, pre{ font-family: var(--mono); }
+
+    pre{
+      margin:10px 0;
+      padding:12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#0b1020;
+      color:#e8e8ea;
+      overflow:auto;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    pre code{ color:inherit; }
+
+    .code-caption{
+      margin: 0 0 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .divider{
+      height:1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .two{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:#fff;
+      font-size: 12px;
+      color:#333;
+      vertical-align:middle;
+    }
+
+    .note{
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    footer{
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      text-align:center;
+    }
+
+    /* Print (A4, single column, clean) */
+    @page { size: A4; margin: 16mm; }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width:none; padding:0; }
+      header, section{ border-color:#d9d9d9; box-shadow:none; }
+      nav.toc ul{ columns:2; }
+      pre{
+        background:#ffffff;
+        color:#111111;
+        border-color:#d9d9d9;
+      }
+      .callout{ background:#fff; }
+      a{ color:#111; text-decoration:none; }
+      a[href]:after{ content:""; }
+    }
+
+    /* Small screens */
+    @media (max-width: 720px){
+      nav.toc ul{ columns:1; }
+      .two{ grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧭 React Router: Nested Routes & Index Routes</h1>
+      <p class="subtitle">Print-friendly reviewer/study guide • Focus: nested routing, <code>&lt;Outlet /&gt;</code>, index routes, and sub-navigation with <code>&lt;NavLink /&gt;</code>.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Routing (SPA)</span>
+        <span class="chip">🧩 Core idea: URL controls part of the UI</span>
+        <span class="chip">🧱 Tools: Route / Routes / Outlet / NavLink</span>
+        <span class="chip">✅ Goal: Sidebar content changes without page reload</span>
+      </div>
+
+      <nav class="toc" aria-label="Table of contents">
+        <h2>📚 Contents</h2>
+        <ul>
+          <li><a href="#big-picture">Big Picture</a></li>
+          <li><a href="#nested-what">What is a Nested Route?</a></li>
+          <li><a href="#why-nested">Why We Need Nested Routes</a></li>
+          <li><a href="#declare">How to Declare Nested Routes</a></li>
+          <li><a href="#outlet">Outlet: Where Child Routes Render</a></li>
+          <li><a href="#index-route">Index Route: Default Child</a></li>
+          <li><a href="#appnav">Sub-Navigation with NavLink</a></li>
+          <li><a href="#tabs-idea">URL as State (Tabs Analogy)</a></li>
+          <li><a href="#mistakes">Common Mistakes</a></li>
+          <li><a href="#practice">Practice Checklist</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section id="big-picture">
+        <h2>🎯 Big Picture</h2>
+        <p><strong>Nested routes</strong> solve the “UI region controlled by a URL segment” problem.</p>
+        <div class="callout">
+          <p><strong>Idea:</strong> A parent route renders a “layout” component (like an App Layout). Inside that layout, a smaller area (like a sidebar) changes based on the rest of the URL.</p>
+          <p class="note">Example behavior: <code>/app/cities</code> shows Cities list, <code>/app/countries</code> shows Countries list, <code>/app/form</code> shows the Form — all inside the same App layout.</p>
+        </div>
+
+        <div class="kvs">
+          <div class="kv">
+            <p class="k">✅ Parent route</p>
+            <p class="v">Controls the big layout (e.g., map + sidebar): <code>/app</code></p>
+          </div>
+          <div class="kv">
+            <p class="k">✅ Child route</p>
+            <p class="v">Controls a region inside the layout (e.g., sidebar panel): <code>/app/cities</code>, <code>/app/countries</code>, <code>/app/form</code></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="nested-what">
+        <h2>🧠 What is a Nested Route?</h2>
+        <p>A nested route is <strong>not</strong> just a long URL like <code>/app/cities</code>.</p>
+        <div class="callout warn">
+          <p><strong>Key distinction:</strong> It is “nested” only when the child route renders <em>inside</em> the parent route’s component via <code>&lt;Outlet /&gt;</code>.</p>
+        </div>
+        <p>So <code>/app/cities</code> becomes “nested” when:</p>
+        <ul>
+          <li><code>/app</code> renders <code>&lt;AppLayout /&gt;</code></li>
+          <li><code>cities</code> renders inside <code>&lt;AppLayout /&gt;</code> at the <code>&lt;Outlet /&gt;</code> location</li>
+        </ul>
+      </section>
+
+      <section id="why-nested">
+        <h2>🏗️ Why We Need Nested Routes</h2>
+        <p>We use nested routes when a portion of the screen should switch based on URL segments.</p>
+        <div class="two">
+          <div class="callout good">
+            <p><strong>✅ Good use case:</strong> Sidebar shows Cities vs Countries vs Form based on <code>/app/*</code>.</p>
+            <p class="note">The overall layout stays stable; only the “inside panel” changes.</p>
+          </div>
+          <div class="callout bad">
+            <p><strong>❌ Common confusion:</strong> “It’s nested because it has multiple segments.”</p>
+            <p class="note">Multiple segments ≠ nested. Outlet-based rendering ≠ long URL.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="declare">
+        <h2>🧩 How to Declare Nested Routes</h2>
+        <p>Turn a route into a parent by giving it a closing tag and placing child routes inside.</p>
+
+        <p class="code-caption">Example: Nested routes under <code>/app</code></p>
+        <pre><code>import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Homepage /&gt;} /&gt;
+        &lt;Route path="/pricing" element={&lt;Pricing /&gt;} /&gt;
+        &lt;Route path="/product" element={&lt;Product /&gt;} /&gt;
+        &lt;Route path="/login" element={&lt;Login /&gt;} /&gt;
+
+        {/* Parent route */}
+        &lt;Route path="/app" element={&lt;AppLayout /&gt;}&gt;
+          {/* Child routes */}
+          &lt;Route path="cities" element={&lt;p&gt;List of cities&lt;/p&gt;} /&gt;
+          &lt;Route path="countries" element={&lt;p&gt;List of countries&lt;/p&gt;} /&gt;
+          &lt;Route path="form" element={&lt;p&gt;Form&lt;/p&gt;} /&gt;
+        &lt;/Route&gt;
+
+        &lt;Route path="*" element={&lt;PageNotFound /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          <p><strong>Important:</strong> Child paths are <em>relative</em> to the parent.</p>
+          <ul>
+            <li>Parent: <code>/app</code></li>
+            <li>Child: <code>cities</code> → combined becomes <code>/app/cities</code></li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="outlet">
+        <h2>🚪 Outlet: Where Child Routes Render</h2>
+        <p>Declaring children routes is not enough. You must also tell React Router <em>where</em> to render them.</p>
+        <p class="note">That’s exactly what <code>&lt;Outlet /&gt;</code> is for.</p>
+
+        <p class="code-caption">Example: Render child routes inside the Sidebar</p>
+        <pre><code>import { Outlet } from "react-router-dom";
+
+function Sidebar() {
+  return (
+    &lt;aside className="sidebar"&gt;
+      &lt;Logo /&gt;
+      &lt;AppNav /&gt;
+
+      {/* Child routes will render right here */}
+      &lt;Outlet /&gt;
+
+      &lt;footer className="sidebarFooter"&gt;...&lt;/footer&gt;
+    &lt;/aside&gt;
+  );
+}</code></pre>
+
+        <div class="callout good">
+          <p><strong>✅ Mental model:</strong> <code>&lt;Outlet /&gt;</code> is like a “slot” where the matched child route element gets injected.</p>
+        </div>
+      </section>
+
+      <section id="index-route">
+        <h2>🏷️ Index Route: Default Child Route</h2>
+        <p>Problem: If you visit only <code>/app</code> (no child segment), none of the child routes match — so the outlet is empty.</p>
+        <p>Solution: Add an <strong>index route</strong> as the default child.</p>
+
+        <p class="code-caption">Example: Default to Cities when at <code>/app</code></p>
+        <pre><code>&lt;Route path="/app" element={&lt;AppLayout /&gt;}&gt;
+  &lt;Route index element={&lt;p&gt;List of cities&lt;/p&gt;} /&gt;
+  &lt;Route path="cities" element={&lt;p&gt;List of cities&lt;/p&gt;} /&gt;
+  &lt;Route path="countries" element={&lt;p&gt;List of countries&lt;/p&gt;} /&gt;
+  &lt;Route path="form" element={&lt;p&gt;Form&lt;/p&gt;} /&gt;
+&lt;/Route&gt;</code></pre>
+
+        <div class="callout warn">
+          <p><strong>Tip:</strong> Your <code>index</code> route should typically render the “main default tab” for that layout.</p>
+        </div>
+
+        <h3>🌟 Extra idea: Index route for homepage</h3>
+        <p>You can also make the homepage an index route under the root.</p>
+        <pre><code>&lt;Route path="/"&gt;
+  &lt;Route index element={&lt;Homepage /&gt;} /&gt;
+  &lt;Route path="pricing" element={&lt;Pricing /&gt;} /&gt;
+  &lt;Route path="product" element={&lt;Product /&gt;} /&gt;
+&lt;/Route&gt;</code></pre>
+      </section>
+
+      <section id="appnav">
+        <h2>🧭 Sub-Navigation with NavLink</h2>
+        <p>To switch nested routes without typing URLs manually, create a small navigation (like “tabs”).</p>
+        <p class="code-caption">Example: AppNav with <code>NavLink</code> to nested paths</p>
+        <pre><code>import { NavLink } from "react-router-dom";
+import styles from "./AppNav.module.css";
+
+function AppNav() {
+  return (
+    &lt;nav className={styles.nav}&gt;
+      &lt;ul&gt;
+        &lt;li&gt;
+          &lt;NavLink to="cities"&gt;Cities&lt;/NavLink&gt;
+        &lt;/li&gt;
+        &lt;li&gt;
+          &lt;NavLink to="countries"&gt;Countries&lt;/NavLink&gt;
+        &lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          <p><strong>Why NavLink?</strong> It automatically adds an <span class="badge">active</span> class (or “active state”) when the link matches the current URL.</p>
+        </div>
+
+        <h3>🎨 Styling the active link (common with CSS Modules)</h3>
+        <p>If you’re using CSS Modules, you often need <code>:global(.active)</code> to style React Router’s active class.</p>
+        <pre><code>/* AppNav.module.css */
+.nav :global(.active) {
+  background: #e8f0ff;
+  border-radius: 8px;
+}</code></pre>
+
+        <div class="callout warn">
+          <p><strong>Note:</strong> Without <code>:global</code>, CSS Modules will hash the class name and it won’t match React Router’s real <code>active</code> class.</p>
+        </div>
+      </section>
+
+      <section id="tabs-idea">
+        <h2>🗂️ URL as State (Tabs Analogy)</h2>
+        <p>Nested routing can feel like a tabs component, but the “active tab” is stored in the URL instead of <code>useState</code>.</p>
+        <div class="callout good">
+          <p><strong>✅ Benefit:</strong> The current UI state is shareable and bookmarkable.</p>
+          <ul>
+            <li>Share: <code>/app/countries</code> to open directly on Countries</li>
+            <li>Reload-safe: Refresh keeps you on the same nested screen</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="mistakes">
+        <h2>🧨 Common Mistakes (and Fixes)</h2>
+        <ol>
+          <li>
+            <strong>Forgetting the Outlet</strong>
+            <div class="callout bad">
+              <p>If you don’t render <code>&lt;Outlet /&gt;</code> inside the parent’s component, child routes have nowhere to display.</p>
+            </div>
+          </li>
+          <li>
+            <strong>Expecting <code>/app</code> to show something automatically</strong>
+            <div class="callout warn">
+              <p>Add an <code>index</code> route for the default child UI.</p>
+            </div>
+          </li>
+          <li>
+            <strong>Wrong path assumptions</strong>
+            <div class="callout">
+              <p>Inside nested routes, child <code>path</code> values are usually relative (e.g., <code>cities</code> not <code>/app/cities</code>).</p>
+              <p class="note">Similarly, <code>NavLink to="cities"</code> is often preferred inside the <code>/app</code> section.</p>
+            </div>
+          </li>
+          <li>
+            <strong>CSS Modules not styling the active link</strong>
+            <div class="callout warn">
+              <p>Use <code>:global(.active)</code> in your module file.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section id="practice">
+        <h2>✅ Practice Checklist</h2>
+        <ul>
+          <li>🧭 Create a parent route: <code>/app</code> → <code>&lt;AppLayout /&gt;</code></li>
+          <li>🧩 Add child routes: <code>cities</code>, <code>countries</code>, <code>form</code></li>
+          <li>🚪 Place <code>&lt;Outlet /&gt;</code> where child UI should appear (sidebar content area)</li>
+          <li>🏷️ Add <code>&lt;Route index ... /&gt;</code> to show default child UI at <code>/app</code></li>
+          <li>🔗 Add an <code>&lt;AppNav /&gt;</code> using <code>&lt;NavLink /&gt;</code> to switch nested routes</li>
+          <li>🎨 Style active links using CSS Modules + <code>:global(.active)</code></li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <h3>🧪 Quick self-check</h3>
+        <ol>
+          <li>When you go to <code>/app</code>, do you see Cities by default?</li>
+          <li>When you click “Countries”, does the URL become <code>/app/countries</code> and the sidebar content switches?</li>
+          <li>Do you see an active style on the current nested link?</li>
+        </ol>
+
+        <div class="callout good">
+          <p><strong>Next step:</strong> Replace the placeholder <code>&lt;p&gt;...</code> elements with real components like <code>&lt;CityList /&gt;</code>, <code>&lt;CountryList /&gt;</code>, and <code>&lt;Form /&gt;</code>.</p>
+        </div>
+      </section>
+
+      <footer>
+        <p>End of notes — Nested Routes & Index Route • Single-column • A4 print-ready</p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

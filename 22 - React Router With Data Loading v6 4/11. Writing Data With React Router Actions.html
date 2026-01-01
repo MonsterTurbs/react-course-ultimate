@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Writing Data With React Router Actions — Create Order (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #047857;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .soft { background: var(--soft); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #eef2ff;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7faff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #ecfdf5;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+    }
+
+    .danger {
+      border-left: 4px solid var(--danger);
+      background: #fef2f2;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+
+    .table th, .table td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    .table th {
+      background: var(--soft);
+      text-align: left;
+    }
+
+    /* Print styles (A4, clean margins, no URL after links) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Keep blocks from splitting awkwardly */
+      header, .card, pre, .note, .table { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Printer-friendly sizing */
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li, .table { font-size: 12.2px; }
+
+      /* Remove automatic URL printing */
+      a[href]::after { content: "" !important; }
+
+      /* Ensure code blocks print legibly */
+      pre {
+        color: #111 !important;
+        background: #f2f2f2 !important;
+        border: 1px solid #ddd;
+      }
+
+      .chip {
+        border-color: #ddd;
+        background: #f7f7f7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">📝 React Router Data APIs — Writing / Mutating Server Data</p>
+      <h1>📤 Writing Data With React Router Actions (Create Order)</h1>
+      <p class="subtitle">
+        Loaders are for reading data. <strong>Actions</strong> are for writing/mutating remote state (POST/PATCH/DELETE).
+        In this lecture, we create a new order by submitting a React Router <code>&lt;Form&gt;</code> and handling it
+        in a route <code>action</code>.
+      </p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">📥 loader (read)</span>
+        <span class="chip">📤 action (write)</span>
+        <span class="chip">🧾 &lt;Form method="post"&gt;</span>
+        <span class="chip">🧺 hidden cart input</span>
+        <span class="chip">🧰 request.formData()</span>
+        <span class="chip">🧱 FromEntries</span>
+        <span class="chip">🔁 redirect()</span>
+      </div>
+    </header>
+
+    <section class="card soft">
+      <h2>🎯 Big idea: Loaders vs Actions</h2>
+      <table class="table" aria-label="Loaders vs Actions">
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Purpose</th>
+            <th>Typical HTTP methods</th>
+            <th>How it is triggered</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Loader</strong> 📥</td>
+            <td>Read data from server</td>
+            <td>GET</td>
+            <td>Navigate to a route that has <code>loader</code></td>
+          </tr>
+          <tr>
+            <td><strong>Action</strong> 📤</td>
+            <td>Write / mutate data on server</td>
+            <td>POST / PATCH / DELETE</td>
+            <td>Submit a React Router <code>&lt;Form&gt;</code> tied to a route</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        ✅ In this app, creating an order means sending a <strong>POST</strong> request with order data to the API.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>📄 Where this happens in the app</h2>
+      <p>
+        The create order page lives at <code>/order/new</code>. The UI already has inputs for:
+      </p>
+      <ul>
+        <li>👤 customer name</li>
+        <li>📞 phone number</li>
+        <li>🏠 address</li>
+        <li>⭐ priority (checkbox)</li>
+      </ul>
+      <p class="muted">
+        The cart is still a “fake cart” for now, but we want to include it in the submitted order.
+      </p>
+    </section>
+
+    <section class="card soft">
+      <h2>1) 🧾 Use React Router’s <code>&lt;Form&gt;</code> (not a regular <code>&lt;form&gt;</code>)</h2>
+      <p>
+        Replace the HTML form with React Router’s <code>Form</code> component:
+      </p>
+
+      <div class="note good">
+        ✅ Benefits: no input state, no onSubmit handler, no manual loading state — React Router manages the submission.
+      </div>
+
+      <h3>Conceptual example</h3>
+      <pre>import { Form } from "react-router-dom";
+
+export default function CreateOrder() {
+  return (
+    <Form method="post" action="/order/new">
+      {/* inputs */}
+      <button>Order now</button>
+    </Form>
+  );
+}</pre>
+
+      <div class="note warn">
+        ⚠️ Use <code>method="post"</code> (or PATCH/DELETE). <code>get</code> won’t behave like an action submission.
+      </div>
+
+      <p>
+        You can omit the <code>action</code> prop if you want — by default React Router targets the closest matching route.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>2) 🧩 Create the route <code>action</code> function</h2>
+      <p>
+        An action is a function exported from a route module (often the same file as the page). When the <code>&lt;Form&gt;</code>
+        is submitted, React Router intercepts it and calls the action.
+      </p>
+
+      <h3>Access submitted data via <code>request.formData()</code></h3>
+      <pre>// CreateOrder.jsx
+export async function action({ request }) {
+  const formData = await request.formData();
+  const data = Object.fromEntries(formData);
+
+  // ... build order object
+  return null;
+}</pre>
+
+      <div class="note">
+        ✅ <code>FormData</code> is a standard browser API. The router hands you the <code>request</code>.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>3) 🔌 Wire the action to the route</h2>
+      <p>
+        Just like loaders, actions must be registered on the correct route.
+      </p>
+
+      <h3>Import + rename convention</h3>
+      <pre>import CreateOrder, { action as createOrderAction } from "./features/order/CreateOrder";</pre>
+
+      <h3>Attach to the route definition</h3>
+      <pre>{
+  path: "/order/new",
+  element: <CreateOrder />,
+  action: createOrderAction,
+}</pre>
+
+      <div class="note good">
+        ✅ Now submitting the <code>&lt;Form&gt;</code> on <code>/order/new</code> triggers this action.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>4) 🧺 Include non-form data: submit the cart via a hidden input</h2>
+      <p>
+        The action only receives what the form submits. But the cart is a JavaScript object (later from Redux), not a text input.
+        The practical pattern is a hidden input.
+      </p>
+
+      <div class="note warn">
+        ⚠️ Hidden inputs can only submit strings, so we serialize the cart with <code>JSON.stringify</code>.
+      </div>
+
+      <pre>// inside &lt;Form&gt;...
+<input
+  type="hidden"
+  name="cart"
+  value={JSON.stringify(cart)}
+/></pre>
+
+      <p>
+        In the action, convert back:
+      </p>
+      <pre>const order = {
+  ...data,
+  cart: JSON.parse(data.cart),
+};</pre>
+    </section>
+
+    <section class="card soft">
+      <h2>5) ⭐ Normalize checkbox values (priority)</h2>
+      <p>
+        Checkbox inputs often submit values like <code>"on"</code> when checked, and nothing when unchecked.
+        We want a boolean (<code>true</code>/<code>false</code>).
+      </p>
+
+      <pre>const order = {
+  ...data,
+  cart: JSON.parse(data.cart),
+  priority: data.priority === "on",
+};</pre>
+
+      <div class="note">
+        ✅ Now the payload is in the correct “shape” for the API.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>6) 📦 Create the order on the server and redirect</h2>
+      <p>
+        The API service provides <code>createOrder(order)</code>, which returns the newly created order (including its server-generated ID).
+        After creation, we immediately redirect to <code>/order/:id</code>.
+      </p>
+
+      <div class="note warn">
+        ⚠️ You can’t call <code>useNavigate()</code> in an action (hooks only work in components).
+        Use <code>redirect()</code> instead.
+      </div>
+
+      <pre>import { redirect } from "react-router-dom";
+import { createOrder } from "../../services/apiRestaurant";
+
+export async function action({ request }) {
+  const formData = await request.formData();
+  const data = Object.fromEntries(formData);
+
+  const order = {
+    ...data,
+    cart: JSON.parse(data.cart),
+    priority: data.priority === "on",
+  };
+
+  const newOrder = await createOrder(order);
+
+  return redirect(`/order/${newOrder.id}`);
+}</pre>
+
+      <div class="note good">
+        ✅ UX win: after submitting, user lands on the newly created order details page.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🌀 Bonus: global loader still works automatically</h2>
+      <p>
+        If you already implemented a global loader using <code>useNavigation()</code> in <code>AppLayout</code>,
+        it will show during form submission and redirect navigation automatically.
+      </p>
+      <ul>
+        <li>🧾 Submit form → action runs</li>
+        <li>📦 POST request happens inside <code>createOrder()</code></li>
+        <li>🔁 redirect → navigate to the new order route</li>
+        <li>📥 order loader fetches the new order</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>✅ Key takeaways</h2>
+      <ul>
+        <li>📥 Loaders read; 📤 actions write/mutate server data.</li>
+        <li>🧾 Use React Router <code>&lt;Form&gt;</code> to submit without manual state + handlers.</li>
+        <li>🧰 Read data with <code>await request.formData()</code> and <code>Object.fromEntries()</code>.</li>
+        <li>🧺 Include extra JS-only data (cart) via a hidden field + JSON serialize/parse.</li>
+        <li>⭐ Convert checkbox values to booleans.</li>
+        <li>🔁 Use <code>redirect()</code> from actions to navigate after mutations.</li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="card soft">
+      <h2>➡️ What’s next</h2>
+      <p>
+        Next lecture: improve action error handling (validation, API failures) so the user gets clear feedback when submission fails.
+      </p>
+    </section>
+
+    <footer class="muted" style="margin-top:16px; font-size:12px;">
+      Print format: A4, single-column, word-wrapped, clean margins.
+    </footer>
+  </main>
+</body>
+</html>

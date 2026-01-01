@@ -1,0 +1,437 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Query + Supabase — Displaying Toast Notifications (React Hot Toast)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --soft2:#fbfbfc;
+      --codebg:#0b1020;
+      --codefg:#eaf0ff;
+      --accent:#1a73e8;
+      --ok:#137333;
+      --warn:#b06000;
+      --bad:#b00020;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--soft2), var(--bg));
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+    }
+
+    h1{
+      margin: 0 0 8px;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: -0.2px;
+    }
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: 12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border:1px solid var(--border);
+      background: var(--bg);
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    main{margin-top:16px;}
+
+    section{
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg);
+      padding: 16px 16px 10px;
+    }
+
+    h2{
+      margin:0 0 10px;
+      font-size: 18px;
+      line-height: 1.3;
+      letter-spacing: -0.1px;
+    }
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15.5px;
+      line-height: 1.35;
+    }
+
+    p{margin: 8px 0;}
+    ul{margin: 8px 0 10px; padding-left: 20px;}
+    li{margin: 6px 0;}
+
+    .callout{
+      margin: 10px 0;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      background: var(--soft2);
+    }
+    .callout strong{color:var(--text);}
+    .callout.ok{border-color: rgba(19,115,51,.25); background: rgba(19,115,51,.06);}
+    .callout.warn{border-color: rgba(176,96,0,.25); background: rgba(176,96,0,.08);}
+    .callout.bad{border-color: rgba(176,0,32,.25); background: rgba(176,0,32,.06);}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      overflow:auto;
+      border:1px solid rgba(255,255,255,.08);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .mini{
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .twoCol{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: var(--soft);
+      border:1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 7px;
+      font-size: 12.5px;
+    }
+
+    .hr{
+      height:1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print */
+    @page { size: A4; margin: 14mm 14mm 16mm 14mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: 100%; padding: 0; }
+      header, section{ border-color:#d9d9d9; box-shadow:none !important; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]::after{ content: ""; } /* do not print URLs */
+      pre{ break-inside: avoid; }
+      section{ break-inside: avoid-page; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🍞 Displaying Toast Notifications (React Hot Toast)</h1>
+      <p class="subtitle">Study guide for adding real-world notifications (“toasts”), replacing <code>alert()</code>, and improving layout spacing/width.</p>
+      <div class="meta">
+        <span class="chip">🧩 Topic: UI feedback</span>
+        <span class="chip">⚛️ React + React Query</span>
+        <span class="chip">🗄️ Supabase mutations</span>
+        <span class="chip">🖥️ A4 print-ready</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goals of this lecture</h2>
+        <ul>
+          <li>Understand what “toasts” are and why we use them (instead of blocking <code>alert()</code> popups).</li>
+          <li>Install and configure <strong>React Hot Toast</strong> globally via the <code>&lt;Toaster /&gt;</code> component.</li>
+          <li>Replace <code>alert()</code> with <code>toast.success()</code> and <code>toast.error()</code> for better UX.</li>
+          <li>Improve layout: add a centered <strong>Container</strong> and consistent spacing using <strong>flex + gap</strong>.</li>
+        </ul>
+
+        <div class="callout ok">
+          <strong>✅ Key idea:</strong> The toaster is a global UI “service.” You mount it once near the top of your app, and then you can trigger toasts from anywhere.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Quick concepts (beginner-friendly)</h2>
+        <div class="grid">
+          <div class="callout">
+            <strong>🍞 Toast</strong> = a small temporary notification (usually top/bottom corner) that appears, then fades away.
+            <div class="mini">Example: “Cabin deleted successfully.”</div>
+          </div>
+          <div class="callout">
+            <strong>🧯 Why not <code>alert()</code>?</strong>
+            <ul>
+              <li><code>alert()</code> blocks the page (user must click OK).</li>
+              <li>Looks outdated and interrupts workflow.</li>
+              <li>Toasts are non-blocking and match modern web apps.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>📦 Step 1 — Install React Hot Toast</h2>
+        <p>In your terminal:</p>
+        <pre>npm i react-hot-toast</pre>
+
+        <div class="callout warn">
+          <strong>⚠️ Tip:</strong> If you see TypeScript examples online, don’t worry—React Hot Toast works fine in plain JavaScript too.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧱 Step 2 — Mount the global <code>&lt;Toaster /&gt;</code></h2>
+        <p>
+          The toaster component should be mounted once in your main tree, similar to:
+          <strong>GlobalStyles</strong> and <strong>React Query DevTools</strong>.
+        </p>
+
+        <h3>✅ Typical setup (inside <code>App.jsx</code> or your top-level component)</h3>
+        <pre>import { Toaster } from "react-hot-toast";
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <GlobalStyles />
+
+      {/* 🍞 Toast engine */}
+      <Toaster
+        position="top-center"
+        gutter={12}
+        containerStyle={{ margin: 8 }}
+        toastOptions={{
+          success: { duration: 3000 },
+          error: { duration: 5000 },
+          style: {
+            fontSize: "16px",
+            maxWidth: "500px",
+            padding: "16px 24px",
+            backgroundColor: "var(--color-grey-0)",
+            color: "var(--color-grey-700)",
+          },
+        }}
+      />
+
+      <ReactQueryDevtools initialIsOpen={false} />
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
+}</pre>
+
+        <div class="callout">
+          <strong>🧩 What the config means:</strong>
+          <ul>
+            <li><code>position</code> — where toasts appear (top-center here).</li>
+            <li><code>gutter</code> — spacing between window edge and toast stack.</li>
+            <li><code>containerStyle</code> — styles applied to the toast container wrapper.</li>
+            <li><code>toastOptions</code> — default duration + styling for success/error toasts.</li>
+            <li><code>var(--color-...)</code> — uses your global CSS variables (design tokens).</li>
+          </ul>
+        </div>
+
+        <div class="callout warn">
+          <strong>⚠️ Common gotcha:</strong> Your CSS variables must exist globally (e.g., from GlobalStyles). Otherwise, the toast styling will fallback or look wrong.
+        </div>
+      </section>
+
+      <section>
+        <h2>🔁 Step 3 — Replace <code>alert()</code> with toast notifications</h2>
+        <p>
+          Instead of showing blocking alerts in your mutation callbacks, use <code>toast.success</code> and <code>toast.error</code>.
+        </p>
+
+        <h3>Example: deletion mutation callbacks</h3>
+        <pre>import toast from "react-hot-toast";
+
+const { mutate: deleteCabin, isLoading: isDeleting } = useMutation({
+  mutationFn: deleteCabinApi,
+  onSuccess: () => {
+    toast.success("Cabin successfully deleted");
+    queryClient.invalidateQueries({ queryKey: ["cabins"] });
+  },
+  onError: (err) => toast.error(err.message),
+});</pre>
+
+        <div class="callout ok">
+          <strong>✅ Pattern to remember:</strong>
+          <ul>
+            <li><code>onSuccess</code> → show a success toast + invalidate queries to refresh UI</li>
+            <li><code>onError</code> → show an error toast with <code>err.message</code></li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Real-world scenario: multi-user updates</h2>
+        <p>
+          The lecture demonstrates a “two employees” scenario by opening two tabs:
+        </p>
+        <ul>
+          <li>Employee A deletes a cabin.</li>
+          <li>Employee B navigates (or refocuses tab) and sees updated cabins after refetch.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>🧠 Why this works:</strong>
+          <ul>
+            <li>React Query cache makes data fast to reuse.</li>
+            <li><code>invalidateQueries</code> forces the “cabins” query to be treated as invalid.</li>
+            <li>When refetch triggers (e.g., tab focus + stale data), UI syncs with server.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>📐 Layout polish: container + spacing</h2>
+        <p>
+          Two UI problems were fixed:
+        </p>
+        <ul>
+          <li>📏 The content stretched too wide on large screens.</li>
+          <li>↕️ The heading and table needed consistent vertical spacing.</li>
+        </ul>
+
+        <h3>✅ Solution A: Wrap page content with a centered Container</h3>
+        <pre>// AppLayout.jsx (conceptual)
+const Container = styled.div`
+  max-width: 120rem;
+  margin: 0 auto;
+`;
+
+function AppLayout() {
+  return (
+    <StyledAppLayout>
+      <StyledSidebar />
+      <StyledHeader />
+
+      <Main>
+        <Container>
+          <Outlet />
+        </Container>
+      </Main>
+    </StyledAppLayout>
+  );
+}</pre>
+
+        <div class="callout ok">
+          <strong>✅ Why this is better:</strong> the page stays readable and visually balanced, even on ultrawide monitors.
+        </div>
+
+        <div class="hr"></div>
+
+        <h3>✅ Solution B: Add spacing using flex + gap (instead of random margins)</h3>
+        <pre>// Example wrapper layout
+const Stack = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 3.2rem;
+`;
+
+// Then wrap elements (e.g., title row + table row) in Stack</pre>
+
+        <div class="callout">
+          <strong>🧠 Rule of thumb:</strong> Prefer spacing on a parent container (<code>gap</code>) instead of sprinkling margins on children everywhere.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 Mini cheat sheet</h2>
+        <ul>
+          <li>Install: <code>npm i react-hot-toast</code></li>
+          <li>Mount once: <code>&lt;Toaster /&gt;</code> near the top of the app</li>
+          <li>Use anywhere:
+            <ul>
+              <li>✅ <code>toast.success("...")</code></li>
+              <li>❌ <code>toast.error(err.message)</code></li>
+            </ul>
+          </li>
+          <li>Mutations UX:
+            <ul>
+              <li><code>onSuccess</code> → toast + <code>queryClient.invalidateQueries</code></li>
+              <li><code>onError</code> → toast error</li>
+            </ul>
+          </li>
+          <li>Layout polish:
+            <ul>
+              <li>Centered width: <code>max-width</code> + <code>margin: 0 auto</code></li>
+              <li>Vertical rhythm: <code>display:flex</code> + <code>gap</code></li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>✅ What you should be able to do after this</h2>
+        <ul>
+          <li>Set up React Hot Toast globally without cluttering your UI files.</li>
+          <li>Replace all temporary <code>alert()</code> calls with proper success/error toasts.</li>
+          <li>Explain how cache invalidation + refetch keeps multiple users in sync.</li>
+          <li>Apply a Container pattern so your UI doesn’t become too wide on large screens.</li>
+        </ul>
+
+        <div class="callout ok">
+          <strong>Next:</strong> Build a form to create new cabins so you no longer need to insert rows in Supabase manually.
+        </div>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

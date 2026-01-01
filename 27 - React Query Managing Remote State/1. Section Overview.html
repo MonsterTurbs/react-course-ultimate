@@ -1,0 +1,367 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Query — Section Overview (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --soft: #f6f7f9;
+      --border: #e6e6e6;
+      --accent: #1a73e8;
+      --accent-2: #0b57d0;
+      --good: #137333;
+      --warn: #b06000;
+      --bad: #b3261e;
+      --code-bg: #0f172a;
+      --code-text: #e5e7eb;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px;
+    }
+
+    header {
+      padding: 16px 16px 14px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      font-size: 12.5px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 14px; }
+
+    h2 {
+      margin: 18px 0 8px;
+      font-size: 18px;
+      letter-spacing: -0.1px;
+    }
+
+    h3 {
+      margin: 14px 0 6px;
+      font-size: 15.5px;
+    }
+
+    p { margin: 8px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .callout {
+      border-left: 5px solid var(--accent);
+      background: #f3f7ff;
+      padding: 12px 12px;
+      border-radius: 10px;
+    }
+
+    .callout.good { border-left-color: var(--good); background: #f1fbf4; }
+    .callout.warn { border-left-color: var(--warn); background: #fff7ed; }
+
+    ul { margin: 8px 0 8px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 860px) {
+      .two { grid-template-columns: 1fr 1fr; }
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border: 1px solid #111827;
+      overflow-x: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .kbd {
+      font-family: inherit;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .tiny { color: var(--muted); font-size: 12.5px; }
+
+    /* Print settings (A4, clean, no cut-offs) */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, .card { border-color: #cfcfcf; }
+      .chip { background: #fff; }
+      pre { white-space: pre-wrap; word-break: break-word; }
+      a { color: inherit; text-decoration: none; }
+      .card, header, pre { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🛰️ React Query — Section Overview (Remote State)</h1>
+      <p class="subtitle">Reviewer / study guide with beginner-friendly explanations and practical examples (print-ready, A4).</p>
+      <div class="meta">
+        <span class="chip">📚 Topic: Managing Remote State</span>
+        <span class="chip">🧠 Goal: Let React Query handle fetching + caching</span>
+        <span class="chip">⚙️ Backend: Supabase (remote database + API)</span>
+        <span class="chip">✨ Key idea: “Feels almost magical”</span>
+      </div>
+    </header>
+
+    <main>
+      <div class="card callout">
+        <strong>Big message of this lecture:</strong>
+        <p>
+          In this section, you will use <strong>React Query</strong> to manage <strong>remote state</strong> (data stored on a server—like Supabase).
+          React Query will take over <strong>fetching</strong> and <strong>storing</strong> remote data so your app code becomes simpler and more reliable.
+        </p>
+      </div>
+
+      <h2>1) What is “Remote State”?</h2>
+      <div class="card">
+        <p>
+          <strong>Remote state</strong> is data that lives <strong>outside</strong> your React app—usually on a server/database.
+          Examples: cabins, bookings, guests, settings (stored in Supabase).
+        </p>
+        <div class="two">
+          <div class="callout good">
+            <strong>✅ Local/UI state</strong>
+            <ul>
+              <li>Lives in components (e.g., input text, modal open/close)</li>
+              <li>Use <code>useState</code> / Context for simple UI sharing</li>
+              <li>Usually small + changes frequently</li>
+            </ul>
+          </div>
+          <div class="callout warn">
+            <strong>🛰️ Remote state</strong>
+            <ul>
+              <li>Lives on server (database/API)</li>
+              <li>Requires fetching, caching, updating, and syncing</li>
+              <li>Can go stale; needs re-fetch and invalidation</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h2>2) What React Query “Takes Over”</h2>
+      <div class="card">
+        <p>
+          React Query is a specialized tool for remote state. It helps you avoid rewriting the same logic everywhere.
+        </p>
+        <ul>
+          <li>📥 <strong>Fetching</strong> data (GET requests)</li>
+          <li>🧺 <strong>Caching</strong> results (so you don’t refetch unnecessarily)</li>
+          <li>🔁 <strong>Background re-fetching</strong> (keeps data fresh)</li>
+          <li>✍️ <strong>Mutations</strong> for updates/creates/deletes (POST/PATCH/DELETE)</li>
+          <li>🧹 <strong>Invalidation</strong> (refetch the right data after changes)</li>
+          <li>⚠️ <strong>Loading + error</strong> states handled cleanly</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Why it feels “magical” ✨</strong>
+          <p>
+            With good caching + revalidation, your UI often updates automatically:
+            fetch once, reuse everywhere, then refresh in the background when needed.
+          </p>
+        </div>
+      </div>
+
+      <h2>3) The Mental Model (Simple)</h2>
+      <div class="card">
+        <ul>
+          <li>🗂️ You ask for data using a <strong>query key</strong> (example: <code>["cabins"]</code>).</li>
+          <li>React Query checks the <strong>cache</strong> first.</li>
+          <li>If cache is missing or stale, it <strong>fetches</strong> from the server.</li>
+          <li>When you <strong>mutate</strong> data, you <strong>invalidate</strong> queries so the UI refreshes.</li>
+        </ul>
+        <p class="tiny">Tip: Think of query keys as “labels” for cached server data.</p>
+      </div>
+
+      <h2>4) Tiny Code Examples (Beginner-Friendly)</h2>
+      <div class="card">
+        <h3>✅ Example A: Fetch cabins with <code>useQuery</code></h3>
+        <pre><code>// services/apiCabins.js
+export async function getCabins() {
+  // e.g., supabase.from('cabins').select('*')
+}
+
+// features/cabins/useCabins.js
+import { useQuery } from '@tanstack/react-query';
+import { getCabins } from '../../services/apiCabins';
+
+export function useCabins() {
+  return useQuery({
+    queryKey: ['cabins'],
+    queryFn: getCabins,
+  });
+}
+
+// CabinsPage.jsx
+const { data: cabins, isLoading, error } = useCabins();</code></pre>
+        <ul>
+          <li>⏳ <code>isLoading</code> helps you show spinners/skeletons</li>
+          <li>⚠️ <code>error</code> helps you show friendly messages</li>
+          <li>📦 <code>cabins</code> is cached and reusable across components</li>
+        </ul>
+
+        <div class="hr"></div>
+
+        <h3>✍️ Example B: Update something with <code>useMutation</code></h3>
+        <pre><code>import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+function useUpdateCabin() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateCabin, // (id, payload) =&gt; Promise
+    onSuccess: () =&gt; {
+      // ✅ refresh cabins after an update
+      queryClient.invalidateQueries({ queryKey: ['cabins'] });
+    },
+  });
+}</code></pre>
+        <p class="tiny">Invalidate queries after a successful mutation so React Query refetches fresh data.</p>
+      </div>
+
+      <h2>5) What You’ll Build Using React Query (In This Project)</h2>
+      <div class="card">
+        <ul>
+          <li>🏠 <strong>Cabins</strong>: list, create, update, delete + image upload</li>
+          <li>📅 <strong>Bookings</strong>: list, filter, check-in/check-out</li>
+          <li>👤 <strong>Guests</strong>: connect guests to bookings</li>
+          <li>⚙️ <strong>Settings</strong>: load + update global hotel settings</li>
+          <li>🔐 <strong>Auth</strong>: connect with Supabase authentication (later)</li>
+        </ul>
+      </div>
+
+      <h2>6) Quick Checklist (So You Don’t Get Lost)</h2>
+      <div class="card">
+        <ul>
+          <li>✅ Install React Query and set up the <strong>QueryClientProvider</strong></li>
+          <li>✅ Create one “API service” file per feature/table (e.g., <code>apiCabins</code>)</li>
+          <li>✅ Create a custom hook per query (e.g., <code>useCabins</code>)</li>
+          <li>✅ Handle UI states: loading, error, empty state</li>
+          <li>✅ Use mutations + invalidate queries after changes</li>
+        </ul>
+        <div class="callout good">
+          <strong>🎯 Result:</strong>
+          <p>
+            Cleaner components, fewer <code>useEffect</code> calls, fewer manual loading/error flags,
+            and a UI that stays in sync with the backend.
+          </p>
+        </div>
+      </div>
+
+      <h2>7) Mini Glossary</h2>
+      <div class="card">
+        <ul>
+          <li>🧺 <strong>Cache</strong> — stored results of server requests for faster reuse</li>
+          <li>🗝️ <strong>Query key</strong> — unique label for a piece of cached data</li>
+          <li>🔁 <strong>Re-fetch</strong> — fetching again to refresh stale data</li>
+          <li>✍️ <strong>Mutation</strong> — changing server data (create/update/delete)</li>
+          <li>🧹 <strong>Invalidate</strong> — mark cached data as stale so it refreshes</li>
+        </ul>
+      </div>
+
+      <div class="card callout">
+        <strong>Summary 🧾</strong>
+        <p>
+          This section introduces React Query as the “remote state manager” for your Wild Oasis app.
+          You will let React Query handle the heavy lifting of fetching, caching, syncing, and updating server data—
+          which makes your application feel smooth and professional.
+        </p>
+      </div>
+
+      <p class="tiny">Print tip: Use your browser’s Print dialog and select A4. The page is designed to avoid cut-offs and keep a clean single-column layout.</p>
+    </main>
+  </div>
+</body>
+</html>

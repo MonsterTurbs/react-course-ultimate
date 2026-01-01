@@ -1,0 +1,470 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wild Oasis (Next.js) — Creating a New Reservation (Server Actions) | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px 48px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 16px 16px 12px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 10px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+    }
+
+    main { margin-top: 16px; }
+
+    h2 {
+      font-size: 16px;
+      margin: 18px 0 8px;
+      padding-top: 4px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 6px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 5px solid #cfcfcf;
+      background: #fff;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 6px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: #fcfcfc;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 6px;
+    }
+
+    details {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+      margin: 12px 0;
+      break-inside: avoid;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      margin: -2px 0 6px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    /* Print */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; }
+      header { break-inside: avoid; }
+      h2, h3, .callout, pre, details { break-inside: avoid; }
+
+      /* Do not print URLs after links */
+      a[href]::after { content: "" !important; }
+
+      /* Ensure details print expanded */
+      details { page-break-inside: avoid; }
+      details > summary { list-style: none; }
+      details[open] > summary::marker { content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧾 Creating a New Reservation (Booking) — Wild Oasis (Next.js)</h1>
+      <p class="subtitle">Reviewer / study guide for implementing <strong>“Create Booking”</strong> using <strong>Server Actions</strong>, plus UI feedback, cache revalidation, and a Thank You redirect.</p>
+      <div class="meta">
+        <span class="chip">Server Actions</span>
+        <span class="chip">FormData</span>
+        <span class="chip">Function.bind()</span>
+        <span class="chip">revalidatePath</span>
+        <span class="chip">useFormStatus</span>
+        <span class="chip">redirect()</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>🎯 Goal of this lecture</h2>
+      <div class="callout">
+        <strong>What we are building ✅</strong>
+        <ul>
+          <li>Users can select dates and submit a form to <strong>create a new booking</strong> in Supabase.</li>
+          <li>We build the full booking payload: computed fields (dates, nights, price) + form fields (guests, notes) + derived fields (guestId) + defaults (status/payment).</li>
+          <li>We improve UX: reset date range after submit, show pending state, and redirect to a Thank You page.</li>
+          <li>We keep UI fresh by revalidating cache so newly booked dates become disabled.</li>
+        </ul>
+      </div>
+
+      <h2>🗃️ What data does a “booking” need?</h2>
+      <p>Before coding, the instructor reviews the Supabase <span class="kbd">bookings</span> table to list everything required.</p>
+
+      <div class="grid">
+        <div class="box">
+          <h3>✅ Comes from the selected date range (context)</h3>
+          <ul>
+            <li><strong>startDate</strong> = <span class="kbd">range.from</span></li>
+            <li><strong>endDate</strong> = <span class="kbd">range.to</span></li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h3>🧮 Computed in the component</h3>
+          <ul>
+            <li><strong>numNights</strong> = <span class="kbd">differenceInDays(endDate, startDate)</span></li>
+            <li><strong>cabinPrice</strong> = <span class="kbd">numNights * (regularPrice - discount)</span></li>
+            <li><strong>extrasPrice</strong> = 0 (for now)</li>
+            <li><strong>totalPrice</strong> = <span class="kbd">cabinPrice</span> (since extras are 0)</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h3>🧑‍💻 Comes from the form (FormData)</h3>
+          <ul>
+            <li><strong>numGuests</strong> (from a <span class="kbd">select</span>)</li>
+            <li><strong>observations</strong> (from a <span class="kbd">textarea</span>)</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h3>🔑 Foreign keys + defaults</h3>
+          <ul>
+            <li><strong>cabinId</strong> (must be included in payload)</li>
+            <li><strong>guestId</strong> (read from <span class="kbd">session.user.guestId</span>)</li>
+            <li><strong>status</strong> = <span class="kbd">"unconfirmed"</span></li>
+            <li><strong>isPaid</strong> = <span class="kbd">false</span></li>
+            <li><strong>hasBreakfast</strong> = <span class="kbd">false</span> (optional enhancement: add checkbox)</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>🧩 Step-by-step implementation</h2>
+
+      <h3>1) Compute booking-related values in the ReservationForm</h3>
+      <p>You compute these values on the client (inside the component) so you can pass them into the server action:</p>
+      <pre><code>// Inputs
+const { regularPrice, discount, id: cabinId } = cabin;
+const startDate = range.from;
+const endDate = range.to;
+
+// Computations
+const numNights = differenceInDays(endDate, startDate);
+const cabinPrice = numNights * (regularPrice - discount);
+</code></pre>
+
+      <div class="callout">
+        <strong>🧠 Reminder</strong>
+        <p class="muted">Only <em>some</em> booking fields come from the form. Many are computed or derived, so you must deliberately pass them to the server action.</p>
+      </div>
+
+      <h3>2) Create a Server Action: <span class="kbd">createBooking</span></h3>
+      <p>This server action receives <strong>FormData</strong> because it will be used as the form’s <span class="kbd">action</span>.</p>
+
+      <details open>
+        <summary>🧱 Core pattern: server action + session + build newBooking payload</summary>
+        <pre><code>export async function createBooking(bookingData, formData) {
+  const session = await auth();
+  if (!session) throw new Error("You must be logged in.");
+
+  const numGuests = Number(formData.get("numGuests"));
+  const observations = String(formData.get("observations") ?? "").slice(0, 1000);
+
+  const newBooking = {
+    ...bookingData,
+    guestId: session.user.guestId,
+    numGuests,
+    observations,
+    extrasPrice: 0,
+    totalPrice: bookingData.cabinPrice,
+    status: "unconfirmed",
+    isPaid: false,
+    hasBreakfast: false,
+  };
+
+  // Insert into Supabase
+  await supabase.from("bookings").insert([newBooking]);
+}
+</code></pre>
+      </details>
+
+      <h3>3) Passing “extra data” into a form action</h3>
+      <p>
+        Problem: Form submission only sends what’s in the inputs (<span class="kbd">numGuests</span>, <span class="kbd">observations</span>), but we also need dates, nights, cabinPrice, and cabinId.
+      </p>
+
+      <div class="callout">
+        <strong>Two approaches</strong>
+        <ol>
+          <li><strong>Hidden inputs</strong> — great if you only need 1–2 extra values.</li>
+          <li><strong>Function.bind()</strong> — better when you need to attach a whole object (our case).</li>
+        </ol>
+      </div>
+
+      <h3>✅ Using <span class="kbd">bind()</span> for Server Actions</h3>
+      <p>
+        The trick: the value you bind becomes the <strong>first argument</strong> of the function.
+        Therefore, your server action signature must be <span class="kbd">(bookingData, formData)</span> — with <span class="kbd">formData</span> last.
+      </p>
+
+      <pre><code>// Build the extra data once
+const bookingData = {
+  startDate,
+  endDate,
+  numNights,
+  cabinPrice,
+  cabinId,
+};
+
+// Bind bookingData into the server action
+const createBookingWithData = createBooking.bind(null, bookingData);
+
+// Use the bound function as the form action
+&lt;form action={createBookingWithData}&gt;
+  ...
+&lt;/form&gt;
+</code></pre>
+
+      <div class="callout">
+        <strong>⚠️ Common mistake</strong>
+        <p class="muted">If your server action only accepts <span class="kbd">(formData)</span>, then binding will replace that parameter and you’ll “lose” the real form data. Always place <span class="kbd">formData</span> last when using bind.</p>
+      </div>
+
+      <h2>🔐 Security note (important backend mindset)</h2>
+      <div class="callout">
+        <strong>🛡️ Client-side prevention is not enough</strong>
+        <p>
+          The UI disables booked dates, but a malicious user can still bypass UI constraints (e.g., removing <span class="kbd">disabled</span> attributes). For production-grade systems, you must also validate on the server that the selected dates are still available before inserting.
+        </p>
+        <p class="muted">In the course project, this is acknowledged as optional due to complexity—but the principle is critical in real apps.</p>
+      </div>
+
+      <h2>🧼 UX Fix 1: Reset the date range after booking</h2>
+      <p>
+        The <span class="kbd">resetRange()</span> function exists in client context. The server action cannot directly call it.
+        Solution: create a client-side wrapper function for the form action.
+      </p>
+
+      <pre><code>// Instead of using action={createBookingWithData} directly
+// create a wrapper that calls server action, then resets state.
+
+async function handleCreateBooking(formData) {
+  await createBookingWithData(formData);
+  resetRange();
+}
+
+&lt;form action={handleCreateBooking}&gt; ... &lt;/form&gt;
+</code></pre>
+
+      <h2>🧼 UX Fix 2: Revalidate so newly booked dates get disabled</h2>
+      <p>
+        After inserting a booking, the cabin page must refetch fresh data so those dates become blocked.
+        That means calling <span class="kbd">revalidatePath()</span> inside the server action.
+      </p>
+
+      <pre><code>import { revalidatePath } from "next/cache";
+
+// After successful insert
+revalidatePath(`/cabins/${bookingData.cabinId}`);
+</code></pre>
+
+      <div class="callout">
+        <strong>Why revalidation matters ✅</strong>
+        <ul>
+          <li>Clears the Router cache (browser-side), so the page won’t keep stale UI for ~30s.</li>
+          <li>For dynamic pages, the Router cache is the main factor the user notices immediately.</li>
+        </ul>
+      </div>
+
+      <h2>⏳ UX Fix 3: Loading indicator while submitting</h2>
+      <p>
+        The course reuses a shared <strong>SubmitButton</strong> component based on <span class="kbd">useFormStatus</span>, so the button text changes while the action is pending.
+      </p>
+
+      <pre><code>// Example usage
+&lt;SubmitButton pendingLabel="Reserving..."&gt;
+  Reserve now
+&lt;/SubmitButton&gt;
+</code></pre>
+
+      <h3>Nice touch: Only show the button when dates are selected</h3>
+      <p>
+        Instead of rendering a disabled submit button from the beginning, the UI conditionally renders the button only when both dates exist.
+      </p>
+      <pre><code>{!startDate || !endDate ? (
+  &lt;p&gt;Start by selecting dates.&lt;/p&gt;
+) : (
+  &lt;SubmitButton pendingLabel="Reserving..."&gt;Reserve now&lt;/SubmitButton&gt;
+)}</code></pre>
+
+      <h2>🙏 Final polish: Redirect to a Thank You page</h2>
+      <p>
+        After success, redirect to a confirmation screen (e.g., <span class="kbd">/cabins/thankyou</span>) that links the user to their reservations.
+      </p>
+
+      <pre><code>import { redirect } from "next/navigation";
+
+// After insert + revalidate
+redirect("/cabins/thankyou");
+</code></pre>
+
+      <div class="callout">
+        <strong>Order matters</strong>
+        <ul>
+          <li>✅ First: insert booking</li>
+          <li>✅ Then: <span class="kbd">revalidatePath()</span> (so the cabin page is fresh when revisited)</li>
+          <li>✅ Finally: <span class="kbd">redirect()</span></li>
+        </ul>
+      </div>
+
+      <h2>🧠 Quick mental model (memorize this)</h2>
+      <details open>
+        <summary>✅ Recipe for “Create something” with Server Actions</summary>
+        <ol>
+          <li>🧾 Identify all required DB fields (table-first thinking).</li>
+          <li>🧮 Compute what you can on the client (dates/prices).</li>
+          <li>📨 Send form fields via FormData (input <span class="kbd">name</span> is critical).</li>
+          <li>🪝 Send extra computed data via <span class="kbd">bind()</span> (or hidden inputs if small).</li>
+          <li>🔐 In server action: check session, assume inputs are unsafe, build the payload.</li>
+          <li>🗄️ Insert/update via Supabase.</li>
+          <li>♻️ Revalidate path so UI reflects the mutation.</li>
+          <li>⏳ Add pending UI (useFormStatus / SubmitButton).</li>
+          <li>➡️ Optionally redirect to confirmation.</li>
+        </ol>
+      </details>
+
+      <h2>🧪 Mini practice questions</h2>
+      <ol>
+        <li>Why must <span class="kbd">formData</span> be the <em>last</em> parameter when using <span class="kbd">bind()</span>?</li>
+        <li>What user experience problem does <span class="kbd">revalidatePath</span> solve after a booking is created?</li>
+        <li>Which booking fields come from (a) context, (b) computed logic, (c) FormData, (d) session?</li>
+        <li>What extra server-side validation would you add to prevent double-booking?</li>
+      </ol>
+
+      <div class="divider"></div>
+      <p class="muted">
+        End of study guide for this lecture. If you paste the next transcript, I can generate the next print-ready reviewer page with the same styling.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

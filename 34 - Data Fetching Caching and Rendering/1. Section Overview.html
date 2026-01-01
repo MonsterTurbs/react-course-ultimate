@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Data Fetching, Caching & Rendering — Section Overview (Study Guide)</title>
+  <meta name="description" content="Print-friendly reviewer for Next.js data fetching: streaming, Suspense, loading.js, static vs dynamic rendering, and caching." />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f8;
+      --soft2: #fbfbfc;
+      --accent: #0b57d0;
+      --good: #137333;
+      --warn: #b06000;
+      --bad: #b00020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 20px 64px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--soft2), var(--bg));
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+    }
+
+    h1 {
+      font-size: 22px;
+      line-height: 1.25;
+      margin: 0 0 8px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #ffffff;
+      padding: 14px 16px;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 10px;
+      letter-spacing: -0.1px;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 0 0 10px; }
+
+    ul, ol {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin-top: 10px;
+    }
+
+    .callout strong { color: var(--text); }
+    .callout .small { color: var(--muted); font-size: 12.5px; margin: 6px 0 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #ffffff;
+    }
+
+    .card h3 { margin-top: 0; }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .table th, .table td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .table th { background: var(--soft); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #0b1020;
+      color: #e7e7e7;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .muted { color: var(--muted); }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: 6px;
+    }
+
+    .good { color: var(--good); }
+    .warn { color: var(--warn); }
+    .bad  { color: var(--bad); }
+
+    footer {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12.5px;
+      padding: 0 2px;
+    }
+
+    /* Print (A4) */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      a[href]:after { content: "" !important; } /* Do not show URLs */
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Next.js Data Fetching, Caching & Rendering — Section Overview</h1>
+      <p class="subtitle">Print-friendly reviewer / study guide (single-column, A4-ready). Focus: streaming, caching, and rendering strategies in Next.js.</p>
+      <div class="meta">
+        <span class="chip">📦 Topic: Data delivery in Next.js</span>
+        <span class="chip">⚡ Focus: Streaming • Caching • Rendering</span>
+        <span class="chip">🧠 Goal: Best possible UX + performance</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) What this section is about (big picture) 🧭</h2>
+        <p>
+          This section focuses on <strong>getting data</strong> (from a DB/API) and <strong>delivering it to users</strong> in the best possible way.
+          The core themes are:
+        </p>
+        <ul>
+          <li>🚰 <strong>Streaming</strong>: show useful UI early while the rest is still loading.</li>
+          <li>🗃️ <strong>Caching</strong>: reuse results to avoid slow re-fetching and reduce server work.</li>
+          <li>🧱 <strong>Rendering strategy</strong>: decide <em>when</em> and <em>where</em> HTML/data is generated.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Key idea:</strong> Data is the core of most websites/web apps, so performance and UX depend heavily on how you fetch, cache, and render.
+          <p class="small">💡 The better your strategy, the faster the page feels and the less work your servers and users’ devices have to do.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) Streaming content: <code>loading.js</code> and <code>Suspense</code> 🌊</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>Option A: <code>loading.js</code> (route-level loader) ⏳ <span class="badge">easy</span></h3>
+            <p>
+              You create a <code>loading.js</code> file next to a route (or at the app root). Next.js shows that UI
+              while the route’s server work/data is still loading.
+            </p>
+            <ul>
+              <li>✅ Great for quick “page is loading” feedback</li>
+              <li class="warn">⚠️ Usually replaces the whole route segment (less granular)</li>
+              <li>📡 Often involves streaming behind the scenes</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>Option B: <code>&lt;Suspense&gt;</code> (component-level streaming) 🧩 <span class="badge">granular</span></h3>
+            <p>
+              Wrap specific parts of your UI with <code>Suspense</code> so you can stream components independently.
+              The rest of the page can render while a smaller section is still waiting for data.
+            </p>
+            <ul>
+              <li>✅ Better UX for pages with multiple data sections</li>
+              <li>✅ Avoids “whole page replaced” effect</li>
+              <li class="warn">⚠️ Requires a bit more planning in your component structure</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Mental model 🧠</h3>
+        <p class="muted">
+          Think of streaming like serving a meal: you can bring appetizers first (header/skeleton) while the main dish
+          (data-heavy UI) finishes cooking.
+        </p>
+      </section>
+
+      <section>
+        <h2>3) Static vs Dynamic Rendering 🧩</h2>
+        <p>
+          Next.js can generate HTML (and sometimes data) at different times. Two common strategies:
+        </p>
+
+        <table class="table" aria-label="Static vs Dynamic rendering">
+          <thead>
+            <tr>
+              <th>Strategy</th>
+              <th>What it means</th>
+              <th>When it’s good</th>
+              <th>Trade-offs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Static rendering</strong> 🧊</td>
+              <td>Pre-generate content (often at build time) and reuse it.</td>
+              <td>Content changes rarely (marketing pages, docs, stable lists).</td>
+              <td class="warn">May become stale unless revalidated/updated.</td>
+            </tr>
+            <tr>
+              <td><strong>Dynamic rendering</strong> 🔥</td>
+              <td>Generate content per request or per user/navigation (runtime).</td>
+              <td>User-specific or frequently changing content (dashboards, bookings, auth).</td>
+              <td class="warn">More server work; requires smart caching to stay fast.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <strong>Practical rule of thumb:</strong>
+          <ul>
+            <li>🧊 Use <strong>static</strong> when you can (fast by default).</li>
+            <li>🔥 Use <strong>dynamic</strong> when you must (personalization, real-time-ish data).</li>
+            <li>🗃️ Use <strong>caching</strong> to make dynamic feel closer to static performance.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Caching in Next.js 🗃️</h2>
+        <p>
+          Caching is about <strong>reusing work</strong>. If data (or rendered output) is reused, pages can load faster and
+          your app can scale better.
+        </p>
+
+        <h3>What you will learn here ✅</h3>
+        <ul>
+          <li>🧠 How Next.js caches data and why it matters</li>
+          <li>🧰 Different caching mechanisms you can choose from</li>
+          <li>⚡ How caching improves performance and reduces repeated fetching</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Watch out:</strong> caching has a cost.
+          <ul>
+            <li class="warn">⚠️ Too much caching can show outdated data.</li>
+            <li class="warn">⚠️ Too little caching can make everything slow and expensive.</li>
+          </ul>
+          <p class="small">Goal: pick the right cache strategy for each kind of data.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Quick glossary (simple definitions) 📘</h2>
+        <ul>
+          <li>📦 <strong>Data fetching</strong>: getting data from an API/DB.</li>
+          <li>🌊 <strong>Streaming</strong>: sending UI/data in parts over time instead of all at once.</li>
+          <li>⏳ <strong>Loading state</strong>: temporary UI while waiting for data.</li>
+          <li>🧩 <strong>Suspense</strong>: React feature that lets you show fallback UI while a component is “waiting.”</li>
+          <li>🧊 <strong>Static rendering</strong>: pre-built output reused for many users.</li>
+          <li>🔥 <strong>Dynamic rendering</strong>: output generated at runtime (often per request/user).</li>
+          <li>🗃️ <strong>Cache</strong>: stored result reused to avoid repeating work.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>6) Mini “what to expect” checklist ✅</h2>
+        <ol>
+          <li>Build/try streaming with <strong><code>loading.js</code></strong> and <strong><code>Suspense</code></strong>.</li>
+          <li>Understand <strong>static vs dynamic</strong> and when each is appropriate.</li>
+          <li>Learn how <strong>Next.js caching</strong> works and how to apply it to speed up UX.</li>
+          <li>Apply the concepts in the project (Wild Oasis website) as you continue building.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>7) Self-check questions (quick review) 🧠</h2>
+        <ol>
+          <li>Why is streaming useful for user experience?</li>
+          <li>When would <code>loading.js</code> be “good enough,” and when would you prefer <code>Suspense</code>?</li>
+          <li>Give one example of a page that should be static, and one that should be dynamic.</li>
+          <li>What is the main risk of caching? How do you reduce that risk?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>8) Tiny code reminders (not required yet) 🧩</h2>
+        <p class="muted">These are just memory anchors; you will implement them properly in the section.</p>
+        <pre><code>// Route-level loading UI (App Router)
+// app/(some-route)/loading.js
+export default function Loading() {
+  return &lt;p&gt;⏳ Loading…&lt;/p&gt;;
+}
+
+// Component-level streaming
+// import { Suspense } from "react";
+// &lt;Suspense fallback={&lt;Spinner /&gt;}&gt;...&lt;/Suspense&gt;
+</code></pre>
+      </section>
+
+      <footer>
+        <p>
+          End of section overview. Next: implement streaming, rendering strategies, and caching in the project.
+        </p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

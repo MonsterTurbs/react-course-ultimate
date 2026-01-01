@@ -1,0 +1,382 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WorldWise — Interacting With the Map (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #0b1020;
+      --codetext: #e8eefc;
+      --accent: #1a73e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding: 18px 16px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 10px 0; }
+
+    .toc {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .toc ul { margin: 8px 0 0 18px; padding: 0; }
+    .toc li { margin: 6px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #f6faff;
+    }
+
+    .warn {
+      border-left: 4px solid #b45309;
+      background: #fff7ed;
+    }
+
+    .ok {
+      border-left: 4px solid #15803d;
+      background: #f0fdf4;
+    }
+
+    .chips { margin: 10px 0 0; }
+    .chip {
+      display: inline-block;
+      font-size: 12px;
+      padding: 4px 8px;
+      margin: 0 6px 6px 0;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      color: #222;
+      white-space: nowrap;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow-x: auto;
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    pre code { color: inherit; }
+
+    .k { color: #93c5fd; }   /* keyword-ish */
+    .s { color: #fde68a; }   /* string-ish */
+    .c { color: #a7f3d0; }   /* comment-ish */
+
+    ul { margin: 8px 0 8px 18px; }
+    li { margin: 6px 0; }
+
+    .mini {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, .card { break-inside: avoid; }
+      pre { break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; } /* don't print URLs */
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🗺️ WorldWise — Interacting With the Map</h1>
+      <p class="subtitle">Study guide / reviewer: make the map follow the selected city (via URL Query String) and handle map clicks to open the form with lat/lng in the URL.</p>
+      <div class="toc">
+        <strong>📌 Contents</strong>
+        <ul>
+          <li>Goal and big idea</li>
+          <li>Part A — Move (re-center) the map using Query String</li>
+          <li>Part B — Detect map clicks and navigate programmatically</li>
+          <li>Part C — Put click position in the URL (lat/lng)</li>
+          <li>Common pitfalls and mental model</li>
+        </ul>
+      </div>
+      <div class="chips">
+        <span class="chip">React Router</span>
+        <span class="chip">Query String</span>
+        <span class="chip">React-Leaflet</span>
+        <span class="chip">useEffect sync</span>
+        <span class="chip">useNavigate</span>
+      </div>
+    </header>
+
+    <section class="card callout">
+      <h2>🎯 Goal and big idea</h2>
+      <p>
+        We already store <strong>lat</strong> and <strong>lng</strong> in the URL as a <strong>Query string</strong> (e.g. <code>?lat=38.72&lng=-9.13</code>).
+        Now we will:
+      </p>
+      <ul>
+        <li>✅ Re-center the Leaflet map when the URL lat/lng changes.</li>
+        <li>✅ Remember the last map position even if the URL loses lat/lng when navigating back.</li>
+        <li>✅ Handle clicks on the map: navigate to the form route.</li>
+        <li>✅ Include the clicked coordinates in the URL so the form can read them later.</li>
+      </ul>
+      <p class="mini">🧠 Key concept: Leaflet map behaviors are often implemented via <em>custom components + hooks</em> (e.g. <code>useMap</code>, <code>useMapEvents</code>), not by random props.</p>
+    </section>
+
+    <section class="card">
+      <h2>Part A — Move the map using Query String</h2>
+      <h3>1) Read <code>lat</code> and <code>lng</code> from the URL</h3>
+      <p>
+        In the Map component, we read query parameters using React Router’s <code>useSearchParams()</code>.
+        This gives us a <code>searchParams</code> object where we can call <code>.get("lat")</code> and <code>.get("lng")</code>.
+      </p>
+      <pre><code><span class="k">import</span> { useSearchParams } <span class="k">from</span> <span class="s">"react-router-dom"</span>;
+
+<span class="k">const</span> [searchParams] = useSearchParams();
+<span class="k">const</span> mapLat = searchParams.get(<span class="s">"lat"</span>);
+<span class="k">const</span> mapLng = searchParams.get(<span class="s">"lng"</span>);
+</code></pre>
+      <div class="card warn">
+        <p><strong>⚠️ Important:</strong> <code>searchParams.get()</code> returns a <em>string</em> or <code>null</code>. Many times you’ll want <code>Number(mapLat)</code> / <code>Number(mapLng)</code>.</p>
+      </div>
+
+      <h3>2) Why <code>center</code> doesn’t “react” by itself</h3>
+      <p>
+        In React-Leaflet, the <code>&lt;MapContainer center={...} /&gt;</code> prop is used for the initial setup.
+        When your <code>center</code> value changes later, Leaflet does <strong>not automatically pan</strong> to it.
+        So we implement it ourselves.
+      </p>
+
+      <h3>3) Create a custom component to re-center the map</h3>
+      <p>
+        We create a component (example name: <code>ChangeCenter</code>) and use the Leaflet hook <code>useMap()</code>.
+        That hook returns the <strong>map instance</strong>, so we can call <code>map.setView(position)</code>.
+      </p>
+      <pre><code><span class="k">import</span> { useMap } <span class="k">from</span> <span class="s">"react-leaflet"</span>;
+
+<span class="k">function</span> ChangeCenter({ position }) {
+  <span class="k">const</span> map = useMap();
+  map.setView(position); <span class="c">// optional: map.setView(position, 6)</span>
+  <span class="k">return</span> <span class="k">null</span>;
+}
+</code></pre>
+
+      <h3>4) Remember the last position (so the map doesn’t “jump back”)</h3>
+      <p>
+        When you navigate back to the list, the URL may no longer have <code>lat</code> and <code>lng</code>.
+        If you immediately fall back to a default center (like <code>[40, 0]</code>), the map will jump.
+        Instead, store the map position in local state and synchronize it when URL params exist.
+      </p>
+      <pre><code><span class="k">import</span> { useEffect, useState } <span class="k">from</span> <span class="s">"react"</span>;
+
+<span class="k">const</span> [mapPosition, setMapPosition] = useState([40, 0]);
+
+useEffect(<span class="k">function</span> () {
+  <span class="k">if</span> (mapLat &amp;&amp; mapLng)
+    setMapPosition([Number(mapLat), Number(mapLng)]);
+}, [mapLat, mapLng]);
+</code></pre>
+
+      <div class="card ok">
+        <p><strong>✅ Why this works:</strong> when you return to the list and <code>mapLat/mapLng</code> become <code>null</code>, the effect does nothing, so the last <code>mapPosition</code> remains.</p>
+      </div>
+
+      <h3>5) Use your custom component inside the map</h3>
+      <pre><code><span class="k">return</span> (
+  &lt;div className={styles.mapContainer}&gt;
+    &lt;MapContainer center={mapPosition} zoom={6} className={styles.map}&gt;
+      &lt;ChangeCenter position={mapPosition} /&gt;
+      <span class="c">// ...TileLayer, markers, popups...</span>
+    &lt;/MapContainer&gt;
+  &lt;/div&gt;
+);
+</code></pre>
+
+      <p class="mini">🧠 Reminder: <code>useEffect</code> is often a synchronization mechanism—here we synchronize URL state ↔ map state.</p>
+    </section>
+
+    <section class="card">
+      <h2>Part B — Detect map clicks and navigate programmatically</h2>
+      <h3>1) Why we can’t just do <code>onClick</code> on <code>MapContainer</code></h3>
+      <p>
+        React-Leaflet uses its own event system. For map events, we typically create a small component and attach listeners using <code>useMapEvents()</code>.
+      </p>
+
+      <h3>2) Create a <code>DetectClick</code> component</h3>
+      <p>
+        We use React Router’s <code>useNavigate()</code> to move to the form route (<code>"form"</code>) without clicking a link.
+      </p>
+      <pre><code><span class="k">import</span> { useNavigate } <span class="k">from</span> <span class="s">"react-router-dom"</span>;
+<span class="k">import</span> { useMapEvents } <span class="k">from</span> <span class="s">"react-leaflet"</span>;
+
+<span class="k">function</span> DetectClick() {
+  <span class="k">const</span> navigate = useNavigate();
+
+  useMapEvents({
+    click: (e) =&gt; {
+      navigate(<span class="s">"form"</span>);
+    },
+  });
+
+  <span class="k">return</span> <span class="k">null</span>;
+}
+</code></pre>
+
+      <h3>3) Mount the component inside <code>MapContainer</code></h3>
+      <pre><code>&lt;MapContainer center={mapPosition} zoom={6} className={styles.map}&gt;
+  &lt;ChangeCenter position={mapPosition} /&gt;
+  &lt;DetectClick /&gt;
+  <span class="c">// ...layers/markers...</span>
+&lt;/MapContainer&gt;
+</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Part C — Put clicked position in the URL (lat/lng)</h2>
+      <p>
+        When the user clicks on the map, we want the form to know <strong>where</strong> that click happened.
+        Instead of inventing temporary global state, we store it in the URL as a Query string.
+      </p>
+
+      <h3>1) Read the coordinates from the Leaflet click event</h3>
+      <p>
+        Leaflet’s click event contains <code>e.latlng</code> (not the usual DOM event).
+        It has <code>lat</code> and <code>lng</code>.
+      </p>
+
+      <h3>2) Navigate to the form with a Query string</h3>
+      <pre><code><span class="k">function</span> DetectClick() {
+  <span class="k">const</span> navigate = useNavigate();
+
+  useMapEvents({
+    click: (e) =&gt; {
+      <span class="k">const</span> lat = e.latlng.lat;
+      <span class="k">const</span> lng = e.latlng.lng;
+
+      navigate(<span class="s">`form?lat=${lat}&amp;lng=${lng}`</span>);
+    },
+  });
+
+  <span class="k">return</span> <span class="k">null</span>;
+}
+</code></pre>
+
+      <div class="card callout">
+        <p><strong>🔗 Why this is powerful:</strong> the form can later read <code>lat</code> and <code>lng</code> using <code>useSearchParams()</code>, just like the map did. The URL becomes a lightweight “global state” channel between pages.</p>
+      </div>
+
+      <h3>3) Expected user experience</h3>
+      <ul>
+        <li>🖱️ Click a city in the list → URL updates with city ID and lat/lng → map re-centers.</li>
+        <li>⬅️ Navigate back to list → URL loses lat/lng, but map stays where it was (because state remembered it).</li>
+        <li>🗺️ Click anywhere on the map → navigate to form and include clicked lat/lng in the URL.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>⚠️ Common pitfalls (and quick fixes)</h2>
+      <ul>
+        <li><strong>Hook order rule:</strong> don’t <code>return</code> early before hooks (e.g., don’t render conditionally above <code>useSearchParams()</code>).</li>
+        <li><strong>Null query params:</strong> <code>searchParams.get("lat")</code> can be <code>null</code> when the URL doesn’t have it. Guard with <code>if (mapLat &amp;&amp; mapLng)</code>.</li>
+        <li><strong>Map “jumping”:</strong> if you always fall back to a default center, the map will snap back when leaving the city route. Keep a local <code>mapPosition</code> state and only update it when params exist.</li>
+        <li><strong>Types:</strong> query params are strings. Convert to numbers before using as coordinates.</li>
+        <li><strong>React-Leaflet pattern:</strong> advanced behavior often requires “helper components” that return <code>null</code> but attach logic with hooks.</li>
+      </ul>
+    </section>
+
+    <section class="card ok">
+      <h2>✅ Quick recap</h2>
+      <ul>
+        <li>📌 <strong>URL Query string</strong> can store shareable UI state (lat/lng).</li>
+        <li>🧩 <strong>ChangeCenter + useMap()</strong> makes the map follow state changes.</li>
+        <li>🧠 <strong>useEffect</strong> synchronizes URL params into local map state.</li>
+        <li>🖱️ <strong>DetectClick + useMapEvents()</strong> handles map clicks.</li>
+        <li>➡️ <strong>useNavigate()</strong> enables programmatic navigation (to form, with lat/lng).</li>
+      </ul>
+      <div class="divider"></div>
+      <p class="mini">Next step (later lecture): the Form reads <code>lat</code> and <code>lng</code> from the URL and uses them to create the new city’s <code>position</code> field.</p>
+    </section>
+  </main>
+</body>
+</html>

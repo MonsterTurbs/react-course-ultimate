@@ -1,0 +1,385 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Performance — memo in Practice (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --ink:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --soft2:#fcfcfd;
+      --accent:#0b57d0;
+      --good:#0a7a2f;
+      --warn:#8a5a00;
+      --bad:#b42318;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:var(--sans);
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:18px 18px;
+      background: linear-gradient(0deg, var(--soft2), var(--soft));
+    }
+    h1{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:#333;
+    }
+
+    section{
+      margin-top: 16px;
+      padding: 14px 16px;
+      border:1px solid var(--border);
+      border-radius: 12px;
+      background:#fff;
+    }
+
+    h2{
+      margin:0 0 8px 0;
+      font-size: 17px;
+    }
+
+    h3{
+      margin: 14px 0 6px 0;
+      font-size: 14px;
+    }
+
+    p{margin: 8px 0;}
+    ul{margin: 8px 0 8px 22px; padding:0;}
+    li{margin: 6px 0;}
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--soft2);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    .callout.good{border-left-color: var(--good);}
+    .callout.warn{border-left-color: var(--warn);}
+    .callout.bad{border-left-color: var(--bad);}
+
+    .k{
+      display:inline-block;
+      padding: 0 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+      font-family: var(--mono);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0b1020;
+      color: #f4f6ff;
+      overflow:auto;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    code{font-family:var(--mono);}
+
+    .twoCol{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .qa{
+      border-top: 1px dashed var(--border);
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+    .q{font-weight: 700;}
+    .a{margin-top: 4px;}
+
+    .miniTable{
+      width:100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 12.5px;
+    }
+    .miniTable th,
+    .miniTable td{
+      border:1px solid var(--border);
+      padding:8px 8px;
+      vertical-align: top;
+    }
+    .miniTable th{background: var(--soft); text-align:left;}
+
+    .hr{
+      height:1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print */
+    @page{
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print{
+      body{font-size: 11pt;}
+      .page{max-width:none; padding:0;}
+      header, section{break-inside: avoid;}
+      a{color:inherit; text-decoration:none;}
+      /* If any links exist, don't print URLs */
+      a[href]::after{content:"" !important;}
+      pre{break-inside: avoid;}
+      .chip{border-color:#ddd;}
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 React Performance: <span class="k">memo</span> in Practice</h1>
+      <p class="subtitle">Atomic Blog demo — profiling a slow component, fixing lag with <span class="k">React.memo</span>, and understanding how “object props” can break memoization.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Prevent wasted renders</span>
+        <span class="chip">🛠 Tooling: React DevTools Profiler</span>
+        <span class="chip">🧩 Key API: memo()</span>
+        <span class="chip">⚠️ Gotcha: new object prop each render</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What you’re building in this lecture</h2>
+      <ul>
+        <li>Switch Atomic Blog back to the <b>starter</b> version of <span class="k">App.js</span> (no context yet) to reproduce a classic performance problem.</li>
+        <li>Use the <b>Profiler</b> to prove what’s re-rendering and how long it takes.</li>
+        <li>Wrap a heavy component (<b>Archive</b>) with <span class="k">memo()</span> to stop it from re-rendering on every keystroke.</li>
+        <li>See how memoization can “break” when you pass a <b>new object</b> as props each render (setup for next lecture).</li>
+      </ul>
+
+      <div class="callout warn">
+        <b>🧩 Mental model:</b> <span class="k">memo(Component)</span> prevents re-rendering <i>only if props are shallow-equal</i> to the previous render.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Setup recap (what changed in the project)</h2>
+      <h3>1) Use the starter App</h3>
+      <ul>
+        <li>Copy the original starter <span class="k">App.js</span> into the project and rename it to something like <span class="k">App-memo.js</span>.</li>
+        <li>Update <span class="k">index.js</span> to import from <span class="k">App-memo</span>.</li>
+      </ul>
+
+      <h3>2) Focus on the Archive component</h3>
+      <p>The lecture uses an <b>Archive</b> component that:</p>
+      <ul>
+        <li>Generates <b>10,000–30,000</b> random posts (😅 heavy).</li>
+        <li>Conditionally renders them only when “Show archive” is enabled.</li>
+        <li>Lives as a child of <span class="k">App</span>, meaning it can re-render when <span class="k">App</span> re-renders.</li>
+      </ul>
+
+      <div class="callout">
+        <b>💡 Why increase to 30,000?</b> To make the performance problem obvious. If your machine struggles, reduce it (e.g., 10,000).
+      </div>
+    </section>
+
+    <section>
+      <h2>🐢 The performance problem (what you observe)</h2>
+      <p>Once the archive is open, typing into the search field becomes slow and “laggy”.</p>
+
+      <div class="callout bad">
+        <b>🚨 Root cause:</b> Typing updates state in <span class="k">App</span> ➜ <span class="k">App</span> re-renders ➜ all children re-render, including <b>Archive</b> (which is extremely expensive).
+      </div>
+
+      <h3>✅ How to prove it (Profiler)</h3>
+      <ol>
+        <li>Open React DevTools → <b>Profiler</b>.</li>
+        <li>Enable: “Record why each component rendered” (Profiler settings).</li>
+        <li>Record while typing with archive <b>closed</b> → fast.</li>
+        <li>Open archive → heavy commit (large render time).</li>
+        <li>Type again → archive re-renders on each keypress → slow.</li>
+      </ol>
+
+      <table class="miniTable" aria-label="Profiler interpretation">
+        <thead>
+          <tr>
+            <th>What you see</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Big bar / yellow component</td>
+            <td>⏱️ Slow render (expensive component)</td>
+          </tr>
+          <tr>
+            <td>Archive appears in commits during typing</td>
+            <td>⌨️ Archive is re-rendering because parent re-rendered</td>
+          </tr>
+          <tr>
+            <td>Other components look tiny</td>
+            <td>🚀 They are fast; the lag is dominated by Archive</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>🛡️ The fix: memoize the heavy component</h2>
+      <p>Wrap <b>Archive</b> with <span class="k">memo</span> so it won’t re-render when its parent re-renders — as long as its props haven’t changed.</p>
+
+      <h3>✅ Code pattern</h3>
+      <pre><code>import { memo } from "react";
+
+const Archive = memo(function Archive({ show }) {
+  // heavy work (lots of posts)
+  // ...
+
+  if (!show) return null;
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Post archive&lt;/h2&gt;
+      {/* render huge list */}
+    &lt;/div&gt;
+  );
+});
+
+export default Archive;</code></pre>
+
+      <div class="callout good">
+        <b>✅ Expected result:</b> Opening the archive is still slow (first render is unavoidable), but <b>typing becomes fast again</b> because Archive does not re-render on each keystroke.
+      </div>
+
+      <h3>🧠 Why it works (in simple terms)</h3>
+      <ul>
+        <li>Before: <b>Parent renders</b> → child renders always.</li>
+        <li>After <span class="k">memo</span>: Parent can re-render, but child will be skipped if props are “the same”.</li>
+        <li>In the lecture, Archive has a prop like <span class="k">show</span> that stays constant during typing, so React can safely skip Archive.</li>
+      </ul>
+
+      <div class="callout">
+        <b>⚠️ Important reminder:</b> <span class="k">memo</span> only optimizes <b>props</b>. If Archive’s <b>own state</b> changes or it consumes a <b>context</b> that changes, it will still re-render.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧨 How to break memoization (the “object prop” trap)</h2>
+      <p>The lecture intentionally changes props from a primitive (like <span class="k">show={false}</span>) to an <b>object</b>:</p>
+
+      <pre><code>// Inside App (parent)
+const archiveOptions = {
+  show: false,
+  title: "Post archive"
+};
+
+&lt;Archive archiveOptions={archiveOptions} /&gt;;</code></pre>
+
+      <p>Then Archive uses it:</p>
+      <pre><code>function Archive({ archiveOptions }) {
+  if (!archiveOptions.show) return null;
+  return &lt;h2&gt;{archiveOptions.title}&lt;/h2&gt;;
+}</code></pre>
+
+      <div class="callout bad">
+        <b>🚨 What happens:</b> Archive starts re-rendering again on every keypress.
+      </div>
+
+      <h3>✅ Why this happens (beginner-friendly)</h3>
+      <ul>
+        <li>Each time <span class="k">App</span> re-renders, it executes again.</li>
+        <li>That means it creates a <b>new object</b> for <span class="k">archiveOptions</span> (new reference in memory).</li>
+        <li><span class="k">memo</span> compares props using a <b>shallow comparison</b> (reference check for objects).</li>
+        <li>New object reference ≠ old object reference ➜ props are considered “changed” ➜ Archive re-renders.</li>
+      </ul>
+
+      <div class="callout warn">
+        <b>🔑 Key takeaway:</b> With <span class="k">memo</span>, stable props matter. Object/array/function props must often be stabilized to avoid “fake” prop changes.
+      </div>
+
+      <div class="qa">
+        <div class="q">❓ “But the object contents are the same—why re-render?”</div>
+        <div class="a">Because React (by default) does not deep-compare objects for performance reasons. It only checks whether it’s the <i>same object reference</i>.</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Practical rules of thumb</h2>
+      <ul>
+        <li>✅ Use <span class="k">memo</span> for <b>heavy</b> components that re-render often with the <b>same props</b>.</li>
+        <li>✅ Always confirm improvements with the <b>Profiler</b> (don’t guess).</li>
+        <li>⚠️ Be careful passing <b>inline objects/arrays/functions</b> as props to memoized children.</li>
+        <li>🧠 If memoization “stops working”, check whether props are truly stable (reference stability).</li>
+      </ul>
+
+      <div class="callout">
+        <b>➡️ Next lecture preview:</b> You’ll learn how to keep props stable (typically using <span class="k">useMemo</span> for objects/arrays and <span class="k">useCallback</span> for functions) so memoization remains effective.
+      </div>
+    </section>
+
+    <section>
+      <h2>📝 Quick self-check</h2>
+      <div class="qa">
+        <div class="q">1) Why does typing cause lag when the archive is open?</div>
+        <div class="a">⌨️ Typing updates parent state → parent re-renders → heavy Archive re-renders → expensive work blocks UI updates.</div>
+      </div>
+      <div class="qa">
+        <div class="q">2) What does <span class="k">memo</span> prevent?</div>
+        <div class="a">It prevents re-rendering due to <b>parent re-render</b> when props are unchanged (shallow-equal).</div>
+      </div>
+      <div class="qa">
+        <div class="q">3) Why can an object prop break memoization?</div>
+        <div class="a">Because each render creates a new object reference, so shallow comparison sees it as “changed”.</div>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

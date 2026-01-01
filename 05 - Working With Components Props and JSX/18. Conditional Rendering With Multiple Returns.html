@@ -1,0 +1,466 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Conditional Rendering with Multiple Returns (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --hint: #eef6ff;
+      --warn: #fff3cd;
+      --ok: #eaffea;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.hint { border-left-color: #90caf9; background: var(--hint); }
+    .callout.warn { border-left-color: #ffe08a; background: var(--warn); }
+    .callout.ok { border-left-color: #7ad27a; background: var(--ok); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .term {
+      display: inline-block;
+      padding: 1px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>↩️ Conditional Rendering with Multiple Returns — Reviewer</h1>
+      <p class="subtitle">Use early returns (<code>if (...) return ...</code>) to render different UI based on conditions—especially for whole components or “render nothing” cases. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print dialog, set Paper size = A4, Margins = Default.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#idea">Core idea: multiple returns (early return)</a></li>
+          <li><a href="#why">Why this works (outside JSX = normal JS)</a></li>
+          <li><a href="#footer">Example: Footer early return (open vs closed)</a></li>
+          <li><a href="#wrapper">Common issue: missing wrapper element</a></li>
+          <li><a href="#pizza">Best use case: conditionally render an entire component (soldOut → return null)</a></li>
+          <li><a href="#guidelines">When to use early return vs <code>&&</code> vs ternary</a></li>
+          <li><a href="#checklist">Quick checklist + mini exercises</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="idea">
+      <h2>🧠 Core idea: “multiple returns” (early return)</h2>
+      <p>
+        Until now, your components usually had a single <code>return</code>. But React components are just JavaScript functions,
+        so you can use multiple <code>return</code> statements—<strong>as long as only one is executed</strong>.
+      </p>
+      <div class="callout ok">
+        <p><strong>Important ✅</strong></p>
+        <ul>
+          <li>A component still returns <strong>one</strong> JSX result per render.</li>
+          <li>But which JSX is returned can depend on a condition (early return).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="why">
+      <h2>⚙️ Why this works</h2>
+      <p>
+        Early returns happen <strong>outside JSX</strong>, directly inside the component function body.
+        That means you can use normal JavaScript statements like <code>if</code>—unlike inside JSX curly braces.
+      </p>
+
+      <div class="callout hint">
+        <p><strong>Remember 🧩</strong></p>
+        <p class="muted">Inside JSX <code>{ }</code> you need expressions. Outside JSX (in the function body), you can use full JS: <code>if</code>, <code>return</code>, variables, etc.</p>
+      </div>
+
+      <pre><code>function Component() {
+  // ✅ normal JavaScript here
+  if (someCondition) return &lt;p&gt;A&lt;/p&gt;;
+
+  // default return
+  return &lt;p&gt;B&lt;/p&gt;;
+}</code></pre>
+    </section>
+
+    <section id="footer">
+      <h2>🧾 Example: Footer early return (open vs closed)</h2>
+      <p>
+        The lecture example: when the restaurant is closed, return the “come back later” message immediately.
+        Otherwise, render the regular footer UI.
+      </p>
+
+      <pre><code>function Footer() {
+  const hour = new Date().getHours();
+  const openHour = 12;
+  const closeHour = 22;
+  const isOpen = hour &gt;= openHour &amp;&amp; hour &lt;= closeHour;
+
+  // ✅ early return (closed)
+  if (!isOpen)
+    return (
+      &lt;p&gt;We&apos;re happy to welcome you between {openHour}:00 and {closeHour}:00. 😴&lt;/p&gt;
+    );
+
+  // ✅ normal return (open)
+  return (
+    &lt;footer className="footer"&gt;
+      &lt;div className="order"&gt;
+        &lt;p&gt;We&apos;re open until {closeHour}:00. Come visit us or order online. 🍕&lt;/p&gt;
+        &lt;button className="btn"&gt;Order&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/footer&gt;
+  );
+}</code></pre>
+
+      <div class="callout ok">
+        <p><strong>What you gain ✅</strong></p>
+        <p class="muted">You can use <code>if</code> statements cleanly because you’re not inside JSX curly braces.</p>
+      </div>
+    </section>
+
+    <section id="wrapper">
+      <h2>🧱 Common issue: missing wrapper element</h2>
+      <p>
+        The lecture calls out an important downside: in the “closed” early return above, you returned a <code>&lt;p&gt;</code>
+        and you no longer returned the <code>&lt;footer&gt;</code> wrapper.
+      </p>
+
+      <div class="callout warn">
+        <p><strong>Why this matters ⚠️</strong></p>
+        <ul>
+          <li>Your DOM structure changes: sometimes there is a <code>&lt;footer&gt;</code>, sometimes there isn’t.</li>
+          <li>Your styling (CSS targeting <code>footer</code>) may break when the wrapper disappears.</li>
+        </ul>
+      </div>
+
+      <h3>Safer approach ✅ keep the wrapper consistent</h3>
+      <pre><code>function Footer() {
+  const hour = new Date().getHours();
+  const openHour = 12;
+  const closeHour = 22;
+  const isOpen = hour &gt;= openHour &amp;&amp; hour &lt;= closeHour;
+
+  if (!isOpen)
+    return (
+      &lt;footer className="footer"&gt;
+        &lt;p&gt;We&apos;re happy to welcome you between {openHour}:00 and {closeHour}:00. 😴&lt;/p&gt;
+      &lt;/footer&gt;
+    );
+
+  return (
+    &lt;footer className="footer"&gt;
+      &lt;div className="order"&gt;
+        &lt;p&gt;We&apos;re open until {closeHour}:00. Come visit us or order online. 🍕&lt;/p&gt;
+        &lt;button className="btn"&gt;Order&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/footer&gt;
+  );
+}</code></pre>
+
+      <div class="callout hint">
+        <p><strong>Lecture takeaway 🧠</strong></p>
+        <p class="muted">Early return is often best when you render an entirely different component (or nothing). If you just need to swap a small piece, ternary or <code>&&</code> can be cleaner.</p>
+      </div>
+    </section>
+
+    <section id="pizza">
+      <h2>🍕 Best use case: conditionally render an entire component (soldOut → return <code>null</code>)</h2>
+      <p>
+        The lecture shows a classic pattern: in the <code>Pizza</code> component, if a pizza is sold out,
+        you can early-return <code>null</code>. Returning <code>null</code> means “render nothing.”
+      </p>
+
+      <pre><code>function Pizza(props) {
+  // props.pizzaObj contains: name, ingredients, price, photoName, soldOut, ...
+
+  if (props.pizzaObj.soldOut) return null; // ✅ render nothing
+
+  return (
+    &lt;li className="pizza"&gt;
+      &lt;img src={props.pizzaObj.photoName} alt={props.pizzaObj.name} /&gt;
+      &lt;div&gt;
+        &lt;h3&gt;{props.pizzaObj.name}&lt;/h3&gt;
+        &lt;p&gt;{props.pizzaObj.ingredients}&lt;/p&gt;
+        &lt;span&gt;{props.pizzaObj.price}&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/li&gt;
+  );
+}</code></pre>
+
+      <div class="callout ok">
+        <p><strong>What happens ✅</strong></p>
+        <ul>
+          <li>If <code>soldOut</code> is true → that pizza component disappears from the UI.</li>
+          <li>Other pizzas still render normally.</li>
+        </ul>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Note ⚠️</strong></p>
+        <p class="muted">This is useful, but later in the course you’ll often do something nicer (e.g., show “Sold out” styling instead of removing the item).</p>
+      </div>
+    </section>
+
+    <section id="guidelines">
+      <h2>🧭 When to use early return vs <code>&&</code> vs ternary</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Use <code>&&</code> when… ✅</h3>
+          <ul>
+            <li>You want “render this <strong>or nothing</strong>”</li>
+            <li>Your condition is clearly boolean (avoid <code>0</code> showing up)</li>
+          </ul>
+          <pre><code>{isOpen &amp;&amp; &lt;OrderBox /&gt;}</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Use ternary when… ✅</h3>
+          <ul>
+            <li>You want “render A <strong>else</strong> render B”</li>
+            <li>You want explicit empty state / alternative UI</li>
+          </ul>
+          <pre><code>{numPizzas &gt; 0 ? &lt;PizzaList /&gt; : &lt;EmptyState /&gt;}</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Use multiple returns when… ✅</h3>
+          <ul>
+            <li>You want to exit early (guard clauses)</li>
+            <li>You want to return a totally different component</li>
+            <li>You want to render nothing with <code>return null;</code></li>
+          </ul>
+          <pre><code>if (soldOut) return null;
+return &lt;Pizza /&gt;;</code></pre>
+        </div>
+      </div>
+
+      <div class="callout hint">
+        <p><strong>Practical recommendation 🧠</strong></p>
+        <p class="muted">Early returns are great for “guard clauses” (loading/error/no access/sold out). For small inline UI swaps, ternary or <code>&&</code> is usually more readable.</p>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <h2>✅ Quick checklist + mini exercises</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Checklist ✅</h3>
+          <ul>
+            <li>Do you keep wrapper elements consistent when needed?</li>
+            <li>Are you using early return for entire components / guard clauses?</li>
+            <li>If returning nothing, are you using <code>null</code> (not <code>false</code> or <code>0</code>)?</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Mini exercises 🏋️</h3>
+          <ol>
+            <li>Implement: if <code>numPizzas === 0</code>, early return an empty-state message component.</li>
+            <li>Implement: if a user is not logged in, early return <code>&lt;Login /&gt;</code>.</li>
+            <li>Implement: in <code>Pizza</code>, instead of returning null, render “Sold out” text (later topic).</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <h3>One-sentence summary 🧾</h3>
+          <p class="muted">Multiple returns = conditional rendering using plain JS <code>if</code> statements in the component body, often as guard clauses.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

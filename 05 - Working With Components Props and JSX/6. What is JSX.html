@@ -1,0 +1,459 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — What is JSX? (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    /* Better anchor navigation when clicking the TOC */
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-left: 6px;
+      white-space: nowrap;
+    }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .term {
+      display: inline-block;
+      padding: 1px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      /* Let long sections flow across pages; avoid splitting key blocks */
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+
+      /* Avoid link styling in print */
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      /* Ensure consistent print colors */
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧾 What is JSX? — Reviewer</h1>
+      <p class="subtitle">JSX basics, Babel compilation, and Declarative vs Imperative UI. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print dialog, set Paper size = A4, Margins = Default.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#big-picture">Why JSX exists</a></li>
+          <li><a href="#what-is-jsx">What JSX is (in practice)</a></li>
+          <li><a href="#jsx-vs-html">JSX vs HTML: looks similar, but not the same</a></li>
+          <li><a href="#babel">Babel: how JSX becomes JavaScript</a></li>
+          <li><a href="#no-jsx">Can we use React without JSX?</a></li>
+          <li><a href="#declarative">Declarative vs Imperative UI</a></li>
+          <li><a href="#mental-model">Mental model: UI is a reflection of data</a></li>
+          <li><a href="#practice">Practice & quick self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="big-picture">
+      <h2>🧩 Why JSX exists</h2>
+      <p>
+        A React <strong>component</strong> contains its own <strong>data</strong>, <strong>logic</strong>, and <strong>appearance</strong>.
+        Since a component is a piece of UI, we need a clean way to describe <em>what it should look like</em>.
+      </p>
+
+      <div class="callout">
+        <p><strong>JSX solves this problem ✅</strong></p>
+        <ul>
+          <li>🧾 It lets you describe UI structure near the component logic and data.</li>
+          <li>🧠 It makes components easy to read and reason about.</li>
+          <li>🔁 It helps you compose and reuse UI blocks (components inside components).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="what-is-jsx">
+      <h2>🧾 What JSX is (in practice)</h2>
+      <p>
+        <strong>JSX</strong> is a <span class="term">declarative</span> syntax used to describe what a component should look like.
+        Each component returns a block of JSX, and React uses that to render UI.
+      </p>
+
+      <div class="card">
+        <h3>Key rule reminder ⚠️</h3>
+        <p class="muted">A component must return <strong>one</strong> root element (one parent wrapper).</p>
+      </div>
+
+      <h3>Example: a simple JSX return</h3>
+      <pre><code>function App() {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Hello JSX&lt;/h1&gt;
+      &lt;p&gt;JSX describes what I want to see.&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+    </section>
+
+    <section id="jsx-vs-html">
+      <h2>🧱 JSX vs HTML</h2>
+      <p>
+        JSX <strong>looks</strong> like HTML, but it’s actually an <strong>extension of JavaScript</strong>.
+        This allows you to combine:
+      </p>
+      <ul>
+        <li>🧾 HTML-like structure (tags)</li>
+        <li>🎨 CSS (via class names, inline styles, etc.)</li>
+        <li>🧠 JavaScript expressions (to reference variables, run logic, conditionals, loops)</li>
+        <li>🧩 React components (compose UI by nesting components)</li>
+      </ul>
+
+      <h3>Embedding JavaScript inside JSX</h3>
+      <p class="muted">You can insert JavaScript expressions using curly braces <code>{ }</code>.</p>
+      <pre><code>function Greeting() {
+  const name = "Reymond";
+  return &lt;p&gt;Hi, {name}! 👋&lt;/p&gt;;
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Important wording 🧠</strong></p>
+        <p class="muted">
+          JSX is not “HTML inside JavaScript”. It’s JavaScript syntax that <em>resembles</em> HTML.
+        </p>
+      </div>
+    </section>
+
+    <section id="babel">
+      <h2>🔧 Babel: how JSX becomes JavaScript</h2>
+      <p>
+        Browsers do <strong>not</strong> understand JSX directly. JSX must be converted to plain JavaScript.
+        This conversion is done by <strong>Babel</strong>, which Create React App sets up automatically.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>JSX (what you write) ✍️</h3>
+          <pre><code>const el = &lt;h1&gt;Hello&lt;/h1&gt;;</code></pre>
+        </div>
+        <div class="card">
+          <h3>JavaScript (what React runs) ⚙️</h3>
+          <pre><code>const el = React.createElement("h1", null, "Hello");</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Connection to earlier lesson 🔗</strong></p>
+        <p class="muted">
+          In the “Pure React” lecture, you saw <code>React.createElement</code> directly because there was no Babel/JSX step.
+        </p>
+      </div>
+    </section>
+
+    <section id="no-jsx">
+      <h2>🤔 Can we use React without JSX?</h2>
+      <p>
+        Yes. You can write React using <code>React.createElement</code> calls manually instead of JSX.
+        But it becomes hard to read and unpleasant for most UI code.
+      </p>
+
+      <div class="card">
+        <h3>Why almost everyone uses JSX ✅</h3>
+        <ul>
+          <li>📖 Much easier to read and maintain</li>
+          <li>🧩 Matches how we think about UI structure</li>
+          <li>⚡ Faster to write for real apps</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="declarative">
+      <h2>🧭 Declarative vs Imperative UI</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Imperative (Vanilla JS style) 🛠️</h3>
+          <p class="muted">You tell the browser <strong>how</strong> to update the UI step-by-step.</p>
+          <ul>
+            <li>🔍 <code>querySelector</code></li>
+            <li>🪝 <code>addEventListener</code></li>
+            <li>🧱 DOM traversal</li>
+            <li>✏️ <code>textContent</code>, <code>classList</code>, manual DOM mutations</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Declarative (React + JSX style) ✨</h3>
+          <p class="muted">You describe <strong>what</strong> the UI should look like based on current data.</p>
+          <ul>
+            <li>🧾 Write JSX describing the UI</li>
+            <li>📦 UI depends on component data (<strong>props</strong> and <strong>state</strong>)</li>
+            <li>🔁 React updates the UI automatically when data changes</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>One-line difference ✅</strong></p>
+        <p class="muted"><strong>Imperative:</strong> “Do this, then that, then update this DOM node.”</p>
+        <p class="muted"><strong>Declarative:</strong> “This is what the UI should be for this data.”</p>
+      </div>
+    </section>
+
+    <section id="mental-model">
+      <h2>🪞 Mental model: UI is a reflection of data</h2>
+      <p>
+        In React, you generally don’t touch the DOM directly. React is an abstraction over the DOM.
+        You think of the UI as a reflection of the current data in the component.
+      </p>
+
+      <div class="card">
+        <h3>What changes the UI? 🔁</h3>
+        <ul>
+          <li>📦 <strong>Props</strong> — input data passed into a component</li>
+          <li>🧠 <strong>State</strong> — internal data that can change over time</li>
+        </ul>
+        <p class="muted">When props/state change, React re-renders and synchronizes the UI for you.</p>
+      </div>
+
+      <h3>Mini example: UI depends on data</h3>
+      <pre><code>function Message({ isLoggedIn }) {
+  return (
+    &lt;p&gt;
+      {isLoggedIn ? "Welcome back! ✅" : "Please log in 🔐"}
+    &lt;/p&gt;
+  );
+}</code></pre>
+    </section>
+
+    <section id="practice">
+      <h2>🧪 Practice & quick self-check</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Practice 1: Explain JSX in 1 sentence 🧠</h3>
+          <p class="muted">Try: “JSX is …”</p>
+        </div>
+
+        <div class="card">
+          <h3>Practice 2: Spot the style 🧭</h3>
+          <ul>
+            <li>If you see <code>querySelector</code> + manual DOM updates → <strong>Imperative</strong></li>
+            <li>If you see JSX based on data → <strong>Declarative</strong></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Self-check ✅</h3>
+          <ul>
+            <li>Why do we need Babel for JSX?</li>
+            <li>What does JSX compile to?</li>
+            <li>Declarative means describing <strong>what</strong> or <strong>how</strong>?</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Key takeaway 🔑</strong></p>
+        <p class="muted">
+          JSX is the clean way to describe UI in a declarative manner. React uses your component’s data (props/state)
+          to keep the UI synchronized automatically.
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

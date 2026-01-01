@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Hotel App — Dashboard Layout (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #1a73e8;
+      --ok: #137333;
+      --warn: #b06000;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 20px 56px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 18px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    section > .hd {
+      padding: 12px 16px;
+      background: var(--soft);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    section > .hd h2 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    section > .hd .hint {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .bd { padding: 14px 16px 16px; }
+
+    ul, ol { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin-top: 12px;
+    }
+
+    .callout strong { color: var(--text); }
+
+    .k { 
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 0 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      overflow: auto;
+      font-size: 12.5px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* Print (A4) */
+    @page {
+      size: A4;
+      margin: 14mm 12mm;
+    }
+
+    @media print {
+      :root { --bg: #ffffff; }
+      body { background: #ffffff; }
+      .page { max-width: none; padding: 0; }
+
+      /* Keep it clean on print */
+      a { color: #000; text-decoration: none; }
+      a[href]::after { content: ""; }
+
+      /* Avoid awkward breaks */
+      section, header { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Reduce visual noise */
+      .chip { border-color: #ddd; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>📊 Building the Dashboard Layout — Reviewer / Study Guide</h1>
+      <p class="subtitle">
+        Topic: Dashboard layout skeleton + dashboard filter (7 / 30 / 90 days) using URL query parameters.
+        Single-column, print-friendly format.
+      </p>
+      <div class="meta">
+        <span class="chip">🧩 Feature: Dashboard</span>
+        <span class="chip">🧭 Routing: Nested routes</span>
+        <span class="chip">🔎 Filters: URL search params</span>
+        <span class="chip">🗂️ Components: Layout + Filter</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <div class="hd">
+          <h2>🧠 Big Picture</h2>
+          <p class="hint">Why we do this</p>
+        </div>
+        <div class="bd">
+          <p>
+            The app is almost complete. The remaining major feature is the <strong>Dashboard</strong>, which should show:
+          </p>
+          <ul>
+            <li>✅ <strong>Today’s activity</strong>: check-ins and check-outs for the current day</li>
+            <li>📈 <strong>Statistics</strong>: recent booking metrics (depending on chosen time range)</li>
+            <li>📊 <strong>Charts</strong>: sales chart + stay-duration chart</li>
+          </ul>
+
+          <div class="callout">
+            <strong>Key idea:</strong> start by building the <em>layout skeleton</em> first (grid + placeholders), then plug in real data later.
+            This keeps the work organized and prevents mixing UI structure with data logic too early.
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="hd">
+          <h2>🧱 Step 1 — Create the Dashboard Layout Component</h2>
+          <p class="hint">Layout first, data later</p>
+        </div>
+        <div class="bd">
+          <p>
+            The dashboard has its own folder inside <span class="k">features/</span> because it is a major feature.
+            The starter already provides a styled component (ex: <span class="k">StyledDashboardLayout</span>).
+          </p>
+
+          <p><strong>Goal:</strong> render placeholders for the dashboard sections:</p>
+          <ul>
+            <li>📌 Stats (usually 4 cards)</li>
+            <li>🗓️ Today’s Activity (check-ins/outs)</li>
+            <li>🧾 Stay Duration Chart</li>
+            <li>💰 Sales Chart</li>
+          </ul>
+
+          <div class="callout">
+            <strong>Tip 💡</strong>
+            <div class="note">
+              Placeholders are temporary <span class="k">div</span> blocks so you can confirm the grid structure quickly.
+              Later, you delete them and replace with real components.
+            </div>
+          </div>
+
+          <pre><code>// DashboardLayout.jsx (concept)
+export default function DashboardLayout() {
+  return (
+    &lt;StyledDashboardLayout&gt;
+      &lt;div&gt;Stats&lt;/div&gt;
+      &lt;div&gt;Today's activity&lt;/div&gt;
+      &lt;div&gt;Stay durations chart&lt;/div&gt;
+      &lt;div&gt;Sales chart&lt;/div&gt;
+    &lt;/StyledDashboardLayout&gt;
+  );
+}</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <div class="hd">
+          <h2>🧩 Step 2 — Add the Layout to the Dashboard Page</h2>
+          <p class="hint">Compose your page</p>
+        </div>
+        <div class="bd">
+          <p>
+            In the dashboard page component, render <span class="k">&lt;DashboardLayout /&gt;</span> after your top row.
+            Ensure each part of the page is returned as a proper React component.
+          </p>
+
+          <pre><code>// Dashboard.jsx (concept)
+return (
+  &lt;&gt;
+    &lt;Row type="horizontal"&gt;...&lt;/Row&gt;
+    &lt;DashboardLayout /&gt;
+  &lt;/&gt;
+);</code></pre>
+
+          <div class="callout">
+            <strong>What you should see 👀</strong>
+            <ul>
+              <li>A grid shows 4 “blocks” (placeholders)</li>
+              <li>Later this becomes: 4 stat cards on top, then activity + charts below</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="hd">
+          <h2>🔎 Step 3 — Replace Test UI with Dashboard Filter (7 / 30 / 90 days)</h2>
+          <p class="hint">Filters via URL query parameters</p>
+        </div>
+        <div class="bd">
+          <p>
+            The dashboard needs data for different time ranges (ex: last 7, 30, 90 days).
+            Instead of using component state, the filter writes the selection into the URL using search params.
+          </p>
+
+          <div class="callout">
+            <strong>Why URL-based filters? 🔗</strong>
+            <ul>
+              <li>✅ Shareable: you can copy/paste the URL and keep the filter selection</li>
+              <li>✅ Refresh-safe: reload the page and you still keep the filter</li>
+              <li>✅ Works nicely with React Query: query keys can include the filter value</li>
+            </ul>
+          </div>
+
+          <p>
+            The dashboard already has a <span class="k">DashboardFilter</span> component built, which reuses the same filtering approach you used
+            in bookings/cabins tables (via URL search params).
+          </p>
+
+          <pre><code>// DashboardFilter.jsx (concept)
+// sets something like: ?last=7 or ?last=30 or ?last=90
+&lt;Filter
+  filterField="last"
+  options=[{ value: "7", label: "Last 7 days" }, ...]
+/&gt;</code></pre>
+
+          <div class="callout">
+            <strong>Important ⚠️</strong>
+            <div class="note">
+              If the component import path is wrong, fix it immediately. Incorrect paths break the build, and the filter won’t appear.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="hd">
+          <h2>🧪 Quick Self-Check</h2>
+          <p class="hint">Checklist before moving on</p>
+        </div>
+        <div class="bd">
+          <div class="grid">
+            <div class="callout">
+              <strong>✅ Layout renders</strong>
+              <ul>
+                <li>You see 4 placeholders in a grid</li>
+                <li>No console errors about missing components</li>
+              </ul>
+            </div>
+            <div class="callout">
+              <strong>✅ Filter works</strong>
+              <ul>
+                <li>Clicking 7/30/90 updates the URL query param</li>
+                <li>The selection persists on refresh</li>
+              </ul>
+            </div>
+            <div class="callout">
+              <strong>✅ Next step</strong>
+              <ul>
+                <li>Compute & fetch dashboard data based on the selected time range</li>
+                <li>Replace placeholders with real components (stats, activity, charts)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="hd">
+          <h2>📝 Mini Summary</h2>
+          <p class="hint">One paragraph recap</p>
+        </div>
+        <div class="bd">
+          <p>
+            You created a dashboard layout skeleton (stats, today’s activity, and two charts) using a grid-based styled component.
+            Then you plugged that layout into the dashboard page. Finally, you added a dashboard filter that stores the selected
+            time window (7/30/90 days) in the URL using search params—setting you up to compute and fetch the correct data in the next lecture.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

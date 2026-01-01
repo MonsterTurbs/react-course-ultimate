@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Section Summary — useState vs useReducer (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --accent:#1a73e8;
+      --accent2:#0f766e;
+      --warn:#b45309;
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column container */
+    .page{
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 18px 64px;
+    }
+
+    header{
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1{
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: .2px;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 14px;
+    }
+
+    .pillrow{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .pill{
+      border:1px solid var(--border);
+      background:var(--soft);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+
+    h2{
+      font-size:18px;
+      margin: 22px 0 10px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+    h3{
+      font-size:15px;
+      margin: 16px 0 8px;
+    }
+    p{ margin: 10px 0; }
+    ul{ margin: 8px 0 12px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background:var(--soft);
+      border-left: 4px solid var(--accent);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+    .callout .title{
+      font-weight:700;
+      margin:0 0 6px;
+    }
+
+    .callout.teal{ border-left-color: var(--accent2); }
+    .callout.warn{ border-left-color: var(--warn); }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 12px;
+      background:#fff;
+    }
+
+    .mini{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    pre, code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px;
+      border-radius: 12px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      white-space: pre;
+    }
+
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 12px;
+      font-size: 14px;
+    }
+    .table th, .table td{
+      border:1px solid var(--border);
+      padding:10px;
+      vertical-align: top;
+    }
+    .table th{
+      background: var(--soft);
+      text-align:left;
+    }
+
+    .steps{
+      counter-reset: step;
+      list-style: none;
+      margin: 10px 0 0;
+      padding: 0;
+    }
+    .steps li{
+      counter-increment: step;
+      margin: 10px 0;
+      padding: 10px 12px;
+      border:1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+    .steps li::before{
+      content: "Step " counter(step) " ➜ ";
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .check li{ list-style: "✅ "; margin-left: 6px; }
+    .warnlist li{ list-style: "⚠️ "; margin-left: 6px; }
+
+    /* Print rules */
+    @page { size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width:none; padding:0; }
+      header{ border-bottom: 1px solid #000; }
+      .pill{ border-color:#000; background:#fff; }
+      .callout, .card, .steps li, .table{ break-inside: avoid; page-break-inside: avoid; }
+      pre{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color: inherit; text-decoration:none; }
+      a[href]:after{ content:""; } /* hide URLs */
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>🧭 Section Summary — <code>useState</code> vs <code>useReducer</code></h1>
+      <p class="subtitle">
+        Beginner-friendly reviewer: how each works, what problems they solve, and a simple decision framework for choosing the right one.
+      </p>
+      <div class="pillrow" aria-label="Topics">
+        <span class="pill">State fundamentals</span>
+        <span class="pill">Imperative vs declarative updates</span>
+        <span class="pill">Centralized logic</span>
+        <span class="pill">Complex / related state</span>
+        <span class="pill">Decision framework</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🧠 Big Picture: When to Use Each Hook</h2>
+
+      <div class="callout teal">
+        <p class="title">✅ <code>useState</code> is ideal when…</p>
+        <ul class="check">
+          <li>You have <strong>one</strong> piece of state, or a few <strong>independent</strong> pieces of state</li>
+          <li>State is <strong>simple</strong> (number, string, boolean, small array, simple object)</li>
+          <li>State updates are easy to understand inside event handlers</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <p class="title">🚀 <code>useReducer</code> is ideal when…</p>
+        <ul class="check">
+          <li>You have <strong>multiple related</strong> pieces of state that affect each other</li>
+          <li>Updates often need to happen <strong>together</strong> (one event → several changes)</li>
+          <li>State update logic is becoming <strong>complex</strong> or scattered</li>
+          <li>You want state transitions to be <strong>declarative</strong> (actions describe “what happened”)</li>
+        </ul>
+      </div>
+
+      <div class="callout warn">
+        <p class="title">⚠️ The trade-off</p>
+        <p>
+          <code>useReducer</code> can be harder to set up and understand at first (actions + reducer + dispatch),
+          but it often pays off when components grow in complexity.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>⚙️ How They Work (Mechanics)</h2>
+
+      <table class="table" aria-label="useState vs useReducer comparison table">
+        <thead>
+          <tr>
+            <th>Topic</th>
+            <th><code>useState</code></th>
+            <th><code>useReducer</code></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>What you get back</strong></td>
+            <td><code>[state, setState]</code></td>
+            <td><code>[state, dispatch]</code></td>
+          </tr>
+          <tr>
+            <td><strong>How updates happen</strong></td>
+            <td>You call <code>setState(newValue)</code> (direct update)</td>
+            <td>You call <code>dispatch({ type, payload })</code> (send an action)</td>
+          </tr>
+          <tr>
+            <td><strong>Where update logic lives</strong></td>
+            <td>Usually inside <strong>event handlers</strong> / <strong>effects</strong> (may be spread around)</td>
+            <td>Inside one central function: the <strong>reducer</strong> (single source of truth)</td>
+          </tr>
+          <tr>
+            <td><strong>Style of updates</strong></td>
+            <td>Often feels more <strong>imperative</strong> (“set this, then set that…”)</td>
+            <td>More <strong>declarative</strong> (“dispatch startGame”, reducer handles details)</td>
+          </tr>
+          <tr>
+            <td><strong>Complexity</strong></td>
+            <td>Lower setup cost ✅</td>
+            <td>Higher setup cost ⚠️ (reducer + actions)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="grid">
+        <div class="card">
+          <h3>🧩 Example: <code>useState</code> update feels “imperative”</h3>
+          <p class="mini">You manually update multiple states in an event handler.</p>
+<pre><code>// Example: start a game (useState approach)
+function handleStartGame() {
+  setScore(0);
+  setIsPlaying(true);
+  setSecondsRemaining(60);
+}</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>🧠 Example: <code>useReducer</code> update feels “declarative”</h3>
+          <p class="mini">You describe the event; reducer performs the coordinated update.</p>
+<pre><code>// Event handler is simple
+function handleStartGame() {
+  dispatch({ type: "startGame" });
+}
+
+// Reducer centralizes the logic
+function reducer(state, action) {
+  switch (action.type) {
+    case "startGame":
+      return { ...state, score: 0, isPlaying: true, secondsRemaining: 60 };
+    default:
+      throw new Error("Unknown action");
+  }
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Why Reducers Can Make Apps Easier to Maintain</h2>
+
+      <div class="callout">
+        <p class="title">🗂️ Centralization + decoupling</p>
+        <p>
+          With <code>useReducer</code>, the reducer becomes a “map” of your application’s state transitions.
+          Reading the reducer cases can quickly tell you what can happen in the app:
+          <code>dataReceived</code>, <code>start</code>, <code>newAnswer</code>, <code>nextQuestion</code>, <code>finish</code>, etc.
+        </p>
+      </div>
+
+      <ul class="check">
+        <li>Cleaner components: event handlers often just <strong>dispatch</strong></li>
+        <li>Fewer scattered updates: logic lives in <strong>one place</strong></li>
+        <li>Related state updates are easy: one action can update <strong>multiple fields</strong></li>
+        <li>More predictable: reducer is a <strong>pure function</strong> (no side effects, no mutation)</li>
+      </ul>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Downside to remember</p>
+        <p>
+          If your state is small and simple, <code>useReducer</code> can feel like extra ceremony.
+          In those cases, <code>useState</code> is often the better (and faster) choice.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧭 Decision Framework: Choosing <code>useState</code> vs <code>useReducer</code></h2>
+      <p>
+        Use this as a quick checklist whenever you’re adding state to a component.
+      </p>
+
+      <ol class="steps">
+        <li>
+          <strong>Do I only need one piece of state?</strong><br />
+          If yes → use <code>useState</code> and move on. 😊
+        </li>
+        <li>
+          <strong>If I need multiple pieces of state, do they frequently update together?</strong><br />
+          If yes → <code>useReducer</code> is a strong candidate.
+          <div class="mini">Example: starting a game updates score + status + timer together.</div>
+        </li>
+        <li>
+          <strong>Am I willing to write a reducer (slightly more setup)?</strong><br />
+          If no → stick with <code>useState</code> (it’s okay).<br />
+          If yes → continue considering <code>useReducer</code>.
+        </li>
+        <li>
+          <strong>Is this “complex state”?</strong> (3–4+ related state values, or objects, or tricky logic)<br />
+          If yes → lean toward <code>useReducer</code>.
+        </li>
+        <li>
+          <strong>Even if state isn’t complex… do I have too many event handlers making the component confusing?</strong><br />
+          If yes → <code>useReducer</code> can simplify by centralizing transitions.<br />
+          If no → <code>useState</code> remains the default.
+        </li>
+      </ol>
+
+      <div class="callout teal">
+        <p class="title">⭐ Rule of thumb</p>
+        <p>
+          Even after learning <code>useReducer</code>, <code>useState</code> should remain your default choice.
+          Switch to <code>useReducer</code> when <code>useState</code> starts creating complexity (scattered logic, coupled updates, hard-to-follow flows).
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>📝 Mini-Reviewer: Key Terms (Quick Memory)</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>📌 Action</h3>
+          <p class="mini">An object describing what happened. Usually <code>{ type, payload }</code>.</p>
+        </div>
+        <div class="card">
+          <h3>📌 Dispatch</h3>
+          <p class="mini">A function used to send actions to the reducer.</p>
+        </div>
+        <div class="card">
+          <h3>📌 Reducer</h3>
+          <p class="mini">A pure function: <code>(state, action) =&gt; nextState</code>. No mutation. No side effects.</p>
+        </div>
+        <div class="card">
+          <h3>📌 Declarative transitions</h3>
+          <p class="mini">You dispatch “startGame” and let reducer handle details (instead of manually setting multiple states).</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🎯 Practice Prompts (Do-It-Yourself)</h2>
+      <p class="mini">Try these to reinforce when <code>useReducer</code> is worth it:</p>
+      <ul>
+        <li>Build a counter with <code>useState</code>, then refactor to <code>useReducer</code> with actions like <code>inc</code>, <code>dec</code>, <code>set</code>, <code>reset</code>.</li>
+        <li>Create a “game start” flow: status changes + score reset + timer start (compare both approaches).</li>
+        <li>Find a component you wrote with many handlers. Ask: can a reducer make it easier to read?</li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">🏁 Takeaway</p>
+        <p>
+          Use <code>useState</code> for simple/independent state. Use <code>useReducer</code> when state is related, complex, or when updates must be coordinated.
+          Your goal is clarity and maintainability—not using reducers everywhere.
+        </p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

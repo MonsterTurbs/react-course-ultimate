@@ -1,0 +1,347 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React useEffect — Changing the Page Title (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 18px 14px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: 0.2px;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      font-size: 12.5px;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 4px 10px;
+      border-radius: 999px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 14px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 16px 14px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: #f6f9ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .warn {
+      border-left: 4px solid #b42318;
+      background: #fff7f7;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .good {
+      border-left: 4px solid #1a7f37;
+      background: #f6fff8;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: #0b1020;
+      color: #e8eefc;
+      border-radius: 10px;
+      border: 1px solid #0b1020;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 12.8px;
+      line-height: 1.55;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* Print rules (A4, clean, no URL printing) */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-radius: 0; }
+      a, a:visited { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; }
+      pre { page-break-inside: avoid; }
+      section { page-break-inside: avoid; }
+      h2, h3 { page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🎬 React useEffect — Changing the Page Title</h1>
+      <p class="sub">Reviewer / Study Guide (Beginner-friendly) — Single column, print-ready (A4)</p>
+      <div class="meta">
+        <span class="chip">🧩 Topic: Side Effects</span>
+        <span class="chip">⚙️ Hook: useEffect</span>
+        <span class="chip">🧠 Key idea: Dependencies</span>
+        <span class="chip">🧼 Next: Cleanup</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🧭 Goal of the Lecture</h2>
+        <p>
+          We want the <strong>browser tab title</strong> (the text shown on the tab) to match the movie the user is currently viewing.
+          When the user opens movie details, the title should change (e.g., <em>Movie: Inception</em>). When the user closes details,
+          it should ideally go back to <em>usePopcorn</em> (that last part will be solved in the next lecture with <strong>cleanup</strong>).
+        </p>
+
+        <div class="note">
+          <strong>Why this needs useEffect:</strong> changing <code>document.title</code> is an interaction with the outside world 🌍,
+          so it’s a <strong>side effect</strong> and should not live in render logic.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 What You’re Building (Behavior)</h2>
+        <ul>
+          <li>✅ Default app title becomes <strong>usePopcorn</strong> (set in <code>public/index.html</code>).</li>
+          <li>✅ When a movie is selected and details show, set <code>document.title</code> to <strong>Movie: &lt;Title&gt;</strong>.</li>
+          <li>✅ When selecting a different movie, the tab title updates too.</li>
+          <li>⚠️ When closing details, title stays on the last movie (fixed later with cleanup).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🛠️ Step-by-Step Implementation</h2>
+
+        <h3>1) Set the initial tab title in <code>public/index.html</code></h3>
+        <p class="mini">This is not React; it’s the HTML template the app loads first.</p>
+        <pre><code>&lt;!-- public/index.html --&gt;
+&lt;title&gt;usePopcorn&lt;/title&gt;</code></pre>
+
+        <div class="divider"></div>
+
+        <h3>2) Add a new effect inside <code>MovieDetails</code></h3>
+        <p>
+          The title should change when <strong>MovieDetails</strong> is shown.
+          That’s why we place the effect inside this component.
+        </p>
+
+        <pre><code>import { useEffect, useState } from "react";
+
+function MovieDetails({ selectedId, onCloseMovie, /* ...other props... */ }) {
+  const [movie, setMovie] = useState({});
+
+  // ...effect that fetches movie details by selectedId...
+
+  const { Title: title } = movie; // often you destructure and rename
+
+  useEffect(function () {
+    document.title = `Movie: ${title}`;
+  }, []);
+
+  // ...render JSX...
+}</code></pre>
+
+        <div class="warn">
+          <strong>Problem 🚫:</strong> With an empty dependency array <code>[]</code>, this effect runs only once (on mount).
+          At that moment, <code>title</code> is often <code>undefined</code> because the movie has not been fetched yet.
+          Result: tab title becomes <em>Movie: undefined</em>.
+        </div>
+      </section>
+
+      <section>
+        <h2>🔁 The Fix: Add the Right Dependency</h2>
+        <p>
+          The movie title arrives later (after the fetch), which updates state and causes a re-render.
+          If we want the effect to re-run when <code>title</code> changes, we must include it in the dependency array.
+        </p>
+
+        <pre><code>useEffect(function () {
+  document.title = `Movie: ${title}`;
+}, [title]);</code></pre>
+
+        <div class="good">
+          <strong>Why this works ✅:</strong> the effect now "listens" for changes in <code>title</code>.
+          When the fetched movie data arrives and <code>title</code> becomes a real string, the effect runs again and updates the tab.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧯 Avoid Showing “undefined” (Guard Clause)</h2>
+        <p>
+          Even with <code>[title]</code>, you might briefly see <em>Movie: undefined</em> on the very first run.
+          A simple guard prevents that.
+        </p>
+
+        <pre><code>useEffect(function () {
+  if (!title) return; // ✅ don't set title until we have one
+  document.title = `Movie: ${title}`;
+}, [title]);</code></pre>
+
+        <div class="note">
+          <strong>Tip 🧩:</strong> This is a common pattern in effects: “If the data isn’t ready yet, do nothing.”
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 What You Should Notice (Key Reasoning)</h2>
+        <ol>
+          <li>
+            <strong>MovieDetails mounts</strong> ➜ the movie state is still <code>{}</code> ➜ <code>title</code> is <code>undefined</code>.
+          </li>
+          <li>
+            The <strong>fetch effect</strong> runs ➜ data arrives ➜ <code>setMovie(data)</code>.
+          </li>
+          <li>
+            State updates cause a <strong>re-render</strong> ➜ now <code>title</code> is real.
+          </li>
+          <li>
+            With <code>[title]</code>, the <strong>title effect re-runs</strong> and sets the correct tab title.
+          </li>
+        </ol>
+
+        <div class="warn">
+          <strong>Common gotcha ⚠️:</strong> If you forget dependencies, the effect won’t react to new state/props.
+          That usually creates “stale” behavior (UI or side effects stuck with old values).
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Final Outcome and Remaining Issue</h2>
+        <ul>
+          <li>✅ When selecting different movies, the browser tab title updates correctly.</li>
+          <li>⚠️ When closing MovieDetails, the title remains the last movie name.</li>
+        </ul>
+
+        <p>
+          Why? Because we never told React what to do <em>when MovieDetails unmounts</em>.
+          Fixing this requires an effect <strong>cleanup function</strong> (next lecture 🧼).
+        </p>
+
+        <div class="note">
+          <strong>Mental model 🧠:</strong> Effects synchronize external systems (here: <code>document.title</code>) with your component state.
+          If the component disappears, you often need cleanup to “restore” the external system.
+        </div>
+      </section>
+
+      <section>
+        <h2>📝 Quick Reviewer (Must-Remember)</h2>
+        <ul>
+          <li>🌍 Changing <code>document.title</code> is a <strong>side effect</strong> → do it in <code>useEffect</code>.</li>
+          <li>🧠 If your effect uses a variable (like <code>title</code>), it usually belongs in the dependency array.</li>
+          <li>🧯 Use a guard clause (<code>if (!title) return;</code>) to avoid temporary “undefined” updates.</li>
+          <li>🧼 If you need to revert the title after closing details, you’ll use <strong>cleanup</strong>.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>✅ Mini Practice (Self-Check)</h2>
+        <ol>
+          <li>Why is setting <code>document.title</code> considered a side effect?</li>
+          <li>Why did <em>Movie: undefined</em> appear at first?</li>
+          <li>What does <code>[title]</code> change compared to <code>[]</code>?</li>
+          <li>What should happen when MovieDetails unmounts (hint: cleanup)?</li>
+        </ol>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

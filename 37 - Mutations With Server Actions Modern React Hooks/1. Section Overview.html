@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mutations With Server Actions & Modern React Hooks — Section Overview (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #0b57d0;
+      --ok: #0f766e;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 4px 8px;
+      border-radius: 999px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+      padding-top: 4px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol {
+      margin: 8px 0 12px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .box {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .box.soft { background: var(--soft); }
+
+    .box.ok {
+      border-color: rgba(15, 118, 110, 0.35);
+      background: rgba(15, 118, 110, 0.06);
+    }
+
+    .box.warn {
+      border-color: rgba(180, 83, 9, 0.35);
+      background: rgba(180, 83, 9, 0.06);
+    }
+
+    .box.bad {
+      border-color: rgba(185, 28, 28, 0.30);
+      background: rgba(185, 28, 28, 0.05);
+    }
+
+    .kicker {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    code, pre {
+      font-family: var(--mono);
+      font-size: 12.5px;
+    }
+
+    pre {
+      background: #0b1020;
+      color: #e8eefc;
+      padding: 12px;
+      border-radius: 12px;
+      overflow: auto;
+      line-height: 1.5;
+      border: 1px solid #111a33;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 860px) {
+      .two-col { grid-template-columns: 1fr 1fr; }
+    }
+
+    .muted { color: var(--muted); }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print-friendly settings */
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; } /* do not print URLs */
+      pre { page-break-inside: avoid; }
+      .box { page-break-inside: avoid; }
+      h2, h3 { page-break-after: avoid; }
+      ul, ol { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🚀 Section Overview: Mutations With Server Actions + Modern React Hooks</h1>
+      <p class="subtitle">Reviewer / Study Guide (Next.js + React Server Components)</p>
+      <div class="meta">
+        <span class="chip">🧩 Topic: Server Actions</span>
+        <span class="chip">⚡ Goal: Make the app interactive</span>
+        <span class="chip">🪝 Hooks: useFormStatus, useTransition, useOptimistic</span>
+        <span class="chip">🧾 Use case: Reservations + Profile Updates</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Big Picture: What changes in this section?</h2>
+      <p>
+        Up to now, the app mostly <strong>renders data</strong> (cabins, pages, details), but users can’t really <strong>do</strong> anything yet.
+        This section introduces <strong>server actions</strong>, which is how we <strong>mutate data</strong> (create/update/delete) in the React Server Components model.
+      </p>
+
+      <div class="box ok">
+        <div class="kicker">✅ Core idea</div>
+        <p>
+          <strong>Rendering</strong> shows data. <strong>Mutations</strong> change data.
+          Server actions are the “official Next.js/React Server Components way” to handle mutations.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) What is a “mutation”?</h2>
+      <p class="muted">Think of a mutation as any operation that changes the backend state.</p>
+      <ul>
+        <li>📝 <strong>Create</strong>: Reserve a cabin (create a reservation)</li>
+        <li>✏️ <strong>Update</strong>: Change reservation dates / number of guests</li>
+        <li>🗑️ <strong>Delete</strong>: Cancel a reservation</li>
+        <li>👤 <strong>Update profile</strong>: Save National ID, country, etc.</li>
+      </ul>
+
+      <div class="box warn">
+        <div class="kicker">⚠️ Important UX problem</div>
+        <p>
+          Mutations can feel slow because they depend on the network and the database.
+          That’s why we need modern techniques (new hooks) to keep the UI responsive.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Server Actions: Beginner-friendly explanation</h2>
+      <p>
+        A <strong>server action</strong> is a function that is guaranteed to run on the <strong>server</strong>, even if triggered by a user interaction.
+        In practice, it often looks like “submit a form → run server code → update data → UI updates.”
+      </p>
+
+      <div class="two-col">
+        <div class="box soft">
+          <div class="kicker">🧠 Mental model</div>
+          <ul>
+            <li>Client UI triggers an action (usually via a form submit)</li>
+            <li>Next.js executes the action on the server</li>
+            <li>Server performs DB changes (Supabase, etc.)</li>
+            <li>UI updates (revalidation, navigation, new server render)</li>
+          </ul>
+        </div>
+        <div class="box soft">
+          <div class="kicker">🧾 Why server actions are useful</div>
+          <ul>
+            <li>🔒 Keep secrets on the server (API keys, service role keys)</li>
+            <li>⚡ Reduce client-side complexity (less fetch boilerplate)</li>
+            <li>🧩 Works naturally with Server Components and caching</li>
+            <li>✅ Clean “React-style” mutation workflow</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Mini example (conceptual)</h3>
+      <pre>// Concept-only example (not the exact project code)
+// A server action typically lives in an actions file with "use server".
+
+"use server";
+
+export async function createReservationAction(formData) {
+  // 1) Read input from formData
+  // 2) Validate
+  // 3) Insert into database
+  // 4) Revalidate cache / redirect / return result
+}
+</pre>
+
+      <div class="box">
+        <div class="kicker">🙂 Practical takeaway</div>
+        <p>
+          If your feature changes data, think: “Can this be a server action?”
+          In this section, the answer is mostly yes.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Modern hooks you’ll use for a better UX</h2>
+      <p>
+        This section also introduces cutting-edge React hooks that make mutations feel smooth and professional.
+        These are especially relevant when users are waiting for a server response.
+      </p>
+
+      <div class="box">
+        <h3>🪝 useFormStatus</h3>
+        <ul>
+          <li>Shows pending/loading state for a form submission</li>
+          <li>Great for: disabling submit buttons, showing “Saving…” text</li>
+          <li>Goal: prevent double submits and give instant feedback</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <h3>🪝 useTransition</h3>
+        <ul>
+          <li>Helps keep the UI responsive during state updates that can be deferred</li>
+          <li>Great for: switching UI states without blocking typing/clicking</li>
+          <li>Goal: smooth interactions even when work is happening</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <h3>🪝 useOptimistic</h3>
+        <ul>
+          <li>Lets you update the UI immediately (optimistically) before the server confirms</li>
+          <li>Great for: instant list updates (e.g., “reservation appears immediately”)</li>
+          <li>Goal: make the app feel fast, then reconcile if the server fails</li>
+        </ul>
+      </div>
+
+      <div class="box bad">
+        <div class="kicker">🧯 Real-world warning</div>
+        <p>
+          Optimistic UI must still handle failure (server rejects, network error).
+          You’ll typically show an error message and revert optimistic changes.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) What features will be built using server actions?</h2>
+      <ul>
+        <li>🏕️ Reserve a cabin (create booking)</li>
+        <li>🧾 Update an existing reservation (edit booking)</li>
+        <li>🗑️ Delete/cancel a reservation</li>
+        <li>👤 Update guest profile (national ID, country, etc.)</li>
+      </ul>
+
+      <div class="box ok">
+        <div class="kicker">✅ Result by the end</div>
+        <p>
+          Your app becomes a real application: not just pages that display data, but a system where authenticated users can
+          <strong>perform actions</strong> and see results instantly.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Quick checklist (self-review)</h2>
+      <ul>
+        <li>✅ I can explain the difference between rendering vs mutation.</li>
+        <li>✅ I know what a server action is and why it runs on the server.</li>
+        <li>✅ I know the typical use case: forms that submit to server actions.</li>
+        <li>✅ I understand why modern hooks improve UX during mutations.</li>
+      </ul>
+
+      <div class="hr"></div>
+
+      <h2>7) Mini-quiz (to retain the lesson) 🧠</h2>
+      <ol>
+        <li>What does “mutating data” mean in a web app?</li>
+        <li>Why do server actions help keep secrets safe?</li>
+        <li>Which hook helps you show a “pending” state for a form submit?</li>
+        <li>Why is optimistic UI risky if you don’t handle errors?</li>
+      </ol>
+
+      <p class="muted">
+        Tip: If you can answer these without looking, you’re ready to proceed.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

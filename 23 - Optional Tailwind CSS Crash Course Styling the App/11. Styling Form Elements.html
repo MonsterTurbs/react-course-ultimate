@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tailwind CSS — Styling Form Elements (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --codebg:#0b1020;
+      --code:#e7e9ee;
+      --accent:#0b57d0;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header{
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 22px;
+      margin: 0 0 6px 0;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    h2{
+      font-size: 16px;
+      margin: 18px 0 8px;
+      padding-top: 6px;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 14px 0 6px;
+    }
+
+    p{margin: 8px 0;}
+
+    .card{
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 10px 0;
+    }
+
+    .bullets{
+      margin: 8px 0 8px 18px;
+      padding: 0;
+    }
+    .bullets li{margin: 6px 0;}
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--code);
+      border-radius: 12px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      margin: 10px 0;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .tag{
+      display:inline-block;
+      font-size:12px;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background:#fff;
+      margin-right: 6px;
+      margin-bottom: 6px;
+      white-space: nowrap;
+    }
+
+    .hr{
+      height:1px;
+      background: var(--border);
+      border:0;
+      margin: 16px 0;
+    }
+
+    /* Print */
+    @page { size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; margin: 0; padding: 0; }
+      header{ border-bottom: 1px solid #00000020; }
+      .card{ background:#fff; }
+      pre{ page-break-inside: avoid; }
+      h2, h3, .card{ page-break-inside: avoid; }
+
+      /* Avoid printing raw URLs from link hrefs */
+      a[href]:after{ content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Styling Form Elements in Tailwind CSS</h1>
+      <p class="subtitle">Reviewer / Study Guide • Single-column • Print-friendly (A4)</p>
+    </header>
+
+    <section>
+      <h2>🎯 What you are building in this lecture</h2>
+      <div class="card">
+        <p><strong>Goal:</strong> Style form inputs using Tailwind utility classes—especially <em>search inputs</em>, <em>text inputs</em>, and a <em>checkbox</em>.</p>
+        <ul class="bullets">
+          <li>✅ A pill-shaped “Search order #” input (responsive width + focus behavior)</li>
+          <li>✅ A standard text input (border, padding, focus ring, full width)</li>
+          <li>✅ A styled checkbox using <code>accent-*</code> and focus ring</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Key Tailwind ideas used for form styling</h2>
+      <p>When styling inputs, you typically combine:</p>
+      <div class="card">
+        <p>
+          <span class="tag">Shape: <code>rounded-full</code> / <code>rounded</code></span>
+          <span class="tag">Spacing: <code>px-*</code> <code>py-*</code></span>
+          <span class="tag">Text: <code>text-sm</code></span>
+          <span class="tag">Background: <code>bg-yellow-100</code></span>
+          <span class="tag">Border: <code>border</code> <code>border-stone-200</code></span>
+          <span class="tag">Placeholder: <code>placeholder:text-stone-400</code></span>
+          <span class="tag">Focus: <code>focus:outline-none</code> + <code>focus:ring</code></span>
+          <span class="tag">Transitions: <code>transition-all</code> <code>duration-300</code></span>
+          <span class="tag">Responsive: <code>sm:</code> <code>md:</code></span>
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🔎 Example 1 — “Search order #” input (pill + responsive width)</h2>
+      <h3>✅ Target design</h3>
+      <ul class="bullets">
+        <li>Rounded pill shape</li>
+        <li>Small text + subtle background</li>
+        <li>Different widths for mobile vs larger screens</li>
+        <li>On larger screens only: expand width when focused</li>
+        <li>Nice, subtle focus ring (with opacity)</li>
+      </ul>
+
+      <h3>👨‍💻 Tailwind class recipe</h3>
+      <pre><code>&lt;input
+  placeholder="Search order #"
+  className="
+    w-28 rounded-full bg-yellow-100 px-4 py-2 text-sm
+    placeholder:text-stone-400
+    transition-all duration-300
+    focus:outline-none focus:ring focus:ring-yellow-500 focus:ring-opacity-50
+    sm:w-64 sm:focus:w-72
+  "
+/&gt;</code></pre>
+
+      <div class="card">
+        <p><strong>Why the focus-width is prefixed with <code>sm:</code>?</strong> ⚠️</p>
+        <p>
+          If the input is very small on mobile, expanding it on focus can <em>break the header layout</em>.
+          So you only enable “expand on focus” from the <strong>small breakpoint</strong> upward.
+        </p>
+      </div>
+
+      <h3>🧪 Quick breakdown (mentally group the classes)</h3>
+      <ul class="bullets">
+        <li><strong>Base styling:</strong> <code>rounded-full</code>, <code>px-4</code>, <code>py-2</code>, <code>text-sm</code>, <code>bg-yellow-100</code></li>
+        <li><strong>Placeholder:</strong> <code>placeholder:text-stone-400</code></li>
+        <li><strong>Focus UX:</strong> remove outline → <code>focus:outline-none</code>, add ring → <code>focus:ring ...</code></li>
+        <li><strong>Smoothness:</strong> <code>transition-all duration-300</code></li>
+        <li><strong>Responsiveness:</strong> <code>w-28</code> on mobile, bigger on <code>sm:</code> screens</li>
+      </ul>
+    </section>
+
+    <hr class="hr" />
+
+    <section>
+      <h2>🧾 Example 2 — Text input (border + full width + focus ring)</h2>
+      <p>
+        For typical form inputs (address, phone, etc.), you usually want a clear field boundary,
+        consistent padding, and a focus style that matches the app’s brand color.
+      </p>
+
+      <h3>👨‍💻 Tailwind class recipe</h3>
+      <pre><code>&lt;input
+  type="text"
+  placeholder="Address"
+  className="
+    w-full rounded-full border border-stone-200
+    px-4 py-3 text-sm
+    placeholder:text-stone-400
+    transition-all duration-300
+    focus:outline-none focus:ring focus:ring-yellow-400
+    md:px-6 md:py-3 md:text-base
+  "
+/&gt;</code></pre>
+
+      <div class="card">
+        <p><strong>Beginner note:</strong> <code>w-full</code> means “take 100% width of the parent container.” ✅</p>
+        <p>
+          If the form is centered using a wrapper like <code>max-w-*</code> + <code>mx-auto</code>,
+          the input will still look clean and centered because its “full width” is <em>relative to that centered form</em>.
+        </p>
+      </div>
+    </section>
+
+    <hr class="hr" />
+
+    <section>
+      <h2>☑️ Example 3 — Checkbox (size + accent color + focus ring)</h2>
+      <p>
+        Checkboxes are a bit special. You can size them using <code>h-*</code> and <code>w-*</code>,
+        and style their “checked” color using the modern CSS <code>accent-color</code> via Tailwind’s <code>accent-*</code>.
+      </p>
+
+      <pre><code>&lt;input
+  type="checkbox"
+  className="
+    h-6 w-6 accent-yellow-500
+    focus:outline-none focus:ring focus:ring-yellow-500 focus:ring-offset-2
+  "
+/&gt;</code></pre>
+
+      <div class="card">
+        <p><strong>Keyboard UX reminder:</strong> Use <span class="kbd">Tab</span> to test focus states. 🧠</p>
+        <p>
+          A visible focus indicator is important for accessibility. Removing focus outlines without
+          replacing them makes keyboard navigation difficult.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Common patterns you should memorize</h2>
+      <ul class="bullets">
+        <li><strong>Pill input:</strong> <code>rounded-full px-4 py-2</code></li>
+        <li><strong>Bordered input:</strong> <code>border border-stone-200</code></li>
+        <li><strong>Placeholder styling:</strong> <code>placeholder:text-stone-400</code></li>
+        <li><strong>Focus ring:</strong> <code>focus:outline-none focus:ring focus:ring-yellow-400</code></li>
+        <li><strong>Subtle ring:</strong> <code>focus:ring-opacity-50</code></li>
+        <li><strong>Smooth UX:</strong> <code>transition-all duration-300</code></li>
+        <li><strong>Responsive overrides:</strong> <code>sm:w-64</code>, <code>md:text-base</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>⚠️ Troubleshooting and gotchas</h2>
+      <div class="card">
+        <h3 style="margin-top:0;">1) “My focus width breaks the header on mobile”</h3>
+        <p>
+          Fix by scoping the focus width change to larger screens:
+          <code>sm:focus:w-72</code> (instead of <code>focus:w-72</code>).
+        </p>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0;">2) “My placeholder styles don’t show”</h3>
+        <p>
+          Placeholder classes only affect the placeholder text. Ensure your input actually has
+          a <code>placeholder</code> attribute.
+        </p>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0;">3) “I removed outline, now focus is invisible”</h3>
+        <p>
+          Always pair <code>focus:outline-none</code> with a replacement, typically a ring:
+          <code>focus:ring</code> + a ring color.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>📌 Mini checklist (apply to any input)</h2>
+      <ul class="bullets">
+        <li>Is it readable? (text size + color)</li>
+        <li>Is it clickable/tappable? (padding + height)</li>
+        <li>Does it look distinct from the background? (border or background)</li>
+        <li>Does it have a good focus state? (ring, not just outline removal)</li>
+        <li>Does it behave well on mobile? (responsive widths; avoid layout-breaking focus effects)</li>
+      </ul>
+    </section>
+
+    <hr class="hr" />
+
+    <section>
+      <h2>➡️ What’s next in the course</h2>
+      <div class="card">
+        <p>
+          In the next lecture, you will learn how to <strong>reuse these long Tailwind class strings</strong>
+          (so you don’t copy-paste them across multiple inputs). ✅
+        </p>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,538 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Building Our First React App (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 20px 44px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .muted { color: var(--muted); }
+
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-left: 6px;
+      white-space: nowrap;
+    }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+      margin: 8px 0 0;
+    }
+
+    .checklist li {
+      padding-left: 0;
+      margin: 8px 0;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>⚛️ Building Our First React App (Reviewer)</h1>
+      <p class="subtitle">Beginner-friendly study guide based on the lecture transcript. Single-column, A4 print-ready.</p>
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print settings, choose A4 and default margins (or “custom” if needed).</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Table of Contents</strong>
+        <ol>
+          <li><a href="#goal">What you’re building</a></li>
+          <li><a href="#setup">No setup yet: use an online editor</a></li>
+          <li><a href="#component">Step 1: Create your first component (App)</a></li>
+          <li><a href="#click-fetch">Step 2: Button click + fetch advice from an API</a></li>
+          <li><a href="#state">Step 3: Show data in the UI using state</a></li>
+          <li><a href="#count">Step 4: Count how many advices you read</a></li>
+          <li><a href="#effect">Step 5: Auto-load advice on first render (useEffect)</a></li>
+          <li><a href="#components-props">Step 6: Split UI into components + pass props</a></li>
+          <li><a href="#takeaways">Key takeaways + quick self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="goal">
+      <h2>🎯 What you’re building</h2>
+      <p>
+        You build a tiny React app that:
+      </p>
+      <ul>
+        <li>👋 Shows a title (“Hello World!”)</li>
+        <li>🧲 Has a button (“Get advice”)</li>
+        <li>🌐 Fetches advice from an API when you click</li>
+        <li>🧠 Stores the advice in <strong>state</strong> so the UI updates</li>
+        <li>🔢 Tracks how many advices you have read</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>✅ Why this is important</strong></p>
+        <p class="muted">
+          Even though it’s small, it contains the “ingredients” used in real React apps: <strong>components</strong>,
+          <strong>JSX</strong>, <strong>events</strong>, <strong>state</strong>, <strong>effects</strong>, and <strong>props</strong>.
+        </p>
+      </div>
+    </section>
+
+    <section id="setup">
+      <h2>🧰 No setup yet: use an online editor</h2>
+      <p>
+        Before installing anything, you can write your first React code using CodeSandbox.
+      </p>
+      <ul>
+        <li>🧪 Option A: Open CodeSandbox and start a React template.</li>
+        <li>⚡ Option B (fast): type <strong>react.new</strong> in a new browser tab. It creates a React starter sandbox.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>🧭 What you’ll see (similar to VS Code)</strong></p>
+        <ul>
+          <li>📁 Left: files/folders (project structure)</li>
+          <li>🧾 Middle: code editor</li>
+          <li>🖥️ Right: preview output + console</li>
+        </ul>
+        <p class="muted">CodeSandbox is used a lot in the course (especially for challenges).</p>
+      </div>
+
+      <h3>Cleanup step</h3>
+      <ul>
+        <li>🗑️ Delete <code>styles.css</code> (not used in this lesson).</li>
+        <li>📄 Focus on <code>App.js</code> (and later <code>index.js</code> imports it).</li>
+        <li>🧽 In <code>App.js</code>, delete everything so you can start from scratch.</li>
+      </ul>
+    </section>
+
+    <section id="component">
+      <h2>🧩 Step 1: Create your first component (App)</h2>
+      <p>
+        In React, a component is typically a <strong>function</strong>. The main component is often named <code>App</code>.
+      </p>
+
+      <h3>Minimal “Hello World” UI (JSX)</h3>
+      <p class="muted">
+        JSX looks like HTML, but it’s written inside JavaScript to describe what should appear on screen.
+      </p>
+      <pre><code>function App() {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Hello World! 👋&lt;/h1&gt;
+      &lt;button&gt;Get advice&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default App;</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 Note</strong></p>
+        <p class="muted">
+          The starter template often includes Prettier, so your code auto-formats when you save.
+        </p>
+      </div>
+    </section>
+
+    <section id="click-fetch">
+      <h2>🖱️ Step 2: Button click + fetch advice from an API</h2>
+      <p>
+        Next goal: when you click the button, call a function that fetches advice.
+      </p>
+
+      <h3>1) Create an async function inside the component</h3>
+      <pre><code>async function getAdvice() {
+  const res = await fetch("https://api.adviceslip.com/advice");
+  const data = await res.json();
+  console.log(data.slip.advice);
+}</code></pre>
+
+      <h3>2) Call it when the button is clicked (event handler)</h3>
+      <pre><code>&lt;button onClick={getAdvice}&gt;Get advice&lt;/button&gt;</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ What’s happening</strong></p>
+        <ul>
+          <li>🧠 <code>onClick</code> expects a function</li>
+          <li>🎯 When you click, React calls <code>getAdvice</code></li>
+          <li>🌐 <code>fetch</code> gets data from the API</li>
+          <li>🧾 <code>res.json()</code> converts it into JSON</li>
+          <li>🖥️ You can confirm by checking the console</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="state">
+      <h2>🧠 Step 3: Show data in the UI using state</h2>
+      <p>
+        Logging to the console is nice, but we want the advice to appear on the page.
+        For that, we use <strong>state</strong>.
+      </p>
+
+      <div class="callout">
+        <p><strong>⭐ Key idea of state</strong></p>
+        <p class="muted">
+          If something should change on the screen over time, store it in <strong>state</strong>. When state updates,
+          React re-renders the component.
+        </p>
+      </div>
+
+      <h3>Create state</h3>
+      <pre><code>import { useState } from "react";
+
+function App() {
+  const [advice, setAdvice] = useState("");
+
+  // ...
+}</code></pre>
+
+      <h3>Update state after fetching</h3>
+      <pre><code>async function getAdvice() {
+  const res = await fetch("https://api.adviceslip.com/advice");
+  const data = await res.json();
+  setAdvice(data.slip.advice);
+}</code></pre>
+
+      <h3>Render state inside JSX</h3>
+      <p class="muted">Use curly braces <code>{}</code> to “enter JavaScript mode” inside JSX.</p>
+      <pre><code>&lt;h1&gt;{advice}&lt;/h1&gt;</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Result</strong></p>
+        <p class="muted">Click the button → fetch advice → update state → UI updates automatically.</p>
+      </div>
+    </section>
+
+    <section id="count">
+      <h2>🔢 Step 4: Count how many advices you read</h2>
+      <p>
+        We add another piece of state for a counter (how many times we clicked / how many advices read).
+      </p>
+
+      <h3>Add count state</h3>
+      <pre><code>const [count, setCount] = useState(0);</code></pre>
+
+      <h3>Increment when advice is fetched</h3>
+      <pre><code>setCount((c) =&gt; c + 1);</code></pre>
+
+      <h3>Show it in the UI</h3>
+      <pre><code>&lt;p&gt;
+  You have read &lt;strong&gt;{count}&lt;/strong&gt; pieces of advice.
+&lt;/p&gt;</code></pre>
+
+      <div class="callout">
+        <p><strong>Why use <code>setCount((c) =&gt; c + 1)</code>?</strong></p>
+        <p class="muted">
+          This “functional update” uses the latest value of <code>count</code> safely, even if updates happen quickly.
+        </p>
+      </div>
+    </section>
+
+    <section id="effect">
+      <h2>✨ Step 5: Auto-load advice on first render (useEffect)</h2>
+      <p>
+        Right now, the page starts empty. We want the first advice to load automatically when the app opens.
+        That’s a perfect use case for an <strong>effect</strong>.
+      </p>
+
+      <h3>Use <code>useEffect</code></h3>
+      <pre><code>import { useEffect, useState } from "react";
+
+useEffect(() =&gt; {
+  getAdvice();
+}, []);</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 What the empty array means (simple version)</strong></p>
+        <p class="muted">
+          <code>[]</code> tells React: run this effect only on the first render (when the component “mounts”).
+        </p>
+      </div>
+
+      <h3>Important note: “Why did it run twice?” (development)</h3>
+      <p class="muted">
+        In development, you may notice the effect running twice (and count becomes 2 on first load). That’s commonly
+        related to React’s Strict Mode behavior in development. You’ll cover the details later.
+      </p>
+    </section>
+
+    <section id="components-props">
+      <h2>🧱 Step 6: Split UI into components + pass props</h2>
+      <p>
+        React apps are built by breaking the UI into smaller components. You create a new component for the
+        “You have read …” message.
+      </p>
+
+      <h3>Create a <code>Message</code> component</h3>
+      <pre><code>function Message(props) {
+  return (
+    &lt;p&gt;
+      You have read &lt;strong&gt;{props.count}&lt;/strong&gt; pieces of advice.
+    &lt;/p&gt;
+  );
+}</code></pre>
+
+      <h3>Use it inside <code>App</code> and pass data with props</h3>
+      <pre><code>&lt;Message count={count} /&gt;</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Props (beginner explanation)</strong></p>
+        <p class="muted">
+          Props are like <strong>function parameters</strong> for components. They let a parent component (App)
+          send data to a child component (Message).
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3>Full simplified version (for review)</h3>
+      <pre><code>import { useEffect, useState } from "react";
+
+function Message(props) {
+  return (
+    &lt;p&gt;
+      You have read &lt;strong&gt;{props.count}&lt;/strong&gt; pieces of advice.
+    &lt;/p&gt;
+  );
+}
+
+export default function App() {
+  const [advice, setAdvice] = useState("");
+  const [count, setCount] = useState(0);
+
+  async function getAdvice() {
+    const res = await fetch("https://api.adviceslip.com/advice");
+    const data = await res.json();
+    setAdvice(data.slip.advice);
+    setCount((c) =&gt; c + 1);
+  }
+
+  useEffect(() =&gt; {
+    getAdvice();
+  }, []);
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;{advice}&lt;/h1&gt;
+      &lt;button onClick={getAdvice}&gt;Get advice&lt;/button&gt;
+      &lt;Message count={count} /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+    </section>
+
+    <section id="takeaways">
+      <h2>🏁 Key takeaways + quick self-check</h2>
+
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>🧩 A React component is usually a function.</li>
+        <li>🧾 Components return JSX to describe UI.</li>
+        <li>🖱️ Events like <code>onClick</code> trigger functions.</li>
+        <li>🌐 Use <code>fetch</code> + <code>async/await</code> for API requests.</li>
+        <li>🧠 Use <code>useState</code> when UI data must change over time.</li>
+        <li>✨ Use <code>useEffect</code> for “run-on-start” behavior (side effects).</li>
+        <li>📦 Use props to pass data from parent to child components.</li>
+      </ul>
+
+      <h3>Quick self-check questions (answer from memory) 📝</h3>
+      <ol>
+        <li>What is JSX, and why do we use curly braces <code>{}</code> inside it?</li>
+        <li>Why doesn’t changing a normal variable update the UI in React?</li>
+        <li>What does <code>useState</code> return (two items), and what do they mean?</li>
+        <li>When do we use <code>useEffect</code> instead of calling a function directly inside JSX?</li>
+        <li>What are props, and how do you pass a prop into a component?</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>✅ If you can explain these in simple words, you’re on the right track.</strong> 😄</p>
+      </div>
+
+      <h3>Common beginner gotchas 🚧</h3>
+      <ul class="checklist">
+        <li>⚠️ Forgetting <code>export default App</code> (or default export).</li>
+        <li>⚠️ Calling the handler immediately: <code>onClick={getAdvice()}</code> (wrong) instead of <code>onClick={getAdvice}</code> (correct).</li>
+        <li>⚠️ Trying to show changing data without state (UI won’t update reliably).</li>
+        <li>⚠️ Forgetting the dependency array in <code>useEffect</code>, which can cause repeated running.</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>
+        Reviewer generated from the provided transcript. Designed for clean A4 printing (single column, word-wrapped).
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,391 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Query — Fetching Application Settings (Supabase) | Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --accent:#0b57d0;
+      --ok:#0f7b3a;
+      --warn:#8a4b00;
+      --bad:#b00020;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, sans-serif;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column page container */
+    .page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 18px 64px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(0deg, #fff, var(--soft));
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size: 12.5px;
+    }
+
+    .chip{
+      display:inline-block;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background:#fff;
+      white-space:nowrap;
+    }
+
+    main{ margin-top: 16px; }
+
+    h2{
+      margin: 18px 0 10px;
+      font-size: 16.5px;
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+    }
+
+    h3{
+      margin: 14px 0 8px;
+      font-size: 14.5px;
+    }
+
+    p{ margin: 8px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout.soft{ background: var(--soft); }
+
+    .callout.ok{ border-left: 5px solid var(--ok); }
+    .callout.warn{ border-left: 5px solid var(--warn); }
+    .callout.bad{ border-left: 5px solid var(--bad); }
+
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .two-col{
+      display:block; /* keep single-column */
+    }
+
+    .kbd{
+      font-family: var(--mono);
+      font-size: 12.5px;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background:#fff;
+      white-space:nowrap;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #0b0f19;
+      color: #e7e7e7;
+      overflow:auto;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.5;
+      tab-size: 2;
+      white-space: pre;
+    }
+
+    code{
+      font-family: var(--mono);
+      font-size: 0.95em;
+    }
+
+    .inline-code{
+      font-family: var(--mono);
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1px 6px;
+      white-space: nowrap;
+    }
+
+    .divider{
+      height:1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .checklist{
+      border:1px dashed var(--border);
+      border-radius:12px;
+      padding: 10px 12px;
+      background:#fff;
+    }
+
+    .checklist ul{ margin-left: 18px; }
+
+    footer{
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12.5px;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+
+    /* Print styles (A4, clean, no URL after links) */
+    @page{ size: A4; margin: 14mm 14mm 16mm 14mm; }
+    @media print{
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; padding: 0; }
+      header{ box-shadow:none; }
+      a, a:visited{ color: var(--text); text-decoration: none; }
+      a[href]::after{ content: ""; } /* prevent printing URLs */
+      pre{ page-break-inside: avoid; }
+      .callout, .checklist{ page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>⚙️ Fetching Application Settings with React Query (Supabase)</h1>
+      <p class="subtitle">Reviewer / Study Guide — beginner-friendly notes + examples (single-column, print-ready)</p>
+      <div class="meta">
+        <span class="chip">📦 React Query (TanStack Query)</span>
+        <span class="chip">🗄️ Supabase + Postgres</span>
+        <span class="chip">🔒 RLS Policies</span>
+        <span class="chip">🧩 Custom Hook: <span class="inline-code">useSettings</span></span>
+      </div>
+    </header>
+
+    <main>
+      <section class="callout soft">
+        <p><strong>Lesson goal 🎯</strong>: Stop hardcoding settings in the UI. Instead, <strong>fetch app settings from Supabase</strong> using <strong>React Query</strong>, then <strong>show them inside a form</strong> (so we can update them in the next lecture).</p>
+      </section>
+
+      <h2>1) Big Picture: What are “Settings” here? 🧠</h2>
+      <p>In this project, the <strong>settings</strong> live in a Supabase table named <span class="inline-code">settings</span>. Unlike cabins (many rows), <strong>settings are stored in a single row</strong> (usually <span class="inline-code">id = 1</span>).</p>
+
+      <div class="callout ok">
+        <p><strong>Key idea ✅</strong>: Fetching settings is basically “read one row.”</p>
+        <ul>
+          <li>Cabins → many rows → array</li>
+          <li>Settings → one row → single object</li>
+        </ul>
+      </div>
+
+      <h2>2) Service Layer: <span class="inline-code">getSettings()</span> and <span class="inline-code">updateSettings()</span> 🧱</h2>
+      <p>The instructor already prepared the Settings API service functions. The main difference from cabins is the <strong>use of</strong> <span class="inline-code">.single()</span>.</p>
+
+      <div class="callout">
+        <p><strong>Why <span class="inline-code">.single()</span>? 🤔</strong></p>
+        <p>Supabase usually returns arrays for selects. But since we know settings is only one row, <span class="inline-code">.single()</span> returns a <strong>single object</strong> instead of an array.</p>
+      </div>
+
+      <pre><code>// services/apiSettings.js (conceptual)
+export async function getSettings() {
+  const { data, error } = await supabase
+    .from('settings')
+    .select('*')
+    .single(); // ✅ returns ONE object
+
+  if (error) throw new Error('Settings could not be loaded');
+  return data;
+}
+
+// Next lecture uses this
+export async function updateSettings(newSettings) {
+  const { data, error } = await supabase
+    .from('settings')
+    .update(newSettings)
+    .eq('id', 1)
+    .single();
+
+  if (error) throw new Error('Settings could not be updated');
+  return data;
+}</code></pre>
+
+      <div class="callout soft">
+        <p><strong>Alternative (if you didn’t use <span class="inline-code">.single()</span>) 🧩</strong></p>
+        <p>You could return <span class="inline-code">data[0]</span>. Functionally similar, but <span class="inline-code">.single()</span> is clearer and communicates intent.</p>
+      </div>
+
+      <h2>3) Do Not Forget RLS Policies 🔒</h2>
+      <p>Even if the code is correct, Supabase can still return empty results or block updates when <strong>Row Level Security (RLS)</strong> is enabled without policies.</p>
+
+      <div class="callout warn">
+        <p><strong>Must-do ⚠️</strong>: Create/confirm policies for the <span class="inline-code">settings</span> table.</p>
+        <ul>
+          <li>✅ <strong>Select</strong> policy (read) — already exists in the lesson</li>
+          <li>✅ <strong>Update</strong> policy (edit) — needed for the next lecture</li>
+          <li>For the tutorial phase, the expression used is: <span class="inline-code">true</span> (allow all)</li>
+        </ul>
+      </div>
+
+      <h2>4) Best Practice: Create a Custom Hook <span class="inline-code">useSettings()</span> 🪝</h2>
+      <p>Instead of calling <span class="inline-code">useQuery</span> directly inside the form component, we wrap it into a reusable custom hook—same pattern used earlier with <span class="inline-code">useCabins</span>.</p>
+
+      <pre><code>// features/settings/useSettings.js
+import { useQuery } from '@tanstack/react-query';
+import { getSettings } from '../../services/apiSettings';
+
+export function useSettings() {
+  const {
+    isLoading,
+    data: settings,
+    error,
+  } = useQuery({
+    queryKey: ['settings'],
+    queryFn: getSettings,
+  });
+
+  return { isLoading, error, settings };
+}</code></pre>
+
+      <div class="callout ok">
+        <p><strong>Why this is good ✅</strong></p>
+        <ul>
+          <li>Cleaner components (less React Query “plumbing” inside UI files)</li>
+          <li>Easy reuse anywhere (sidebar, dashboard, etc.)</li>
+          <li>Consistent queryKey (<span class="inline-code">['settings']</span>) for caching + invalidation later</li>
+        </ul>
+      </div>
+
+      <h2>5) Use the Hook in the Form and Populate Inputs ✍️</h2>
+      <p>The form component fetches settings, then places the values into inputs using <strong>defaultValue</strong>.</p>
+
+      <div class="callout">
+        <p><strong>Important timing detail ⏳</strong>: On first render, <span class="inline-code">settings</span> is <span class="inline-code">undefined</span> (data hasn’t arrived yet). If you destructure immediately, you’ll get a runtime error.</p>
+      </div>
+
+      <pre><code>// UpdateSettingsForm.jsx (conceptual)
+import Spinner from '../../ui/Spinner';
+import { useSettings } from './useSettings';
+
+export default function UpdateSettingsForm() {
+  const { isLoading, settings = {} } = useSettings(); // ✅ fallback
+
+  const {
+    minBookingLength,
+    maxBookingLength,
+    maxGuestsPerBooking,
+    breakfastPrice,
+  } = settings;
+
+  if (isLoading) return &lt;Spinner /&gt;;
+
+  return (
+    &lt;form&gt;
+      &lt;label&gt;Min booking length&lt;/label&gt;
+      &lt;input defaultValue={minBookingLength} /&gt;
+
+      &lt;label&gt;Max booking length&lt;/label&gt;
+      &lt;input defaultValue={maxBookingLength} /&gt;
+
+      &lt;label&gt;Max guests per booking&lt;/label&gt;
+      &lt;input defaultValue={maxGuestsPerBooking} /&gt;
+
+      &lt;label&gt;Breakfast price&lt;/label&gt;
+      &lt;input defaultValue={breakfastPrice} /&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+      <div class="callout ok">
+        <p><strong>Why <span class="inline-code">settings = {}</span> works ✅</strong></p>
+        <p>It prevents “Cannot read properties of undefined” while data is still loading. The inputs start empty, then React re-renders when settings arrive.</p>
+      </div>
+
+      <h2>6) Wiring It Into the Settings Page 🧩</h2>
+      <p>The settings page simply renders the form inside a layout row component (same UI pattern used in other pages).</p>
+
+      <pre><code>// Settings.jsx (conceptual)
+import Row from '../../ui/Row';
+import UpdateSettingsForm from '../settings/UpdateSettingsForm';
+
+export default function Settings() {
+  return (
+    &lt;Row&gt;
+      &lt;UpdateSettingsForm /&gt;
+    &lt;/Row&gt;
+  );
+}</code></pre>
+
+      <h2>7) Mini-Checklist (What You Should Remember) ✅</h2>
+      <div class="checklist">
+        <ul>
+          <li>⚙️ Settings live in a <strong>single-row</strong> table (commonly <span class="inline-code">id = 1</span>).</li>
+          <li>🧾 <span class="inline-code">.single()</span> returns an <strong>object</strong> (not an array).</li>
+          <li>🔒 If RLS is enabled, you must create policies (Select + Update).</li>
+          <li>🪝 Use a custom hook: <span class="inline-code">useSettings()</span> wraps <span class="inline-code">useQuery</span>.</li>
+          <li>⏳ While loading, <span class="inline-code">settings</span> is undefined → use fallback: <span class="inline-code">settings = {}</span> and show a spinner.</li>
+          <li>🧠 Next step: add mutation + update each value “one by one.”</li>
+        </ul>
+      </div>
+
+      <h2>8) Quick “Why React Query Here?” ✨</h2>
+      <ul>
+        <li>📌 Caching: settings are reused instantly across the app.</li>
+        <li>🔄 Automatic refetch: keeps settings in sync if changed elsewhere.</li>
+        <li>🧰 Built-in status flags: <span class="inline-code">isLoading</span>, <span class="inline-code">error</span>, etc.</li>
+        <li>🧪 DevTools visibility: queryKey <span class="inline-code">['settings']</span> shows up in React Query DevTools.</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <section class="callout soft">
+        <p><strong>Next lecture preview 🔜</strong>: Add an <strong>update mutation</strong> (likely <span class="inline-code">useMutation</span>) to update each field, then invalidate <span class="inline-code">['settings']</span> so the UI stays consistent.</p>
+      </section>
+    </main>
+
+    <footer>
+      <div>Print tips: Use your browser Print dialog → Paper size <strong>A4</strong> → Margins <strong>Default</strong> or <strong>None</strong>. This page is single-column and avoids printing link URLs.</div>
+    </footer>
+  </div>
+</body>
+</html>

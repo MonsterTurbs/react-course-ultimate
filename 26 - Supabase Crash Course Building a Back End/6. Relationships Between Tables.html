@@ -1,0 +1,459 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Supabase — Relationships Between Tables (Bookings ↔ Cabins ↔ Guests)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --chip:#f2f4f7;
+      --accent:#1a73e8;
+      --ok:#0f8a3c;
+      --warn:#b85c00;
+      --danger:#b00020;
+
+      --page-w: 210mm; /* A4 width */
+      --page-h: 297mm; /* A4 height */
+      --pad: 14mm;
+      --font: Arial, Helvetica, sans-serif;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--font);
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:normal;
+      word-wrap:break-word;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Single-column printable layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+
+    header{
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 24px;
+      letter-spacing: 0.2px;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      background:var(--chip);
+      border:1px solid var(--border);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size: 12.5px;
+    }
+
+    section{
+      margin: 14px 0 18px;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2{
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15.5px;
+    }
+
+    p{ margin: 8px 0; }
+
+    ul{ margin: 8px 0 0 18px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.ok{ border-left-color: var(--ok); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.danger{ border-left-color: var(--danger); }
+
+    .k{ font-weight: 700; }
+    .muted{ color: var(--muted); }
+
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13.5px;
+    }
+    .table th, .table td{
+      border:1px solid var(--border);
+      padding: 8px 9px;
+      vertical-align: top;
+    }
+    .table th{
+      background: var(--soft);
+      text-align: left;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+    pre{
+      background: #0b1020;
+      color: #eaf0ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+    }
+
+    .mini{
+      font-size: 12.8px;
+      color: var(--muted);
+    }
+
+    /* Print settings */
+    @page{
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print{
+      body{ background:#fff; }
+      .page{
+        max-width: none;
+        padding: 0;
+        margin: 0;
+      }
+      header{ break-after: avoid; }
+      section{ break-inside: avoid; }
+      pre{ break-inside: avoid; }
+
+      /* Do NOT show printed URL after links */
+      a[href]::after{ content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🗄️ Supabase: Relationships Between Tables</h1>
+      <p class="sub">Reviewer / Study Guide — Building the <span class="k">bookings</span> table and connecting it to <span class="k">cabins</span> and <span class="k">guests</span> using foreign keys.</p>
+      <div class="meta">
+        <span class="chip">Single-column</span>
+        <span class="chip">A4 print-ready</span>
+        <span class="chip">Beginner-friendly</span>
+        <span class="chip">Supabase + Postgres</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Goal of this lesson</h2>
+      <p>You already created the simpler tables (<span class="k">cabins</span>, <span class="k">guests</span>, <span class="k">settings</span>). Now you will:</p>
+      <ul>
+        <li>✅ Create a new table called <span class="k">bookings</span></li>
+        <li>🔗 Connect <span class="k">bookings</span> → <span class="k">cabins</span> (via <span class="k">cabinId</span>)</li>
+        <li>🔗 Connect <span class="k">bookings</span> → <span class="k">guests</span> (via <span class="k">guestId</span>)</li>
+        <li>🧠 Understand <span class="k">why</span> foreign keys live in the <span class="k">bookings</span> table</li>
+      </ul>
+
+      <div class="callout">
+        <p class="mini"><span class="k">Big picture 🧩</span>: A booking is essentially “<span class="k">one guest</span> renting <span class="k">one cabin</span> for a period of time.”</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧱 Bookings table schema (fields/columns)</h2>
+      <p>In Supabase Table Editor: <span class="k">New table → bookings</span>, then add these columns.</p>
+
+      <table class="table" aria-label="Bookings schema">
+        <thead>
+          <tr>
+            <th style="width:24%">Column</th>
+            <th style="width:20%">Type</th>
+            <th>What it represents (beginner explanation)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="k">startDate</span></td>
+            <td>timestamp</td>
+            <td>📅 Date/time the guest starts staying (check-in date).</td>
+          </tr>
+          <tr>
+            <td><span class="k">endDate</span></td>
+            <td>timestamp</td>
+            <td>📅 Date/time the guest leaves (check-out date).</td>
+          </tr>
+          <tr>
+            <td><span class="k">numNights</span></td>
+            <td>integer</td>
+            <td>🌙 Number of nights (often calculated in the app but stored for convenience/performance).</td>
+          </tr>
+          <tr>
+            <td><span class="k">numGuests</span></td>
+            <td>integer</td>
+            <td>👥 Number of guests staying in the cabin for this booking.</td>
+          </tr>
+          <tr>
+            <td><span class="k">cabinPrice</span></td>
+            <td>float</td>
+            <td>💵 Price for the cabin portion only.</td>
+          </tr>
+          <tr>
+            <td><span class="k">extrasPrice</span></td>
+            <td>float</td>
+            <td>🍳 Extra charges (e.g., breakfast). Room to grow for future extras.</td>
+          </tr>
+          <tr>
+            <td><span class="k">totalPrice</span></td>
+            <td>float</td>
+            <td>🧾 Total = cabinPrice + extrasPrice.</td>
+          </tr>
+          <tr>
+            <td><span class="k">status</span></td>
+            <td>text</td>
+            <td>🏷️ Booking state: <span class="k">unconfirmed</span>, <span class="k">checked-in</span>, <span class="k">checked-out</span>.</td>
+          </tr>
+          <tr>
+            <td><span class="k">hasBreakfast</span></td>
+            <td>boolean</td>
+            <td>🍳 Whether breakfast is included (true/false).</td>
+          </tr>
+          <tr>
+            <td><span class="k">isPaid</span></td>
+            <td>boolean</td>
+            <td>💳 Whether the booking has been paid already (true/false).</td>
+          </tr>
+          <tr>
+            <td><span class="k">observations</span></td>
+            <td>text</td>
+            <td>📝 Optional notes (e.g., “Arriving at 10 PM”).</td>
+          </tr>
+          <tr>
+            <td><span class="k">cabinId</span></td>
+            <td>foreign key → cabins.id</td>
+            <td>🔗 The cabin being booked (connects to the cabins table).</td>
+          </tr>
+          <tr>
+            <td><span class="k">guestId</span></td>
+            <td>foreign key → guests.id</td>
+            <td>🔗 The guest who made the booking (connects to the guests table).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <p><span class="k">Tip 💡</span> The first two columns (<span class="k">id</span> and <span class="k">created_at</span>) are usually created automatically by Supabase. Keep them—they’re useful for identification and auditing.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🔗 Foreign Keys (the relationship setup)</h2>
+      <p>Foreign keys are simply a way to say: “This row in <span class="k">bookings</span> points to a specific row in another table.”</p>
+
+      <h3>Step-by-step in Supabase UI</h3>
+      <ol style="margin:8px 0 0 18px;">
+        <li style="margin:6px 0;">Create column <span class="k">cabinId</span>.</li>
+        <li style="margin:6px 0;">Open <span class="k">Foreign key relation</span> editor for that column.</li>
+        <li style="margin:6px 0;">Reference table: <span class="k">cabins</span></li>
+        <li style="margin:6px 0;">Reference column: <span class="k">id</span></li>
+        <li style="margin:6px 0;">Repeat for <span class="k">guestId</span> → <span class="k">guests.id</span></li>
+      </ol>
+
+      <div class="callout ok">
+        <p><span class="k">What you gain ✅</span>: Once these relations exist, you can easily fetch a booking together with its cabin + guest details via the Supabase API.</p>
+      </div>
+
+      <div class="callout">
+        <p class="mini"><span class="k">Mental model 🧠</span>: <span class="k">cabinId</span> and <span class="k">guestId</span> are like “shortcuts” that tell the database exactly which cabin and which guest belong to this booking.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Example: Insert one booking row (demo data)</h2>
+      <p>This mirrors the lecture’s sample values.</p>
+
+      <table class="table" aria-label="Example booking row">
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Sample value</th>
+            <th>Reasoning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>startDate</td>
+            <td>Next Monday</td>
+            <td>Arrival date</td>
+          </tr>
+          <tr>
+            <td>endDate</td>
+            <td>Friday</td>
+            <td>Leaving date</td>
+          </tr>
+          <tr>
+            <td>numNights</td>
+            <td>4</td>
+            <td>Mon → Fri = 4 nights</td>
+          </tr>
+          <tr>
+            <td>numGuests</td>
+            <td>2</td>
+            <td>Two guests</td>
+          </tr>
+          <tr>
+            <td>cabinPrice</td>
+            <td>300</td>
+            <td>Cabin cost</td>
+          </tr>
+          <tr>
+            <td>extrasPrice</td>
+            <td>120</td>
+            <td>Breakfast (15 × 2 guests × 4 nights = 120)</td>
+          </tr>
+          <tr>
+            <td>totalPrice</td>
+            <td>420</td>
+            <td>300 + 120</td>
+          </tr>
+          <tr>
+            <td>status</td>
+            <td>unconfirmed</td>
+            <td>Guest hasn’t arrived yet</td>
+          </tr>
+          <tr>
+            <td>hasBreakfast</td>
+            <td>true</td>
+            <td>Breakfast selected</td>
+          </tr>
+          <tr>
+            <td>isPaid</td>
+            <td>true</td>
+            <td>Paid in advance (example)</td>
+          </tr>
+          <tr>
+            <td>observations</td>
+            <td>Arrive at 10:00 PM</td>
+            <td>Helpful note for reception</td>
+          </tr>
+          <tr>
+            <td>cabinId</td>
+            <td>1</td>
+            <td>Refers to cabins.id = 1</td>
+          </tr>
+          <tr>
+            <td>guestId</td>
+            <td>1</td>
+            <td>Refers to guests.id = 1</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <p class="mini"><span class="k">Note 🧾</span> In Supabase Table Editor, you’ll typically pick <span class="k">cabinId</span> and <span class="k">guestId</span> from dropdowns once the foreign key relation exists.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Understanding the relationship type (cardinality)</h2>
+      <p>This lesson’s key database idea is about <span class="k">how many</span> rows can be connected to each other.</p>
+
+      <h3>Bookings ↔ Cabins</h3>
+      <ul>
+        <li>📌 One <span class="k">booking</span> can reference only <span class="k">one cabin</span>.</li>
+        <li>🏡 One <span class="k">cabin</span> can appear in <span class="k">many bookings</span> over time.</li>
+      </ul>
+
+      <h3>Bookings ↔ Guests</h3>
+      <ul>
+        <li>📌 One <span class="k">booking</span> belongs to <span class="k">one guest</span>.</li>
+        <li>👤 One <span class="k">guest</span> can create <span class="k">many bookings</span> (across months/years).</li>
+      </ul>
+
+      <div class="callout ok">
+        <p><span class="k">Rule of thumb ✅</span>: Put the foreign key in the table where each row points to <span class="k">one</span> row in the other table. Here: each booking points to one cabin and one guest → foreign keys belong in <span class="k">bookings</span>.</p>
+      </div>
+
+      <div class="callout warn">
+        <p><span class="k">Common confusion ⚠️</span>: People sometimes try to store a list of booking IDs inside cabins. That’s harder to maintain and not how relational databases usually model 1-to-many relations.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧷 Quick mini-glossary</h2>
+      <ul>
+        <li><span class="k">Primary key</span> 🔑: Unique ID for rows in a table (e.g., cabins.id).</li>
+        <li><span class="k">Foreign key</span> 🔗: A column that stores another table’s primary key (e.g., bookings.cabinId → cabins.id).</li>
+        <li><span class="k">1-to-many</span> ➡️: One cabin can have many bookings, but each booking has one cabin.</li>
+        <li><span class="k">Timestamp</span> 🕒: Date/time value used for start/end dates.</li>
+        <li><span class="k">Boolean</span> ✅/❌: true or false (hasBreakfast, isPaid).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🛠️ Practical checks (to avoid bugs later)</h2>
+      <ul>
+        <li>✅ Ensure <span class="k">cabinId</span> references <span class="k">cabins.id</span> (not cabins.name).</li>
+        <li>✅ Ensure <span class="k">guestId</span> references <span class="k">guests.id</span>.</li>
+        <li>✅ Keep naming consistent (e.g., <span class="k">startDate</span>/<span class="k">endDate</span>) so your frontend code is predictable.</li>
+        <li>✅ Use <span class="k">status</span> values consistently (avoid spelling variants like “checked in” vs “checked-in”).</li>
+      </ul>
+
+      <div class="callout danger">
+        <p><span class="k">Important 🚫</span>: This is not a full database course. The goal is to understand enough to build the app confidently and avoid data modeling mistakes.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Key takeaways</h2>
+      <ul>
+        <li>🧩 A booking connects <span class="k">one guest</span> + <span class="k">one cabin</span> + <span class="k">dates/pricing</span>.</li>
+        <li>🔗 Relationships are created by storing IDs as foreign keys (<span class="k">cabinId</span>, <span class="k">guestId</span>).</li>
+        <li>📈 Foreign keys belong in <span class="k">bookings</span> because each booking references one cabin and one guest.</li>
+      </ul>
+    </section>
+
+    <p class="mini muted">End of notes — Supabase Crash Course (Wild Oasis project).</p>
+  </div>
+</body>
+</html>

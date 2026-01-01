@@ -1,0 +1,350 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Challenge — Date Counter v2 (Controlled Inputs + Reset) | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background: #fef2f2; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn, .callout.danger{ background:#ffffff; }
+      .card, .term, pre, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>CHALLENGE 2 — Date Counter v2 (Upgraded) 🗓️⚡</h1>
+      <p class="subtitle">
+        Reviewer/study guide: upgrade the earlier date counter using controlled inputs (range slider + text input) and a conditional Reset button.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">🎛️ Controlled inputs</span>
+        <span class="chip">🔽 input type=range</span>
+        <span class="chip">⌨️ input type=text</span>
+        <span class="chip">🔢 Number(e.target.value)</span>
+        <span class="chip">🔁 Reset state</span>
+        <span class="chip">🧠 Conditional rendering</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) What’s New in v2?</h2>
+      <div class="callout">
+        <p><strong>We’re upgrading the date counter from earlier.</strong> 🙂</p>
+        <ul>
+          <li>✅ You can still move dates forward/back using buttons.</li>
+          <li>🆕 You can now directly set the <strong>count</strong> (e.g., 1000 days from now).</li>
+          <li>🆕 The <strong>step</strong> is controlled by a <strong>slider</strong> (<code>&lt;input type="range"&gt;</code>) instead of +/- buttons.</li>
+          <li>🆕 Add a <strong>Reset</strong> button that appears only when state differs from defaults.</li>
+        </ul>
+      </div>
+
+      <div class="term">
+        <div class="icon">🎯</div>
+        <div class="body">
+          <p class="title">Main learning goal</p>
+          <p class="desc">Practice controlled elements again, this time with a slider (range input) and a numeric text input.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) The Slider Is Just an HTML Input 🔽</h2>
+      <div class="card">
+        <p class="mini">A slider is simply:</p>
+        <pre><code>&lt;input type="range" min="0" max="10" /&gt;</code></pre>
+        <p class="mini">
+          By default, this is an <strong>uncontrolled element</strong> (the DOM owns its state).
+          Our job is to make it <strong>controlled</strong> (React owns the state).
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Make the Step Slider a Controlled Element 🎛️</h2>
+      <div class="callout ok">
+        <p><strong>Same 3-step technique:</strong> state → value binding → onChange updates.</p>
+      </div>
+
+      <div class="card">
+        <h3>A) Step state already exists</h3>
+        <pre><code>const [step, setStep] = useState(1);</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>B) Bind state to the range input</h3>
+        <pre><code>&lt;input
+  type="range"
+  min="0"
+  max="10"
+  value={step}
+  onChange={(e) =&gt; setStep(Number(e.target.value))}
+/&gt;</code></pre>
+        <p class="mini">
+          <strong>Critical detail:</strong> <code>e.target.value</code> is always a string.
+          Convert it with <code>Number(...)</code> to avoid bugs.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Bug you’ll see if you forget conversion:</strong> adding step becomes string concatenation. 😬</p>
+        <p class="mini">Example: <code>count + step</code> might become <code>"0" + "10"</code> → <code>"010"</code>.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Replace the Count Display With a Controlled Text Input ⌨️</h2>
+      <div class="card">
+        <h3>A) Count state stays the same</h3>
+        <pre><code>const [count, setCount] = useState(0);</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>B) Count input (controlled)</h3>
+        <pre><code>&lt;input
+  type="text"
+  value={count}
+  onChange={(e) =&gt; setCount(Number(e.target.value))}
+/&gt;</code></pre>
+        <p class="mini">
+          This allows direct jumps like 1000 / 10,000 / 100,000 days.
+        </p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Note:</strong> using <code>type="text"</code> matches the lecture. In real apps, <code>type="number"</code> can be nicer, but the important part is the controlled pattern. ✅</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Reset Button (Two State Updates) 🔁</h2>
+      <div class="card">
+        <p>
+          Reset sets both state variables back to defaults:
+          <strong>count = 0</strong> and <strong>step = 1</strong>.
+        </p>
+        <pre><code>function handleReset() {
+  setCount(0);
+  setStep(1);
+}</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Attach to button</h3>
+        <pre><code>&lt;button onClick={handleReset}&gt;Reset&lt;/button&gt;</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Show Reset Only When Needed (Conditional Rendering) 🧠</h2>
+      <div class="callout ok">
+        <p><strong>Requirement:</strong> Reset is only visible if the user changed something.</p>
+      </div>
+
+      <div class="card">
+        <p class="mini">Defaults:</p>
+        <ul>
+          <li><code>count</code> default = <strong>0</strong></li>
+          <li><code>step</code> default = <strong>1</strong></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Condition used in the lecture</h3>
+        <pre><code>{(count !== 0 || step !== 1) ? (
+  &lt;div&gt;
+    &lt;button onClick={handleReset}&gt;Reset&lt;/button&gt;
+  &lt;/div&gt;
+) : null}</code></pre>
+        <p class="mini">
+          If either value is not at its default, show the Reset button; otherwise render nothing.
+        </p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Equivalent logic:</strong> you can also use <code>&amp;&amp;</code> instead of the ternary, but the lecture uses a ternary for clarity. ✅</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) What Changed From v1 (Big Picture)</h2>
+      <div class="card">
+        <ul>
+          <li>Step buttons were replaced by a <strong>controlled range input</strong>.</li>
+          <li>Count is now editable via a <strong>controlled text input</strong>.</li>
+          <li>Reset required <strong>updating multiple pieces of state</strong>.</li>
+          <li>Reset visibility uses <strong>conditional rendering</strong> based on defaults.</li>
+        </ul>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Core takeaway:</strong> Controlled inputs keep React state and form element values synchronized automatically. 🎛️</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>8) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>Why does <code>e.target.value</code> come as a string?</li>
+          <li>What bug happens if step is stored as a string?</li>
+          <li>What are the 3 steps of making an element controlled?</li>
+          <li>Why use <code>null</code> as the “render nothing” value in the ternary?</li>
+          <li>When should the Reset button appear?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li>DOM input values are strings by default.</li>
+          <li>Addition can turn into string concatenation.</li>
+          <li>State → bind value → update onChange.</li>
+          <li>React ignores <code>null</code> (renders nothing).</li>
+          <li>When <code>count !== 0</code> or <code>step !== 1</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Keep margins around ~14mm and enable background graphics only if you want shaded callouts.
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,351 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Refs to Persist Data Between Renders (No Re-render)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .compare{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 4px;
+      font-size: 13.5px;
+    }
+    .compare th,
+    .compare td{
+      border:1px solid var(--border);
+      padding: 10px 10px;
+      vertical-align: top;
+    }
+    .compare th{
+      background: var(--panel);
+      text-align:left;
+      font-weight:700;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🧠 React Study Guide: Refs to Persist Data Between Renders (No Re-render)</h1>
+      <p class="subtitle">Use <code>useRef</code> to keep a value across renders <em>without</em> triggering a re-render. Example: count how many times a user changes a rating “behind the scenes.”</p>
+      <div class="meta">
+        <span class="chip">🧷 Hook: <strong>useRef</strong></span>
+        <span class="chip">🎯 Use case: persistent variable</span>
+        <span class="chip">🚫 No UI re-render on update</span>
+        <span class="chip">🧪 Compare: normal variable vs state vs ref</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Scenario in the lecture</h2>
+      <p>Inside a Movie Details page, we want to track:</p>
+      <ul>
+        <li>⭐ how many times the user changes their rating (e.g., 3 → 7 → 9 → 8)</li>
+        <li>🕵️ “Behind the scenes” — we do <strong>not</strong> want to display this counter in the UI</li>
+      </ul>
+
+      <div class="callout">
+        <strong>We need:</strong> a value that <strong>persists across renders</strong> but <strong>does not cause a re-render</strong> when updated.
+      </div>
+
+      <p class="muted">This is exactly what refs are great at.</p>
+    </section>
+
+    <section>
+      <h2>🧷 Step 1: Create a ref (the counter)</h2>
+      <p>Create it near your state variables (common style):</p>
+
+      <pre><code>import { useEffect, useRef } from "react";
+
+const countRef = useRef(0); // initial value is 0</code></pre>
+
+      <div class="callout">
+        <strong>Reminder:</strong> Refs don’t have a setter. You mutate <code>countRef.current</code> directly.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧷 Step 2: Update the ref when <code>userRating</code> changes</h2>
+      <p>We want to increase the counter every time the user selects a new rating.</p>
+
+      <div class="rule">
+        <h3>✅ Correct: update inside an effect</h3>
+        <p class="muted">Because we shouldn’t create side effects (mutations) in render logic.</p>
+
+        <pre><code>useEffect(() =&gt; {
+  if (!userRating) return; // avoid counting the initial mount
+
+  countRef.current = countRef.current + 1;
+  // or: countRef.current += 1;
+  // or: countRef.current++;
+}, [userRating]);</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Why the guard?</strong> The effect runs on mount too. If <code>userRating</code> starts empty, we don’t want to count that.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧷 Step 3: Save the value when adding the movie to the watchlist</h2>
+      <p>When we build the watched-movie object, add a property like <code>countRatingDecisions</code>:</p>
+
+      <pre><code>function handleAddWatched(movie) {
+  const newWatchedMovie = {
+    ...movie,
+    userRating,
+    countRatingDecisions: countRef.current,
+  };
+
+  onAddWatched(newWatchedMovie);
+}</code></pre>
+
+      <p class="muted">Now the value is stored along with the movie data, even though we never displayed the counter in the UI.</p>
+    </section>
+
+    <section>
+      <h2>✅ Why a normal variable fails (the lecture demo)</h2>
+      <p>If you try:</p>
+
+      <pre><code>let count = 0;
+
+useEffect(() =&gt; {
+  if (!userRating) return;
+  count++;
+}, [userRating]);</code></pre>
+
+      <p>It won’t behave as expected because:</p>
+      <ul>
+        <li>🔁 the component re-renders when <code>userRating</code> changes</li>
+        <li>♻️ and the function runs again from scratch</li>
+        <li>🧨 so <code>count</code> gets reset back to <code>0</code> on each render</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Result:</strong> you often only see the last “increment” effect (e.g., ending at 1), not the total history.
+      </div>
+    </section>
+
+    <section>
+      <h2>🆚 Normal variable vs State vs Ref (the mental model)</h2>
+
+      <table class="compare" aria-label="Normal variable vs State vs Ref">
+        <thead>
+          <tr>
+            <th>Container</th>
+            <th>Persists across renders?</th>
+            <th>Triggers re-render on update?</th>
+            <th>Best for</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Normal variable</strong> (e.g., <code>let x</code>)</td>
+            <td>❌ No</td>
+            <td>❌ No</td>
+            <td>Temporary values inside one render</td>
+          </tr>
+          <tr>
+            <td><strong>State</strong> (<code>useState</code>)</td>
+            <td>✅ Yes</td>
+            <td>✅ Yes</td>
+            <td>Values that affect UI output</td>
+          </tr>
+          <tr>
+            <td><strong>Ref</strong> (<code>useRef</code>)</td>
+            <td>✅ Yes</td>
+            <td>❌ No</td>
+            <td>Remembered values that should not re-render UI</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <strong>Best summary:</strong> Refs sit “in the middle” — persistent like state, but silent like a normal variable.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Extra notes about refs (from the lecture)</h2>
+      <ul>
+        <li>✅ Refs can store <em>any</em> data: numbers, objects, arrays, DOM nodes, timer IDs, etc.</li>
+        <li>⏱️ A common real-world example is storing a timer ID so you can cancel it later.</li>
+        <li class="warn">⚠️ Because refs don’t re-render the UI, they’re usually not used directly in JSX output.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Rule of thumb:</strong> If the value should visually update the component, use state. Otherwise, consider a ref.
+      </div>
+    </section>
+
+    <section>
+      <h2>📝 Mini practice</h2>
+      <ul>
+        <li>✅ Track how many times the user opens/closes a modal without showing it on screen.</li>
+        <li>✅ Store an interval ID in a ref and clear it when the user clicks “Stop”.</li>
+        <li>✅ Try rendering <code>countRef.current</code> in JSX and notice: updating it won’t update the UI unless another render happens.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>🧷 <code>useRef</code> is perfect for “behind the scenes” counters and remembered values.</li>
+        <li>🔁 Refs persist across renders.</li>
+        <li>🚫 Updating refs does not trigger a re-render.</li>
+        <li>⚠️ Normal variables reset every render; state re-renders the UI; refs do neither but persist.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

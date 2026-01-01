@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Application Planning — Fast React Pizza (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #047857;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .soft { background: var(--soft); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7faff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #ecfdf5;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+    }
+
+    .danger {
+      border-left: 4px solid var(--danger);
+      background: #fef2f2;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+
+    .table th, .table td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    .table th {
+      background: var(--soft);
+      text-align: left;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    /* Print styles (A4, clean margins, no URL after links) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Keep blocks from splitting awkwardly */
+      header, .card, .note, .table { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Printer-friendly sizing */
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li, .table { font-size: 12.2px; }
+
+      /* Remove automatic URL printing */
+      a[href]::after { content: "" !important; }
+
+      .chip {
+        border-color: #ddd;
+        background: #f7f7f7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">📘 Part 4 — Project Planning</p>
+      <h1>🗺️ Application Planning: Fast React Pizza (No Demo App)</h1>
+      <p class="subtitle">
+        A step-by-step planning process for building a professional React application as if for a real client.
+      </p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">🧾 Requirements</span>
+        <span class="chip">📄 Pages</span>
+        <span class="chip">🧩 Feature categories</span>
+        <span class="chip">🧠 State domains</span>
+        <span class="chip">🧰 Tech decisions</span>
+        <span class="chip">🍕 Fast React Pizza</span>
+      </div>
+    </header>
+
+    <section class="card soft">
+      <h2>🎯 Why we plan first (and why there’s no demo)</h2>
+      <p>
+        In this project, there is <strong>no demo application</strong>. The course pretends you are building the app for a
+        <strong>real client</strong>, so you start with planning.
+      </p>
+      <div class="note">
+        ✅ Planning helps reduce intimidation: big apps become manageable when broken into smaller steps.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🏢 The fictional client</h2>
+      <p>
+        The client is the <strong>Fast React Pizza Company</strong> (from the first project in the course).
+        They already have a backend API.
+        Your job: build the <strong>front end</strong> so customers can order pizzas for delivery.
+      </p>
+      <div class="note warn">
+        ⚠️ Important constraint: you are building UI + frontend logic.
+        The menu and orders come from an existing API.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🧠 From “Thinking in React” to “Planning a real app”</h2>
+      <p>
+        The “Thinking in React” process is still valid:
+      </p>
+      <ul>
+        <li>🧩 Break UI into components</li>
+        <li>🧱 Build a static version first</li>
+        <li>🔁 Then design state + data flow</li>
+      </ul>
+      <p>
+        But for larger apps with multiple pages and many features, you need a broader framework.
+      </p>
+      <div class="note good">
+        ✅ New approach: apply those steps <strong>per page</strong> and <strong>per feature area</strong>, after defining requirements.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧭 The 4-step planning framework (lecture summary)</h2>
+      <ol>
+        <li>🧾 <strong>Gather requirements</strong> (what the business expects)</li>
+        <li>📄 <strong>Divide into pages</strong> (based on requirements)</li>
+        <li>🧩 <strong>Group features into categories</strong> (organize the code and mental model)</li>
+        <li>🧰 <strong>Make technology decisions</strong> (routing, styling, state/data tools)</li>
+      </ol>
+      <div class="note warn">
+        ⚠️ Real projects are not perfectly linear.
+        You often go back and forth, but this gives you strong guidance.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>1) 🧾 Business requirements (what the app must do)</h2>
+      <ul>
+        <li>🍕 Users can order <strong>one or more pizzas</strong> from a menu.</li>
+        <li>🙅 No user accounts; no login. Users enter a <strong>name</strong> to start.</li>
+        <li>📋 Menu changes over time and must be <strong>loaded from an API</strong>.</li>
+        <li>🛒 Users need a <strong>cart</strong> to hold multiple pizzas and adjust quantities.</li>
+        <li>📦 Checkout requires: <strong>name, phone number, address</strong>.</li>
+        <li>📍 Optional: include <strong>GPS location</strong> to help delivery.</li>
+        <li>⚡ Users can mark an order as <strong>priority</strong> (+20% cost).</li>
+        <li>📨 Placing an order = send a <strong>POST request</strong> with user + cart data.</li>
+        <li>💵 Payments are made on delivery (no online payment processing).</li>
+        <li>🆔 After order placement, show a <strong>unique order ID</strong> so users can look up status.</li>
+        <li>🔁 Users can mark an existing order as <strong>priority even after it’s placed</strong>.</li>
+      </ul>
+      <div class="note">
+        ✅ This requirements list becomes the source-of-truth for your features.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>2) 🧩 Feature categories (the app’s main domains)</h2>
+      <p>
+        From the requirements, the lecture derives four major feature categories.
+        This becomes your high-level project map.
+      </p>
+      <ul>
+        <li>👤 <strong>User</strong> — name input and user-related UI state</li>
+        <li>📋 <strong>Menu</strong> — fetch and display pizzas from the API</li>
+        <li>🛒 <strong>Cart</strong> — add/remove items, update quantities</li>
+        <li>🧾 <strong>Order</strong> — create new order, view order by ID, mark priority</li>
+      </ul>
+      <div class="note good">
+        ✅ All features you build should belong to one of these categories.
+        This helps keep the codebase organized.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3) 📄 Pages and routes (derived from requirements)</h2>
+      <p class="muted">The lecture proposes the following pages:</p>
+
+      <table class="table" aria-label="Pages and responsibilities">
+        <thead>
+          <tr>
+            <th>Page</th>
+            <th>Example URL</th>
+            <th>Purpose</th>
+            <th>Main feature category</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🏠 Home</td>
+            <td><code>/</code></td>
+            <td>Enter user name to start using the app</td>
+            <td>👤 User</td>
+          </tr>
+          <tr>
+            <td>📋 Menu</td>
+            <td><code>/menu</code> (or similar)</td>
+            <td>Display pizzas loaded from the API</td>
+            <td>📋 Menu</td>
+          </tr>
+          <tr>
+            <td>🛒 Cart</td>
+            <td><code>/cart</code> (or similar)</td>
+            <td>Review cart and adjust quantities</td>
+            <td>🛒 Cart</td>
+          </tr>
+          <tr>
+            <td>🧾 New Order</td>
+            <td><code>/order/new</code></td>
+            <td>Place a new order (name/phone/address + cart)</td>
+            <td>🧾 Order</td>
+          </tr>
+          <tr>
+            <td>🔎 Order Lookup</td>
+            <td><code>/order/:orderId</code></td>
+            <td>View existing order status by ID</td>
+            <td>🧾 Order</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        ✅ Notice the routing convention:
+        both order routes share the <code>/order</code> prefix, which keeps the URL structure consistent.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>4) 🧠 State management (classify state by type)</h2>
+      <p>
+        The lecture uses the feature categories as “state domains” (similar to Redux “slices”).
+        Then it classifies each domain as either <strong>UI state</strong> or <strong>remote state</strong>.
+      </p>
+
+      <table class="table" aria-label="State classification">
+        <thead>
+          <tr>
+            <th>Domain</th>
+            <th>Type</th>
+            <th>Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>👤 User</td>
+            <td>🌐 Global UI state</td>
+            <td>No accounts; user info stays inside the app</td>
+          </tr>
+          <tr>
+            <td>📋 Menu</td>
+            <td>☁️ Global remote state</td>
+            <td>Fetched from an API; lives on the server</td>
+          </tr>
+          <tr>
+            <td>🛒 Cart</td>
+            <td>🌐 Global UI state</td>
+            <td>No API storage in this simple version</td>
+          </tr>
+          <tr>
+            <td>🧾 Order</td>
+            <td>☁️ Global remote state</td>
+            <td>Created/fetched via API; order status lives on server</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note warn">
+        ⚠️ These classifications influence your technology choices.
+        UI state and remote state often benefit from different tools.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧰 Technology decisions (the project’s tech stack)</h2>
+      <ul>
+        <li>🧭 <strong>Routing:</strong> React Router (standard for SPA routing)</li>
+        <li>🎨 <strong>Styling:</strong> Tailwind CSS (popular/trendy; good to learn and practice)</li>
+        <li>☁️ <strong>Remote state/data fetching:</strong> React Router v6.4+ data loading capabilities</li>
+        <li>🌐 <strong>UI state:</strong> Redux (practice in a real-world-ish scenario; good for complex UI state)</li>
+      </ul>
+
+      <div class="note">
+        ✅ Important nuance from the lecture: this is not “the best stack for all apps.”
+        It’s a stack chosen to explore specific modern tools and patterns.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🧠 New concept preview: “render as you fetch” vs “fetch on render”</h2>
+      <p>
+        React Router data loading enables a different strategy from what you used before.
+        The lecture mentions:
+      </p>
+      <ul>
+        <li>🕒 <strong>Fetch on render</strong>: component renders first, then fetch happens</li>
+        <li>⚡ <strong>Render as you fetch</strong>: start fetch earlier, coordinate data with the route</li>
+      </ul>
+      <div class="note warn">
+        ⚠️ You will learn what these mean in practice in upcoming lessons.
+        For now, remember: this is one reason they want to explore React Router’s modern data APIs.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>✅ Summary (memorize this structure)</h2>
+      <ol>
+        <li>🧾 Requirements → what the business needs</li>
+        <li>🧩 Feature categories → user/menu/cart/order</li>
+        <li>📄 Pages/routes → home, menu, cart, order/new, order/:id</li>
+        <li>🧠 State classification → UI vs remote</li>
+        <li>🧰 Tech decisions → Router + Tailwind + Router Data APIs + Redux</li>
+      </ol>
+      <div class="note good">
+        ✅ This planning method is reusable for your own future projects.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="card">
+      <h2>➡️ What’s next</h2>
+      <p>
+        Enough planning — next you return to code and build the application based on this plan.
+      </p>
+    </section>
+
+    <footer class="muted" style="margin-top:16px; font-size:12px;">
+      Print format: A4, single-column, word-wrapped, clean margins.
+    </footer>
+  </main>
+</body>
+</html>

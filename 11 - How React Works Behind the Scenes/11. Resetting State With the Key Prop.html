@@ -1,0 +1,333 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Resetting State with the key Prop</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --soft2:#fbfbfc;
+      --accent:#0b57d0;
+      --good:#0a7a2f;
+      --warn:#8a5a00;
+      --bad:#b42318;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, sans-serif;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px 44px;
+    }
+
+    header{
+      border-bottom:1px solid var(--border);
+      padding-bottom:14px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: .1px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    h2{
+      font-size: 16px;
+      margin: 18px 0 8px;
+    }
+
+    h3{
+      font-size: 14px;
+      margin: 14px 0 6px;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 20px; padding:0; }
+    li{ margin: 4px 0; }
+
+    .card{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 10px 0;
+    }
+
+    .callout{
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.good{ border-left-color: var(--good); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.bad{ border-left-color: var(--bad); }
+
+    .label{
+      display:inline-block;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing:.2px;
+      padding: 2px 8px;
+      border:1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      margin-bottom: 6px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .code{
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: #0b1020;
+      color: #eef2ff;
+      padding: 10px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.08);
+      overflow: auto;
+      line-height: 1.45;
+    }
+
+    .code .dim{ opacity: .78; }
+
+    .kbd{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    .mini{
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .divider{
+      height:1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    /* Print settings */
+    @page{
+      size: A4;
+      margin: 16mm;
+    }
+    @media print{
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; padding: 0; }
+      a, a:visited{ color: inherit; text-decoration: none; }
+      .no-print{ display:none !important; }
+      .card, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      .code{ break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>⚛️ React Study Guide: Resetting State with the <span class="kbd">key</span> Prop</h1>
+      <p class="subtitle">Topic: Diffing rules → same element keeps state, changing <span class="kbd">key</span> forces a new instance (state reset). Single-column, A4 print-ready.</p>
+    </header>
+
+    <section class="callout">
+      <div class="label">🎯 Goal</div>
+      <p>
+        Understand how adding/changing the <strong>key</strong> prop can <strong>reset component state</strong> by forcing React to treat a component as a <strong>new instance</strong>.
+      </p>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>1) The Problem in the Tabbed UI 😵‍💫</h2>
+        <p>
+          In the demo app, <strong>TabContent</strong> has internal state (e.g., <em>showDetails</em>, <em>likes</em>). When you switch between tabs, you might expect the state to reset.
+          But it doesn’t—because React keeps the <strong>same component type in the same tree position</strong>.
+        </p>
+        <ul>
+          <li>✅ Same component type (e.g., <span class="kbd">TabContent</span>)</li>
+          <li>✅ Same position in the component tree</li>
+          <li>➡️ Result: <strong>state is preserved</strong> across renders</li>
+        </ul>
+      </div>
+
+      <div class="callout good">
+        <div class="label">🧠 Key idea</div>
+        <p>
+          React doesn’t reset state just because “props changed” or “tab changed.”
+          State resets when React decides it’s a <strong>different component instance</strong>.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>2) Why State Is Preserved 🧩</h2>
+        <p>
+          React’s diffing (reconciliation) has a rule:
+        </p>
+        <ul>
+          <li>📌 <strong>Same element type + same position</strong> → keep DOM node and keep component state.</li>
+          <li>📌 If only props/attributes change → React updates props/attributes but <strong>does not destroy</strong> the instance.</li>
+        </ul>
+        <p class="mini">
+          That’s why likes + hidden details stay the same when you move between tabs that still render <span class="kbd">&lt;TabContent /&gt;</span> in the same place.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>3) The Fix: Force a Remount Using <span class="kbd">key</span> 🔁</h2>
+        <p>
+          The <strong>key</strong> prop is a special hint to React.
+          If the <strong>key changes</strong> between renders, React treats it as:
+        </p>
+        <ul>
+          <li>🗑️ Destroy the old instance (state is lost)</li>
+          <li>🆕 Create a brand-new instance (fresh state)</li>
+        </ul>
+
+        <div class="callout warn">
+          <div class="label">⚠️ Important</div>
+          <p>
+            This is different from using keys in lists (where keys help preserve identity). Here we intentionally make identity change to reset state.
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>4) Code: Before vs After 💻</h2>
+        <h3>Before (state gets preserved across tab changes)</h3>
+        <pre class="code"><span class="dim">// Tabbed.jsx (simplified)</span>
+return (
+  &lt;div&gt;
+    &lt;TabContent item={content[activeTab]} /&gt;
+  &lt;/div&gt;
+);
+</pre>
+
+        <h3>After (state resets when changing tabs)</h3>
+        <p class="mini">Pick a value that changes per tab (unique per tab). In the lecture, they used <strong>summary</strong> because it’s different per item.</p>
+        <pre class="code"><span class="dim">// Tabbed.jsx (simplified)</span>
+return (
+  &lt;div&gt;
+    &lt;TabContent
+      key={content[activeTab].summary}
+      item={content[activeTab]}
+    /&gt;
+  &lt;/div&gt;
+);
+</pre>
+
+        <div class="callout good">
+          <div class="label">✅ Result</div>
+          <p>
+            Switch tabs → <span class="kbd">key</span> changes → React remounts <span class="kbd">TabContent</span> → likes/details reset automatically.
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>5) Choosing a Good Key 🧷</h2>
+        <p>
+          For “reset state” use-cases, you want the key to change when you want a reset.
+          For example:
+        </p>
+        <ul>
+          <li>✅ Best: stable unique id (e.g., <span class="kbd">item.id</span>)</li>
+          <li>✅ Acceptable for demos: unique text like <span class="kbd">item.summary</span> (only if guaranteed unique)</li>
+          <li>❌ Avoid: array index when order can change (can cause confusing remounts)</li>
+        </ul>
+        <div class="callout warn">
+          <div class="label">⚠️ Pitfall</div>
+          <p>
+            If <span class="kbd">summary</span> is not truly unique (two tabs share the same text), React might reuse the instance and state may not reset.
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>6) Mental Model (Beginner-Friendly) 🧠✨</h2>
+        <p>
+          Think of a component instance like a “box with memory.”
+        </p>
+        <ul>
+          <li>Same box, same spot → memory stays.</li>
+          <li>Different box (new key) → brand new memory.</li>
+        </ul>
+        <p class="mini">
+          Changing <span class="kbd">key</span> is like telling React: “Do not reuse the old box. Create a new one.”
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>7) Quick Self-Check Quiz ✅</h2>
+        <ol>
+          <li><strong>Why</strong> does TabContent keep its state when switching tabs? (Hint: element type + position)</li>
+          <li>What does React do when a component’s <span class="kbd">key</span> changes?</li>
+          <li>When is it better to use <span class="kbd">item.id</span> than <span class="kbd">item.summary</span> for a key?</li>
+        </ol>
+
+        <div class="divider"></div>
+
+        <h3>Answer key (short)</h3>
+        <ul>
+          <li>1) Same component type in the same tree position → React preserves instance + state.</li>
+          <li>2) React unmounts old instance and mounts a new one → state resets.</li>
+          <li>3) When you need guaranteed uniqueness and stability (especially real apps/data from APIs).</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <div class="label">📌 Takeaway</div>
+        <p>
+          Use <span class="kbd">key</span> not only for lists—also as a powerful tool to <strong>control identity</strong> of component instances and intentionally <strong>reset state</strong> when needed.
+        </p>
+      </div>
+    </section>
+
+    <footer class="mini">
+      <div class="divider"></div>
+      <p>
+        Print tip: Use <span class="kbd">Ctrl</span> + <span class="kbd">P</span> (Windows) or <span class="kbd">Cmd</span> + <span class="kbd">P</span> (Mac), then choose A4 and “Fit to page”.
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

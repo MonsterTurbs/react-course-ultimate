@@ -1,0 +1,370 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Fetching Weather Data (Class Components + Async + setState)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .compare{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 4px;
+      font-size: 13.5px;
+    }
+    .compare th,
+    .compare td{
+      border:1px solid var(--border);
+      padding: 10px 10px;
+      vertical-align: top;
+    }
+    .compare th{
+      background: var(--panel);
+      text-align:left;
+      font-weight:700;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+    .danger{ color: var(--danger); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🌦️ React Study Guide: Fetching Weather Data (Class Components)</h1>
+      <p class="subtitle">In this lecture, we connect the search location to a real API and store results in component state: <strong>geocoding → fetch weather → isLoading UI → displayLocation + weather state</strong>.</p>
+      <div class="meta">
+        <span class="chip">🌍 API: Open-Meteo</span>
+        <span class="chip">🧭 Geocoding → lat/lng</span>
+        <span class="chip">🧠 State: <code>isLoading</code>, <code>displayLocation</code>, <code>weather</code></span>
+        <span class="chip">🧵 Async: <code>async/await</code> + <code>try/catch/finally</code></span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Goal</h2>
+      <p>Fetch weather data based on the user’s typed location and store the result in state so we can render it in the UI.</p>
+      <ul>
+        <li>⌨️ User types a location (controlled input)</li>
+        <li>🖱️ User clicks “Get Weather”</li>
+        <li>🧭 We geocode the text → get <strong>latitude</strong>, <strong>longitude</strong>, <strong>timezone</strong>, etc.</li>
+        <li>🌦️ We fetch weather for that lat/lng</li>
+        <li>⏳ We show a loading indicator using <code>isLoading</code></li>
+        <li>🏙️ We store a “clean” city name in <code>displayLocation</code> (e.g., “Lon” becomes “London”)</li>
+        <li>📦 We store the weather response in <code>weather</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📦 Starter utilities (what you copy from <code>starter.js</code>)</h2>
+      <p>The starter file contains helper functions used later for nicer UI output:</p>
+      <ul>
+        <li>🖼️ Weather icon mapping (turns weather codes into icons)</li>
+        <li>🏳️ Country code → emoji flag</li>
+        <li>📅 Format a date into a weekday label (Mon, Tue, …)</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Important:</strong> The lecture focuses on extracting only the <em>fetch logic</em> from a helper like <code>getWeatherLocation</code> and placing it into the class method we already created (e.g., <code>fetchWeather</code>).
+      </div>
+    </section>
+
+    <section>
+      <h2>🧵 Step 1: Turn the handler into an <code>async</code> class method</h2>
+      <p>If your handler uses <code>await</code>, it must be declared as <code>async</code>:</p>
+      <pre><code>async fetchWeather() {
+  // now we can use await
+}</code></pre>
+
+      <div class="callout">
+        <strong>Reminder:</strong> Since this is a class method passed to JSX, make sure it’s bound in the constructor (from the previous lecture):
+        <br /><code>this.fetchWeather = this.fetchWeather.bind(this);</code>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧭 Step 2: Geocode the typed location (text → lat/lng)</h2>
+      <p>The weather API needs coordinates, so first you call a geocoding endpoint with <code>this.state.location</code>:</p>
+
+      <pre><code>const location = this.state.location;
+
+const geoRes = await fetch(
+  `https://geocoding-api.open-meteo.com/v1/search?name=${location}`
+);
+const geoData = await geoRes.json();
+
+// Choose the best match (first result)
+const { latitude, longitude, timezone, name, country_code } = geoData.results[0];</code></pre>
+
+      <div class="callout">
+        <strong>Why we keep “displayLocation”:</strong> APIs often return a cleaner or more complete name than what the user typed.
+      </div>
+    </section>
+
+    <section>
+      <h2>🌦️ Step 3: Fetch the weather using the coordinates</h2>
+      <p>Once you have <code>latitude</code>, <code>longitude</code>, and <code>timezone</code>, you call the weather endpoint:</p>
+
+      <pre><code>const weatherRes = await fetch(
+  `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&timezone=${timezone}&daily=weathercode,temperature_2m_max,temperature_2m_min`
+);
+const weatherData = await weatherRes.json();
+
+// weatherData.daily contains the values we need for the UI later</code></pre>
+
+      <div class="callout">
+        <strong>Concept:</strong> This is a two-step fetch:
+        <br />1) location text → coordinates
+        <br />2) coordinates → weather
+      </div>
+    </section>
+
+    <section>
+      <h2>⏳ Step 4: Add <code>isLoading</code> state + conditional rendering</h2>
+      <p>We want to show a loading indicator while fetching. In class components, all state lives inside one object:</p>
+
+      <div class="rule">
+        <h3>Add the new state field</h3>
+        <pre><code>this.state = {
+  location: "Lisbon",
+  isLoading: false,
+};</code></pre>
+      </div>
+
+      <div class="rule">
+        <h3>Update loading state in the fetch method</h3>
+        <pre><code>async fetchWeather() {
+  try {
+    this.setState({ isLoading: true });
+
+    // ... await geo + weather fetch
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    this.setState({ isLoading: false });
+  }
+}</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Important difference vs <code>useState</code>:</strong> In class components, <code>this.setState({ isLoading: true })</code> only updates the specified fields and <em>does not overwrite</em> the whole state object.
+      </div>
+
+      <div class="rule">
+        <h3>Render a loading message</h3>
+        <pre><code>{this.state.isLoading &amp;&amp; (
+  &lt;p className="loader"&gt;Loading...&lt;/p&gt;
+)}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>🏙️ Step 5: Store data in state for the UI</h2>
+      <p>To display results, we add two more state fields:</p>
+      <ul>
+        <li>🏙️ <code>displayLocation</code> — starts empty, then becomes the API’s returned city name</li>
+        <li>📦 <code>weather</code> — starts as an empty object, then becomes the weather response</li>
+      </ul>
+
+      <pre><code>this.state = {
+  location: "Lisbon",
+  isLoading: false,
+  displayLocation: "",
+  weather: {},
+};</code></pre>
+
+      <div class="rule">
+        <h3>Update state after data is fetched</h3>
+        <pre><code>// after geocoding
+this.setState({
+  displayLocation: name,
+});
+
+// after fetching weather
+this.setState({
+  weather: weatherData,
+});</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>DevTools check:</strong> You can inspect the component and verify that <code>displayLocation</code> and <code>weather</code> are populated after clicking “Get Weather”.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Common issues to watch for</h2>
+      <ul>
+        <li class="warn"><strong>Using <code>await</code> in a non-async method</strong> → mark the method as <code>async</code>.</li>
+        <li class="warn"><strong>Referencing <code>location</code> directly</strong> → use <code>this.state.location</code>.</li>
+        <li class="warn"><strong>Loading indicator stuck</strong> → ensure <code>finally</code> sets <code>isLoading</code> back to <code>false</code>.</li>
+        <li class="warn"><strong><code>this</code> undefined in click handler</strong> → bind the handler in the constructor.</li>
+        <li class="warn"><strong>No geocoding results</strong> → handle the case where <code>geoData.results</code> is missing/empty (improvement for later).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>🧵 Use <code>async/await</code> + <code>try/catch/finally</code> for clean fetch logic.</li>
+        <li>🧭 Convert location text to coordinates before requesting weather.</li>
+        <li>⏳ Manage loading UI with <code>isLoading</code> state.</li>
+        <li>🏙️ Store a clean city name in <code>displayLocation</code> for user-friendly output.</li>
+        <li>📦 Store the fetched weather response in <code>weather</code> for rendering next lecture.</li>
+        <li>🏛️ In class components, <code>this.setState</code> merges partial updates (doesn’t replace the entire state object).</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Next lecture:</strong> render the fetched weather data into the UI using the helpers (weekday formatting, icons, etc.).
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

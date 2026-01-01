@@ -1,0 +1,391 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Creating useLocalStorageState (useState + localStorage)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .compare{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 4px;
+      font-size: 13.5px;
+    }
+    .compare th,
+    .compare td{
+      border:1px solid var(--border);
+      padding: 10px 10px;
+      vertical-align: top;
+    }
+    .compare th{
+      background: var(--panel);
+      text-align:left;
+      font-weight:700;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+    .danger{ color: var(--danger); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🧠 React Study Guide: Creating <code>useLocalStorageState</code> (useState + localStorage)</h1>
+      <p class="subtitle">We build a custom hook that behaves like <code>useState</code>, but automatically syncs the state value to <strong>localStorage</strong> (persisted across page reloads).</p>
+      <div class="meta">
+        <span class="chip">🧷 Custom Hook: <strong>useLocalStorageState</strong></span>
+        <span class="chip">💾 Persist: localStorage</span>
+        <span class="chip">🧠 Pattern: lazy init + effect sync</span>
+        <span class="chip">📦 Return: <code>[value, setValue]</code></span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Goal of this lecture</h2>
+      <p>We want to replace two separate pieces of code:</p>
+      <ul>
+        <li>1) ✅ <strong>Initialize state</strong> from localStorage (or fallback to initial state)</li>
+        <li>2) ✅ <strong>Persist updates</strong> by writing state back to localStorage whenever it changes</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Result:</strong> your component code becomes cleaner, and persistence becomes reusable.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Desired API: “just like useState”</h2>
+      <p>The lecture designs the hook to look/feel like <code>useState</code>:</p>
+      <ul>
+        <li>✅ You pass an <strong>initial value</strong></li>
+        <li>✅ You get back <strong>two items</strong>: a value and a setter</li>
+        <li>➕ But you also pass a <strong>key</strong> (needed for localStorage)</li>
+      </ul>
+
+      <pre><code>// App.jsx
+const [watched, setWatched] = useLocalStorageState([], "watched");</code></pre>
+
+      <div class="callout">
+        <strong>Why the key?</strong> localStorage is key-value storage, so the hook must know which key to read/write.
+      </div>
+    </section>
+
+    <section>
+      <h2>📁 Create the hook file</h2>
+      <p>Create a new file in <code>src</code>:</p>
+      <pre><code>src/useLocalStorageState.js</code></pre>
+
+      <p>Then export the hook function (named export):</p>
+      <pre><code>export function useLocalStorageState(initialState, key) {
+  // ...
+}</code></pre>
+    </section>
+
+    <section>
+      <h2>🧷 Step 1: Read from localStorage (lazy initialization)</h2>
+      <p>We use the “lazy init” form of <code>useState</code> (initializer function) so the localStorage read happens only once on mount.</p>
+
+      <pre><code>import { useEffect, useState } from "react";
+
+export function useLocalStorageState(initialState, key) {
+  const [value, setValue] = useState(() =&gt; {
+    const storedValue = localStorage.getItem(key);
+
+    // ✅ If something exists in storage, use it
+    if (storedValue) return JSON.parse(storedValue);
+
+    // ✅ Otherwise fallback to the provided initial state
+    return initialState;
+  });
+
+  // ...
+}</code></pre>
+
+      <div class="callout">
+        <strong>Why JSON.parse?</strong> localStorage stores only strings. We stored data via <code>JSON.stringify</code>, so we convert it back.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧷 Step 2: Write updates back to localStorage (effect sync)</h2>
+      <p>Whenever <code>value</code> or <code>key</code> changes, persist it:</p>
+
+      <pre><code>useEffect(() =&gt; {
+  localStorage.setItem(key, JSON.stringify(value));
+}, [value, key]);</code></pre>
+
+      <div class="callout">
+        <strong>Important:</strong> This keeps state and localStorage synchronized automatically.
+      </div>
+    </section>
+
+    <section>
+      <h2>📦 Step 3: Return the same shape as useState</h2>
+      <p>Return an array just like <code>useState</code>:</p>
+
+      <pre><code>return [value, setValue];</code></pre>
+
+      <p class="muted">This allows destructuring exactly like state.</p>
+    </section>
+
+    <section>
+      <h2>✅ Full hook implementation (complete)</h2>
+      <pre><code>import { useEffect, useState } from "react";
+
+export function useLocalStorageState(initialState, key) {
+  const [value, setValue] = useState(() =&gt; {
+    const storedValue = localStorage.getItem(key);
+    if (storedValue) return JSON.parse(storedValue);
+    return initialState;
+  });
+
+  useEffect(() =&gt; {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [value, key]);
+
+  return [value, setValue];
+}</code></pre>
+
+      <div class="callout">
+        <strong>Behavior:</strong>
+        <ul>
+          <li>On first load, reads from storage (or uses initialState).</li>
+          <li>On updates, writes the new value to storage.</li>
+          <li>On reload, the last stored value comes back automatically.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧨 Common bug & fix: when nothing exists in storage</h2>
+      <p>If the key doesn’t exist yet, <code>localStorage.getItem(key)</code> returns <code>null</code>.</p>
+      <p>If you directly parse and return it, your state becomes <code>null</code>, and code like <code>watched.map(...)</code> crashes.</p>
+
+      <div class="rule">
+        <h3 class="danger">❌ Bad (can set state to null)</h3>
+        <pre><code>const [value, setValue] = useState(() =&gt; JSON.parse(localStorage.getItem(key)));</code></pre>
+      </div>
+
+      <div class="rule">
+        <h3 class="ok">✅ Good (fallback to initial state)</h3>
+        <pre><code>const storedValue = localStorage.getItem(key);
+if (storedValue) return JSON.parse(storedValue);
+return initialState;</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Nice side-effect:</strong> After the first render, the effect writes the initial state (e.g., <code>[]</code>) to localStorage.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Mental model recap</h2>
+      <table class="compare" aria-label="State + localStorage flow">
+        <thead>
+          <tr>
+            <th>When?</th>
+            <th>What happens?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Initial mount</strong></td>
+            <td>
+              <ul>
+                <li>Initializer function runs once.</li>
+                <li>Reads from localStorage.</li>
+                <li>Falls back to initialState if nothing exists.</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>After render</strong></td>
+            <td>
+              <ul>
+                <li><code>useEffect</code> runs.</li>
+                <li>Writes current value to localStorage.</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Updates</strong></td>
+            <td>
+              <ul>
+                <li>Setter updates state.</li>
+                <li>Effect re-runs and syncs to localStorage.</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>📝 Mini practice</h2>
+      <ul>
+        <li>✅ Use <code>useLocalStorageState</code> to store a theme preference: <code>"light"</code> or <code>"dark"</code>.</li>
+        <li>✅ Store a sidebar toggle boolean so it stays after refresh.</li>
+        <li>✅ Try changing the key string and notice it reads/writes to a different storage slot.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>🧷 <code>useLocalStorageState</code> behaves like <code>useState</code>, but persists to localStorage.</li>
+        <li>🧠 Use lazy initialization to read from storage only once on mount.</li>
+        <li>💾 Use an effect to sync updates back to storage.</li>
+        <li>✅ Always fall back to <code>initialState</code> if storage is empty.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

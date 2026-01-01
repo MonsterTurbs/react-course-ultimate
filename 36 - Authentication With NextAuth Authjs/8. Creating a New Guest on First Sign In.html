@@ -1,0 +1,509 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Auth.js (NextAuth v5) — Create Guest on First Sign-In (Reviewer)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#5b5b5b;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --accent:#0b57d0;
+      --accent2:#0f766e;
+      --danger:#b42318;
+      --codebg:#0b1020;
+      --codetext:#e6edf3;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 100%);
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+    }
+
+    h1{
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .chips{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      display:inline-block;
+      font-size: 12px;
+      padding: 4px 10px;
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 999px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    nav.toc{
+      margin-top: 14px;
+      border-top: 1px dashed var(--border);
+      padding-top: 12px;
+    }
+
+    nav.toc h2{
+      font-size: 14px;
+      margin: 0 0 8px;
+    }
+
+    nav.toc ol{
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    nav.toc a{ color: var(--accent); text-decoration:none; }
+    nav.toc a:hover{ text-decoration: underline; }
+
+    section{
+      margin-top: 18px;
+      padding: 16px 16px 12px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background:#fff;
+    }
+
+    section h2{
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    section h3{
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    p{ margin: 0 0 10px; }
+    ul{ margin: 0 0 10px; padding-left: 20px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--accent);
+      background: #f5f9ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0 12px;
+    }
+
+    .callout.success{ border-left-color: var(--accent2); background:#f2fbf9; }
+    .callout.warn{ border-left-color: #c98a07; background:#fffaf0; }
+    .callout.danger{ border-left-color: var(--danger); background:#fff5f5; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .panel{
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .kpi{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    code.inline{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      background: #f4f4f4;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codetext);
+      padding: 12px;
+      border-radius: 12px;
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,.08);
+      margin: 10px 0 12px;
+      white-space: pre-wrap; /* wrap long lines */
+      word-break: break-word;
+    }
+    pre code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    .hr{
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .mini{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 12px;
+      font-size: 13px;
+    }
+    .table th,
+    .table td{
+      border: 1px solid var(--border);
+      padding: 8px;
+      vertical-align: top;
+    }
+    .table th{
+      background: var(--panel);
+      text-align: left;
+    }
+
+    footer{
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    /* Print */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header, section{ box-shadow: none !important; }
+      nav.toc a{ color: #000; text-decoration:none; }
+
+      /* Do not show URLs when printing */
+      a[href]::after{ content: "" !important; }
+
+      /* Avoid cutting blocks */
+      header, section, pre, table{ break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 Create a New Guest on First Sign-In (Auth.js + Supabase)</h1>
+      <p class="subtitle">
+        Reviewer / Study Guide (Next.js App Router) — connecting authenticated users (Google via Auth.js) to a <strong>Guests</strong> row in Supabase.
+      </p>
+      <div class="chips" aria-label="tags">
+        <span class="chip">✅ Single-column</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+        <span class="chip">🔐 Auth.js (NextAuth v5)</span>
+        <span class="chip">🗄️ Supabase Guests table</span>
+        <span class="chip">🧠 Callbacks: signIn + session</span>
+      </div>
+
+      <nav class="toc" aria-label="Table of contents">
+        <h2>📌 Table of Contents</h2>
+        <ol>
+          <li><a href="#goal">Goal &amp; why it matters</a></li>
+          <li><a href="#data-model">Data model: Guests table</a></li>
+          <li><a href="#flow">High-level flow (what happens on sign-in)</a></li>
+          <li><a href="#signin-callback">Callback 1: <code class="inline">signIn</code> (create guest if missing)</a></li>
+          <li><a href="#session-callback">Callback 2: <code class="inline">session</code> (attach guestId to session)</a></li>
+          <li><a href="#pitfalls">Common pitfalls &amp; fixes</a></li>
+          <li><a href="#cheatsheet">Cheat sheet</a></li>
+        </ol>
+      </nav>
+    </header>
+
+    <section id="goal">
+      <h2>🎯 Goal &amp; why it matters</h2>
+      <p>
+        Authentication (Auth.js) tells you <em>who</em> the user is (name/email/avatar). But your app still needs an internal record in your database.
+        In this project, that internal record is a <strong>Guest</strong> row in Supabase.
+      </p>
+
+      <div class="callout">
+        <strong>Why do we need a Guest row?</strong>
+        <ul>
+          <li>📌 To store profile fields you don’t get from Google (e.g., National ID, nationality, flag).</li>
+          <li>🧾 To associate reservations/bookings to the correct person using <strong>guestId</strong>.</li>
+          <li>🔁 To reuse the same Guest profile every time the user logs in.</li>
+        </ul>
+      </div>
+
+      <p class="mini">
+        Key idea: <strong>On first login</strong>, create a Guest in Supabase. <strong>On every session</strong>, attach <code class="inline">guestId</code> to the session so the app can use it everywhere.
+      </p>
+    </section>
+
+    <section id="data-model">
+      <h2>🗄️ Data model: Guests table</h2>
+      <p>
+        The Supabase <strong>guests</strong> table is your “source of truth” for user-related app data.
+        Each guest is uniquely identified by <code class="inline">email</code>.
+      </p>
+
+      <table class="table" aria-label="guests table fields">
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code class="inline">id</code></td>
+            <td>Primary key used to link bookings/reservations to a guest.</td>
+          </tr>
+          <tr>
+            <td><code class="inline">email</code></td>
+            <td>Unique identifier matching the authenticated user’s email.</td>
+          </tr>
+          <tr>
+            <td><code class="inline">fullName</code></td>
+            <td>Stored name (initially from Google <code class="inline">user.name</code>).</td>
+          </tr>
+          <tr>
+            <td><code class="inline">nationalID</code></td>
+            <td>User-editable value (not provided by Google).</td>
+          </tr>
+          <tr>
+            <td><code class="inline">nationality</code>, <code class="inline">countryFlag</code></td>
+            <td>User-editable (often used in profile UI).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout success">
+        ✅ Practical rule: <strong>email</strong> is how you find the guest; <strong>id</strong> is how you link records (bookings, profile updates, etc.).
+      </div>
+    </section>
+
+    <section id="flow">
+      <h2>🧭 High-level flow (what happens on sign-in)</h2>
+      <div class="panel">
+        <p><strong>Sign-in flow overview</strong> (simplified):</p>
+        <ol class="mini">
+          <li>👤 User authenticates with Google via Auth.js.</li>
+          <li>🧪 Auth.js calls your <code class="inline">signIn</code> callback (before login finalizes).</li>
+          <li>🔎 In <code class="inline">signIn</code>: look up guest by email in Supabase.</li>
+          <li>🆕 If not found: create guest row (await it!).</li>
+          <li>✅ Return <code class="inline">true</code> to continue login, <code class="inline">false</code> to block.</li>
+          <li>🧩 Auth.js calls your <code class="inline">session</code> callback when building the session.</li>
+          <li>🏷️ In <code class="inline">session</code>: fetch guest again and attach <code class="inline">guestId</code> onto <code class="inline">session.user</code>.</li>
+        </ol>
+      </div>
+
+      <div class="callout warn">
+        ⚠️ Why fetch again in <code class="inline">session</code>?
+        <div class="mini">
+          The <code class="inline">signIn</code> callback happens before the session object is finalized.
+          The <code class="inline">session</code> callback is the right moment to safely enrich the session.
+        </div>
+      </div>
+    </section>
+
+    <section id="signin-callback">
+      <h2>🧠 Callback 1: <code class="inline">signIn</code> (create guest if missing)</h2>
+      <p>
+        You add a <code class="inline">signIn</code> callback in your Auth.js config to run logic each time someone signs in.
+        Your job is to:
+      </p>
+      <ul>
+        <li>🔎 Check if a guest already exists for <code class="inline">user.email</code>.</li>
+        <li>🆕 If not, create a new guest row with the minimum info you have.</li>
+        <li>✅ Return <code class="inline">true</code> if everything is okay, otherwise <code class="inline">false</code>.</li>
+      </ul>
+
+      <div class="hr"></div>
+
+      <h3>📦 Example: data-service helpers (conceptual)</h3>
+      <p class="mini">
+        Your app typically has service functions like <code class="inline">getGuest(email)</code> and <code class="inline">createGuest(data)</code>.
+        If no guest exists, <code class="inline">getGuest</code> returns <code class="inline">null</code>.
+      </p>
+
+      <h3>✅ Example: <code class="inline">signIn</code> callback</h3>
+      <pre><code>// In your Auth.js config (callbacks)
+callbacks: {
+  async signIn({ user, account, profile }) {
+    try {
+      const existingGuest = await getGuest(user.email);
+
+      // If guest doesn't exist yet, create one
+      if (!existingGuest)
+        await createGuest({
+          email: user.email,
+          fullName: user.name,
+          // nationalID, nationality, countryFlag can be filled later by the user
+        });
+
+      return true; // allow sign-in
+    } catch (err) {
+      // Something failed (DB down, permissions, etc.)
+      return false; // block sign-in
+    }
+  },
+}
+</code></pre>
+
+      <div class="callout danger">
+        🧨 Critical: <strong>always</strong> <code class="inline">await createGuest(...)</code>.
+        <div class="mini">
+          Without <code class="inline">await</code>, Auth.js may proceed to the session callback before the guest row is created, causing the next step to fail.
+        </div>
+      </div>
+    </section>
+
+    <section id="session-callback">
+      <h2>🏷️ Callback 2: <code class="inline">session</code> (attach <code class="inline">guestId</code> to session)</h2>
+      <p>
+        The <code class="inline">session</code> callback runs after sign-in and whenever the session is accessed (e.g., when you call <code class="inline">auth()</code>).
+        This is the ideal place to enrich the session with your internal database IDs.
+      </p>
+
+      <h3>✅ What we want the session to look like</h3>
+      <div class="panel mini">
+        Instead of only:
+        <ul>
+          <li><code class="inline">session.user.name</code>, <code class="inline">session.user.email</code>, <code class="inline">session.user.image</code></li>
+        </ul>
+        We also want:
+        <ul>
+          <li><code class="inline">session.user.guestId</code> ✅</li>
+        </ul>
+      </div>
+
+      <h3>✅ Example: <code class="inline">session</code> callback</h3>
+      <pre><code>// In your Auth.js config (callbacks)
+callbacks: {
+  // ... signIn above
+
+  async session({ session, user }) {
+    // Find guest by the authenticated user's email
+    const guest = await getGuest(session.user.email);
+
+    // Attach guestId to the session so the app can use it everywhere
+    session.user.guestId = guest.id;
+
+    return session; // IMPORTANT
+  },
+}
+</code></pre>
+
+      <div class="callout">
+        ✅ Result: any server component can call <code class="inline">const session = await auth()</code> and immediately access <code class="inline">session.user.guestId</code>.
+      </div>
+
+      <h3>🧩 Where you will use <code class="inline">guestId</code></h3>
+      <ul>
+        <li>🧾 Fetch “my reservations” → filter bookings by <code class="inline">guestId</code>.</li>
+        <li>✍️ Update profile fields (nationality, national ID, etc.) for the logged-in guest.</li>
+        <li>🛎️ Create new reservations and store <code class="inline">guestId</code> in the booking row.</li>
+      </ul>
+    </section>
+
+    <section id="pitfalls">
+      <h2>🛠️ Common pitfalls &amp; fixes</h2>
+
+      <div class="grid">
+        <div class="panel">
+          <h3>1) Forgot to <code class="inline">await</code> createGuest</h3>
+          <p class="mini">
+            Symptom: session callback can’t find the guest right after first sign-in.
+          </p>
+          <div class="callout danger"><strong>Fix:</strong> <code class="inline">await createGuest(...)</code> inside <code class="inline">signIn</code>.</div>
+        </div>
+
+        <div class="panel">
+          <h3>2) Didn’t return <code class="inline">session</code> in session callback</h3>
+          <p class="mini">
+            Symptom: calling <code class="inline">auth()</code> returns nothing / session becomes broken.
+          </p>
+          <div class="callout danger"><strong>Fix:</strong> <code class="inline">return session;</code> at the end.</div>
+        </div>
+
+        <div class="panel">
+          <h3>3) Unhandled errors inside callbacks</h3>
+          <p class="mini">
+            Error boundaries in your UI won’t catch these (they are part of auth flow).
+          </p>
+          <div class="callout warn"><strong>Fix:</strong> use <code class="inline">try/catch</code> in <code class="inline">signIn</code> and return <code class="inline">false</code> if needed.</div>
+        </div>
+
+        <div class="panel">
+          <h3>4) Assuming guestId exists everywhere automatically</h3>
+          <p class="mini">
+            You only get guestId in places where you call <code class="inline">auth()</code> (server) or use the client session APIs.
+          </p>
+          <div class="callout"><strong>Fix:</strong> standardize session access via <code class="inline">auth()</code> on server components and pass required data down as props.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cheatsheet">
+      <h2>🧾 Cheat sheet</h2>
+      <ul>
+        <li>✅ Use <code class="inline">callbacks.signIn</code> to <strong>create</strong> guest row on first login.</li>
+        <li>✅ Use <code class="inline">callbacks.session</code> to <strong>attach</strong> <code class="inline">guestId</code> to <code class="inline">session.user</code>.</li>
+        <li>✅ Identify guest by <code class="inline">email</code>, link records by <code class="inline">guestId</code>.</li>
+        <li>⚠️ Always <code class="inline">await</code> the DB write inside <code class="inline">signIn</code>.</li>
+        <li>⚠️ Always <code class="inline">return session</code> in the session callback.</li>
+      </ul>
+
+      <div class="callout success">
+        🏁 Once this is in place, you’re ready for server actions:
+        <span class="mini">create reservations, update guest profile, and fetch “my bookings” using <code class="inline">session.user.guestId</code>.</span>
+      </div>
+    </section>
+
+    <footer>
+      <div>Print tip: Use your browser’s “Print” → Paper size: <strong>A4</strong> → Margins: <strong>Default</strong>.</div>
+      <div class="mini">This page intentionally uses a single-column layout and removes URL annotations when printed.</div>
+    </footer>
+  </main>
+</body>
+</html>

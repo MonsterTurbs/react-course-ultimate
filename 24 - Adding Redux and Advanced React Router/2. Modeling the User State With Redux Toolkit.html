@@ -1,0 +1,390 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redux Toolkit — Modeling User State (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #0f7b3a;
+      --warn: #9a6700;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.6rem;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: #222;
+    }
+
+    section {
+      margin-top: 18px;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    section + section { margin-top: 14px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.15rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.02rem;
+    }
+
+    p { margin: 10px 0; }
+
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.good { border-left-color: var(--good); }
+    .callout.warn { border-left-color: var(--warn); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b0b0b;
+      color: #f1f1f1;
+      border-radius: 10px;
+      overflow: auto;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      white-space: pre;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .k {
+      display: inline-block;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--soft);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92em;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 760px) {
+      .two { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Print: A4, clean, no URL clutter */
+    @page { size: A4; margin: 14mm 14mm; }
+
+    @media print {
+      body { color: #000; }
+      .page { max-width: none; padding: 0; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited { color: #000; text-decoration: none; }
+      a[href]::after { content: "" !important; } /* Prevent printing URLs */
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧰 Redux Toolkit — Modeling the User State</h1>
+      <p class="subtitle">Reviewer / study guide based on the lecture transcript (Fast React Pizza Co project).</p>
+      <div class="meta">
+        <span class="chip">📦 Global UI State</span>
+        <span class="chip">🧩 Slice → Store → Provider</span>
+        <span class="chip">🔎 useSelector</span>
+        <span class="chip">🧪 Practice Redux Toolkit</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What this lecture is about</h2>
+      <p>
+        In this section of the project, we start implementing the <strong>heart of the app</strong>: a shopping cart using
+        <strong>Redux Toolkit</strong>. Before the cart, we begin with a simpler piece of global state: the <strong>User</strong>
+        (username now, address later).
+      </p>
+      <div class="callout">
+        <strong>Key idea:</strong> Redux is a strong choice when you have <em>global UI state</em> used across many places in the component tree.
+        😊
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Why the user state should be “global”</h2>
+      <p>
+        The username is needed in multiple places, not just one component. Examples mentioned in the lecture:
+      </p>
+      <ul>
+        <li>👤 Header: show the username when available</li>
+        <li>📝 “Create user” area: decide whether to show/hide certain UI parts</li>
+        <li>🛒 Cart / order flows: display the name and use it in multiple screens</li>
+        <li>✍️ Pre-populate an input field with the username</li>
+      </ul>
+
+      <div class="callout good">
+        <strong>Rule of thumb:</strong> If state is required by many siblings/branches and prop drilling becomes painful, Redux (or Context) becomes attractive.
+        ✅
+      </div>
+    </section>
+
+    <section>
+      <h2>📦 Step 1 — Install Redux Toolkit + React Redux</h2>
+      <p>
+        You’ll use the modern, recommended Redux approach:
+        <strong>Redux Toolkit</strong> + <strong>React Redux</strong>.
+      </p>
+      <pre><code>npm install @reduxjs/toolkit react-redux</code></pre>
+      <p class="callout warn">
+        ⚠️ The course assumes you already completed the earlier Redux section. Otherwise, this part will feel fast.
+      </p>
+    </section>
+
+    <section>
+      <h2>🧩 Step 2 — Create <code>userSlice.js</code></h2>
+      <p>
+        A <strong>slice</strong> is a chunk of your global state, plus the reducers and actions that manage it.
+      </p>
+
+      <div class="two">
+        <div>
+          <h3>✅ Minimal initial state</h3>
+          <ul>
+            <li><code>username</code> starts as an empty string</li>
+            <li>Address can be added later (project grows gradually)</li>
+          </ul>
+        </div>
+        <div>
+          <h3>🧠 What reducer will do</h3>
+          <ul>
+            <li>Handle a single job: <code>updateName</code></li>
+            <li>Set <code>state.username = action.payload</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Example slice (simplified)</h3>
+      <pre><code>import { createSlice } from '@reduxjs/toolkit';
+
+const initialState = {
+  username: '',
+};
+
+const userSlice = createSlice({
+  name: 'user',
+  initialState,
+  reducers: {
+    updateName(state, action) {
+      state.username = action.payload;
+    },
+  },
+});
+
+export const { updateName } = userSlice.actions;
+export default userSlice.reducer;</code></pre>
+
+      <div class="callout">
+        <strong>Why “mutation” is okay here:</strong> Redux Toolkit uses <em>Immer</em> under the hood.
+        You write “mutating” code, but it produces an immutable update safely. 😌
+      </div>
+    </section>
+
+    <section>
+      <h2>🏪 Step 3 — Configure the Redux store (<code>store.js</code>)</h2>
+      <p>
+        The store is the central object that holds all slices. With Redux Toolkit, you use <code>configureStore</code>.
+      </p>
+
+      <pre><code>import { configureStore } from '@reduxjs/toolkit';
+import userReducer from './features/user/userSlice';
+
+const store = configureStore({
+  reducer: {
+    user: userReducer,
+  },
+});
+
+export default store;</code></pre>
+
+      <div class="callout">
+        <strong>Mapping note:</strong> the key <code>user</code> becomes the path in state:
+        <span class="k">state.user</span> → then <span class="k">state.user.username</span>.
+      </div>
+    </section>
+
+    <section>
+      <h2>🔌 Step 4 — Connect Redux to React (Provider in <code>main.jsx</code>)</h2>
+      <p>
+        You normally attach Redux at the top of the component tree so that <em>any</em> component can read/write global state.
+      </p>
+
+      <pre><code>import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
+import store from './store';
+import App from './App';
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  &lt;React.StrictMode&gt;
+    &lt;Provider store={store}&gt;
+      &lt;App /&gt;
+    &lt;/Provider&gt;
+  &lt;/React.StrictMode&gt;
+);</code></pre>
+
+      <div class="callout good">
+        ✅ After this, any component can use <code>useSelector</code> and <code>useDispatch</code>.
+      </div>
+    </section>
+
+    <section>
+      <h2>🔎 Step 5 — Read state using <code>useSelector</code> (Username display)</h2>
+      <p>
+        To read Redux state inside a component, you use <code>useSelector</code> with a selector function.
+      </p>
+
+      <pre><code>import { useSelector } from 'react-redux';
+
+function Username() {
+  const username = useSelector((state) =&gt; state.user.username);
+
+  if (!username) return null; // don't render if empty
+
+  return &lt;p&gt;👋 {username}&lt;/p&gt;;
+}</code></pre>
+
+      <div class="callout">
+        <strong>Beginner tip:</strong> If you see <em>nothing</em> on screen, it might be because the initial username is empty.
+        That is expected. 🙂
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Mini mental model (how everything flows)</h2>
+      <div class="grid">
+        <p><strong>1)</strong> You define the shape of state: <code>initialState</code> (e.g., <code>{ username: '' }</code>).</p>
+        <p><strong>2)</strong> You define how state changes: reducers (e.g., <code>updateName</code>).</p>
+        <p><strong>3)</strong> Redux Toolkit generates action creators: <code>userSlice.actions</code>.</p>
+        <p><strong>4)</strong> Store combines reducers and holds the state tree.</p>
+        <p><strong>5)</strong> Provider exposes store to React.</p>
+        <p><strong>6)</strong> Components read with <code>useSelector</code> and write with <code>useDispatch</code>.</p>
+      </div>
+
+      <div class="callout warn">
+        ⚠️ In this lecture, we only <em>read</em> the username. Updating it (dispatching <code>updateName</code>) is done in the next video.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧷 Common beginner mistakes (and quick fixes)</h2>
+      <ul>
+        <li>😵 <strong>Forgot Provider:</strong> If you get “could not find react-redux context value”, wrap your app with <code>&lt;Provider store={store}&gt;</code>.</li>
+        <li>🧭 <strong>Wrong state path:</strong> If you used <code>reducer: { user: userReducer }</code>, then selector must be <code>state.user.username</code>.</li>
+        <li>📁 <strong>Wrong imports:</strong> <code>createSlice</code> and <code>configureStore</code> come from <code>@reduxjs/toolkit</code>.</li>
+        <li>🫥 <strong>Nothing renders:</strong> username starts empty; render condition <code>if (!username) return null</code> will hide UI.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>✅ Quick self-check (1–2 minutes)</h2>
+      <ul>
+        <li>🧠 Can you explain what a “slice” is in one sentence?</li>
+        <li>🧩 Where do reducers live? Where do actions come from?</li>
+        <li>🔎 What does this selector return: <code>(state) =&gt; state.user.username</code>?</li>
+        <li>🏗️ What file usually wraps the app with the Provider?</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>➡️ What’s next</h2>
+      <p>
+        Next lecture: you will <strong>set the username</strong> from a form by dispatching <code>updateName</code> (and continue building toward the cart state).
+        🚀
+      </p>
+    </section>
+
+  </main>
+</body>
+</html>

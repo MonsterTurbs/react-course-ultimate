@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Application Planning — The Wild Oasis (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f7f7f9;
+      --info: #0b57d0;
+      --ok: #0b7a2a;
+      --warn: #8a4b00;
+      --danger: #b00020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column, print-safe container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout.info { border-left-color: var(--info); }
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.danger { border-left-color: var(--danger); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 860px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 860px) {
+      .kpi { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    .kpi .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .kpi .label {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .kpi .value {
+      margin: 6px 0 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    /* Print rules */
+    @page { size: A4; margin: 18mm; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      pre { overflow: visible; white-space: pre-wrap; word-break: break-word; }
+      .chip { border-color: #dcdcdc; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🏨 Application Planning — “The Wild Oasis” (Internal Hotel App)</h1>
+      <p class="subtitle">
+        Reviewer / study guide based on the transcript: understand the business context, gather requirements, group features,
+        derive pages, and decide the tech stack for a real-world React project.
+      </p>
+      <div class="meta">
+        <span class="chip">🎯 Domain: boutique hotel</span>
+        <span class="chip">🧑‍💼 Users: hotel employees</span>
+        <span class="chip">🗂️ Core data: bookings, cabins, guests</span>
+        <span class="chip">🔐 Needs auth</span>
+        <span class="chip">🗄️ Backend + DB: Supabase</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🌿 Business context (what are we building, for whom, and why?)</h2>
+        <p>
+          We’re building a custom internal application for a small boutique hotel called <strong>The Wild Oasis</strong>,
+          featuring <strong>8 luxurious wooden cabins</strong>.
+        </p>
+
+        <div class="kpi">
+          <div class="box">
+            <p class="label">🏨 Business</p>
+            <p class="value">The Wild Oasis (8 cabins)</p>
+          </div>
+          <div class="box">
+            <p class="label">🧑‍💼 Primary users</p>
+            <p class="value">Hotel staff (internal tool)</p>
+          </div>
+          <div class="box">
+            <p class="label">🧾 Main purpose</p>
+            <p class="value">Manage bookings, cabins, guests</p>
+          </div>
+        </div>
+
+        <div class="callout info">
+          <strong>Important:</strong> This is a <strong>back-office</strong> app (internal management).
+          Later, they may add a customer-facing booking website that uses the same API.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧭 A practical planning recipe (works for React and any web app)</h2>
+        <p>
+          The transcript outlines a simple, repeatable planning flow:
+        </p>
+        <ol>
+          <li>📌 Gather business requirements and list the features.</li>
+          <li>🧩 Divide the app into pages and UI components.</li>
+          <li>🗃️ Group features into feature categories (folders/modules).</li>
+          <li>🧰 Decide the technology stack (routing, styling, data, forms, backend).</li>
+        </ol>
+
+        <div class="callout warn">
+          <strong>Reality check:</strong> In real projects, planning is not perfectly linear.
+          You often refine pages and features as you build. This course does the planning early to keep the learning path clear.
+        </div>
+      </section>
+
+      <section>
+        <h2>✅ Step 1: Requirements → feature categories</h2>
+        <p>
+          The requirements list is long, so the first move is to group it into a few bigger buckets.
+          This helps you avoid thinking about 30 things at once.
+        </p>
+
+        <div class="grid">
+          <div class="callout ok">
+            <p><strong>🔐 Authentication</strong></p>
+            <ul>
+              <li>Login/logout</li>
+              <li>Create staff accounts (users)</li>
+              <li>Protect internal pages</li>
+            </ul>
+          </div>
+          <div class="callout ok">
+            <p><strong>🏡 Cabins</strong></p>
+            <ul>
+              <li>Create / edit / delete cabins</li>
+              <li>Manage cabin details (price, capacity, etc.)</li>
+            </ul>
+          </div>
+          <div class="callout ok">
+            <p><strong>📆 Bookings</strong></p>
+            <ul>
+              <li>View past, current, future bookings</li>
+              <li>Update booking status</li>
+            </ul>
+          </div>
+          <div class="callout ok">
+            <p><strong>🧳 Check-in / Check-out</strong></p>
+            <ul>
+              <li>Check guests in when they arrive</li>
+              <li>Check guests out when they leave</li>
+            </ul>
+          </div>
+          <div class="callout ok">
+            <p><strong>🧑‍🤝‍🧑 Guests</strong></p>
+            <ul>
+              <li>Guest data exists (linked to bookings)</li>
+              <li>Not necessarily a full “manage guests” screen (depends on requirements)</li>
+            </ul>
+          </div>
+          <div class="callout ok">
+            <p><strong>📊 Dashboard</strong></p>
+            <ul>
+              <li>Stats + charts</li>
+              <li>“Business overview” feel</li>
+            </ul>
+          </div>
+          <div class="callout ok">
+            <p><strong>⚙️ Settings</strong></p>
+            <ul>
+              <li>Hotel/app settings (business rules)</li>
+              <li>Account settings (profile, avatar, password)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout info">
+          <strong>Note:</strong> Grouping is subjective. You could merge “Bookings” with “Check-in/out,” but separating them can make the UI and codebase easier to navigate.
+        </div>
+      </section>
+
+      <section>
+        <h2>🗺️ Step 2: Feature categories → pages (routes)</h2>
+        <p>
+          Once you have feature categories, the pages often become obvious. The transcript proposes these core pages:
+        </p>
+
+        <ul>
+          <li>🏠 <strong>Dashboard</strong> (homepage inside the app; combines data from multiple features)</li>
+          <li>📆 <strong>Bookings</strong> (current + past + future)</li>
+          <li>🏡 <strong>Cabins</strong> (list, create, edit, delete)</li>
+          <li>🧳 <strong>Check-in</strong> (route with booking id param, e.g., <code>/checkin/:bookingId</code>)</li>
+          <li>⚙️ <strong>Settings</strong> (app/hotel settings)</li>
+          <li>👤 <strong>Users</strong> (staff management; “signup” happens inside the app)</li>
+          <li>🔑 <strong>Login</strong> (default entry if not authenticated)</li>
+          <li>🪪 <strong>Account</strong> (update profile, avatar, password)</li>
+        </ul>
+
+        <div class="callout warn">
+          <strong>Why no Guests page?</strong>
+          The requirements didn’t mention managing guests (edit/delete) as a standalone feature.
+          Guest data will likely be handled through bookings.
+        </div>
+
+        <div class="callout info">
+          <strong>Important detail:</strong> The “Signup” experience is not public.
+          New users are created by existing users inside the app (so it belongs under “Users”).
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 State discussion (why it’s mostly remote state)</h2>
+        <p>
+          This application is mainly an interface for server data: cabins, bookings, guests, settings.
+          That means most state is <strong>remote state</strong> (server-state), not local UI state.
+        </p>
+        <ul>
+          <li>🌐 Remote state: fetched from API / database</li>
+          <li>🧩 UI state: minimal (modals, toggles, small interactions)</li>
+        </ul>
+        <div class="callout ok">
+          <strong>Implication:</strong> Choose a tool specialized for remote state (React Query) rather than heavy global UI state tools.
+        </div>
+      </section>
+
+      <section>
+        <h2>⚖️ Big tech decision: Client-side rendering (CSR) vs Server-side rendering (SSR)</h2>
+        <p>
+          The transcript briefly compares “Vanilla React SPA” (CSR) vs frameworks (SSR like Next.js/Remix).
+        </p>
+
+        <div class="grid">
+          <div class="callout">
+            <p><strong>🧱 CSR (Vanilla React / SPA)</strong></p>
+            <ul>
+              <li>HTML is generated in the browser</li>
+              <li>Requires downloading JavaScript before app can run</li>
+              <li>Great for apps behind login (internal tools)</li>
+              <li>SEO is usually not important</li>
+            </ul>
+          </div>
+          <div class="callout">
+            <p><strong>🖥️ SSR (Next.js / Remix)</strong></p>
+            <ul>
+              <li>Some HTML rendered on the server</li>
+              <li>Often faster initial load (less JS upfront)</li>
+              <li>Great for public websites (SEO, many users)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout info">
+          <strong>Decision for this project:</strong> Use <strong>client-side rendering (SPA)</strong> with React Router.
+          This app is an internal tool behind a login, so CSR is a perfect fit.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧰 Tech stack (what we will use and why)</h2>
+        <p>
+          After deciding this is a SPA, we assemble the tools:
+        </p>
+
+        <div class="grid">
+          <div class="callout ok">
+            <p><strong>🧭 Routing: React Router</strong></p>
+            <p>
+              “Gold standard” SPA routing: pages, nested layouts, data APIs (loaders/actions), navigation states.
+            </p>
+          </div>
+          <div class="callout ok">
+            <p><strong>🎨 Styling: styled-components</strong></p>
+            <p>
+              CSS-in-JS styling inside components; widely used in production apps.
+            </p>
+          </div>
+          <div class="callout ok">
+            <p><strong>📦 Remote state: React Query</strong></p>
+            <p>
+              Fetching + caching + refetching + pagination + offline helpers; keeps UI consistent with server.
+            </p>
+          </div>
+          <div class="callout ok">
+            <p><strong>🧩 UI state: Context API</strong></p>
+            <p>
+              Minimal UI state, so Context is enough (no Redux needed here).
+            </p>
+          </div>
+          <div class="callout ok">
+            <p><strong>🧾 Forms: React Hook Form</strong></p>
+            <p>
+              Many forms → faster + cleaner than manually creating state for each input.
+            </p>
+          </div>
+          <div class="callout info">
+            <p><strong>🗄️ Backend/DB: Supabase</strong></p>
+            <p>
+              Stores remote data and provides APIs (and often auth). We’ll model data and build the API on top of it.
+            </p>
+          </div>
+        </div>
+
+        <h3>🧩 Extra tools mentioned</h3>
+        <ul>
+          <li>🧷 React Icons (icons)</li>
+          <li>🔔 React Hot Toast (notifications)</li>
+          <li>📈 Recharts (charts for dashboard)</li>
+          <li>📅 date-fns (date utilities)</li>
+          <li>🧠 Supabase client library (API integration)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Simple examples (to make concepts stick)</h2>
+        <h3>📌 Example: turning requirements into features</h3>
+        <pre><code>Requirement: “Staff can check guests in and out”
+
+Feature category: Check-in / Check-out
+
+Possible UI:
+- Check-in page for a booking
+- Button: “Confirm check-in”
+- Button: “Confirm check-out”
+</code></pre>
+
+        <h3>📌 Example: turning features into pages</h3>
+        <pre><code>Feature: Cabins management
+
+Page: /cabins
+- List cabins
+- Create cabin form
+- Edit/delete actions per cabin
+</code></pre>
+
+        <h3>📌 Example: why React Query is a good fit</h3>
+        <pre><code>Problem: You fetch bookings, update a booking, then the UI must update everywhere.
+
+React Query helps by:
+- caching fetched bookings
+- invalidating/refetching after mutations
+- keeping loading/error states consistent
+</code></pre>
+      </section>
+
+      <section>
+        <h2>📝 Quick recall (mini-quiz)</h2>
+        <ol>
+          <li>Why is this hotel app a strong use-case for client-side rendering (SPA)?</li>
+          <li>Name the 3 core business entities we manage in this internal app.</li>
+          <li>Why might we not need a dedicated Guests page?</li>
+          <li>What problem does React Query solve in this app?</li>
+          <li>What is the main difference between PATCH and PUT?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🧾 One-paragraph recap</h2>
+        <p>
+          We’re building an internal back-office application for The Wild Oasis hotel to manage bookings, cabins, and guests.
+          Planning starts by gathering requirements, grouping them into feature categories (auth, cabins, bookings, check-in/out,
+          dashboard, settings, etc.), and then deriving the pages (dashboard, bookings, cabins, check-in, settings, users, login,
+          account). Because this app is behind a login and mostly works with server data, a client-rendered SPA is a great fit.
+          The chosen tech stack is React Router for routing, styled-components for styling, React Query for remote state,
+          Context API for small UI state, React Hook Form for forms, and Supabase for the backend/database.
+        </p>
+      </section>
+
+      <section>
+        <h2>➡️ What’s next</h2>
+        <div class="callout ok">
+          Next lecture: set up the project environment so you can start building features right away.
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

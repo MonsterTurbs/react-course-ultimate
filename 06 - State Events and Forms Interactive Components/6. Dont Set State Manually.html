@@ -1,0 +1,311 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — Don’t Set State Manually (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --code-bg: #0b1020;
+      --code-text: #e7eaf0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      word-wrap: break-word;
+    }
+
+    /* Single-column, print-friendly layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1 {
+      font-size: 26px;
+      margin: 0 0 6px 0;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 22px 0 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 16px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    ul { margin: 10px 0 10px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+    }
+
+    pre {
+      margin: 12px 0;
+      padding: 12px 14px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      overflow: auto;
+      border: 1px solid #111827;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print (A4) */
+    @page { size: A4; margin: 14mm 12mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header { border-bottom: 1px solid #bbb; }
+      h1 { font-size: 20px; }
+      h2 { font-size: 14px; }
+      h3 { font-size: 12.5px; }
+      p, li { font-size: 11.5px; }
+      pre { font-size: 10.5px; page-break-inside: avoid; }
+      .callout { page-break-inside: avoid; }
+
+      /* Do not print URLs after links (print text only) */
+      a[href]::after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>⚠️ React State: Don’t Set State Manually</h1>
+      <p class="subtitle">Reviewer / Study Guide — why you must use the state setter (e.g., <code>setStep</code>) and treat state as immutable.</p>
+    </header>
+
+    <section>
+      <div class="chips" aria-label="topics">
+        <span class="chip">🧠 useState</span>
+        <span class="chip">🔁 Re-render</span>
+        <span class="chip">🧊 Immutability</span>
+        <span class="chip">🧩 Objects & Arrays</span>
+        <span class="chip">✅ Best Practices</span>
+      </div>
+
+      <div class="callout">
+        <strong>✅ Core takeaway</strong>
+        <p>
+          In React, <strong>changing a variable directly</strong> (e.g., <code>step = step + 1</code>) does <strong>not</strong> reliably update the UI.
+          You must update state using the <strong>setter function</strong> from <code>useState</code> (e.g., <code>setStep(step + 1)</code>).
+        </p>
+        <p>
+          Think of it like this: React only “notices” updates that happen through its state APIs.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>1) What happens if you update state manually?</h2>
+      <p>
+        The lecture demonstrates how to “break React” by attempting to update a state variable directly.
+        Even if you change the state variable from <code>const</code> to <code>let</code>, React still won’t know it should re-render.
+      </p>
+
+      <h3>❌ Wrong: Mutating the state variable directly</h3>
+      <pre><code>// Imagine we did this (DO NOT DO THIS):
+let [step, setStep] = useState(1);
+
+function handleNext() {
+  // ❌ Manual mutation — React won't re-render reliably
+  step = step + 1;
+}
+</code></pre>
+
+      <div class="callout">
+        <strong>Why nothing happens? 🤔</strong>
+        <ul>
+          <li>React has <strong>no magic detector</strong> that sees <code>step = step + 1</code> and decides to update the UI.</li>
+          <li>React triggers a re-render when you call the <strong>setter</strong> returned by <code>useState</code>.</li>
+          <li>Direct mutation bypasses React’s update pipeline (and any optimizations).</li>
+        </ul>
+      </div>
+
+      <h3>✅ Correct: Use the setter function</h3>
+      <pre><code>const [step, setStep] = useState(1);
+
+function handleNext() {
+  // ✅ React knows to re-render
+  setStep(step + 1);
+}
+</code></pre>
+
+      <p>
+        Using the setter is a <strong>functional way to update</strong> state. You are not mutating the state variable directly;
+        you are requesting React to update the state and re-render.
+      </p>
+    </section>
+
+    <section>
+      <h2>2) The “less obvious” mistake: mutating objects/arrays in state</h2>
+      <p>
+        When state is an object or array, beginners sometimes mutate it directly.
+        It may appear to work “sometimes,” but it’s a bad practice and can break in more complex cases.
+      </p>
+
+      <h3>❌ Wrong: Mutating an object in state</h3>
+      <pre><code>// Example state object
+const [test, setTest] = useState({ name: "Jonas" });
+
+function handleNext() {
+  // ❌ Mutating the existing object
+  test.name = "Fred";
+  // UI update becomes unpredictable in real apps
+}
+</code></pre>
+
+      <div class="callout">
+        <strong>Why this is risky 🚫</strong>
+        <ul>
+          <li>React encourages <strong>immutability</strong>: treat state like read-only data.</li>
+          <li>Mutations can cause <strong>stale UI</strong>, memoization bugs, and confusing behavior with performance optimizations.</li>
+          <li>Even if you see a re-render in a simple demo, you are building a fragile habit.</li>
+        </ul>
+      </div>
+
+      <h3>✅ Correct: Replace the object (create a new one)</h3>
+      <pre><code>const [test, setTest] = useState({ name: "Jonas" });
+
+function handleNext() {
+  // ✅ Create a NEW object and pass it to the setter
+  setTest({ name: "Fred" });
+}
+</code></pre>
+
+      <h3>✅ Best practice pattern: copy + change (spread)</h3>
+      <pre><code>const [user, setUser] = useState({ name: "Jonas", role: "Instructor" });
+
+function updateName(newName) {
+  // ✅ Copy the old object, then override one field
+  setUser({
+    ...user,
+    name: newName,
+  });
+}
+</code></pre>
+
+      <p>
+        Same rule applies to arrays: do not mutate; instead create a new array using methods like
+        <code>map</code>, <code>filter</code>, or array spread.
+      </p>
+    </section>
+
+    <section>
+      <h2>3) Beginner checklist ✅</h2>
+      <ul>
+        <li>✅ Always declare state with <code>const</code>: <code>const [value, setValue] = useState(...)</code></li>
+        <li>✅ Update state only using the setter: <code>setValue(newValue)</code></li>
+        <li>🧊 Treat state as immutable (read-only) — especially objects/arrays</li>
+        <li>✅ For objects/arrays: create a new value (copy + change), then pass it to the setter</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Memory tip 🧠</strong>
+        <p>
+          <strong>State update = setter call</strong>.
+          If you didn’t call the setter, React likely didn’t get the message to re-render.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Quick self-test (practice) 📝</h2>
+      <ol>
+        <li>
+          If you do <code>step = step + 1</code> inside an event handler, why doesn’t the UI update?
+          <ul>
+            <li>Because React only triggers re-renders through its state setters (e.g., <code>setStep</code>).</li>
+          </ul>
+        </li>
+        <li>
+          Why is <code>test.name = "Fred"</code> considered bad practice?
+          <ul>
+            <li>It mutates state directly, which can break React assumptions and optimizations.</li>
+          </ul>
+        </li>
+        <li>
+          What is the correct way to update one property in an object state?
+          <ul>
+            <li><code>setUser({ ...user, name: "Fred" })</code></li>
+          </ul>
+        </li>
+      </ol>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <p class="subtitle">
+        End of note. Print tip: use your browser’s Print dialog → Save as PDF. Output is A4, single-column, and avoids printing link URLs.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — What is State in React?</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --accent:#1a73e8;
+      --codebg:#0b1020;
+      --codetext:#eaf0ff;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px 44px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--soft), #fff);
+      padding:18px 18px 14px;
+      border-radius:12px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 24px;
+      line-height:1.25;
+      letter-spacing: -0.2px;
+    }
+
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .toolbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:10px;
+      cursor:pointer;
+      font-size:14px;
+    }
+    .btn.primary{
+      border-color: #b9d3ff;
+      background:#eef5ff;
+    }
+
+    main{margin-top:16px;}
+
+    .toc{
+      margin:16px 0 0;
+      padding:14px 16px;
+      border:1px solid var(--border);
+      background: #fff;
+      border-radius:12px;
+    }
+    .toc h2{margin:0 0 8px;font-size:16px;}
+    .toc ol{margin:0;padding-left:18px;}
+    .toc a{color:var(--accent);text-decoration:none;}
+
+    section{
+      margin-top:16px;
+      padding:16px 16px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+    }
+
+    h2{
+      margin:0 0 10px;
+      font-size:18px;
+    }
+
+    h3{
+      margin:14px 0 8px;
+      font-size:15.5px;
+    }
+
+    p{margin:10px 0;}
+
+    ul{margin:10px 0 0; padding-left: 18px;}
+    li{margin:6px 0;}
+
+    .callout{
+      border-left: 4px solid var(--accent);
+      background: #f6f9ff;
+      padding: 12px 12px;
+      border-radius: 10px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+
+    .mini{
+      padding: 12px;
+      border:1px dashed var(--border);
+      border-radius: 12px;
+      background:#fff;
+    }
+
+    .k{
+      display:inline-block;
+      padding: 2px 8px;
+      border:1px solid var(--border);
+      border-radius: 999px;
+      background:#fff;
+      font-size: 12px;
+      color: var(--muted);
+      vertical-align: middle;
+      margin-right:6px;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow:auto;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12.5px;}
+
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13.5px;
+    }
+    .table th,.table td{
+      border: 1px solid var(--border);
+      padding: 10px 10px;
+      vertical-align: top;
+    }
+    .table th{background: var(--soft); text-align:left;}
+
+    .footer-note{
+      color: var(--muted);
+      font-size: 12.5px;
+      margin-top: 16px;
+    }
+
+    /* Print styles */
+    @page { size: A4; margin: 16mm; }
+
+    @media print{
+      :root{ --accent:#000; }
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header, section, .toc{ border-color:#cfcfcf; box-shadow:none; }
+      .toolbar{ display:none !important; }
+      a{ color: inherit; text-decoration: none; }
+      /* Don’t print URL after links */
+      a[href]::after{ content: "" !important; }
+      pre{ page-break-inside: avoid; }
+      section{ break-inside: avoid-page; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧠 What is State in React?</h1>
+      <p class="sub">Reviewer / Study Guide (Beginner-friendly) • Topic: <strong>State</strong> — making components interactive</p>
+      <div class="toolbar" aria-hidden="false">
+        <button class="btn primary" type="button" onclick="window.print()">Print / Save as PDF</button>
+        <button class="btn" type="button" onclick="document.getElementById('quick-check').scrollIntoView({behavior:'smooth'})">Jump to Quick Check</button>
+      </div>
+    </header>
+
+    <nav class="toc" aria-label="Table of contents">
+      <h2>📌 Table of Contents</h2>
+      <ol>
+        <li><a href="#big-idea">The Big Idea</a></li>
+        <li><a href="#definition">Definition: What “State” Means</a></li>
+        <li><a href="#why">Why We Need State</a></li>
+        <li><a href="#rerender">Key Rule: Updating State Re-renders</a></li>
+        <li><a href="#props-vs-state">Props vs State</a></li>
+        <li><a href="#mental-model">Mental Model (Easy Analogy)</a></li>
+        <li><a href="#examples">Common Examples of State</a></li>
+        <li><a href="#quick-check">Quick Check + Mini Practice</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="big-idea">
+        <h2>✅ The Big Idea</h2>
+        <div class="callout">
+          <p><strong>Goal:</strong> We want event handlers (like <span class="k">onClick</span>) to do something useful — meaning: <strong>change the UI</strong>.</p>
+          <p>In React, the way we change the UI in response to user actions is through <strong>state</strong>.</p>
+        </div>
+        <p>🧩 Think of this flow:</p>
+        <ul>
+          <li>👆 User does an action (click, type, submit, etc.)</li>
+          <li>🧠 We update state</li>
+          <li>🔁 React re-renders the component</li>
+          <li>🖥️ The UI updates to match the new state</li>
+        </ul>
+      </section>
+
+      <section id="definition">
+        <h2>📖 Definition: What “State” Means</h2>
+        <p><strong>State</strong> is data that a component can <strong>hold over time</strong> — information that the component needs to <strong>remember</strong> during its lifecycle.</p>
+        <div class="callout">
+          <p>🧠 Helpful analogy: <strong>State = the memory of a component</strong>.</p>
+        </div>
+        <p>In practice you’ll hear three terms:</p>
+        <ul>
+          <li><strong>State variable / piece of state</strong> → one concrete variable (example: <span class="k">step</span>, <span class="k">isOpen</span>, <span class="k">cartItems</span>)</li>
+          <li><strong>State</strong> (general) → all pieces of state combined = the component’s “condition” right now</li>
+        </ul>
+        <p>✅ Tip: People often use these terms interchangeably. That’s fine when you’re starting.</p>
+      </section>
+
+      <section id="why">
+        <h2>🎯 Why We Need State</h2>
+        <p>We already know how to pass data into a component using <strong>props</strong> (data from the outside/parent).</p>
+        <p>But what if the component needs to:</p>
+        <ul>
+          <li>🧠 Keep its own data locally</li>
+          <li>⏳ Remember that data over time</li>
+          <li>🔄 Change the UI when users interact</li>
+        </ul>
+        <p>That’s exactly what state is for.</p>
+
+        <h3>🔍 Real-life examples</h3>
+        <ul>
+          <li>🔔 Notification count (goes down when you read notifications)</li>
+          <li>⌨️ Text inside an input field (changes as you type)</li>
+          <li>📑 Active tab in a tabbed UI (changes when you click a tab)</li>
+          <li>🛒 Shopping cart contents (changes when you add/remove items)</li>
+        </ul>
+        <p>Common pattern: the user can change these values → therefore the component must store and update them → therefore they are state.</p>
+      </section>
+
+      <section id="rerender">
+        <h2>🔁 Key Rule: Updating State Re-renders</h2>
+        <div class="callout">
+          <p><strong>Most important behavior:</strong> When you update state, React <strong>re-renders</strong> the component.</p>
+          <p>Meaning: React generates a <strong>new updated view</strong> for that component on the screen.</p>
+        </div>
+
+        <p><strong>View</strong> = the component’s visual output (what you see in the UI).</p>
+        <ul>
+          <li>🧩 One component rendered = one <em>view</em></li>
+          <li>🧱 Many views together = the full app UI</li>
+        </ul>
+
+        <h3>🧠 Why this matters</h3>
+        <p>React keeps the UI in sync with data through state:</p>
+        <ul>
+          <li>✅ Change state → UI changes automatically</li>
+          <li>🚫 No manual DOM manipulation needed (no <span class="k">querySelector</span>, no <span class="k">classList</span>, etc.)</li>
+        </ul>
+
+        <h3>Two things state gives you</h3>
+        <ol>
+          <li>🖥️ <strong>Update the UI</strong> by re-rendering the component</li>
+          <li>💾 <strong>Persist data</strong> between renders (keep local values over time)</li>
+        </ol>
+      </section>
+
+      <section id="props-vs-state">
+        <h2>🆚 Props vs State (Super Practical)</h2>
+        <table class="table" role="table" aria-label="Props vs State">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Props</th>
+              <th>State</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Where it comes from</strong></td>
+              <td>From <strong>parent/outside</strong> the component</td>
+              <td>Inside the <strong>component itself</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Who owns it</strong></td>
+              <td>Parent component</td>
+              <td>The component</td>
+            </tr>
+            <tr>
+              <td><strong>Can it change?</strong></td>
+              <td>Changes only when parent sends new props</td>
+              <td>Changes when component updates it (usually from events)</td>
+            </tr>
+            <tr>
+              <td><strong>Main job</strong></td>
+              <td>Configure/customize child components</td>
+              <td>Make components interactive + remember data</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="footer-note">✅ In this lecture: we’re moving from “events that show alerts” → to “events that update state and change the UI.”</p>
+      </section>
+
+      <section id="mental-model">
+        <h2>🧠 Mental Model (Easy Analogy)</h2>
+        <div class="grid">
+          <div class="mini">
+            <h3>State as “Memory”</h3>
+            <p>Imagine a component is a small machine. It has a memory slot (state). When the memory changes, the machine redraws its screen.</p>
+            <ul>
+              <li>🧠 Memory value changes → 🔁 redraw</li>
+              <li>🔁 redraw → 🖥️ UI updates</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <h3>State as “Current Mode”</h3>
+            <p>State is the component’s current condition: which step is active, which tab is selected, what text is typed, etc.</p>
+            <p><span class="k">State = current condition</span></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="examples">
+        <h2>🧪 Mini Examples (Beginner-friendly)</h2>
+        <h3>Example A: Step component (what you’re building)</h3>
+        <p>We want the step number to change when users click Next/Previous. That “current step” must be remembered over time → state.</p>
+        <pre><code>// idea only (you'll learn useState next)
+// step changes over time, so it must be state
+const [step, setStep] = useState(1);
+
+function handleNext() {
+  setStep(step + 1);
+}
+
+return (
+  &lt;&gt;
+    &lt;p&gt;Step {step}&lt;/p&gt;
+    &lt;button onClick={handleNext}&gt;Next&lt;/button&gt;
+  &lt;/&gt;
+);
+</code></pre>
+        <p>✅ When <span class="k">setStep</span> runs, React re-renders, and the UI shows the new step.</p>
+
+        <h3>Example B: Input text</h3>
+        <pre><code>// input text changes as user types
+const [name, setName] = useState("");
+
+return (
+  &lt;input
+    value={name}
+    onChange={(e) =&gt; setName(e.target.value)}
+    placeholder="Type your name"
+  /&gt;
+);
+</code></pre>
+        <p>⌨️ User types → state updates → UI stays in sync.</p>
+      </section>
+
+      <section id="quick-check">
+        <h2>📝 Quick Check (Self-Review)</h2>
+        <ul>
+          <li>✅ State is data a component can <strong>hold over time</strong>.</li>
+          <li>✅ State is the component’s <strong>memory</strong>.</li>
+          <li>✅ Updating state triggers a <strong>re-render</strong>.</li>
+          <li>✅ Props come from outside; state lives inside the component.</li>
+          <li>✅ React uses state to keep <strong>UI in sync with data</strong>.</li>
+        </ul>
+
+        <h3>Mini Practice (paper exercise ✍️)</h3>
+        <p>Try answering in one sentence each:</p>
+        <ol>
+          <li>What is state in React?</li>
+          <li>What happens when state updates?</li>
+          <li>Give 2 examples of state in real apps.</li>
+          <li>What’s the difference between props and state?</li>
+        </ol>
+
+        <div class="callout">
+          <p>🚀 Next lecture will show how to <strong>use state in code</strong> (starting with <span class="k">useState</span>) so that button clicks change the UI instead of just showing alerts.</p>
+        </div>
+      </section>
+
+      <p class="footer-note">End of lecture notes: <strong>What is State in React?</strong> — Print-ready reviewer.</p>
+    </main>
+  </div>
+</body>
+</html>

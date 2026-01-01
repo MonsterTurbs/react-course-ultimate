@@ -1,0 +1,310 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Section Overview: Class-Based React (Legacy)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .compare{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 4px;
+      font-size: 13.5px;
+    }
+    .compare th,
+    .compare td{
+      border:1px solid var(--border);
+      padding: 10px 10px;
+      vertical-align: top;
+    }
+    .compare th{
+      background: var(--panel);
+      text-align:left;
+      font-weight:700;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+    .danger{ color: var(--danger); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🧠 React Study Guide: Section Overview — Class-Based React (Legacy)</h1>
+      <p class="subtitle">This optional section explains the older way of writing React components using <strong>classes</strong> and <strong>lifecycle methods</strong>, before function components + Hooks became the standard.</p>
+      <div class="meta">
+        <span class="chip">🏛️ Topic: Class Components</span>
+        <span class="chip">⏳ Historical: pre-Hooks React</span>
+        <span class="chip">🛠️ Use case: maintain older codebases</span>
+        <span class="chip">🔁 Skill: convert class → function</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>📌 What this section is about</h2>
+      <p>Before Hooks existed, React components were often written as <strong>classes</strong>. Instead of <code>useState</code> and <code>useEffect</code>, developers used:</p>
+      <ul>
+        <li>🏗️ Class components (e.g., <code>class App extends React.Component</code>)</li>
+        <li>🔄 Lifecycle methods (e.g., <code>componentDidMount</code>, <code>componentDidUpdate</code>, <code>componentWillUnmount</code>)</li>
+      </ul>
+      <div class="callout">
+        <strong>Main message:</strong> You probably won’t write class components in new projects, but you <em>will</em> run into them in older code.
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Why learn class components (even if they’re legacy)</h2>
+      <ul>
+        <li>🧰 <strong>Legacy codebases:</strong> many older React projects still contain class components.</li>
+        <li>🔧 <strong>Maintenance:</strong> you may need to debug or extend class-based components at work.</li>
+        <li>🔁 <strong>Migration:</strong> you might need to convert class components into modern function components.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Career reality:</strong> “Never” is rare in software. Knowing legacy patterns increases your ability to work on real-world projects.
+      </div>
+    </section>
+
+    <section>
+      <h2 class="warn">⚠️ When to skip this section</h2>
+      <p>If class syntax feels confusing right now, it’s okay to postpone this topic.</p>
+      <ul>
+        <li>⏭️ Skip now if you’re still building confidence with Hooks.</li>
+        <li>🔙 Come back later if your job or a project requires understanding class components.</li>
+      </ul>
+      <div class="callout">
+        <strong>Tip:</strong> It’s optional for a reason. Learn it when it becomes useful, or if you’re curious about React history.
+      </div>
+    </section>
+
+    <section>
+      <h2>🆚 Quick comparison: Function + Hooks vs Class + Lifecycle</h2>
+      <table class="compare" aria-label="Function vs class components">
+        <thead>
+          <tr>
+            <th>Modern (Function Components + Hooks)</th>
+            <th>Legacy (Class Components + Lifecycle)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <ul>
+                <li>State via <code>useState</code></li>
+                <li>Side effects via <code>useEffect</code></li>
+                <li>More composable via custom hooks</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>State via <code>this.state</code> + <code>this.setState</code></li>
+                <li>Side effects via lifecycle methods</li>
+                <li>Reuse via patterns like HOCs/Render Props (historically)</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>🧩 Beginner-friendly mental model</h2>
+      <p>Think of a class component as a “component object” that React creates and manages:</p>
+      <ul>
+        <li>📦 It stores state inside <code>this.state</code></li>
+        <li>🧾 It renders UI using a <code>render()</code> method</li>
+        <li>🔄 It runs lifecycle methods at specific moments (mount, update, unmount)</li>
+      </ul>
+
+      <div class="rule">
+        <h3>👀 Example shape (simplified)</h3>
+        <pre><code>class Counter extends React.Component {
+  state = { count: 0 };
+
+  componentDidMount() {
+    // runs after first render
+  }
+
+  render() {
+    return (
+      &lt;button onClick={() =&gt; this.setState({ count: this.state.count + 1 })}&gt;
+        {this.state.count}
+      &lt;/button&gt;
+    );
+  }
+}</code></pre>
+      </div>
+
+      <p class="muted">This is only to build intuition. You’ll see proper patterns and conversions in the lectures of this section.</p>
+    </section>
+
+    <section>
+      <h2>📝 What you should be able to do after this section</h2>
+      <ul>
+        <li>✅ Recognize class component syntax quickly.</li>
+        <li>✅ Understand lifecycle methods and what they’re used for.</li>
+        <li>✅ Map lifecycle methods to modern Hook equivalents (e.g., mount/update/unmount).</li>
+        <li>✅ Convert a class component to a function component when needed.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>🏛️ Class components are a legacy style (pre-Hooks) but still exist in older codebases.</li>
+        <li>🔄 Lifecycle methods were the old way to run effects at mount/update/unmount.</li>
+        <li>🛠️ Learning this helps you maintain and modernize real-world React apps.</li>
+        <li>⏭️ If it’s confusing, you can skip for now and return later.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

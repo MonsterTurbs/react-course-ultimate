@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Query (TanStack Query v4) — Setting Up (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+
+      --h1: 22px;
+      --h2: 16px;
+      --h3: 14px;
+
+      --body: 12px;
+      --lh: 1.6;
+
+      --code-bg: #0b1020;
+      --code-text: #e7eaf3;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: var(--body);
+      line-height: var(--lh);
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 22px 18px;
+    }
+
+    header {
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: var(--h1);
+      line-height: 1.25;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      padding: 4px 8px;
+      border-radius: 999px;
+      color: #222;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    main { padding: 14px 0 28px; }
+
+    section {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: var(--h2);
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin: 12px 0 8px;
+      font-size: var(--h3);
+      line-height: 1.25;
+    }
+
+    p { margin: 8px 0; }
+    ul { margin: 8px 0 8px 18px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-left: 6px solid #ddd;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 2px; }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      overflow: auto;
+      border: 1px solid rgba(0,0,0,0.08);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .kbd {
+      font-family: inherit;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 11px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+    /* Print */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Print only text (no URLs) */
+      a { text-decoration: none; color: inherit; }
+      a[href]::after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧠 React Query (TanStack Query v4) — Setting Up</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) — Install React Query, create a <em>Query Client</em>, provide it to the app, and enable DevTools.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Remote state setup</span>
+        <span class="chip">🧩 Library: @tanstack/react-query (v4)</span>
+        <span class="chip">🛠️ DevTools: @tanstack/react-query-devtools</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goal of this lecture</h2>
+        <p>You will integrate React Query into your React app in a way that is similar (conceptually) to setting up Context or Redux:</p>
+        <ul>
+          <li>✅ Create a place where React Query stores remote data → the <strong>cache</strong> inside a <strong>QueryClient</strong>.</li>
+          <li>✅ Provide that client to the entire component tree → <strong>QueryClientProvider</strong>.</li>
+          <li>✅ (Optional but recommended) Add <strong>React Query DevTools</strong> for debugging.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>💡 Key idea</strong>
+          <p>React Query needs a <em>single</em> shared client so that all components can read/write the same cache. That’s why we create <code>new QueryClient()</code> once and provide it at the top of the app.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>1) 📦 Install packages</h2>
+        <p>Install TanStack Query (React Query) v4:</p>
+        <pre><code>npm install @tanstack/react-query@4</code></pre>
+
+        <p>Install DevTools (also v4). If you encounter version mismatch issues, pin it to v4 as well:</p>
+        <pre><code>npm install @tanstack/react-query-devtools@4</code></pre>
+
+        <div class="callout">
+          <strong>📝 Naming note</strong>
+          <p>The official name is <strong>TanStack Query</strong> (works with other frameworks like Vue/Svelte). Many developers still call it “React Query” because it’s familiar.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) 🧱 Create the QueryClient (the cache “container”)</h2>
+        <p>In your <code>App.jsx</code> (or wherever your app root is), create a single QueryClient instance.</p>
+
+        <h3>✅ Minimal setup</h3>
+        <pre><code>import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
+
+export default function App() {
+  return (
+    &lt;QueryClientProvider client={queryClient}&gt;
+      {/* your app routes/layout here */}
+    &lt;/QueryClientProvider&gt;
+  );
+}</code></pre>
+
+        <h3>🔧 Add default options (staleTime example)</h3>
+        <p><code>staleTime</code> is how long fetched data is considered “fresh” before React Query thinks it may be stale and might refetch (depending on triggers). In the transcript, it’s set to <strong>1 minute</strong>:</p>
+        <pre><code>import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000, // 1 minute
+    },
+  },
+});
+
+export default function App() {
+  return (
+    &lt;QueryClientProvider client={queryClient}&gt;
+      {/* app content */}
+    &lt;/QueryClientProvider&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          <strong>🧠 Beginner mental model</strong>
+          <p>Think of <code>QueryClient</code> as a “smart box” that stores API results (cache), remembers what’s fresh/stale, and helps your components reuse data without refetching every time.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) 🌳 Provide it to the whole app</h2>
+        <p>Wrap your entire application with <code>QueryClientProvider</code>. This makes the cache available everywhere (similar to Context/Redux providers).</p>
+
+        <div class="callout">
+          <strong>✅ Why the provider matters</strong>
+          <p>If you don’t wrap your app with <code>QueryClientProvider</code>, hooks like <code>useQuery</code> won’t know which client/cache to use, and you’ll get runtime errors.</p>
+        </div>
+
+        <h3>⚠️ Common mistake</h3>
+        <ul>
+          <li>Creating <code>new QueryClient()</code> <em>inside</em> the component body without memoization (re-creates cache on every render).</li>
+        </ul>
+        <p>Keep it outside the component (as shown) so it’s created once.</p>
+      </section>
+
+      <section>
+        <h2>4) 🧰 Add React Query DevTools</h2>
+        <p>DevTools help you inspect cached queries, refetches, states, and more (similar to Redux DevTools, but as an in-app panel).</p>
+
+        <pre><code>import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+    },
+  },
+});
+
+export default function App() {
+  return (
+    &lt;QueryClientProvider client={queryClient}&gt;
+      {/* your app */}
+      &lt;ReactQueryDevtools initialIsOpen={false} /&gt;
+    &lt;/QueryClientProvider&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          <strong>👀 What you should see</strong>
+          <p>A small React Query icon appears (usually bottom-left). Click it to open the panel. At first it’s empty until you fetch data in the next lecture.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>5) ✅ Quick checklist (so you don’t get stuck)</h2>
+        <ul>
+          <li>📦 Installed: <code>@tanstack/react-query@4</code></li>
+          <li>🧱 Created: <code>const queryClient = new QueryClient(...)</code> (created once)</li>
+          <li>🌳 Wrapped app with: <code>&lt;QueryClientProvider client={queryClient}&gt;</code></li>
+          <li>🧰 DevTools installed + rendered: <code>&lt;ReactQueryDevtools initialIsOpen={false} /&gt;</code></li>
+          <li>🧪 App runs without errors and shows the DevTools icon</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <p><strong>Next:</strong> You’ll start fetching data, and then you’ll see queries appear in DevTools and in the cache. 🚀</p>
+      </section>
+
+      <section>
+        <h2>🧪 Mini practice (optional)</h2>
+        <p>Once you start using <code>useQuery</code> in the next lecture, try verifying these in DevTools:</p>
+        <ul>
+          <li>🔎 A query key appears when you fetch data (e.g., <code>["cabins"]</code>)</li>
+          <li>⏱️ The query stays “fresh” for <strong>60 seconds</strong> because of <code>staleTime</code></li>
+          <li>🔁 You can trigger a refetch from DevTools</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

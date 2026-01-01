@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>What is Next.js? — Reviewer & Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --warnbg: #fff7ed;
+      --warnborder: #fdba74;
+      --goodbg: #f0fdf4;
+      --goodborder: #86efac;
+      --codebg: #0b0f14;
+      --codetext: #e8e8e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 20px 52px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.65rem;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.86rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 1.25rem;
+      border-left: 5px solid var(--border);
+      padding-left: 10px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { margin: 8px 0 10px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .box {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+    .box strong { display: inline-block; margin-bottom: 6px; }
+
+    .callout {
+      border-left: 5px solid var(--border);
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    .warn {
+      border-left: 6px solid var(--warnborder);
+      background: var(--warnbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #fed7aa;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 6px solid var(--goodborder);
+      background: var(--goodbg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid #bbf7d0;
+      margin: 12px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .steps {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      margin: 12px 0;
+    }
+    .steps .row {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .steps .row:first-child { border-top: 0; }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .table th, .table td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+    .table th {
+      background: var(--panel);
+      font-weight: 700;
+    }
+    .table tr:last-child td { border-bottom: 0; }
+
+    .code {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0;
+      background: #fff;
+    }
+    .code .label {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    pre {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow: auto;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      white-space: pre;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .qa details {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+    .qa summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+    }
+    .qa summary::-webkit-details-marker { display: none; }
+    .qa .answer {
+      margin-top: 8px;
+      color: #222;
+    }
+
+    .footer {
+      margin-top: 26px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      .chip, .box, .callout, .warn, .good, .steps, .code, .qa details, .table {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .box, .callout, .warn, .good, .steps, .code, .qa details, .table {
+        break-inside: avoid;
+      }
+      a[href]::after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>What is Next.js? — Reviewer & Study Guide</h1>
+      <p class="subtitle">Beginner-friendly notes • Single-column • Print-ready (A4) • Icons & emoticons included</p>
+      <div class="meta">
+        <span class="chip">⚛️ Built on React</span>
+        <span class="chip">🧱 Meta-framework</span>
+        <span class="chip">🖥️ SSR (static + dynamic)</span>
+        <span class="chip">🧭 File-based routing</span>
+        <span class="chip">🧠 Server Components + Actions</span>
+        <span class="chip">⚡ Optimizations + SEO</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Context: Why Next.js now? 🧭</h2>
+      <p>
+        You already learned what server-side rendering (SSR) is and even built a tiny manual demo.
+        Next.js exists so you can use SSR (and more) in real apps <strong>without implementing everything manually</strong>.
+      </p>
+
+      <div class="good">
+        <strong>Big promise:</strong>
+        <p>
+          Next.js gives you a production-ready framework around React so you can ship full-stack websites/apps faster and more safely.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Definition: What is Next.js? 📌</h2>
+      <p>
+        Vercel (the company behind Next.js) calls it: <strong>“The React framework for the web.”</strong>
+        That sounds bold—so let’s unpack it.
+      </p>
+
+      <div class="box">
+        <strong>✅ Next.js in one sentence:</strong>
+        <p>
+          Next.js is a <strong>meta-framework</strong> built on top of React that adds conventions and tooling
+          for building real-world apps (routing, data fetching, SSR, optimizations, etc.).
+        </p>
+      </div>
+
+      <div class="grid">
+        <div class="box">
+          <strong>⚛️ What you keep from React</strong>
+          <ul>
+            <li>Components</li>
+            <li>Props</li>
+            <li>Hooks (useState, useEffect, etc.)</li>
+            <li>JSX and the React mental model</li>
+          </ul>
+        </div>
+        <div class="box">
+          <strong>🧰 What Next.js adds</strong>
+          <ul>
+            <li>SSR options (static + dynamic)</li>
+            <li>Routing built-in</li>
+            <li>Data fetching + mutations on the server</li>
+            <li>Optimizations for performance + SEO</li>
+            <li>Modern React “full-stack vision” features</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>🧱 “Meta-framework” meaning:</strong>
+        <p>
+          If you treat React as a framework, then Next.js is a framework built on top of that framework.
+          This pattern is now common (e.g., SvelteKit for Svelte, Nuxt for Vue).
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Opinionated framework: Why this is usually good ✅</h2>
+      <p>
+        Next.js is <strong>opinionated</strong>, meaning it pushes you into a specific “Next.js way” of building apps.
+        You can’t do everything however you want (especially routing). Instead, you follow conventions.
+      </p>
+
+      <div class="box">
+        <strong>Why “opinionated” helps:</strong>
+        <ul>
+          <li>Less boilerplate code 🧹</li>
+          <li>Faster feature development 🚀</li>
+          <li>More consistent team workflows 👥</li>
+          <li>Better developer experience (DX) 🛠️</li>
+          <li>Often fewer bugs due to shared patterns 🧯</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <strong>Team benefit:</strong>
+        <p>
+          If everyone knows Next.js and follows the same conventions, projects scale better—especially in larger teams.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) The “4 key ingredients” of Next.js 🧪</h2>
+      <p>
+        The lecture frames Next.js as having four major pieces that make it powerful.
+      </p>
+
+      <table class="table" aria-label="Four key ingredients of Next.js">
+        <thead>
+          <tr>
+            <th style="width: 28%">Ingredient</th>
+            <th>What it means (beginner explanation)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1) SSR</strong> 🖥️</td>
+            <td>
+              Next.js supports <strong>static</strong> and <strong>dynamic</strong> rendering, often chosen per route.
+              You can decide how a page should be generated (build-time vs request-time).
+            </td>
+          </tr>
+          <tr>
+            <td><strong>2) Router</strong> 🧭</td>
+            <td>
+              Next.js provides routing out of the box.
+              Routes are created using <strong>file-system conventions</strong> (folders/files define URLs).
+            </td>
+          </tr>
+          <tr>
+            <td><strong>3) Server Data</strong> 🧠</td>
+            <td>
+              With <strong>React Server Components</strong> and <strong>Server Actions</strong>, you can fetch and mutate data
+              from the server in a React-first way (big shift from client-only React apps).
+            </td>
+          </tr>
+          <tr>
+            <td><strong>4) Optimizations</strong> ⚡</td>
+            <td>
+              Built-in performance + SEO help: route preloading, image/font optimization, and SEO tooling.
+              Especially important for public websites.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="box">
+        <strong>🧠 Why these matter together:</strong>
+        <p>
+          Next.js is not “just SSR.” It’s a whole system that combines rendering + routing + data on the server + optimizations,
+          which is why it’s popular for production web apps.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) File-based routing (the game-changer) 🗂️</h2>
+      <p>
+        A big Next.js idea is that you define routes using the file system. In simple terms:
+      </p>
+
+      <div class="code">
+        <div class="label">Simple mental model (not exact paths, just the idea)</div>
+        <pre><code>app/
+  about/
+    page.js   →  /about
+  dashboard/
+    page.js   →  /dashboard</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Why this is powerful:</strong>
+        <p>
+          You can create a new route by adding a folder/file—often with minimal extra configuration.
+          This reduced routing boilerplate was a big reason Next.js felt “faster” than alternatives early on.
+        </p>
+      </div>
+
+      <div class="box">
+        <strong>Special conventions mentioned:</strong>
+        <ul>
+          <li>Pages</li>
+          <li>Layouts</li>
+          <li>Error handling</li>
+          <li>Loading screens</li>
+          <li>Other route-related special files</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) The “full-stack React vision” (modern React features) 🧬</h2>
+      <p>
+        Next.js integrates cutting-edge React features that are hard to use without a framework.
+        The lecture specifically mentions:
+      </p>
+
+      <div class="box">
+        <strong>Modern React features Next.js supports:</strong>
+        <ul>
+          <li>React Server Components (RSC) 🧩</li>
+          <li>Server Actions 🧾</li>
+          <li>Suspense ⏳</li>
+          <li>Streaming 🌊</li>
+          <li>And more framework-integrated features</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <strong>Notable historical point:</strong>
+        <p>
+          Next.js was the first framework to implement React Server Components and make them widely available.
+        </p>
+      </div>
+
+      <div class="good">
+        <strong>Big shift (important):</strong>
+        <p>
+          In earlier React apps you built in the course, everything ran on the client. With Next.js (especially App Router),
+          parts of your React app can run on the server—enabling server-side data fetching and mutations.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Two routers: App Router vs Pages Router 🧭🧭</h2>
+      <p>
+        Next.js currently has two routing systems. The lecture describes them as almost two different frameworks.
+      </p>
+
+      <div class="grid">
+        <div class="box">
+          <strong>🆕 App Router (modern, recommended)</strong>
+          <ul>
+            <li>Became stable in <strong>2023 (v13.4)</strong></li>
+            <li>Recommended for new projects ✅</li>
+            <li>Implements the React full-stack vision (RSC, Actions, Suspense, Streaming)</li>
+            <li>Easy layouts, loading states, error boundaries</li>
+            <li>Supports advanced routing (parallel routing, intercepting routes)</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <strong>🧓 Pages Router (legacy, still maintained)</strong>
+          <ul>
+            <li>Original router since <strong>2016 (Next.js v1)</strong></li>
+            <li>Not recommended for new projects ❌</li>
+            <li>Still actively maintained ✅</li>
+            <li>Data fetching uses Next-specific APIs (e.g., <code>getStaticProps</code>, <code>getServerSideProps</code>)</li>
+            <li>Some patterns (like global layouts) can feel awkward/confusing</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="box">
+        <strong>Practical course plan:</strong>
+        <ul>
+          <li>This part of the course focuses on learning the <strong>App Router</strong> from the beginning.</li>
+          <li>At the end, there’s a quick section covering the fundamentals of <strong>Pages Router</strong> for older projects.</li>
+        </ul>
+      </div>
+
+      <div class="warn">
+        <strong>⚠️ App Router pain points mentioned:</strong>
+        <ul>
+          <li>Super aggressive caching (confusing, sometimes unwanted behavior) 😵‍💫</li>
+          <li>Steeper learning curve than Pages Router 📈</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <strong>Balanced takeaway:</strong>
+        <p>
+          App Router is more capable and aligns with modern React features, but you must learn new concepts
+          (often “new React”, not just “new Next”).
+        </p>
+      </div>
+    </section>
+
+    <section class="qa">
+      <h2>8) Mini Quiz (self-check) 🧪</h2>
+
+      <details>
+        <summary>Q1) Why is Next.js called a meta-framework?</summary>
+        <div class="answer">
+          Because it is a framework built on top of React, adding conventions and tooling for common app needs (routing, SSR, data, etc.).
+        </div>
+      </details>
+
+      <details>
+        <summary>Q2) What are the “four key ingredients” of Next.js?</summary>
+        <div class="answer">
+          SSR (static + dynamic), routing (file-based conventions), server-side data fetching/mutations (RSC + Actions), and optimizations (perf + SEO).
+        </div>
+      </details>
+
+      <details>
+        <summary>Q3) Why does SSR + Next.js matter for websites?</summary>
+        <div class="answer">
+          It improves initial content loading and helps SEO, while still allowing interactivity through hydration and modern React features.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q4) Why is App Router recommended for new projects?</summary>
+        <div class="answer">
+          It supports modern React full-stack features (Server Components, Server Actions, Suspense, Streaming) and provides better primitives for layouts and routing.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q5) Name one downside of App Router mentioned in the lecture.</summary>
+        <div class="answer">
+          Aggressive caching that can be confusing and sometimes does things you don’t want; also a steeper learning curve.
+        </div>
+      </details>
+    </section>
+
+    <section>
+      <h2>9) Cheat Sheet (one-glance summary) 📎</h2>
+      <div class="box">
+        <ul>
+          <li>Next.js = React + conventions + tooling for real apps 🧰</li>
+          <li>It’s opinionated → less boilerplate, better team consistency ✅</li>
+          <li>Core features: SSR, routing, server-side data, optimizations ⚡</li>
+          <li>Two routers: App Router (modern) vs Pages Router (legacy) 🧭</li>
+          <li>App Router is powerful but caching + learning curve can be painful 😅</li>
+        </ul>
+      </div>
+    </section>
+
+    <p class="footer">
+      End of reviewer. Next step in the course: set up your first Next.js project.
+    </p>
+  </main>
+</body>
+</html>

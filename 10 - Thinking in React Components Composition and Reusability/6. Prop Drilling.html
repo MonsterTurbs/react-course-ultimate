@@ -1,0 +1,379 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Prop Drilling (usePopcorn)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --accent:#0b57d0;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 60px;
+    }
+
+    header{
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 1.65rem;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    section{
+      margin-top: 18px;
+      padding-top: 2px;
+    }
+
+    h2{
+      font-size: 1.25rem;
+      margin: 18px 0 10px;
+    }
+
+    h3{
+      font-size: 1.06rem;
+      margin: 14px 0 8px;
+    }
+
+    p{ margin: 10px 0; }
+
+    ul, ol{
+      margin: 8px 0 10px 22px;
+      padding: 0;
+    }
+
+    li{ margin: 6px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-bottom: 4px; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .chip{
+      display:inline-block;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-right: 6px;
+      margin-top: 4px;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92rem;
+    }
+
+    pre{
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 10px 10px;
+      border-radius: 10px;
+      overflow: hidden;
+      white-space: pre-wrap;     /* wrap long code */
+      word-break: break-word;
+      margin: 10px 0;
+    }
+
+    .hr{
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .checklist li{ list-style: "☑️  "; margin-left: 2px; }
+
+    .small{ color: var(--muted); font-size: 0.95rem; }
+
+    /* Print styles: A4, clean margins, no URL rendering */
+    @page{ size: A4; margin: 14mm 14mm 16mm 14mm; }
+    @media print{
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; padding: 0; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]:after{ content: "" !important; } /* do not print URLs */
+      .callout{ background: #fff; }
+      .chip{ background: #fff; }
+      pre{ page-break-inside: avoid; }
+      h2, h3{ page-break-after: avoid; }
+      ul, ol{ page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 Prop Drilling in React (usePopcorn) — Study Guide</h1>
+      <p class="subtitle">Beginner-friendly notes + examples based on the lecture transcript.</p>
+      <div class="meta">
+        <div><span class="chip">Single-column</span><span class="chip">A4 print-ready</span><span class="chip">Props • State • Data flow</span></div>
+        <div class="small">Tip: Keep your browser Print Preview open to verify spacing before saving to PDF.</div>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What you will learn</h2>
+      <ul>
+        <li>How to <strong>spot</strong> when state needs to be shared across components (and therefore needs to be lifted).</li>
+        <li>What <strong>prop drilling</strong> is, why it happens, and why it can be annoying.</li>
+        <li>How the lecture example works: moving <code>movies</code> state so <code>NumResults</code> can display <code>movies.length</code>.</li>
+        <li>Why React apps often need better patterns later (e.g., composition/context) to avoid deep prop chains.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>🧠 One-liner definition</strong>
+        <p><strong>Prop drilling</strong> happens when you must pass a prop through multiple component levels <em>only</em> so a deep child can use it.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🔁 Quick recap: component categories</h2>
+      <p>In the transcript, the instructor classifies components like this:</p>
+      <div class="grid">
+        <div class="callout">
+          <strong>🏗️ Structural components</strong>
+          <ul>
+            <li><strong>App</strong>, <strong>NavBar</strong>, <strong>Main</strong> — they provide layout/structure.</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <strong>🧠 Stateful components</strong>
+          <ul>
+            <li><strong>Search</strong> (has state)</li>
+            <li><strong>ListBox</strong>, <strong>MovieList</strong>, <strong>WatchedBox</strong> (manage UI behaviors like open/collapse and/or rely on state)</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <strong>🎨 Presentational (stateless) components</strong>
+          <ul>
+            <li><strong>Logo</strong>, <strong>NumResults</strong>, <strong>Movie</strong>, <strong>WatchedSummary</strong>, <strong>WatchedMoviesList</strong>, <strong>WatchedMovie</strong> — mainly render UI from props.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="small">Note: These are helpful mental categories, not strict rules. A component can change category over time.</p>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>🧩 The real problem in the lecture</h2>
+      <p>The bug: <strong>NumResults</strong> shows an <strong>X</strong> instead of the real number of movies.</p>
+      <p>Goal: display something like <strong>“3 results”</strong> by using <code>movies.length</code>.</p>
+
+      <div class="callout">
+        <strong>❓ Why is this a “state sharing” problem?</strong>
+        <p>Because <code>movies</code> is needed in <strong>two places</strong>:</p>
+        <ul>
+          <li><strong>MovieList</strong> uses <code>movies</code> to render the list.</li>
+          <li><strong>NumResults</strong> needs <code>movies</code> to compute <code>movies.length</code>.</li>
+        </ul>
+        <p>When siblings (or distant relatives in the tree) need the same data, you usually <strong>lift state up</strong> to the closest common parent.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>⬆️ Fix strategy: lift state up to the closest common parent</h2>
+      <p>In the transcript, <code>movies</code> lived inside <strong>MovieList</strong>, but <strong>NumResults</strong> also needed it.</p>
+      <p>The closest common parent of both areas is <strong>App</strong> (not <strong>NavBar</strong>, because NavBar is not a parent of MovieList).</p>
+
+      <h3>Step-by-step (conceptual)</h3>
+      <ol>
+        <li>✂️ <strong>Move</strong> the <code>movies</code> state from <code>MovieList</code> up into <code>App</code>.</li>
+        <li>📦 <strong>Pass</strong> <code>movies</code> down to where the list is rendered (deep in the tree).</li>
+        <li>📦 <strong>Pass</strong> <code>movies</code> to <code>NumResults</code> so it can render <code>movies.length</code>.</li>
+      </ol>
+
+      <div class="callout">
+        <strong>✅ What changes after lifting state?</strong>
+        <p><code>App</code> becomes the “source of truth” for <code>movies</code>, and children simply consume it through props.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🕳️ Where prop drilling appears</h2>
+      <p>Once <code>movies</code> is in <code>App</code>, the data must travel down the tree to <code>MovieList</code>.</p>
+      <p>In the lecture, the path is roughly:</p>
+      <ul>
+        <li><code>App</code> ➜ <code>Main</code> ➜ <code>ListBox</code> ➜ <code>MovieList</code></li>
+      </ul>
+
+      <div class="callout">
+        <strong>😵 Why is this called “drilling”?</strong>
+        <p>Because you are “drilling” the prop through components that don’t really need it for themselves — they only pass it down.</p>
+      </div>
+
+      <h3>Minimal code-style example (pattern)</h3>
+      <pre><code>// App
+function App() {
+  const [movies, setMovies] = useState(initialMovies);
+
+  return (
+    &lt;&gt;
+      &lt;NavBar movies={movies} /&gt;
+      &lt;Main movies={movies} /&gt;
+    &lt;/&gt;
+  );
+}
+
+// Main (doesn't use movies directly, but passes it down)
+function Main({ movies }) {
+  return &lt;ListBox movies={movies} /&gt;;
+}
+
+// ListBox (passes it down again)
+function ListBox({ movies }) {
+  return &lt;MovieList movies={movies} /&gt;;
+}
+
+// MovieList (finally uses it)
+function MovieList({ movies }) {
+  return (
+    &lt;ul&gt;
+      {movies.map(m =&gt; (&lt;Movie key={m.imdbID} movie={m} /&gt;))}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+
+      <p class="small">This is exactly the “prop drilling” scenario: <code>Main</code> and <code>ListBox</code> act like “pipes.”</p>
+    </section>
+
+    <section>
+      <h2>🔢 Fixing NumResults</h2>
+      <p>Once <code>movies</code> is available in <code>NavBar</code>, <code>NumResults</code> can simply do:</p>
+      <pre><code>function NumResults({ movies }) {
+  return &lt;p&gt;Found &lt;strong&gt;{movies.length}&lt;/strong&gt; results&lt;/p&gt;;
+}</code></pre>
+      <p>In the lecture, this replaces the placeholder <strong>X</strong> and shows <strong>3 results</strong> (for the starter array).</p>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>⚖️ Is prop drilling always bad?</h2>
+      <div class="callout">
+        <strong>✅ Prop drilling is acceptable when…</strong>
+        <ul>
+          <li>The prop only travels 1–2 levels (small tree depth).</li>
+          <li>The data flow is still easy to understand.</li>
+          <li>You prefer explicitness and the app is small.</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <strong>🚩 Prop drilling becomes painful when…</strong>
+        <ul>
+          <li>It travels many levels (5–10+).</li>
+          <li>Many props must be drilled (not just one).</li>
+          <li>Intermediate components become cluttered with “pass-through” props.</li>
+          <li>Refactoring becomes risky because changing one prop means touching many components.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Mental model: “closest common parent” rule</h2>
+      <p>When two parts of the UI need the same data, ask:</p>
+      <ul class="checklist">
+        <li>Which components need to <strong>read</strong> the data?</li>
+        <li>Which components need to <strong>update</strong> the data?</li>
+        <li>What is the <strong>closest common parent</strong> of all of them?</li>
+        <li>Can I lift state there and pass down only what’s necessary?</li>
+      </ul>
+
+      <div class="callout">
+        <strong>🧩 Why this works</strong>
+        <p>React’s default data flow is <strong>top-down</strong> (parent ➜ child). Lifting state makes shared data flow consistent and predictable.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>➡️ What’s next (as hinted in the lecture)</h2>
+      <p>The instructor mentions that prop drilling is valid but not always ideal, and that later you’ll learn solutions such as:</p>
+      <ul>
+        <li>🧱 <strong>Component composition</strong> (design components so data/children flow naturally without deep drilling)</li>
+        <li>🌐 <strong>Context API</strong> (share values across many levels without passing props manually)</li>
+        <li>🧰 <strong>State management patterns/libraries</strong> (for larger apps)</li>
+      </ul>
+      <p class="small">For now, the key takeaway is: prop drilling is a symptom of shared state + deep trees, and lifting state is the first step.</p>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>📝 Mini-review questions (quick self-test)</h2>
+      <ol>
+        <li>What is prop drilling in one sentence?</li>
+        <li>Why did we lift <code>movies</code> to <code>App</code> instead of <code>NavBar</code>?</li>
+        <li>Which components in the path <code>App → Main → ListBox → MovieList</code> actually use <code>movies</code>?</li>
+        <li>When is prop drilling totally fine?</li>
+        <li>Name one technique that can reduce prop drilling in bigger apps.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>✅ Key takeaways</h2>
+      <ul>
+        <li>🧠 If the UI must update in multiple places from the same data, that data should usually be in <strong>shared state</strong>.</li>
+        <li>⬆️ Shared state often means <strong>lifting state up</strong> to the closest common parent.</li>
+        <li>🕳️ Prop drilling is the “cost” of lifting state in deep trees when many levels need to pass props down.</li>
+        <li>🧱 It’s valid for small apps, but you’ll learn better patterns for larger apps.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

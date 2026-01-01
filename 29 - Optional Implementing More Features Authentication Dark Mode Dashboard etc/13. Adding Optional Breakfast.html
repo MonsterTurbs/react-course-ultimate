@@ -1,0 +1,439 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Patterns — Adding Optional Breakfast (Check-in Flow)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --soft2:#fbfbfc;
+      --accent:#0b57d0;
+      --good:#137333;
+      --warn:#b26a00;
+      --bad:#b00020;
+      --code:#0f172a;
+      --codebg:#f6f8fa;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column page container */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header{
+      padding: 18px 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--soft2);
+    }
+
+    h1{
+      margin: 0 0 8px;
+      font-size: 1.65rem;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .chip{
+      display:inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    section{
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    h2{
+      margin: 0 0 10px;
+      font-size: 1.25rem;
+    }
+
+    h3{
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p{ margin: 10px 0; }
+
+    ul{ margin: 8px 0 8px 20px; padding: 0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: var(--soft);
+      padding: 12px 12px 12px 14px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.good{ border-left-color: var(--good); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.bad{ border-left-color: var(--bad); }
+
+    .kpi{
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr;
+      margin-top: 10px;
+    }
+
+    .kpi .box{
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    .kpi .label{ color: var(--muted); font-size: .92rem; margin-bottom: 4px; }
+    .kpi .value{ font-weight: 700; }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--codebg);
+      overflow: auto;
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      color: var(--code);
+      font-size: .92rem;
+    }
+
+    .hr{
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .table{
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    .table th, .table td{
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .table th{ background: var(--soft); }
+
+    .small{ color: var(--muted); font-size: .95rem; }
+
+    /* Print styles */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      :root{ --border:#d6d6d6; }
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; padding: 0; }
+      header, section{ border-radius: 0; box-shadow: none; }
+      a{ color: inherit; text-decoration: none; }
+      /* Avoid awkward page breaks */
+      header, section, pre, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      h2, h3{ break-after: avoid; page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🍳 Adding Optional Breakfast During Check‑In</h1>
+      <p class="subtitle">Reviewer / Study Guide — React state + React Query mutation + Supabase updates (server-side price recalculation)</p>
+      <div class="meta">
+        <span class="chip">🧩 Compound UX: Check‑in page</span>
+        <span class="chip">🔁 State sync: checkbox + URL + async booking data</span>
+        <span class="chip">🗄️ Supabase: update booking fields</span>
+        <span class="chip">⚡ React Query: mutation payload pattern</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Goal of this lecture</h2>
+      <p>
+        During <strong>check‑in</strong>, guests may decide to <strong>add breakfast</strong> even if they didn’t select it when booking.
+        We add a second checkbox, calculate the additional cost from <strong>Settings</strong>, and update the booking in Supabase.
+      </p>
+
+      <div class="kpi">
+        <div class="box">
+          <div class="label">Key behavior</div>
+          <div class="value">If breakfast is added, payment must be reconfirmed ✅</div>
+        </div>
+        <div class="box">
+          <div class="label">Server update</div>
+          <div class="value">Update: <code>hasBreakfast</code>, <code>extrasPrice</code>, <code>totalPrice</code>, plus status + isPaid</div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>⚠️ Important UX rule:</strong> If the guest adds anything extra (breakfast), set <code>confirmPaid</code> back to <code>false</code> so staff must confirm the new total.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Mental model</h2>
+      <p>
+        Think of check‑in as a “finalization step” where staff confirms payment and optional add‑ons.
+        Breakfast is an add‑on that affects pricing, so the UI and mutation must handle a few scenarios.
+      </p>
+
+      <table class="table" aria-label="Scenarios">
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>What the UI should do</th>
+            <th>What the backend update should do</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Guest already had breakfast</td>
+            <td>Don’t show “Add breakfast” box ✅</td>
+            <td>No breakfast price changes</td>
+          </tr>
+          <tr>
+            <td>Guest didn’t have breakfast, chooses to add</td>
+            <td>Show checkbox, recompute total, reset confirmPaid to false</td>
+            <td>Set <code>hasBreakfast=true</code>, update <code>extrasPrice</code> and <code>totalPrice</code></td>
+          </tr>
+          <tr>
+            <td>Guest didn’t add breakfast</td>
+            <td>Proceed with normal check‑in</td>
+            <td>Only set <code>status=checked-in</code>, <code>isPaid=true</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>🧱 UI implementation (checkbox + state)</h2>
+      <h3>1) Add state for breakfast</h3>
+      <p>
+        We need local UI state for the checkbox:
+      </p>
+      <pre><code>const [addBreakfast, setAddBreakfast] = useState(false);</code></pre>
+
+      <h3>2) Toggle breakfast and reset payment confirmation</h3>
+      <div class="callout">
+        <strong>✅ Why reset <code>confirmPaid</code>?</strong>
+        Because adding breakfast changes the total; a previously “paid” booking may now be “not fully paid”.
+      </div>
+      <pre><code>function handleToggleBreakfast() {
+  setAddBreakfast((cur) =&gt; !cur);
+  setConfirmPaid(false);
+}</code></pre>
+
+      <h3>3) Controlled checkbox (use <code>checked</code>, not <code>value</code>)</h3>
+      <pre><code>&lt;Checkbox
+  id="breakfast"
+  checked={addBreakfast}
+  onChange={handleToggleBreakfast}
+  disabled={false}
+&gt;
+  I want to add breakfast for this stay 🍳
+&lt;/Checkbox&gt;</code></pre>
+
+      <div class="callout warn">
+        <strong>⚠️ Common pitfall:</strong> For checkboxes, React uses <code>checked</code>. If you use <code>value</code>, the UI won’t reflect state correctly.
+      </div>
+    </section>
+
+    <section>
+      <h2>💰 Pricing: compute optional breakfast cost from Settings</h2>
+      <p>
+        Breakfast price is not hard-coded. It’s stored in your <strong>Settings</strong> table (e.g., <code>breakfastPrice</code>),
+        so changing Settings updates the UI automatically.
+      </p>
+
+      <h3>1) Load Settings</h3>
+      <pre><code>const { settings, isLoading: isLoadingSettings } = useSettings();</code></pre>
+
+      <h3>2) Compute breakfast price</h3>
+      <p class="small">
+        Formula: <code>breakfastPrice × numNights × numGuests</code>
+      </p>
+      <pre><code>const optionalBreakfastPrice =
+  settings.breakfastPrice * booking.numNights * booking.numGuests;</code></pre>
+
+      <h3>3) Render the “Add breakfast” box only if needed</h3>
+      <pre><code>{!booking.hasBreakfast &amp;&amp; (
+  &lt;Box&gt;
+    &lt;Checkbox
+      id="breakfast"
+      checked={addBreakfast}
+      onChange={handleToggleBreakfast}
+    &gt;
+      Add breakfast for
+      {formatCurrency(optionalBreakfastPrice)} 🍳
+    &lt;/Checkbox&gt;
+  &lt;/Box&gt;
+)}</code></pre>
+
+      <div class="callout good">
+        <strong>✅ Nice side-effect:</strong> If you change <code>settings.breakfastPrice</code>, the UI instantly uses the new value.
+      </div>
+
+      <div class="hr"></div>
+
+      <h3>Display the “total amount” clearly</h3>
+      <p>
+        When breakfast is added, show both the final total and the breakdown.
+      </p>
+      <pre><code>const totalToPay = addBreakfast
+  ? booking.totalPrice + optionalBreakfastPrice
+  : booking.totalPrice;
+
+const breakdownText = addBreakfast
+  ? `${formatCurrency(booking.totalPrice + optionalBreakfastPrice)} ` +
+    `(${formatCurrency(booking.totalPrice)} + ${formatCurrency(optionalBreakfastPrice)})`
+  : formatCurrency(booking.totalPrice);</code></pre>
+    </section>
+
+    <section>
+      <h2>🧬 Mutation design: “mutationFn receives only one argument”</h2>
+      <p>
+        React Query’s <code>mutate</code> calls your <code>mutationFn</code> with a single parameter.
+        If you need multiple values (bookingId + breakfast updates), pass one object and destructure it.
+      </p>
+
+      <div class="callout">
+        <strong>🧠 Pattern:</strong> Use one payload object: <code>{ bookingId, breakfast }</code>
+      </div>
+
+      <h3>useCheckIn hook: accept a payload object</h3>
+      <pre><code>// Example signature
+mutationFn: ({ bookingId, breakfast }) =&gt;
+  updateBooking(bookingId, {
+    status: "checked-in",
+    isPaid: true,
+    ...breakfast,
+  })</code></pre>
+
+      <p>
+        The spread (<code>...breakfast</code>) inserts only the extra fields when breakfast is added.
+        If breakfast isn’t added, send an empty object.
+      </p>
+
+      <h3>Call mutate from the CheckIn page</h3>
+      <pre><code>function handleCheckIn() {
+  if (!confirmPaid) return;
+
+  const breakfast = addBreakfast
+    ? {
+        hasBreakfast: true,
+        extrasPrice: optionalBreakfastPrice,
+        totalPrice: booking.totalPrice + optionalBreakfastPrice,
+      }
+    : {};
+
+  checkIn({ bookingId: booking.id, breakfast });
+}</code></pre>
+
+      <div class="callout warn">
+        <strong>⚠️ Remember:</strong> If you add breakfast, you must update both <code>extrasPrice</code> and <code>totalPrice</code>.
+        Otherwise the booking row will show inconsistent values.
+      </div>
+    </section>
+
+    <section>
+      <h2>⏳ Loading states: booking + settings</h2>
+      <p>
+        Because data arrives asynchronously, you should block the page until you have everything required
+        to calculate and display the correct totals.
+      </p>
+      <pre><code>if (isLoadingBooking || isLoadingSettings) return &lt;Spinner /&gt;;</code></pre>
+
+      <div class="callout bad">
+        <strong>🚫 Avoid:</strong> Calculating <code>optionalBreakfastPrice</code> before <code>settings</code> or <code>booking</code> exist.
+        That usually leads to “Cannot read properties of undefined”.
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Quick checklist (you should be able to say “yes”)</h2>
+      <ul>
+        <li>🍳 “Add breakfast” checkbox only appears when <code>!booking.hasBreakfast</code>.</li>
+        <li>🔁 Toggling breakfast sets <code>confirmPaid</code> back to <code>false</code>.</li>
+        <li>💰 Breakfast price uses <code>settings.breakfastPrice</code> and multiplies by nights × guests.</li>
+        <li>🧾 Display shows correct total and breakdown when breakfast is added.</li>
+        <li>🧬 Mutation payload uses one object: <code>{ bookingId, breakfast }</code>.</li>
+        <li>🗄️ Supabase update includes: <code>hasBreakfast</code>, <code>extrasPrice</code>, <code>totalPrice</code> when needed.</li>
+        <li>⏳ Page waits for both booking and settings (spinner).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧪 Mini-quiz (self-check)</h2>
+      <ol>
+        <li>
+          Why do we set <code>confirmPaid</code> to <code>false</code> when breakfast is toggled?
+          <div class="small">Answer: Because the total changes, and staff must confirm payment for the new amount.</div>
+        </li>
+        <li>
+          What’s the formula for breakfast cost?
+          <div class="small">Answer: <code>settings.breakfastPrice × booking.numNights × booking.numGuests</code></div>
+        </li>
+        <li>
+          Why do we pass an object into <code>mutate</code> instead of multiple arguments?
+          <div class="small">Answer: The mutation function receives only one parameter; an object is the clean payload.</div>
+        </li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>🔚 Summary</h2>
+      <p>
+        You added a real-world “add-on during check-in” flow by combining:
+        <strong>controlled inputs</strong>, <strong>settings-driven pricing</strong>, and a <strong>flexible mutation payload</strong>.
+        This pattern scales well to other add-ons (parking, late checkout, etc.). ✅
+      </p>
+    </section>
+  </main>
+</body>
+</html>

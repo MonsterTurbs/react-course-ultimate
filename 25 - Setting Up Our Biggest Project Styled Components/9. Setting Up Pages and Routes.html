@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wild Oasis — Setting Up Pages & Routes (React Router v6) | Study Guide</title>
+  <style>
+    /* =========================================================
+       Print-friendly, single-column A4 study guide
+       ========================================================= */
+    :root {
+      --bg: #ffffff;
+      --ink: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --soft2: #f6f7f9;
+      --accent: #1a73e8;
+      --ok: #137333;
+      --warn: #b06000;
+      --bad: #b3261e;
+      --codebg: #0b1020;
+      --codeink: #e7ecff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Page wrapper: single column */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--soft), #fff);
+      padding: 18px 18px;
+      border-radius: 12px;
+    }
+
+    .kicker {
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 8px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.25;
+      margin: 0 0 8px;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    main { margin-top: 18px; }
+
+    h2 {
+      font-size: 18px;
+      margin: 22px 0 10px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 16px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol {
+      margin: 10px 0 10px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--accent);
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.bad { border-left-color: var(--bad); }
+
+    .callout .title {
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .callout p { margin: 6px 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin: 10px 0;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 12px;
+    }
+
+    .card h3 { margin-top: 0; }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codeink);
+      border: 1px solid rgba(255,255,255,.12);
+      overflow: auto;
+      white-space: pre-wrap;     /* wrap long lines */
+      word-break: break-word;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      background: var(--soft2);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+      margin-left: 0;
+    }
+
+    .checklist li {
+      margin: 8px 0;
+      padding-left: 28px;
+      position: relative;
+    }
+
+    .checklist li::before {
+      content: "✅";
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    .qa {
+      border-top: 1px dashed var(--border);
+      margin-top: 16px;
+      padding-top: 12px;
+    }
+
+    .q {
+      margin: 10px 0 6px;
+      font-weight: 700;
+    }
+
+    .a {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    footer {
+      margin-top: 22px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* Links: readable on screen, neutral on print */
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* =========================================================
+       Print rules
+       ========================================================= */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { padding: 0; max-width: none; }
+      header, .card, .callout { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; border-color: #ddd; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <p class="kicker">Reviewer / Study Guide</p>
+      <h1>Setting Up Pages and Routes (React Router v6) — The Wild Oasis</h1>
+      <p class="sub">Topic focus: installing React Router v6, defining routes declaratively, setting up an index redirect, adding a 404 page, and re-applying global styles. 🧭🧩</p>
+      <div class="meta">
+        <span class="chip">Single-column</span>
+        <span class="chip">A4 print-ready</span>
+        <span class="chip">React Router v6</span>
+        <span class="chip">No Data APIs (for this project)</span>
+        <span class="chip">Styled Components GlobalStyles</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>1) Big Picture 🗺️</h2>
+      <p>
+        In this lecture, you switch from “styling practice mode” to “real app structure mode.”
+        You install <span class="inline-code">react-router-dom</span> (v6), delete temporary UI from <span class="inline-code">App.jsx</span>, and set up the Wild Oasis pages as routes.
+      </p>
+
+      <div class="callout ok">
+        <p class="title">Key decision ✅</p>
+        <p>
+          Unlike the Fast React Pizza project, this Wild Oasis app will <strong>not</strong> use React Router’s data-loading features (loaders/actions) here.
+          Routes are defined in a <strong>declarative</strong> way, similar to a classic SPA setup.
+        </p>
+      </div>
+
+      <h2>2) Install React Router v6 📦</h2>
+      <p>
+        You install the DOM package (this is what React apps in the browser use):
+      </p>
+      <pre><code>npm install react-router-dom@6</code></pre>
+
+      <div class="callout warn">
+        <p class="title">Common gotcha ⚠️</p>
+        <p>
+          Make sure it’s <span class="inline-code">react-router-dom</span>, not just <span class="inline-code">react-router</span>.
+          For browser apps, you almost always want the <strong>DOM</strong> package.
+        </p>
+      </div>
+
+      <h2>3) Declarative Routing Setup 🧭</h2>
+      <p>
+        The pattern used is:
+      </p>
+      <ul>
+        <li>Wrap app routes with <span class="inline-code">&lt;BrowserRouter&gt;</span></li>
+        <li>Inside, use <span class="inline-code">&lt;Routes&gt;</span> to match the URL</li>
+        <li>Use one <span class="inline-code">&lt;Route /&gt;</span> per path, each rendering a “Page component”</li>
+      </ul>
+
+      <div class="card">
+        <h3>Example: Basic Routes Skeleton 🧩</h3>
+        <pre><code>import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import GlobalStyles from "./styles/GlobalStyles";
+
+import Dashboard from "./pages/Dashboard";
+import Bookings from "./pages/Bookings";
+import Cabins from "./pages/Cabins";
+import Checkin from "./pages/Checkin";
+import Settings from "./pages/Settings";
+import Users from "./pages/Users";
+import Account from "./pages/Account";
+import Login from "./pages/Login";
+import PageNotFound from "./pages/PageNotFound";
+
+export default function App() {
+  return (
+    <>
+      <GlobalStyles />
+
+      <BrowserRouter>
+        <Routes>
+          {/* Index route (see next section) */}
+
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="bookings" element={<Bookings />} />
+          <Route path="cabins" element={<Cabins />} />
+
+          {/* Example param route */}
+          <Route path="checkin/:bookingId" element={<Checkin />} />
+
+          <Route path="settings" element={<Settings />} />
+          <Route path="users" element={<Users />} />
+          <Route path="account" element={<Account />} />
+          <Route path="login" element={<Login />} />
+
+          {/* 404 fallback */}
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </>
+  );
+}</code></pre>
+        <p class="sub">
+          Note: Filenames/paths may vary slightly depending on your starter files.
+        </p>
+      </div>
+
+      <h2>4) The “No Index Route” Problem 🧯</h2>
+      <p>
+        After defining routes, you might see a “page not found” screen.
+        This happens when you open <span class="inline-code">/</span> (root URL) but you didn’t define what should render at the root.
+      </p>
+
+      <div class="grid">
+        <div class="callout">
+          <p class="title">Fix option A: Define an index route 🏠</p>
+          <p>Use the <span class="inline-code">index</span> prop to define what renders at the parent route’s root.</p>
+          <pre><code>&lt;Route index element={<Dashboard />} /&gt;</code></pre>
+        </div>
+
+        <div class="callout">
+          <p class="title">Fix option B: Redirect using &lt;Navigate /&gt; 🔁</p>
+          <p>
+            Instead of duplicating dashboard logic, use a redirect.
+            <span class="inline-code">replace</span> avoids adding an extra history entry.
+          </p>
+          <pre><code>&lt;Route index element={<Navigate replace to="dashboard" />} /&gt;</code></pre>
+        </div>
+      </div>
+
+      <div class="callout ok">
+        <p class="title">Why use redirect? ✅</p>
+        <p>
+          Cleaner route config: <strong>one real dashboard route</strong> (<span class="inline-code">/dashboard</span>) and <strong>root just points to it</strong>.
+        </p>
+      </div>
+
+      <h2>5) 404 Page (Wildcard Route) 🚫</h2>
+      <p>
+        React Router v6 uses a wildcard path to catch any unmatched URL:
+      </p>
+      <pre><code>&lt;Route path="*" element={<PageNotFound />} /&gt;</code></pre>
+
+      <div class="callout warn">
+        <p class="title">Rule of thumb ⚠️</p>
+        <p>
+          Put the wildcard route near the end so your route list reads naturally.
+          React Router v6 matches routes by ranking, but keeping it last avoids confusion when reading code.
+        </p>
+      </div>
+
+      <h2>6) Import Pages Correctly 📄</h2>
+      <p>
+        The lecture notes mention that page components are already in your <span class="inline-code">/pages</span> folder.
+        You must import them into <span class="inline-code">App.jsx</span> (or wherever you define routes).
+      </p>
+
+      <ul class="checklist">
+        <li>Each route uses a “page component” in <span class="inline-code">/pages</span>.</li>
+        <li>Paths should match the course’s URLs exactly (to avoid confusion later).</li>
+        <li>Param routes look like <span class="inline-code">checkin/:bookingId</span>.</li>
+      </ul>
+
+      <h2>7) Bring Back Your Global Styles 🎨</h2>
+      <p>
+        When you deleted your temporary UI, you also lost the styled-components setup that applied your CSS reset and design tokens.
+        Fix it by rendering <span class="inline-code">&lt;GlobalStyles /&gt;</span> at the top of the component tree.
+      </p>
+
+      <div class="callout">
+        <p class="title">Why the Fragment (<span class="inline-code">&lt;&gt;...&lt;/&gt;</span>)? 🧱</p>
+        <p>
+          A React component must return exactly one parent element.
+          The fragment lets you return siblings: <span class="inline-code">GlobalStyles</span> + <span class="inline-code">BrowserRouter</span>.
+        </p>
+      </div>
+
+      <h2>8) Quick Manual Test Plan 🧪</h2>
+      <p>After setup, manually check a few pages by changing the URL or using your navigation:</p>
+      <ol>
+        <li><span class="inline-code">/</span> → should redirect to <span class="inline-code">/dashboard</span> 🔁</li>
+        <li><span class="inline-code">/bookings</span> → should render bookings page 📅</li>
+        <li><span class="inline-code">/account</span> → should render account page 👤</li>
+        <li><span class="inline-code">/some-random-url</span> → should show Page Not Found 🚫</li>
+      </ol>
+
+      <h2>9) Common Mistakes & Fixes 🧯</h2>
+
+      <div class="callout bad">
+        <p class="title">Mistake: “Nothing renders” / Blank page 😵</p>
+        <p>
+          Check that routes are inside <span class="inline-code">&lt;BrowserRouter&gt;</span> and you used <span class="inline-code">&lt;Routes&gt;</span> (not <span class="inline-code">Switch</span>, which is older v5).
+        </p>
+      </div>
+
+      <div class="callout bad">
+        <p class="title">Mistake: “Page not found” on root URL 🏠</p>
+        <p>
+          Add an index route OR redirect with <span class="inline-code">&lt;Navigate /&gt;</span> so <span class="inline-code">/</span> has a destination.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <p class="title">Mistake: Styles disappeared 🎨</p>
+        <p>
+          Ensure <span class="inline-code">&lt;GlobalStyles /&gt;</span> is mounted at the top (and you’re importing the right file path).
+        </p>
+      </div>
+
+      <h2>10) Mini-Quiz (Retention) 🧠</h2>
+      <div class="qa">
+        <p class="q">1) Why install <span class="inline-code">react-router-dom</span> instead of <span class="inline-code">react-router</span>?</p>
+        <p class="a">Because <span class="inline-code">react-router-dom</span> contains the browser-specific components like <span class="inline-code">BrowserRouter</span>.</p>
+
+        <p class="q">2) What does <span class="inline-code">&lt;Routes&gt;</span> do?</p>
+        <p class="a">It matches the current URL and decides which <span class="inline-code">&lt;Route&gt;</span> should render.</p>
+
+        <p class="q">3) What is the cleanest way to show the dashboard when the user opens <span class="inline-code">/</span>?</p>
+        <p class="a">Use an index route that redirects: <span class="inline-code">&lt;Route index element={<Navigate replace to="dashboard" />} /&gt;</span>.</p>
+
+        <p class="q">4) What route catches unknown pages?</p>
+        <p class="a">The wildcard: <span class="inline-code">path="*"</span>.</p>
+      </div>
+
+      <h2>11) Summary 🧾</h2>
+      <ul class="checklist">
+        <li>Installed <span class="inline-code">react-router-dom@6</span> 📦</li>
+        <li>Set up declarative routes using <span class="inline-code">BrowserRouter</span> + <span class="inline-code">Routes</span> + <span class="inline-code">Route</span> 🧭</li>
+        <li>Added a root index redirect using <span class="inline-code">Navigate</span> 🔁</li>
+        <li>Added a 404 fallback route (<span class="inline-code">*</span>) 🚫</li>
+        <li>Restored global styling via <span class="inline-code">GlobalStyles</span> 🎨</li>
+      </ul>
+
+      <footer>
+        Tip: In the next lecture, you’ll build the app layout (navigation shell). Keep your routes clean and your pages “thin” (pages delegate work to feature components). 👍
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

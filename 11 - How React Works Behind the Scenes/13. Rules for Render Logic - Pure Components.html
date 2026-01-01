@@ -1,0 +1,416 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — Rules for Render Logic (Pure Components) | Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e7e7e7;
+      --soft:#f7f7f8;
+      --accent:#1a73e8;
+      --good:#0f766e;
+      --warn:#b45309;
+      --bad:#b91c1c;
+      --codebg:#0b1020;
+      --codefg:#e8eefc;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px 60px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:18px 18px;
+      background: #fff;
+    }
+
+    .kicker{
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin:0 0 6px;
+    }
+
+    h1{
+      font-size:24px;
+      margin:0 0 8px;
+      line-height:1.25;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .meta{
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px dashed var(--border);
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    section{ margin-top:18px; }
+
+    h2{
+      font-size:18px;
+      margin:0 0 10px;
+      padding-bottom:6px;
+      border-bottom:1px solid var(--border);
+    }
+
+    h3{
+      font-size:15px;
+      margin:14px 0 8px;
+    }
+
+    p{ margin: 10px 0; }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:14px 14px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f3f7ff;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout strong{ color:#0b3b8a; }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+
+    ul{ margin: 8px 0 8px 20px; }
+    li{ margin: 6px 0; }
+
+    .pill{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:var(--soft);
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+      margin-right:6px;
+      vertical-align:middle;
+      white-space:nowrap;
+    }
+
+    .tag-good{ border-color:#bfe7df; background:#ecfeff; color:var(--good); }
+    .tag-warn{ border-color:#fde68a; background:#fffbeb; color:var(--warn); }
+    .tag-bad{ border-color:#fecaca; background:#fff1f2; color:var(--bad); }
+
+    pre{
+      margin:10px 0;
+      padding:12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 12px;
+      overflow:auto;
+      font-size: 12.5px;
+      line-height: 1.45;
+      border: 1px solid #1a2240;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .mini{
+      font-size:13px;
+      color:var(--muted);
+      margin-top:8px;
+    }
+
+    .checklist li{ margin: 7px 0; }
+
+    .hr{
+      height:1px;
+      background:var(--border);
+      margin:14px 0;
+    }
+
+    /* Print rules (A4, clean output) */
+    @page{ size: A4; margin: 14mm; }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width:none; padding:0; }
+      header, .card, .callout{ border:1px solid #ddd; box-shadow:none; }
+      a{ color:inherit; text-decoration:none; }
+      /* If any URLs appear in printed content (rare), hide them */
+      a[href]:after{ content: ""; }
+      pre{ page-break-inside: avoid; }
+      h2, h3{ page-break-after: avoid; }
+      .card{ page-break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">React Internals • Render Phase Foundations</p>
+      <h1>Rules for Render Logic — Pure Components</h1>
+      <p class="subtitle">A print-friendly reviewer explaining <strong>render logic vs event handlers</strong>, what “pure” means in React, and what you must avoid during rendering.</p>
+      <p class="meta">🧠 Goal: make your components predictable so React can safely render, re-render, and reconcile without surprises.</p>
+    </header>
+
+    <section>
+      <h2>1) Two kinds of logic inside a React component</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>🧩 Render Logic (runs during render)</h3>
+          <p>
+            <span class="pill tag-good">Runs immediately</span>
+            Render logic is <strong>all code executed when the component function runs</strong> (i.e., when React renders/re-renders it).
+            It’s used to <strong>describe what the UI should look like</strong>.
+          </p>
+          <ul>
+            <li>Top-level code inside the component function (variables, derived values, conditional logic)</li>
+            <li>The <code>return</code> JSX</li>
+            <li>Any helper function you call inside JSX (because it runs during render too)</li>
+          </ul>
+          <div class="mini">✅ Think: “What should the UI snapshot look like right now?”</div>
+        </div>
+
+        <div class="card">
+          <h3>🖱️ Event Handlers (run after user/system events)</h3>
+          <p>
+            <span class="pill tag-warn">Runs later</span>
+            Event handlers run <strong>because something happened</strong> (click, input change, submit, hover, etc.).
+            This is where you typically <strong>do things</strong>.
+          </p>
+          <ul>
+            <li>State updates (e.g., <code>setState</code>)</li>
+            <li>HTTP requests / API calls</li>
+            <li>Reading user input</li>
+            <li>Navigation</li>
+            <li>Starting timers</li>
+          </ul>
+          <div class="mini">✅ Think: “An action happened—update something.”</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Key idea:</strong> React requires components to be <em>pure</em> <strong>in render logic</strong>. Event handlers can (and often should) cause side effects.
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Side effects and pure functions (quick refresher)</h2>
+
+      <div class="card">
+        <h3>🌍 What is a side effect?</h3>
+        <p>
+          A <strong>side effect</strong> happens when a function:
+        </p>
+        <ul>
+          <li><strong>depends on</strong> data outside its scope (like current time, global variables), and/or</li>
+          <li><strong>modifies</strong> something outside its scope (mutating objects, DOM updates, network requests, timers).</li>
+        </ul>
+        <p class="mini">A good mental model: a side effect is a function “interacting with the outside world.”</p>
+      </div>
+
+      <div class="card">
+        <h3>🧼 What is a pure function?</h3>
+        <p>
+          A <strong>pure function</strong> has <strong>no side effects</strong> and is predictable:
+          same input → same output.
+        </p>
+        <pre><code>// ✅ Pure: predictable
+function circleArea(r) {
+  return Math.PI * r * r;
+}
+
+// ❌ Impure: output changes even with the same input
+function nowLabel() {
+  return `Time: ${new Date().toISOString()}`;
+}
+
+// ❌ Impure: mutates outside state
+let counter = 0;
+function inc() {
+  counter = counter + 1;
+}
+</code></pre>
+        <p class="mini">Side effects are not “bad”—apps need them. The important part is <strong>where</strong> you do them in React.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) The big rule: render logic must be pure</h2>
+
+      <div class="callout">
+        <strong>Rule:</strong> If a component instance receives the <strong>same props</strong> (same input), it should return the <strong>same JSX output</strong>.
+        That means: <strong>no side effects inside render logic</strong>.
+      </div>
+
+      <div class="card">
+        <h3>✅ Allowed in render logic</h3>
+        <ul class="checklist">
+          <li>✅ Deriving UI values from props/state (e.g., sorting, filtering, formatting)</li>
+          <li>✅ Conditional rendering (ternaries, <code>&amp;&amp;</code>)</li>
+          <li>✅ Mapping arrays to JSX</li>
+          <li>✅ Calling helper functions that are also pure</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>⛔ Not allowed in render logic (common side effects)</h3>
+        <ul class="checklist">
+          <li><span class="pill tag-bad">No</span> Network requests (fetch/axios) inside the component body</li>
+          <li><span class="pill tag-bad">No</span> Timers (<code>setTimeout</code>, <code>setInterval</code>) created during render</li>
+          <li><span class="pill tag-bad">No</span> Direct DOM operations (<code>document.querySelector</code>, <code>addEventListener</code>, manual DOM writes)</li>
+          <li><span class="pill tag-bad">No</span> Mutating variables/objects outside the component scope</li>
+          <li><span class="pill tag-bad">No</span> Mutating props (this is why “props are read-only” is a hard rule)</li>
+          <li><span class="pill tag-bad">No</span> Updating state or refs during render</li>
+        </ul>
+
+        <div class="hr"></div>
+
+        <p><strong>Why “no state updates in render” is critical:</strong> it can cause an infinite render loop.</p>
+        <pre><code>// ❌ Never do this
+function Bad() {
+  const [count, setCount] = React.useState(0);
+  setCount(count + 1); // triggers render → triggers setState → ... forever
+  return &lt;div&gt;{count}&lt;/div&gt;;
+}
+</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>⚠️ “But I use console.log() and Math.random() in render…”</h3>
+        <p>
+          These are technically side effects / non-deterministic operations, but they’re usually harmless for learning/debugging.
+          Still, use them intentionally:
+        </p>
+        <ul>
+          <li>🧾 <code>console.log</code>: fine for debugging (remove/limit in production).</li>
+          <li>🎲 <code>Math.random</code> / <code>new Date()</code>: makes output unpredictable; can cause surprising UI changes across renders.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Where do side effects go, then?</h2>
+
+      <div class="card">
+        <h3>Option A: Event handlers ✅</h3>
+        <p>
+          If the effect should happen because the user did something (click, submit, type), do it in an event handler.
+        </p>
+        <pre><code>function SearchBox() {
+  const [query, setQuery] = React.useState("");
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    // ✅ Side effect allowed here
+    const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    console.log(data);
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input value={query} onChange={(e) =&gt; setQuery(e.target.value)} /&gt;
+      &lt;button&gt;Search&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Option B: useEffect ✅ (run effect after render)</h3>
+        <p>
+          If you need an effect to run when the component mounts or when some value changes,
+          register it with <code>useEffect</code>.
+        </p>
+        <pre><code>function Profile({ userId }) {
+  const [user, setUser] = React.useState(null);
+
+  React.useEffect(() =&gt; {
+    let isMounted = true;
+
+    async function load() {
+      const res = await fetch(`/api/users/${userId}`);
+      const data = await res.json();
+      if (isMounted) setUser(data);
+    }
+
+    load();
+    return () =&gt; { isMounted = false; };
+  }, [userId]);
+
+  return &lt;div&gt;{user ? user.name : "Loading..."}&lt;/div&gt;;
+}
+</code></pre>
+        <p class="mini">📌 Important: <code>useEffect</code> runs after React renders (and after commit), so it doesn’t break render purity.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Quick self-check (interview-friendly)</h2>
+
+      <div class="card">
+        <h3>✅ If someone asks: “What is render logic?”</h3>
+        <ul>
+          <li>Render logic is everything that runs when the component function runs and helps produce JSX.</li>
+          <li>It must be pure: same props/state → same JSX output.</li>
+        </ul>
+
+        <h3>✅ If someone asks: “Why can’t we mutate props?”</h3>
+        <ul>
+          <li>Mutating props is a side effect (it changes data outside the component scope).</li>
+          <li>It breaks predictability across renders and can confuse reconciliation.</li>
+        </ul>
+
+        <h3>✅ If someone asks: “Where do side effects belong?”</h3>
+        <ul>
+          <li>Event handlers (user-triggered effects)</li>
+          <li><code>useEffect</code> for effects that must run after render</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <strong>Next topic:</strong> State update batching (how React groups multiple state updates to reduce unnecessary work).
+      </div>
+    </section>
+  </main>
+</body>
+</html>

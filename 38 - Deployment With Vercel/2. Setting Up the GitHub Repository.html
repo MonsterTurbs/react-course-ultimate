@@ -1,0 +1,507 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wild Oasis (Next.js) — Deployment with Vercel: Setting Up the GitHub Repository (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #1a73e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 18px 16px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      font-size: 12px;
+      padding: 5px 10px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: #222;
+    }
+
+    main { margin-top: 18px; }
+
+    h2 {
+      font-size: 16px;
+      margin: 18px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol { margin: 8px 0 10px 22px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-left: 4px solid var(--accent);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout .title {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 12px;
+      background: #fff;
+    }
+
+    .card .k {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 10px 12px;
+      background: #0b1020;
+      color: #f5f7ff;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .muted { color: var(--muted); }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+
+    .table th, .table td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .table th { background: var(--soft); }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* Print styles (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header { border-radius: 0; }
+      a { color: inherit; text-decoration: none; }
+      /* Avoid ugly URL expansion in print */
+      a[href]::after { content: ""; }
+      pre { page-break-inside: avoid; }
+      .card, .callout { break-inside: avoid; }
+      h2, h3 { break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🚀 Deployment with Vercel — Setting Up the GitHub Repository</h1>
+      <p class="subtitle">
+        Reviewer / study guide for the Wild Oasis (Next.js) project. Focus: committing your local project to Git and pushing it to a new GitHub repository so Vercel can deploy it.
+      </p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Git + GitHub for CI/CD</span>
+        <span class="chip">⚙️ Context: Next.js (Create-Next-App)</span>
+        <span class="chip">📦 Output: Repo ready to connect to Vercel</span>
+        <span class="chip">🖨️ A4 Print-ready</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="toc">
+        <h2 id="toc">📌 Table of Contents</h2>
+        <ol>
+          <li><a href="#goal">Goal of this step</a></li>
+          <li><a href="#big-picture">Big picture: why GitHub matters for Vercel</a></li>
+          <li><a href="#local-git">Confirm local Git repo (Create-Next-App)</a></li>
+          <li><a href="#commit">Stage + commit your project</a></li>
+          <li><a href="#github">Create a new GitHub repository</a></li>
+          <li><a href="#push">Add remote + push to GitHub</a></li>
+          <li><a href="#pitfalls">Common pitfalls + quick fixes</a></li>
+          <li><a href="#checklist">Quick checklist</a></li>
+          <li><a href="#transcript">Original transcript</a></li>
+        </ol>
+      </section>
+
+      <section>
+        <h2 id="goal">🎯 Goal of this step</h2>
+        <p>
+          You will take your <strong>local Next.js project</strong>, ensure it is properly tracked by Git, then <strong>push it to a new GitHub repository</strong>.
+          After that, the repo can be connected to <strong>Vercel</strong> for continuous deployment.
+        </p>
+
+        <div class="callout">
+          <div class="title">✅ Success looks like this</div>
+          <ul>
+            <li>Local working directory is clean (no unwanted uncommitted files)</li>
+            <li>At least one commit exists (e.g., <em>Initial commit</em>)</li>
+            <li>GitHub shows your project files after refresh</li>
+            <li>You have a remote named <code>origin</code> pointing to GitHub</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="big-picture">🧭 Big picture: why GitHub matters for Vercel</h2>
+        <div class="grid">
+          <div class="card">
+            <div class="k">🏗️ Vercel deployment flow</div>
+            <ol>
+              <li>Push code to GitHub</li>
+              <li>Connect the GitHub repo to Vercel</li>
+              <li>Vercel builds + deploys on every push (CI/CD)</li>
+            </ol>
+          </div>
+          <div class="card">
+            <div class="k">🤝 Why this is “professional”</div>
+            <ul>
+              <li><strong>Repeatable</strong>: anyone can clone your repo and build the same project</li>
+              <li><strong>Traceable</strong>: commits show history (who changed what, when)</li>
+              <li><strong>Automated</strong>: Vercel can redeploy automatically on new commits</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="local-git">🗂️ Confirm local Git repo (Create-Next-App)</h2>
+        <p>
+          Create-Next-App typically initializes a Git repository for you. You can often tell by:
+        </p>
+        <ul>
+          <li>VS Code showing file status markers (modified, untracked)</li>
+          <li>Your terminal showing you’re on a branch (usually <code>main</code>)</li>
+        </ul>
+
+        <div class="callout">
+          <div class="title">🔎 Quick checks</div>
+          <ul>
+            <li>Run <code>git status</code> to confirm you are inside a repo</li>
+            <li>If you see: <code>fatal: not a git repository</code>, initialize it with <code>git init</code></li>
+          </ul>
+        </div>
+
+        <pre>git status
+# On branch main
+# Changes not staged for commit ...</pre>
+      </section>
+
+      <section>
+        <h2 id="commit">✅ Stage + commit your project</h2>
+        <p>
+          Git has two major steps before pushing:
+          <strong>stage</strong> (add files to the “next commit”) and <strong>commit</strong> (save a snapshot in history).
+        </p>
+
+        <h3>1) Stage all files</h3>
+        <pre>git add .</pre>
+
+        <h3>2) Create your first commit</h3>
+        <pre>git commit -m "Initial commit"</pre>
+
+        <div class="callout">
+          <div class="title">🧠 Beginner note</div>
+          <p class="muted">
+            The message <em>“Initial commit”</em> is common for the first commit. It doesn’t have to be perfect—what matters is having a clean starting point in Git history.
+          </p>
+        </div>
+
+        <h3>3) Confirm working directory is clean</h3>
+        <pre>git status
+# On branch main
+# nothing to commit, working tree clean</pre>
+      </section>
+
+      <section>
+        <h2 id="github">🌐 Create a new GitHub repository</h2>
+        <p>
+          Create a new repository on GitHub (usually <strong>Private</strong> while learning, unless you want it public).
+        </p>
+        <ul>
+          <li>Give it a valid repo name (e.g., <code>the-wild-oasis-website</code>)</li>
+          <li>Do <strong>not</strong> initialize with README / .gitignore / license if your local repo already has them (avoids conflicts)</li>
+        </ul>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Choice</th>
+              <th>Recommendation</th>
+              <th>Why</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Visibility</td>
+              <td>Private (initially)</td>
+              <td>Keeps credentials and work-in-progress code safer while learning</td>
+            </tr>
+            <tr>
+              <td>Initialize with README</td>
+              <td>No</td>
+              <td>You already have a local history—avoid merge conflicts on first push</td>
+            </tr>
+            <tr>
+              <td>.gitignore</td>
+              <td>No</td>
+              <td>Create-Next-App already created one</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2 id="push">⬆️ Add remote + push to GitHub</h2>
+        <p>
+          Now connect your local repo to GitHub using a remote named <code>origin</code>, then push.
+          GitHub will show you commands after creating the repo.
+        </p>
+
+        <h3>Typical commands (existing repo → push)</h3>
+        <pre>git remote add origin &lt;YOUR_GITHUB_REPO_URL&gt;
+git branch -M main
+git push -u origin main</pre>
+
+        <div class="callout">
+          <div class="title">🖼️ Why pushing might take time</div>
+          <p class="muted">
+            Large assets (images, videos, etc.) increase push time. This is normal.
+          </p>
+        </div>
+
+        <h3>Verify the remote</h3>
+        <pre>git remote -v
+# origin  &lt;YOUR_GITHUB_REPO_URL&gt; (fetch)
+# origin  &lt;YOUR_GITHUB_REPO_URL&gt; (push)</pre>
+
+        <p>
+          After pushing, refresh the GitHub repo page and confirm your code is visible.
+          Once that’s working, you’re ready to connect the repo to Vercel.
+        </p>
+      </section>
+
+      <section>
+        <h2 id="pitfalls">🧯 Common pitfalls + quick fixes</h2>
+
+        <div class="grid">
+          <div class="card">
+            <div class="k">❌ “remote origin already exists”</div>
+            <p class="muted">You already added a remote earlier.</p>
+            <pre>git remote -v
+# If the URL is wrong:
+git remote set-url origin &lt;YOUR_GITHUB_REPO_URL&gt;</pre>
+          </div>
+
+          <div class="card">
+            <div class="k">❌ First push rejected / conflicts</div>
+            <p class="muted">Usually caused by initializing the GitHub repo with README/.gitignore.</p>
+            <pre># Option A (recommended): delete the GitHub repo and recreate it WITHOUT initializing files
+
+# Option B: pull then push (requires resolving conflicts)
+git pull origin main --allow-unrelated-histories</pre>
+          </div>
+
+          <div class="card">
+            <div class="k">❌ Authentication errors (HTTPS)</div>
+            <p class="muted">GitHub may require a Personal Access Token (PAT) instead of your password.</p>
+            <ul>
+              <li>Use a PAT when prompted for password</li>
+              <li>Or switch to SSH if you prefer</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <div class="k">❌ Accidentally committed secrets</div>
+            <p class="muted">Never commit real credentials. Use environment variables.</p>
+            <ul>
+              <li>Confirm <code>.env.local</code> is in <code>.gitignore</code></li>
+              <li>If leaked, rotate keys and remove from Git history (advanced)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="checklist">✅ Quick checklist</h2>
+        <ul>
+          <li>☑️ <code>git status</code> shows “working tree clean”</li>
+          <li>☑️ At least one commit exists: <code>git log --oneline -n 5</code></li>
+          <li>☑️ Remote exists: <code>git remote -v</code></li>
+          <li>☑️ Pushed successfully: <code>git push -u origin main</code></li>
+          <li>☑️ GitHub repo shows files after refresh</li>
+          <li>➡️ Next step: connect GitHub repo to Vercel</li>
+        </ul>
+      </section>
+
+      <div class="hr"></div>
+
+      <section>
+        <h2 id="transcript">📜 Original transcript</h2>
+        <div class="card">
+          <p class="muted" style="margin-top:0;">(Included for reference; reviewer above is the simplified version.)</p>
+          <p>
+            So the first step in setting up
+            a Professional Continuous Deployment with Vercel
+            is to set up a GitHub Repository with our project files.
+            Now, way back when we set up this project
+            with Create-Next-App, remember how I told you
+            that Create-Next-App actually automatically creates
+            a Git Repository for your project.
+            And we can see this because first of all,
+            these files here, we get these markers
+            as a modified and untracked.
+            And also down here we can see
+            that we are in the main branch.
+            And yeah, so we are right now in a Git Repository.
+            And so let's now add all the files that we have here
+            and also commit them.
+            And if you don't know how Git works at all,
+            or if you don't even have it installed on your machine,
+            you can go back to the previous Deployment Section
+            that is in Part Four of the course,
+            and there we set all of this up from scratch.
+            But at this point, I will just assume
+            that you already know Git and GitHub as well.
+            So let's first of all add all the files,
+            so that's, git add, and then like this.
+            So they're now in the staging area.
+            And so now let's also commit them.
+            So git commit -M for the message.
+            And here I'm just gonna say, Initial Commit,
+            even though it's technically not the Initial Commit here,
+            but maybe for you it is.
+            But of course, you can also just call this something else.
+            But usually when you do the very first commit,
+            then you just call it, Initial Commit.
+            So that's not really that important.
+            What matters is that now all of our files are committed,
+            the staging area is empty.
+            And so now we also no longer see any markers here.
+            So we have no more modified files here.
+            So files that are not clean basically.
+            And so now let's create a new repository also on GitHub,
+            so that we can then push our code
+            from the local repository here to GitHub.
+            So then we can connect this GitHub Repository
+            to Vercel next.
+            So give this some valid name.
+            So I'm gonna call it, the-wild-oasis-website,
+            and then video, because video is what I'm doing right now.
+            Let's make it Private.
+            Then don't do any of these
+            because you already have a gitignore and the README
+            and all of that.
+            Otherwise, that's just gonna create some conflict.
+            And there we go.
+            So we already have an existing repository,
+            so let's just copy all of this stuff here.
+            Let's clean this.
+            And so basically this will add the remote branch,
+            and then it will push our code there.
+            Let's just hit Enter.
+            And so that will then do all the work.
+            It's gonna take some time because of all the images.
+            And now if we reload,
+            there is our code.
+            Beautiful, and so now with this in place,
+            we can move on and connect this repository to Vercel.
+          </p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

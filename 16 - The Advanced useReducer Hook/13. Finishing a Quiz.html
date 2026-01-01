@@ -1,0 +1,364 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Quiz — Finishing the Quiz (useReducer) | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f6f8fa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column, print-friendly container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 16px 16px 12px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    h2 {
+      margin: 18px 0 8px;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 14px 0 6px;
+      font-size: 15px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 12px 10px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .callout.tip { border-left-color: #2d7ef7; }
+    .callout.warn { border-left-color: #f59e0b; }
+    .callout.key { border-left-color: #10b981; }
+
+    .label {
+      display: inline-block;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    code {
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    pre {
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      padding: 10px 10px;
+      border-radius: 10px;
+      overflow: hidden;           /* avoid horizontal clipping on print */
+      white-space: pre-wrap;      /* wrap long lines */
+      overflow-wrap: anywhere;
+      margin: 10px 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, .callout, pre { break-inside: avoid; page-break-inside: avoid; }
+      a[href]:after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Finishing the React Quiz (useReducer) ✅</h1>
+      <p class="subtitle">Reviewer / Study Guide — implementing the <strong>Finished</strong> state, Finish Screen, high score, and safe end-of-quiz navigation.</p>
+      <div class="meta">
+        <div>🎯 Focus: state transitions in a reducer (active → finished), guarding the last question, and derived UI feedback (percentage + emoji).</div>
+        <div>🧠 Big idea: keep related state updates together inside the reducer; UI just dispatches actions.</div>
+      </div>
+    </header>
+
+    <h2>1) What you are building in this lesson 🧱</h2>
+    <p>
+      You already have a flow controlled by <code>status</code>:
+      <code>loading</code> → <code>ready</code> → <code>active</code> → <code>finished</code>.
+      In this lesson, you implement the final step: when the user answers the last question, the app should <strong>stop showing</strong> the quiz UI (progress + question + next button) and instead show a <strong>Finish Screen</strong>.
+    </p>
+
+    <div class="callout key">
+      <div class="label">✅ Outcome</div>
+      <ul>
+        <li>Render a <code>&lt;FinishScreen /&gt;</code> when <code>status === "finished"</code>.</li>
+        <li>Prevent the “index goes out of bounds” crash on the last question.</li>
+        <li>Add a <strong>score summary</strong>: points, max points, percentage, and emoji feedback.</li>
+        <li>Track and display <strong>highscore</strong> across quiz attempts.</li>
+        <li>Prepare for a <strong>Restart</strong> action (implemented next video).</li>
+      </ul>
+    </div>
+
+    <h2>2) FinishScreen component 🏁</h2>
+    <p>
+      The Finish Screen is a presentational component that needs numbers coming from the App:
+      <code>points</code>, <code>maxPossiblePoints</code>, and later <code>highscore</code>.
+      You compute <code>percentage</code> as derived state.
+    </p>
+
+    <h3>FinishScreen: minimal version</h3>
+    <pre><code>function FinishScreen({ points, maxPossiblePoints }) {
+  const percentage = Math.floor((points / maxPossiblePoints) * 100);
+
+  return (
+    <p className="result">
+      You scored <strong>{points}</strong> out of {maxPossiblePoints} ({percentage}%)
+    </p>
+  );
+}</code></pre>
+
+    <div class="callout tip">
+      <div class="label">💡 Tip: Derived state belongs near rendering</div>
+      <p class="mini">
+        <code>percentage</code> is derived from values you already have; it doesn’t need its own reducer state.
+        Compute it inside the component or in App and pass it down.
+      </p>
+    </div>
+
+    <h2>3) When should the quiz finish? ⏱️</h2>
+    <p>
+      The quiz should finish when the user is on the <strong>last question</strong> and clicks the button.
+      If you keep dispatching <code>nextQuestion</code>, you eventually get <code>questions[index]</code> where <code>index</code> is out of range — causing a crash.
+    </p>
+
+    <div class="callout warn">
+      <div class="label">⚠️ Bug to avoid</div>
+      <p class="mini">
+        If <code>index</code> becomes <code>numQuestions</code> (e.g., 15 for a 15-question quiz), then <code>questions[index]</code> is <code>undefined</code> and the UI breaks.
+      </p>
+    </div>
+
+    <h2>4) Fixing NextButton logic safely 🔒</h2>
+    <p>
+      Instead of always showing a “Next” button that dispatches <code>nextQuestion</code>, the button should change behavior on the last question.
+      You pass <code>index</code> and <code>numQuestions</code> into <code>&lt;NextButton /&gt;</code>.
+    </p>
+
+    <h3>NextButton: conditional render + conditional action</h3>
+    <pre><code>function NextButton({ dispatch, answer, index, numQuestions }) {
+  if (answer === null) return null; // no answer → no button
+
+  const isLastQuestion = index === numQuestions - 1;
+
+  return (
+    <button
+      className="btn btn-ui"
+      onClick={() => dispatch({ type: isLastQuestion ? "finish" : "nextQuestion" })}
+    >
+      {isLastQuestion ? "Finish" : "Next"}
+    </button>
+  );
+}</code></pre>
+
+    <div class="callout tip">
+      <div class="label">🧩 Why pass index + numQuestions?</div>
+      <p class="mini">
+        Because the decision “Next vs Finish” depends on where you are in the quiz. This is UI logic, but the state transition still happens via reducer actions.
+      </p>
+    </div>
+
+    <h2>5) Add the <code>finish</code> action to the reducer 🧠</h2>
+    <p>
+      The reducer is the single source of truth for state transitions.
+      When the user finishes, you set <code>status</code> to <code>"finished"</code>.
+    </p>
+
+    <pre><code>// inside reducer(state, action)
+case "finish":
+  return {
+    ...state,
+    status: "finished",
+  };</code></pre>
+
+    <h2>6) Emoji feedback based on score 😄</h2>
+    <p>
+      Small UX upgrade: show a quick emoji that matches performance.
+      This is easiest with a simple variable and a few <code>if</code> checks.
+    </p>
+
+    <pre><code>const percentage = Math.floor((points / maxPossiblePoints) * 100);
+let emoji;
+
+if (percentage === 100) emoji = "🥇";
+if (percentage &gt;= 80 &amp;&amp; percentage &lt; 100) emoji = "🎉";
+if (percentage &gt;= 50 &amp;&amp; percentage &lt; 80) emoji = "🙂";
+if (percentage &gt; 0 &amp;&amp; percentage &lt; 50) emoji = "🤔";
+if (percentage === 0) emoji = "🤦‍♂️";
+
+return (
+  <p className="result">
+    {emoji} You scored <strong>{points}</strong> out of {maxPossiblePoints} ({percentage}%)
+  </p>
+);</code></pre>
+
+    <h2>7) High score feature 🏆</h2>
+    <p>
+      You store <code>highscore</code> in state so it persists across re-renders and across quiz attempts.
+      Initialize it in <code>initialState</code> and update it when finishing.
+    </p>
+
+    <h3>Initial state</h3>
+    <pre><code>const initialState = {
+  questions: [],
+  status: "loading",
+  index: 0,
+  answer: null,
+  points: 0,
+  highscore: 0,
+};</code></pre>
+
+    <h3>Update high score on finish</h3>
+    <pre><code>case "finish":
+  return {
+    ...state,
+    status: "finished",
+    highscore:
+      state.points &gt; state.highscore ? state.points : state.highscore,
+  };</code></pre>
+
+    <div class="callout key">
+      <div class="label">✅ What this line means</div>
+      <p class="mini">
+        If the current run’s <code>points</code> is higher than the stored <code>highscore</code>, replace it. Otherwise, keep the old high score.
+      </p>
+    </div>
+
+    <h3>Display high score</h3>
+    <pre><code>function FinishScreen({ points, maxPossiblePoints, highscore }) {
+  const percentage = Math.floor((points / maxPossiblePoints) * 100);
+
+  return (
+    <>
+      <p className="result">
+        You scored <strong>{points}</strong> out of {maxPossiblePoints} ({percentage}%)
+      </p>
+      <p className="highscore">(Highscore: {highscore} points)</p>
+    </>
+  );
+}</code></pre>
+
+    <h2>8) Where this is heading next ▶️</h2>
+    <p>
+      You now have a working Finished Screen and safe end-of-quiz navigation.
+      The remaining feature (next video) is to add a <strong>Restart</strong> button that resets the quiz back to an initial “ready/active” state.
+    </p>
+
+    <div class="callout tip">
+      <div class="label">🔁 Restart design hint</div>
+      <p class="mini">
+        A typical reducer action looks like <code>{ type: "restart" }</code> and returns something like:
+        <code>{ ...initialState, questions: state.questions, status: "ready", highscore: state.highscore }</code>.
+        (Exact behavior depends on your course implementation.)
+      </p>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>Quick Recap (memorize this) 🧾</h2>
+    <ul>
+      <li>🏁 Finish Screen shows when <code>status === "finished"</code>.</li>
+      <li>🧯 Prevent crashes by not incrementing <code>index</code> past the last question.</li>
+      <li>🧠 Reducer handles the state transition: <code>finish</code> → set <code>status</code> and update <code>highscore</code>.</li>
+      <li>📊 Percentage + emoji are derived UI feedback (no extra reducer state needed).</li>
+      <li>🔜 Next step: <strong>Restart quiz</strong> action.</li>
+    </ul>
+  </main>
+</body>
+</html>

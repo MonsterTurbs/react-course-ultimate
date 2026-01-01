@@ -1,0 +1,505 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Splitting Components in Practice (usePopcorn)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --chip: #f2f2f2;
+      --accent: #111111;
+    }
+
+    /* Base */
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      hyphens: auto;
+    }
+
+    /* Single-column print-friendly layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+      background: #fff;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--chip);
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      background: #fff;
+      margin: 14px 0;
+      page-break-inside: avoid;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul { margin: 10px 0 0; padding-left: 18px; }
+    li { margin: 6px 0; }
+
+    .note {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout {
+      border: 1px dashed var(--border);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+      background: #fff;
+    }
+
+    .icon {
+      display: inline-block;
+      width: 1.2em;
+      text-align: center;
+      margin-right: 6px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    .toc {
+      margin-top: 10px;
+      padding-left: 0;
+      list-style: none;
+    }
+
+    .toc li {
+      margin: 6px 0;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .kbd {
+      display: inline-block;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 8px;
+      padding: 1px 6px;
+      background: #fff;
+      font-size: 12px;
+      font-family: inherit;
+    }
+
+    /* Print */
+    @page { size: A4; margin: 14mm 12mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-color: #ddd; box-shadow: none; }
+
+      /* Don’t print URLs */
+      a::after { content: "" !important; }
+
+      /* Ensure good print density */
+      h1 { font-size: 20px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 13px; }
+      p, li { font-size: 12px; }
+      .subtitle, .mini, .chip { font-size: 11px; }
+      pre { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Splitting Components in Practice (usePopcorn) — Reviewer / Study Guide</h1>
+      <p class="subtitle">
+        Focus: turning a single huge React component into a clean component tree using logical separation, reusability, and responsibility.
+      </p>
+      <div class="meta">
+        <span class="chip"><span class="icon">🧩</span>Component decomposition</span>
+        <span class="chip"><span class="icon">🔁</span>State placement &amp; data flow</span>
+        <span class="chip"><span class="icon">🧠</span>Thinking in React</span>
+        <span class="chip"><span class="icon">✅</span>Beginner-friendly</span>
+      </div>
+      <ul class="toc" aria-label="Table of contents">
+        <li><span class="icon">📌</span>What you are refactoring (the “huge component” problem)</li>
+        <li><span class="icon">🧭</span>The splitting framework (when/why to create components)</li>
+        <li><span class="icon">🧱</span>Step-by-step refactor: App → Navbar/Main → boxes → lists → items</li>
+        <li><span class="icon">🔎</span>State/derived state: what moves where</li>
+        <li><span class="icon">⚠️</span>Common mistakes (missing return, infinite self-render, null access)</li>
+        <li><span class="icon">🧪</span>Practice checklist</li>
+      </ul>
+    </header>
+
+    <main>
+      <section>
+        <h2><span class="icon">📌</span>What’s happening in this lesson</h2>
+        <p>
+          You start with a <strong>working</strong> usePopcorn app where the entire UI (Navbar + Main area + lists + buttons) is written inside <strong>one giant React component</strong>.
+          The goal is to refactor that “messy but working” component into a set of smaller components that are:
+        </p>
+        <ul>
+          <li><span class="icon">✅</span>Logically separated (Navbar vs Main, list box vs watched box, etc.)</li>
+          <li><span class="icon">✅</span>Easier to read and maintain</li>
+          <li><span class="icon">✅</span>Potentially reusable (Search, Button, Movie item, etc.)</li>
+          <li><span class="icon">✅</span>Each with a clear responsibility</li>
+        </ul>
+
+        <div class="note">
+          <strong><span class="icon">💡</span>Key mindset:</strong>
+          Start with a bigger component, then split it <em>only when it becomes useful</em> (too many responsibilities, too many props, hard to read, or parts could be reused).
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="icon">🧭</span>The splitting framework (quick rules you can apply)</h2>
+        <p>
+          Use these criteria to decide whether to extract a new component:
+        </p>
+        <ul>
+          <li><strong><span class="icon">🧩</span>Logical separation:</strong> some UI parts don’t “belong together” (e.g., Navbar and Main content).</li>
+          <li><strong><span class="icon">♻️</span>Reusability:</strong> you want to reuse the same UI/logic elsewhere (e.g., Search input, Button).</li>
+          <li><strong><span class="icon">🎯</span>Responsibility &amp; complexity:</strong> too many things happening in one component (lots of state, derived values, handlers).</li>
+          <li><strong><span class="icon">🧑‍💻</span>Personal style:</strong> some devs prefer smaller components; others prefer bigger ones. Be consistent.</li>
+        </ul>
+
+        <div class="callout">
+          <p><strong><span class="icon">⚠️</span>Reminder:</strong> every new component is a new <em>abstraction</em>. Abstractions have a cost (more files, more mental switching). Don’t split too early.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="icon">🧱</span>Step-by-step refactor (the path you follow)</h2>
+        <p>
+          The refactor follows a predictable pattern: <strong>extract a chunk of JSX</strong> → put it into a new component → <strong>move the required state/props</strong> → render the component back where it came from.
+        </p>
+
+        <h3>Step 1 — Split the biggest layout blocks: <code>Navbar</code> and <code>Main</code></h3>
+        <ul>
+          <li><span class="icon">✂️</span>Cut the <code>&lt;nav&gt;</code> JSX into <code>&lt;Navbar /&gt;</code></li>
+          <li><span class="icon">✂️</span>Cut the <code>&lt;main&gt;</code> JSX into <code>&lt;Main /&gt;</code></li>
+          <li><span class="icon">🔁</span>If <code>Navbar</code> needs state (like a search query), move that state into <code>Navbar</code> (or pass it in if App must own it later).</li>
+        </ul>
+
+        <pre><code>// App.jsx (shape)
+export default function App() {
+  return (
+    &lt;&gt;
+      &lt;Navbar /&gt;
+      &lt;Main /&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+
+        <div class="note">
+          <strong><span class="icon">⚠️</span>Very common bug:</strong> you create a component but forget to <code>return</code> the JSX.
+          If the UI disappears, check: <code>return ( ... )</code>.
+        </div>
+
+        <h3>Step 2 — Split <code>Navbar</code> into focused components</h3>
+        <p>
+          The Navbar has a few distinct responsibilities: showing the logo, capturing search input, and showing results count.
+          Extract them into:
+        </p>
+        <ul>
+          <li><span class="icon">🏷️</span><code>Logo</code></li>
+          <li><span class="icon">🔎</span><code>Search</code></li>
+          <li><span class="icon">🔢</span><code>NumResults</code></li>
+        </ul>
+        <pre><code>function Navbar() {
+  return (
+    &lt;nav className="nav-bar"&gt;
+      &lt;Logo /&gt;
+      &lt;Search /&gt;
+      &lt;NumResults /&gt;
+    &lt;/nav&gt;
+  );
+}
+</code></pre>
+
+        <p class="mini"><span class="icon">🧠</span>This makes the component easier to scan: “Navbar contains Logo + Search + NumResults.”</p>
+
+        <h3>Step 3 — Split <code>Main</code> into left/right boxes</h3>
+        <p>
+          The main area is visually two columns. Create:
+        </p>
+        <ul>
+          <li><span class="icon">📃</span><code>ListBox</code> (movies list area)</li>
+          <li><span class="icon">🍿</span><code>WatchedBox</code> (watched summary + watched list)</li>
+        </ul>
+
+        <pre><code>function Main() {
+  return (
+    &lt;main className="main"&gt;
+      &lt;ListBox /&gt;
+      &lt;WatchedBox /&gt;
+    &lt;/main&gt;
+  );
+}
+</code></pre>
+
+        <h3>Step 4 — Extract lists and list items</h3>
+        <p>
+          A standard React pattern:
+          <strong>List component</strong> maps the array → renders an <strong>Item component</strong> for each element.
+        </p>
+        <ul>
+          <li><span class="icon">🎬</span><code>MovieList</code> → maps movies → <code>Movie</code></li>
+          <li><span class="icon">✅</span><code>WatchedMoviesList</code> → maps watched → <code>WatchedMovie</code></li>
+        </ul>
+
+        <pre><code>function MovieList({ movies }) {
+  return (
+    &lt;ul className="list"&gt;
+      {movies.map(movie =&gt; (
+        &lt;Movie key={movie.imdbID} movie={movie} /&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout">
+          <p><strong><span class="icon">✅</span>Why this helps:</strong> mapping logic is isolated, and each item component focuses on rendering just one movie.</p>
+        </div>
+
+        <h3>Step 5 — Split watched area into <code>WatchedSummary</code> + list</h3>
+        <p>
+          The watched box contains:
+        </p>
+        <ul>
+          <li><span class="icon">📊</span>A summary with derived stats</li>
+          <li><span class="icon">📃</span>A list of watched movies</li>
+        </ul>
+        <p>
+          Extract <code>WatchedSummary</code> and compute derived values inside it using the watched array.
+        </p>
+
+        <pre><code>function WatchedSummary({ watched }) {
+  const avgImdbRating = average(watched.map(m =&gt; m.imdbRating));
+  const avgUserRating = average(watched.map(m =&gt; m.userRating));
+  const avgRuntime = average(watched.map(m =&gt; m.runtime));
+
+  return (
+    &lt;div className="summary"&gt;
+      {/* render stats */}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+        <p class="mini"><span class="icon">💡</span>Instead of passing 3–4 derived props, pass <code>watched</code> and let the summary compute what it needs.</p>
+      </section>
+
+      <section>
+        <h2><span class="icon">🔎</span>State vs derived state (what moves where?)</h2>
+        <p>
+          During refactoring you frequently see red errors like “<code>query is not defined</code>” or “<code>movies is not defined</code>”.
+          This is your signal that the extracted component depends on state/data that used to live in the big component.
+        </p>
+
+        <h3><span class="icon">🧠</span>Rule of thumb</h3>
+        <ul>
+          <li><strong><span class="icon">📍</span>Place state where it is needed:</strong> the closest common parent that needs to read/update it.</li>
+          <li><strong><span class="icon">🧮</span>Derived state:</strong> don’t store it in state; compute it from existing state/props when rendering.</li>
+        </ul>
+
+        <div class="note">
+          <p><strong><span class="icon">🧮</span>Derived state examples in this lesson:</strong></p>
+          <ul>
+            <li>Average ratings and runtime are derived from the <code>watched</code> array.</li>
+            <li>Number of results is derived from the <code>movies</code> array length.</li>
+          </ul>
+        </div>
+
+        <h3><span class="icon">🔁</span>Prop drilling appears naturally</h3>
+        <p>
+          When a component receives a prop only to pass it down, that’s <strong>prop drilling</strong>.
+          In this refactor it’s fine (short distance). It only becomes a problem when it spans many levels.
+        </p>
+      </section>
+
+      <section>
+        <h2><span class="icon">⚠️</span>Common mistakes and how to fix them</h2>
+
+        <h3>1) Forgetting to return JSX</h3>
+        <div class="callout">
+          <p><span class="icon">❌</span>Component renders nothing because there is no <code>return</code>.</p>
+          <p><span class="icon">✅</span>Fix: ensure you have <code>return ( ... )</code> in every component that should render UI.</p>
+        </div>
+
+        <h3>2) Rendering a component inside itself (infinite loop)</h3>
+        <div class="callout">
+          <p><span class="icon">❌</span>You accidentally write <code>&lt;WatchedBox /&gt;</code> inside <code>WatchedBox</code>.</p>
+          <p><span class="icon">💥</span>This creates an infinite render loop and the app may freeze or break.</p>
+          <p><span class="icon">✅</span>Fix: ensure you render the correct component name (e.g., <code>&lt;WatchedSummary /&gt;</code>).</p>
+        </div>
+
+        <h3>3) Accessing properties on <code>null</code></h3>
+        <div class="callout">
+          <p><span class="icon">❌</span><code>selectedFriend.id</code> crashes when <code>selectedFriend</code> is <code>null</code>.</p>
+          <p><span class="icon">✅</span>Fix: use optional chaining <code>selectedFriend?.id</code> or guard clauses.</p>
+        </div>
+
+        <h3>4) Mixing HTML tags and custom components in a confusing way</h3>
+        <p>
+          If your JSX becomes visually “messy” (divs and custom components interleaved), consider extracting more components
+          <em>only if</em> it improves readability and responsibility.
+        </p>
+
+        <h3>5) Moving state without thinking about ownership</h3>
+        <p>
+          If multiple siblings need the same state, lift it to the nearest shared parent. If only one component needs it,
+          keep it local.
+        </p>
+      </section>
+
+      <section>
+        <h2><span class="icon">🧪</span>Practice checklist (do this without looking)</h2>
+        <ul>
+          <li><span class="icon">✅</span>Split a huge component into <code>Navbar</code> + <code>Main</code>.</li>
+          <li><span class="icon">✅</span>Extract <code>Logo</code>, <code>Search</code>, and <code>NumResults</code> from <code>Navbar</code>.</li>
+          <li><span class="icon">✅</span>Split <code>Main</code> into <code>ListBox</code> and <code>WatchedBox</code>.</li>
+          <li><span class="icon">✅</span>Create <code>MovieList</code> + <code>Movie</code> and render with <code>map</code> + <code>key</code>.</li>
+          <li><span class="icon">✅</span>Create <code>WatchedSummary</code> and compute derived stats inside it.</li>
+          <li><span class="icon">✅</span>Create <code>WatchedMoviesList</code> + <code>WatchedMovie</code>.</li>
+          <li><span class="icon">⚠️</span>Spot and fix: missing <code>return</code>, infinite self-render, null property access.</li>
+        </ul>
+
+        <div class="note">
+          <strong><span class="icon">🎯</span>Goal:</strong> When you open any component, you should immediately understand what it does.
+          If you need to “decode” it, consider whether a small extraction would make it clearer.
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="icon">📝</span>Mini glossary (quick definitions)</h2>
+        <ul>
+          <li><strong>Abstraction:</strong> hiding implementation details behind a component. Helpful, but adds mental overhead.</li>
+          <li><strong>Prop drilling:</strong> passing props through components that don’t directly need them, just to reach deeper children.</li>
+          <li><strong>Derived state:</strong> a value computed from state/props (don’t store it; compute it each render).</li>
+          <li><strong>Responsibility:</strong> the single job a component should do (render list, render item, render summary).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2><span class="icon">🚀</span>What to do next</h2>
+        <p>
+          Take a real component you wrote recently and apply the same framework:
+        </p>
+        <ul>
+          <li><span class="icon">1️⃣</span>Identify the biggest logical blocks in the JSX.</li>
+          <li><span class="icon">2️⃣</span>Extract them into components with clear names.</li>
+          <li><span class="icon">3️⃣</span>Move state to the correct owner (closest common parent).</li>
+          <li><span class="icon">4️⃣</span>Turn repeated UI into reusable components.</li>
+          <li><span class="icon">5️⃣</span>Keep it practical—don’t create tiny components that don’t add clarity.</li>
+        </ul>
+
+        <div class="callout">
+          <p>
+            <strong><span class="icon">⌨️</span>Tip:</strong> When debugging a refactor, keep DevTools open.
+            If you get a blank UI, first check for <code>return</code>. If the app freezes, check for recursive rendering.
+          </p>
+        </div>
+      </section>
+
+      <p class="mini" style="text-align:center; margin: 18px 0 0;">
+        End of reviewer — Print on A4, single column.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

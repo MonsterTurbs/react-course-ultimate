@@ -1,0 +1,359 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redux (Legacy) — Connecting Components with connect() (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --code-bg: #f6f8fa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px 42px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul { margin: 10px 0 10px 20px; }
+    li { margin: 6px 0; }
+
+    .toc {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .toc-title {
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+
+    .toc ul { margin: 8px 0 0 18px; }
+
+    .callout {
+      margin: 12px 0;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--soft);
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 6px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 14px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre-wrap;     /* wraps for printing */
+      word-break: break-word;
+    }
+
+    .kbd {
+      font-family: inherit;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      color: #222;
+      font-size: 0.95em;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print styles */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body { font-size: 11.5pt; }
+      .page { max-width: none; padding: 0; }
+      header { border-bottom: 1px solid #000; }
+
+      /* Avoid ugly link printing */
+      a[href]:after { content: "" !important; }
+
+      /* Keep blocks from splitting awkwardly */
+      h2, h3 { break-after: avoid-page; page-break-after: avoid; }
+      .callout, pre, ul { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Reduce ink */
+      .meta, .callout, pre { background: #fff !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 Redux (Legacy) — Connecting Components with <code>connect()</code></h1>
+      <p class="subtitle">Study Guide / Reviewer (Beginner-friendly) — Single-column, A4 print-ready</p>
+      <div class="meta">
+        <div><strong>Topic:</strong> The old (pre-hooks) way to connect React components to the Redux store using the React-Redux <code>connect</code> API.</div>
+        <div><strong>Why it matters:</strong> You will still see this pattern in older codebases, even though modern apps prefer <code>useSelector</code> and <code>useDispatch</code>.</div>
+      </div>
+    </header>
+
+    <section class="toc">
+      <div class="toc-title">📌 Table of Contents</div>
+      <ul>
+        <li>Big idea: What <code>connect()</code> does</li>
+        <li><code>mapStateToProps</code>: mapping store → component props</li>
+        <li>How the wrapping works (higher-order component)</li>
+        <li>Example: BalanceDisplay using <code>connect</code></li>
+        <li>Troubleshooting & real-world notes</li>
+        <li>Key takeaways</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1) Big idea: What <code>connect()</code> does 🧠</h2>
+      <p>
+        Before React Hooks existed, React-Redux had no <code>useSelector</code> / <code>useDispatch</code>. So to read state (and later to dispatch actions),
+        we used the <strong>Connect API</strong>.
+      </p>
+
+      <div class="callout">
+        <strong>✅ Mental model</strong>
+        <p>
+          <code>connect(...)(YourComponent)</code> creates a <strong>new component</strong> that is "wired" to Redux.
+          That new component passes Redux state (and dispatch helpers) into your component as <strong>props</strong>.
+        </p>
+      </div>
+
+      <p>
+        In modern code, you typically do this:
+      </p>
+      <pre><code>// Modern (hooks)
+const balance = useSelector((state) =&gt; state.account.balance);
+const dispatch = useDispatch();
+</code></pre>
+
+      <p>
+        In older code, you do this:
+      </p>
+      <pre><code>// Legacy (connect)
+export default connect(mapStateToProps)(BalanceDisplay);
+</code></pre>
+    </section>
+
+    <section>
+      <h2>2) <code>mapStateToProps</code>: mapping store → props 🗺️</h2>
+      <p>
+        The most common first step is reading state. With <code>connect</code>, you define a function called <code>mapStateToProps</code>.
+      </p>
+
+      <div class="callout">
+        <strong>✅ What <code>mapStateToProps</code> receives</strong>
+        <ul>
+          <li>It receives the <strong>entire Redux store state</strong> (often named <code>state</code>).</li>
+          <li>You <strong>return an object</strong> that becomes props in your component.</li>
+        </ul>
+      </div>
+
+      <pre><code>// Example: take only what you need from the store
+function mapStateToProps(state) {
+  return {
+    balance: state.account.balance,
+  };
+}
+</code></pre>
+
+      <p>
+        That means your component will receive a prop called <code>balance</code>.
+        So inside the component, you can use it like a normal React prop.
+      </p>
+    </section>
+
+    <section>
+      <h2>3) How the wrapping works (HOC pattern) 🔁</h2>
+      <p>
+        The old API uses a pattern called a <strong>Higher-Order Component</strong> (HOC):
+        a function that takes a component and returns a new component.
+      </p>
+
+      <pre><code>// Shape (conceptually)
+connect(mapStateToProps)            // returns a function
+  (BalanceDisplay)                  // that function returns a NEW component
+</code></pre>
+
+      <div class="callout">
+        <strong>🧠 Why it feels "messy"</strong>
+        <p>
+          It’s function calls returning functions, instead of direct hook calls inside the component.
+          This is one big reason hooks became the preferred approach.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Example: BalanceDisplay using <code>connect</code> 💰</h2>
+      <p>
+        Goal: show the current balance from <code>state.account.balance</code>, formatted using a helper like <code>formatCurrency</code>.
+      </p>
+
+      <h3>Step-by-step ✅</h3>
+      <ol>
+        <li>Create <code>mapStateToProps</code> to select the balance</li>
+        <li>Use the injected prop inside the component</li>
+        <li>Export the connected component</li>
+      </ol>
+
+      <pre><code>import { connect } from "react-redux";
+
+function BalanceDisplay({ balance }) {
+  return (
+    &lt;p className="balance"&gt;
+      {formatCurrency(balance)}
+    &lt;/p&gt;
+  );
+}
+
+function mapStateToProps(state) {
+  return {
+    balance: state.account.balance,
+  };
+}
+
+export default connect(mapStateToProps)(BalanceDisplay);
+</code></pre>
+
+      <div class="callout">
+        <strong>✅ What you gain</strong>
+        <ul>
+          <li>Your component automatically re-renders when the mapped state changes (e.g., deposit/withdraw).</li>
+          <li>Your component code stays “pure React props” instead of directly reading the store.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Troubleshooting & real-world notes 🛠️</h2>
+
+      <div class="grid">
+        <div class="callout">
+          <strong>⚠️ Balance not showing at first?</strong>
+          <p>
+            Sometimes after changing wiring (especially in dev), hot reload can behave strangely.
+            If the value doesn’t appear, stop the app (<span class="kbd">Ctrl</span> + <span class="kbd">C</span> in terminal) and restart.
+          </p>
+        </div>
+
+        <div class="callout">
+          <strong>🧾 Why you still learn this</strong>
+          <ul>
+            <li>Legacy codebases still use <code>connect</code>.</li>
+            <li>Understanding it helps you refactor old Redux code to modern hooks later.</li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <strong>✅ Good selector hygiene</strong>
+          <p>
+            Only map what the component actually needs (like <code>balance</code>), to reduce unnecessary re-renders.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Key takeaways 🎯</h2>
+      <ul>
+        <li>Modern React-Redux uses hooks: <code>useSelector</code> + <code>useDispatch</code> ✅</li>
+        <li>Older apps use: <code>connect(mapStateToProps)(Component)</code> 🧓</li>
+        <li><code>mapStateToProps</code> maps Redux state → component props 🗺️</li>
+        <li><code>connect</code> returns a new “connected” component (HOC pattern) 🔁</li>
+        <li>Learn it mainly to read/maintain older codebases 📚</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <div class="callout">
+        <strong>Next topic preview 🚀</strong>
+        <p>
+          Next, Redux Middleware and Thunks: handling async work (like API calls) inside Redux.
+        </p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

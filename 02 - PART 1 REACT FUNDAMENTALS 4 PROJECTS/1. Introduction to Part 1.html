@@ -1,0 +1,386 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Part 1 Introduction (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 20px 44px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .muted { color: var(--muted); }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-right: 6px;
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+      margin: 8px 0 0;
+    }
+
+    .checklist li { margin: 8px 0; }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🚀 Part 1 — React Fundamentals (Introduction Reviewer)</h1>
+      <p class="subtitle">What you will learn in Part 1, why it matters, and how to approach the fundamentals. A4 print-ready.</p>
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: Single-column, word-wrapped, designed for clean printing.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Table of Contents</strong>
+        <ol>
+          <li><a href="#overview">What Part 1 is about</a></li>
+          <li><a href="#skills">Core skills you will build</a></li>
+          <li><a href="#why">Why fundamentals matter (beginner explanation)</a></li>
+          <li><a href="#projects">Projects, exercises, and challenges</a></li>
+          <li><a href="#examples">Mini examples (what these concepts look like)</a></li>
+          <li><a href="#self-check">Quick self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="overview">
+      <h2>🎯 What Part 1 is about</h2>
+      <p>
+        Part 1 is your foundation. The main focus is learning the <strong>React fundamentals</strong> so you can build apps
+        confidently and understand what you’re doing.
+      </p>
+
+      <div class="callout">
+        <p><strong>Goal:</strong> Acquire the core building blocks that almost every React app uses.</p>
+      </div>
+
+      <p class="muted">
+        Think of this part like learning the alphabet before writing sentences. Later parts become much easier when your
+        fundamentals are strong.
+      </p>
+    </section>
+
+    <section id="skills">
+      <h2>🧠 Core skills you will build</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>1) Setting up React apps 🧰</h3>
+          <p class="muted">You’ll learn how to create new React projects and run them locally.</p>
+        </div>
+        <div class="card">
+          <h3>2) Components 🧩</h3>
+          <p class="muted">Reusable UI pieces. Most React apps are just components combined together.</p>
+        </div>
+        <div class="card">
+          <h3>3) JSX 🧾</h3>
+          <p class="muted">Looks like HTML, but it’s written in JavaScript to describe your UI.</p>
+        </div>
+        <div class="card">
+          <h3>4) Props 📦</h3>
+          <p class="muted">Data passed into a component (like parameters in a function).</p>
+        </div>
+        <div class="card">
+          <h3>5) Events 🖱️</h3>
+          <p class="muted">Handling user actions like clicks, typing, submits, etc.</p>
+        </div>
+        <div class="card">
+          <h3>6) State & state management 🧠⚙️</h3>
+          <p class="muted">State is how you make UI dynamic. When state changes, the UI updates.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Key idea</strong></p>
+        <p class="muted">These skills repeat across the entire course and across real-world React projects.</p>
+      </div>
+    </section>
+
+    <section id="why">
+      <h2>💡 Why fundamentals matter (beginner explanation)</h2>
+      <p>
+        If you skip fundamentals, later topics can feel confusing because they assume you already know the basics.
+        Strong fundamentals help you:
+      </p>
+      <ul>
+        <li>✅ Understand errors faster (debugging becomes easier)</li>
+        <li>✅ Build features without copy-pasting blindly</li>
+        <li>✅ Learn advanced tools (like Redux, Router, React Query) with confidence</li>
+        <li>✅ Write cleaner, more maintainable code</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>🧠 Beginner-friendly analogy</strong></p>
+        <p class="muted">Fundamentals are like the rules of grammar. Once you know them, you can write anything.</p>
+      </div>
+    </section>
+
+    <section id="projects">
+      <h2>🛠️ Projects, exercises, and challenges</h2>
+      <p>
+        Part 1 includes many small but well-designed projects, plus exercises and challenges.
+        The goal is to help you:
+      </p>
+      <ul>
+        <li>🏁 Start writing React code immediately ("hit the ground running")</li>
+        <li>🔁 Practice the same fundamentals in different ways (better retention)</li>
+        <li>🧩 Build confidence through repetition and small wins</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>✅ Best practice for learning</strong></p>
+        <p class="muted">Code along, then build one small variation on your own (change text, add a button, add a counter, etc.).</p>
+      </div>
+    </section>
+
+    <section id="examples">
+      <h2>🧪 Mini examples (what these concepts look like)</h2>
+      <p class="muted">These are tiny, simplified examples just to recognize the concepts when you see them later.</p>
+
+      <h3>Components + JSX 🧩🧾</h3>
+      <pre><code>function App() {
+  return &lt;h1&gt;Hello React! 👋&lt;/h1&gt;;
+}</code></pre>
+
+      <h3>Props 📦</h3>
+      <pre><code>function Welcome({ name }) {
+  return &lt;p&gt;Hi, {name}! 😊&lt;/p&gt;;
+}
+
+// Usage: &lt;Welcome name="Reymond" /&gt;</code></pre>
+
+      <h3>Events 🖱️</h3>
+      <pre><code>function Button() {
+  function handleClick() {
+    alert("Clicked!");
+  }
+
+  return &lt;button onClick={handleClick}&gt;Click me&lt;/button&gt;;
+}</code></pre>
+
+      <h3>State 🧠</h3>
+      <pre><code>import { useState } from "react";
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count: {count} 🔢&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;+1&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Don’t overthink these yet.</strong></p>
+        <p class="muted">You’ll learn each concept step-by-step with projects, exercises, and challenges.</p>
+      </div>
+    </section>
+
+    <section id="self-check">
+      <h2>📝 Quick self-check</h2>
+      <ol>
+        <li>What is the main purpose of Part 1?</li>
+        <li>Can you name at least 4 fundamentals covered in this part?</li>
+        <li>Why is state important in React apps?</li>
+        <li>What’s one practical thing you should do during this part besides watching videos?</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>🚀 If you can answer these, you’re ready to begin Part 1.</strong> 😄</p>
+      </div>
+
+      <ul class="checklist">
+        <li>✅ I will code along</li>
+        <li>✅ I will do the exercises/challenges</li>
+        <li>✅ I will review and practice (small variations)</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>
+        Reviewer generated from the provided transcript. Designed for clean A4 printing (single column, word-wrapped).
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

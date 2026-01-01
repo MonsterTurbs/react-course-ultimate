@@ -1,0 +1,515 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Experiment — Manual SSR with ReactDOM + Node.js (Bare Bones)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b0f14;
+      --codetext: #e8e8e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.6rem;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.86rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 1.25rem;
+      border-left: 5px solid var(--border);
+      padding-left: 10px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { margin: 8px 0 10px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .box {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .box strong { display: inline-block; margin-bottom: 6px; }
+
+    .callout {
+      border-left: 5px solid var(--border);
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    .steps {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .steps .row {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .steps .row:first-child { border-top: 0; }
+
+    .code {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+
+    .code .label {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    pre {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow: auto;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      white-space: pre;
+    }
+
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .qa details {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .qa summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+    }
+
+    .qa summary::-webkit-details-marker { display: none; }
+
+    .qa .answer {
+      margin-top: 8px;
+      color: #222;
+    }
+
+    .footer {
+      margin-top: 26px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      .chip, .box, .callout, .steps, .code, .qa details {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .box, .callout, .steps, .code, .qa details { break-inside: avoid; }
+      a[href]::after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Experiment — Manual SSR with ReactDOM + Node.js</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) • Single-column • Print-ready (A4)</p>
+      <div class="meta">
+        <span class="chip">🧪 Goal: Remove the “magic” of SSR</span>
+        <span class="chip">🖥️ Tools: Node.js + HTTP + ReactDOM Server</span>
+        <span class="chip">💧 Next Topic: Hydration</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Why this experiment matters 🧠</h2>
+      <p>
+        In Next.js, server-side rendering (SSR) can feel “magical” because the framework hides many steps.
+        This experiment builds a <strong>bare-bones SSR pipeline</strong> manually so you can clearly see:
+      </p>
+      <ul>
+        <li>What a server does when a request comes in 🌐</li>
+        <li>How React can render components to <strong>HTML on the server</strong> 🧾</li>
+        <li>Why SSR pages can be <strong>non-interactive</strong> without hydration 🧊</li>
+      </ul>
+
+      <div class="callout">
+        <strong>✅ Not required for Next.js</strong>
+        <p>
+          You can skip this lecture and still learn Next.js. But if you like fundamentals, this makes SSR easier to understand.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Setup overview (project + starter files) 📁</h2>
+      <div class="steps" role="region" aria-label="Setup steps">
+        <div class="row">1) Create a new folder (example: <strong>20-manual-ssr</strong>)</div>
+        <div class="row">2) Copy the provided starter files into the folder</div>
+        <div class="row">3) Open the folder in VS Code</div>
+        <div class="row">4) Create a new file: <strong>server.js</strong></div>
+      </div>
+
+      <div class="box">
+        <strong>📌 Beginner note:</strong>
+        <p>
+          Even if you have never written Node.js before, this exercise is mostly “copy the steps” to understand the flow.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Step 1 — Create a tiny Node.js HTTP server 🧱</h2>
+      <p>
+        You initialize a Node project, then create an HTTP server that listens on port <strong>8000</strong>.
+      </p>
+
+      <div class="code">
+        <div class="label">🖥️ Commands (terminal)</div>
+        <pre><code>npm init
+node -v
+node server.js</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>✅ What you expect:</strong>
+        <ul>
+          <li>Running <code>node server.js</code> starts your server</li>
+          <li>Visiting <code>http://localhost:8000</code> shows “Hello World” (initial test)</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <strong>🔁 Quality-of-life (auto restart):</strong>
+        <p>
+          Instead of stopping and restarting the server manually every time you change code, Node 20+ can watch files.
+        </p>
+      </div>
+
+      <div class="code">
+        <div class="label">👀 Auto-restart with Node (watch mode)</div>
+        <pre><code>node --watch server.js</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Step 2 — Basic routing (different URLs → different responses) 🧭</h2>
+      <p>
+        You read the request URL path (like <code>/</code> or <code>/test</code>) and return different content depending on the route.
+      </p>
+
+      <div class="box">
+        <strong>🧠 Why this matters for SSR:</strong>
+        <p>
+          SSR is still a server responding to routes. Each route usually corresponds to a page.
+        </p>
+      </div>
+
+      <div class="steps" role="region" aria-label="Routing outcomes">
+        <div class="row">✅ <strong>/</strong> → show “Hello World” (or later: the HTML page)</div>
+        <div class="row">✅ <strong>/test</strong> → show “Test” (just to prove routing works)</div>
+        <div class="row">❌ anything else → “URL cannot be found”</div>
+      </div>
+
+      <div class="callout">
+        <strong>🛠️ Common fix noted in the lecture:</strong>
+        <p>
+          When parsing URLs, the correct parser comes from the <strong>URL</strong> module (not <strong>path</strong>).
+          If you see unexpected behavior, double-check the import.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Step 3 — Serve a real HTML file (instead of plain text) 📄</h2>
+      <p>
+        The next upgrade is sending an <code>index.html</code> file. The server reads it from disk and returns it.
+      </p>
+
+      <div class="box">
+        <strong>Key idea:</strong>
+        <ul>
+          <li>Use <code>fs.readFileSync</code> to read HTML (simple for this one-time demo)</li>
+          <li>Set the response header <code>Content-Type: text/html</code> so the browser treats it as HTML</li>
+        </ul>
+      </div>
+
+      <div class="code">
+        <div class="label">🧾 Minimal HTML template idea</div>
+        <pre><code>&lt;div id="root"&gt;CONTENT&lt;/div&gt;</code></pre>
+      </div>
+
+      <p>
+        That <strong>CONTENT</strong> placeholder becomes important later: you will replace it with server-rendered React HTML.
+      </p>
+    </section>
+
+    <section>
+      <h2>6) Step 4 — The SSR problem: Node cannot read JSX 😵‍💫</h2>
+      <p>
+        The starter React code contains JSX. But Node.js cannot execute JSX directly.
+        If you paste a component into <code>server.js</code>, you’ll get a syntax error (like “Unexpected token &lt;”).
+      </p>
+
+      <div class="callout">
+        <strong>✅ The solution:</strong>
+        <p>
+          Use Babel on the server to transform JSX into valid JavaScript at runtime (for this demo).
+        </p>
+      </div>
+
+      <div class="code">
+        <div class="label">📦 Install Babel packages (dev dependencies)</div>
+        <pre><code>npm i -D @babel/core @babel/preset-env @babel/preset-react @babel/register</code></pre>
+      </div>
+
+      <div class="code">
+        <div class="label">📦 Install React dependencies</div>
+        <pre><code>npm i react react-dom</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Step 5 — Create a “start” file that enables JSX ✅</h2>
+      <p>
+        You create a separate entry file (for example <code>start.js</code>), register Babel there, and then require <code>server.js</code>.
+        The key idea is:
+      </p>
+      <ul>
+        <li><strong>start.js</strong> runs first (no JSX here)</li>
+        <li>It registers Babel so <strong>server.js</strong> can contain JSX</li>
+      </ul>
+
+      <div class="code">
+        <div class="label">🧩 Conceptual shape of start.js</div>
+        <pre><code>// 1) Register Babel for .js / .jsx
+// 2) Then load server.js (which can now contain JSX)
+require('@babel/register')({ extensions: ['.js', '.jsx'] });
+require('./server');</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>✅ How you run the project now:</strong>
+        <p>Instead of <code>node server.js</code>, you run <code>node --watch start.js</code>.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>8) Step 6 — Render React components on the server 🖥️➡️🧾</h2>
+      <p>
+        Now the core SSR part: using <code>renderToString</code> from <code>react-dom/server</code>.
+        This function converts a React component tree into an HTML string.
+      </p>
+
+      <div class="code">
+        <div class="label">🧠 What SSR looks like in one line</div>
+        <pre><code>const html = renderToString(&lt;Home /&gt;);</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>What the lecture’s demo app contains 🍕</strong>
+        <ul>
+          <li>A <strong>Home</strong> component that renders a list of pizzas</li>
+          <li>A <strong>MenuItem</strong> component for each pizza</li>
+          <li>A <strong>Counter</strong> component (uses state + buttons)</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <strong>⚠️ Common gotcha:</strong>
+        <p>
+          You must import <code>React</code> as well, otherwise JSX may fail with “React is not defined” (depending on setup).
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>9) Step 7 — Combine your HTML template + rendered React ✅</h2>
+      <p>
+        You still want the full HTML document (doctype, head, etc.), so you:
+      </p>
+      <ol>
+        <li>Read <code>index.html</code> into a string (template)</li>
+        <li>Replace the placeholder (e.g., <code>CONTENT</code>) with the server-rendered React HTML string</li>
+        <li>Send the final combined HTML to the browser</li>
+      </ol>
+
+      <div class="code">
+        <div class="label">🧾 Template replacement idea</div>
+        <pre><code>const finalHtml = template.replace('CONTENT', renderedReactHtml);
+res.end(finalHtml);</code></pre>
+      </div>
+
+      <div class="box">
+        <strong>✅ Result:</strong>
+        <p>
+          Viewing page source shows the content as plain HTML. The server produced the markup before the browser received it.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>10) The big limitation: “Why don’t the buttons work?” 🧊</h2>
+      <p>
+        After SSR, your page looks correct—but interactive features (like a React counter) do not respond.
+        That’s because you shipped <strong>HTML only</strong>.
+      </p>
+
+      <div class="box">
+        <strong>What SSR produced:</strong>
+        <ul>
+          <li>Static HTML (a string) 🧾</li>
+          <li>No client-side React running ✅/❌ (depends what you ship)</li>
+          <li>No event handlers attached to buttons ❌</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <strong>🧠 Key takeaway:</strong>
+        <p>
+          SSR alone gives you <strong>fast content</strong>, but not interactivity. To make the SSR HTML interactive,
+          you need <strong>hydration</strong> (JS bundle runs on the client and “wires up” the page).
+        </p>
+      </div>
+    </section>
+
+    <section class="qa">
+      <h2>11) Mini Q&A (Self-check) 🧪</h2>
+
+      <details>
+        <summary>Q1) What does <code>renderToString</code> do?</summary>
+        <div class="answer">
+          It takes a React component tree and returns an HTML string. This is the core mechanism behind SSR in React.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q2) Why did we need Babel here?</summary>
+        <div class="answer">
+          Because Node.js cannot execute JSX directly. Babel transforms JSX into regular JavaScript so the server can run it.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q3) Why is the SSR page not interactive?</summary>
+        <div class="answer">
+          Because SSR output is just HTML. Interactivity requires client-side JavaScript (React running in the browser) and hydration.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q4) What is the “template + placeholder” trick used for?</summary>
+        <div class="answer">
+          It lets you keep a complete HTML document (head, meta tags, etc.) while injecting the server-rendered React HTML into a known spot.
+        </div>
+      </details>
+    </section>
+
+    <section>
+      <h2>12) Cheat Sheet (High-yield summary) 🎯</h2>
+      <div class="box">
+        <ul>
+          <li>🌐 Node server receives a request</li>
+          <li>🧾 Server renders React components to an HTML string (<code>renderToString</code>)</li>
+          <li>🧱 Server injects that HTML into an HTML template and sends it back</li>
+          <li>🧊 Result is not interactive until the client hydrates it (next lecture)</li>
+        </ul>
+      </div>
+    </section>
+
+    <p class="footer">
+      End of reviewer. Next lecture: Hydration — making server-rendered HTML interactive.
+    </p>
+  </main>
+</body>
+</html>

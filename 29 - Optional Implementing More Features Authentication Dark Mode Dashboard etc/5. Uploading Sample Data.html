@@ -1,0 +1,296 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Project — Uploading Sample Data to Supabase (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border-bottom:1px solid var(--border);
+      padding-bottom:14px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      font-size: 1.65rem;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: .98rem;
+    }
+
+    h2{
+      font-size: 1.2rem;
+      margin: 18px 0 10px;
+    }
+
+    h3{
+      font-size: 1.05rem;
+      margin: 14px 0 8px;
+    }
+
+    p{ margin: 8px 0; }
+
+    .chip{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:var(--soft);
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:.85rem;
+      margin:6px 6px 0 0;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:14px 14px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f6f9ff;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.ok{ border-left-color: var(--ok); background:#f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background:#fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background:#fef2f2; }
+
+    ul{ margin: 8px 0 8px 22px; }
+    li{ margin: 6px 0; }
+
+    .kvs{
+      display:grid;
+      grid-template-columns: 170px 1fr;
+      gap: 8px 12px;
+      align-items:start;
+      margin-top: 10px;
+    }
+    .kvs div{ padding: 4px 0; }
+    .kvs .k{ color: var(--muted); }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .92em;
+    }
+    code{
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+    pre{
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 12px;
+      overflow:auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 16px 0;
+    }
+
+    .small{ color:var(--muted); font-size:.92rem; }
+
+    /* Print styles (A4, clean, no URL artifacts) */
+    @page{ size: A4; margin: 14mm 14mm 16mm 14mm; }
+    @media print{
+      :root{ --bg:#ffffff; }
+      body{ background:#fff; }
+      .page{ max-width:none; margin:0; padding:0; }
+      a, a:visited{ color:inherit; text-decoration:none; }
+      a[href]::after{ content:""; }
+      .card, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      pre{ break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧪 Uploading Sample Data to Supabase</h1>
+      <p class="subtitle">Reviewer / study guide — how to seed your app with realistic data so you can build & test features faster.</p>
+      <div>
+        <span class="chip">🧩 React + Supabase</span>
+        <span class="chip">🧪 Seeding / sample data</span>
+        <span class="chip">🔐 RLS Policies</span>
+        <span class="chip">🧰 Dev-only tooling</span>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>🎯 Goal of this lecture</h2>
+      <p>Populate Supabase with <strong>sample cabins, guests, and bookings</strong> so you have enough real-looking data to build features like filters, sorting, pagination, and dashboards.</p>
+
+      <div class="kvs">
+        <div class="k">Why it matters</div>
+        <div class="v">Working with 1–2 rows is misleading. With many rows, you can properly validate UI (tables, menus), logic (filters), and edge cases (statuses/dates).</div>
+
+        <div class="k">How it’s done</div>
+        <div class="v">A dev-only <code>Uploader</code> component: (1) deletes existing rows, (2) inserts a prepared dataset.</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🗂 What you already have in the project</h2>
+      <div class="callout">
+        <p><strong>Inside the <code>data</code> folder:</strong></p>
+        <ul>
+          <li>📄 3 JS files: sample data for <strong>bookings</strong>, <strong>cabins</strong>, and <strong>guests</strong></li>
+          <li>🧩 An <strong>Uploader component</strong> with helper functions to delete + create resources</li>
+        </ul>
+        <p class="small">You do <em>not</em> need to memorize uploader internals. The key is what it enables: reliable reseeding during development.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧰 Uploader: what it does (in plain terms)</h2>
+      <div class="card">
+        <h3>Buttons you get</h3>
+        <ul>
+          <li>⬆️ <strong>Upload All</strong> — deletes everything, then inserts fresh cabins + guests + bookings</li>
+          <li>⬆️ <strong>Upload Bookings</strong> — reseeds bookings only (useful when cabins/guests are already OK)</li>
+        </ul>
+
+        <h3>Where to place it</h3>
+        <p>Put <code>&lt;Uploader /&gt;</code> in the <strong>Sidebar</strong> (below navigation) so you can reseed quickly during development.</p>
+        <pre><code>// Sidebar.jsx (conceptual)
+// ...after navigation
+&lt;Uploader /&gt;
+</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>🔐 Common blocker: RLS policies not set</h2>
+      <div class="callout warn">
+        <p>When you click <strong>Upload All</strong> and see errors, a frequent cause is missing <strong>Row Level Security (RLS) policies</strong> for the tables you’re inserting into.</p>
+        <p class="small">In the lecture, <strong>bookings</strong> and <strong>guests</strong> were missing policies at first.</p>
+      </div>
+
+      <div class="card">
+        <h3>Where to configure in Supabase</h3>
+        <p>Go to: <strong>Authentication → Policies</strong></p>
+
+        <h3>What policies are needed (during development)</h3>
+        <ul>
+          <li>✅ <strong>Select</strong> (read rows)</li>
+          <li>✅ <strong>Insert</strong> (seed rows)</li>
+          <li>✅ <strong>Delete</strong> (wipe rows before re-seeding)</li>
+        </ul>
+
+        <div class="callout danger">
+          <p><strong>Important:</strong> Using <code>TRUE</code> as the policy condition is a <em>development convenience</em>. Later, you should restrict these actions to authenticated/authorized users.</p>
+        </div>
+
+        <h3>Beginner-friendly reminder</h3>
+        <p>RLS means: <em>even if your client code is correct</em>, the database can still block operations unless a policy allows it.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ What “success” looks like after uploading</h2>
+      <div class="card">
+        <ul>
+          <li>📚 Bookings table is populated with many rows (not just 1–2)</li>
+          <li>🏠 Cabins table shows all cabins (e.g., 8 cabins)</li>
+          <li>🧾 Bookings show different <strong>statuses</strong> (e.g., <em>checked out</em>, <em>checked in</em>, <em>unconfirmed</em>)</li>
+          <li>📅 Booking dates are <strong>dynamically generated</strong> relative to “today” (so your data feels current)</li>
+        </ul>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Example reasoning about statuses:</strong></p>
+        <ul>
+          <li>🟦 <strong>Checked out</strong>: arrived days ago + stayed only a few nights → they’re already gone</li>
+          <li>🟩 <strong>Checked in</strong>: arrived earlier + longer stay → might still be staying today</li>
+          <li>🟨 <strong>Unconfirmed</strong>: booking exists but not finalized</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🖼️ Note about images</h2>
+      <div class="callout">
+        <p>Cabin images may require a <strong>separate manual upload</strong> (e.g., to Supabase Storage). The Uploader seeds database rows, but may not upload image files automatically.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Key takeaways</h2>
+      <ul>
+        <li>🧪 Seeding sample data is a productivity multiplier for UI + logic development.</li>
+        <li>🔐 Missing RLS policies can block inserts/deletes even when your code is correct.</li>
+        <li>🧰 Keep dev-only tools (like <code>Uploader</code>) in the sidebar for quick re-seeding.</li>
+        <li>📅 Dynamically generated dates help you test status logic and UI states realistically.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📝 Quick practice (recommended)</h2>
+      <div class="card">
+        <ol>
+          <li>✅ Add <code>&lt;Uploader /&gt;</code> to the Sidebar (below navigation).</li>
+          <li>✅ Ensure RLS policies exist for <strong>guests</strong> and <strong>bookings</strong> (Select/Insert/Delete).</li>
+          <li>✅ Click <strong>Upload All</strong> and verify the Bookings table is filled.</li>
+          <li>✅ Inspect a few bookings and explain why their status makes sense based on dates.</li>
+          <li>➡️ Next: Implement <strong>Filter</strong> + <strong>Sort By</strong> for bookings (same reusable components as cabins).</li>
+        </ol>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <footer class="small">
+      <p><strong>Print tip:</strong> Use your browser’s <em>Print → Save as PDF</em>. This page is formatted for A4 single-column printing and will not append URL text after links.</p>
+    </footer>
+  </main>
+</body>
+</html>

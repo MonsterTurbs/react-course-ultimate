@@ -1,0 +1,338 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — State vs Props | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background: #fef2f2; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn, .callout.danger{ background:#ffffff; }
+      .card, .term, pre, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>State vs Props — The Difference (and the Connection) 🧠📦</h1>
+      <p class="subtitle">
+        Lecture reviewer/summary: definitions, mental models, re-render behavior, and a practical interview-ready explanation.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">🧠 State = internal</span>
+        <span class="chip">📦 Props = external</span>
+        <span class="chip">🔁 Re-renders</span>
+        <span class="chip">⬇️ Data flows down</span>
+        <span class="chip">⚙️ Configuration</span>
+        <span class="chip">🧪 Interview question</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) The Classic Question</h2>
+      <div class="callout">
+        <p><strong>Common beginner + interview question:</strong> “What’s the difference between state and props?”</p>
+        <p>This lecture makes the difference <strong>crystal clear</strong> and summarizes the whole section. 🙂</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Definitions (Short and Precise)</h2>
+
+      <div class="term">
+        <div class="icon">🧠</div>
+        <div class="body">
+          <p class="title">State</p>
+          <p class="desc">Internal data owned by the component where it is declared. It can change over time.</p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">📦</div>
+        <div class="body">
+          <p class="title">Props</p>
+          <p class="desc">External data owned by a parent component and passed down to a child component.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Quick comparison table (mentally)</h3>
+        <ul>
+          <li><strong>Ownership:</strong> State = owned by the component. Props = owned by the parent.</li>
+          <li><strong>Mutability:</strong> State = can be updated by the owning component. Props = read-only for the receiving component.</li>
+          <li><strong>Purpose:</strong> State = interactivity. Props = configuration + communication parent → child.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Helpful Mental Models</h2>
+      <div class="card">
+        <h3>Props = function parameters</h3>
+        <p class="mini">
+          Think of a component like a function. Props are like the inputs/arguments that configure how it behaves.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>State = component memory</h3>
+        <p class="mini">
+          State persists across re-renders. It is the “memory” of the component that stores values over time.
+        </p>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Rule of thumb:</strong> If the UI needs to change because of user actions, you likely need <strong>state</strong>. ✅</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Re-Render Behavior (Where State and Props Connect) 🔁</h2>
+
+      <div class="card">
+        <h3>State updates trigger re-renders</h3>
+        <p>
+          When a component updates its own state (via its setter), React re-renders that component.
+          This is how interactivity happens.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>New props also trigger re-renders</h3>
+        <p>
+          Even though props are read-only inside the child, if the child receives <strong>updated props</strong>, the child will re-render too.
+        </p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Key connection:</strong> If state is passed down as props, then updating that state re-renders <em>both</em> components. ✅</p>
+        <ul>
+          <li>The component that <strong>owns</strong> the state re-renders (because state changed).</li>
+          <li>The child component also re-renders (because it received <strong>new props</strong>).</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Example scenario from the lecture</h3>
+        <p class="mini">
+          A parent component has <code>upVotes</code> state (created with <code>useState</code>) and passes it into a child as a prop.
+          When <code>upVotes</code> changes, the parent re-renders, and the child re-renders to stay in sync.
+        </p>
+        <pre><code>// Parent
+const [upVotes, setUpVotes] = useState(0);
+
+return &lt;Question upVotes={upVotes} /&gt;;
+
+// Child
+function Question({ upVotes }) {
+  return &lt;Button label={upVotes} /&gt;;
+}</code></pre>
+        <p class="mini">
+          If the child didn’t re-render, it would show the old number and the UI would be out of sync.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) What Each One Is Used For</h2>
+
+      <div class="term">
+        <div class="icon">🕹️</div>
+        <div class="body">
+          <p class="title">State: make components interactive</p>
+          <p class="desc">State is used when the UI needs to change over time (clicks, typing, toggles, fetching data, etc.).</p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">⚙️</div>
+        <div class="body">
+          <p class="title">Props: configure child components</p>
+          <p class="desc">Props act like “settings” that a parent uses to control how a child looks/behaves.</p>
+        </div>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Simple phrasing:</strong> State drives <em>behavior</em>; props drive <em>configuration</em>. ✅</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Interview-Ready Answer (1–2 Sentences) 🧪</h2>
+      <div class="card">
+        <p>
+          <strong>State</strong> is internal data owned by a component that can change over time and triggers re-renders.
+          <strong>Props</strong> are read-only inputs passed from parent to child to configure the child; when props change, the child re-renders.
+        </p>
+      </div>
+
+      <div class="callout">
+        <p><strong>Extra credit:</strong> When state is passed as props, updating the state re-renders the parent and the child. 🙂</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>7) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>Who owns state? Who owns props?</li>
+          <li>Can a child component modify its props?</li>
+          <li>What triggers re-renders: state updates, props updates, or both?</li>
+          <li>Why do child components need to re-render when they receive new props?</li>
+          <li>In a real app, which one would you use for: a counter value? a button label? a theme setting?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li>State is owned by the component; props are owned by the parent.</li>
+          <li>Props are read-only for the receiving component.</li>
+          <li>Both state changes and new props cause re-renders.</li>
+          <li>To keep the UI consistent with the latest data.</li>
+          <li>Counter value = state; label/theme often come as props from a parent configuration.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Keep margins around ~14mm and enable background graphics only if you want shaded callouts.
+    </footer>
+  </main>
+</body>
+</html>

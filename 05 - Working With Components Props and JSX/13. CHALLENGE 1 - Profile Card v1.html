@@ -1,0 +1,519 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Challenge 1: Profile Card v1 (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --hint: #eef6ff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.hint {
+      border-left-color: #90caf9;
+      background: var(--hint);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .term {
+      display: inline-block;
+      padding: 1px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.9em;
+    }
+
+    .diagram {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--soft);
+      padding: 12px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc, .diagram { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 CHALLENGE 1 — Profile Card v1 (Reviewer)</h1>
+      <p class="subtitle">Build a developer profile card with an avatar, name, bio, and skill badges. Practice components, props, JSX rules, and basic styling. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print dialog, set Paper size = A4, Margins = Default.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#goal">Goal of the challenge</a></li>
+          <li><a href="#setup">Two ways to start (CRA vs CodeSandbox)</a></li>
+          <li><a href="#structure">Recommended component structure</a></li>
+          <li><a href="#skills">SkillList + Skill with props</a></li>
+          <li><a href="#colors">Optional: background color per skill</a></li>
+          <li><a href="#images">Avatar image setup</a></li>
+          <li><a href="#css">CSS class names + JSX rules recap</a></li>
+          <li><a href="#checklist">Checklist & common mistakes</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="goal">
+      <h2>🎯 Goal of the challenge</h2>
+      <p>
+        Build a <strong>developer profile card</strong> that looks like the example shown in the lecture:
+      </p>
+      <ul>
+        <li>🖼️ Avatar image</li>
+        <li>👤 Developer name</li>
+        <li>📝 Short bio</li>
+        <li>🏷️ List of skills (each with emoji, and optionally background color)</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>What you are practicing ✅</strong></p>
+        <ul>
+          <li>🧱 Creating components that return JSX</li>
+          <li>📦 Passing and receiving props</li>
+          <li>🎨 Using CSS class names and (optional) inline styles</li>
+          <li>🧠 Thinking in UI structure: small components → bigger components</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="setup">
+      <h2>🛠️ Two ways to start (CRA vs CodeSandbox)</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Option A: Create React App locally 💻</h3>
+          <p class="muted">Create a new CRA project on your machine and build it like the pizza app in this section.</p>
+          <pre><code>// Example (commands can vary by tooling)
+// npx create-react-app profile-card
+// cd profile-card
+// npm start</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Option B: CodeSandbox / react.new 🌐</h3>
+          <p class="muted">Use an online editor. Quick setup for small challenges.</p>
+          <ul>
+            <li>✅ Create an account (recommended)</li>
+            <li>✅ Create a new React sandbox</li>
+            <li>✅ Or open <span class="term">react.new</span> to scaffold a React app quickly</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout hint">
+        <p><strong>Advice 🧠</strong></p>
+        <p class="muted">If this feels daunting, that is normal. Try your best first, then watch the solution and compare.</p>
+      </div>
+    </section>
+
+    <section id="structure">
+      <h2>🏗️ Recommended component structure</h2>
+      <p>
+        The lecture suggests building the UI using small components, then composing them into the final card.
+        Here is the suggested structure:
+      </p>
+
+      <div class="diagram" aria-label="Component tree">
+App
+└─ Card (div.card)
+   ├─ Avatar
+   └─ Data (div.data)
+      ├─ Intro
+      └─ SkillList
+         ├─ Skill
+         ├─ Skill
+         └─ ...
+      </div>
+
+      <div class="callout">
+        <p><strong>Why this structure works ✅</strong></p>
+        <p class="muted">It matches how React UIs scale: build small pieces first, then combine them into bigger ones.</p>
+      </div>
+
+      <h3>Minimal App skeleton example 🧱</h3>
+      <pre><code>function App() {
+  return (
+    &lt;div className="card"&gt;
+      &lt;Avatar /&gt;
+      &lt;div className="data"&gt;
+        &lt;Intro /&gt;
+        &lt;SkillList /&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <p class="muted">Exact class names depend on the provided <code>styles.css</code> starter file.</p>
+    </section>
+
+    <section id="skills">
+      <h2>🏷️ SkillList + Skill with props</h2>
+      <p>
+        The key learning objective is using <strong>props</strong> to customize each <code>&lt;Skill /&gt;</code>.
+        Without props, all skill badges would look the same.
+      </p>
+
+      <h3>Step 1: Render multiple Skill components ♻️</h3>
+      <pre><code>function SkillList() {
+  return (
+    &lt;div className="skill-list"&gt;
+      &lt;Skill skill="React" emoji="⚛️" /&gt;
+      &lt;Skill skill="HTML + CSS" emoji="💪" /&gt;
+      &lt;Skill skill="JavaScript" emoji="🟨" /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <h3>Step 2: Receive props in Skill ✅</h3>
+      <pre><code>function Skill(props) {
+  return (
+    &lt;div className="skill"&gt;
+      &lt;span&gt;{props.skill}&lt;/span&gt;
+      &lt;span&gt;{props.emoji}&lt;/span&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Props reminder 📦</strong></p>
+        <ul>
+          <li>Parent: passes props like attributes (e.g., <code>skill="React"</code>)</li>
+          <li>Child: receives a single <code>props</code> object (e.g., <code>props.skill</code>)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="colors">
+      <h2>🎨 Optional: background color per skill (harder part)</h2>
+      <p>
+        The lecture calls this the trickiest part. The idea: pass a <code>color</code> prop and apply it using inline styles.
+      </p>
+
+      <h3>Pass a color prop 🌈</h3>
+      <pre><code>function SkillList() {
+  return (
+    &lt;div className="skill-list"&gt;
+      &lt;Skill skill="React" emoji="⚛️" color="#61dafb" /&gt;
+      &lt;Skill skill="HTML + CSS" emoji="💪" color="orange" /&gt;
+      &lt;Skill skill="JavaScript" emoji="🟨" color="gold" /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <h3>Use the color prop in an inline style ✅</h3>
+      <pre><code>function Skill(props) {
+  return (
+    &lt;div
+      className="skill"
+      style={{ backgroundColor: props.color }}
+    &gt;
+      &lt;span&gt;{props.skill}&lt;/span&gt;
+      &lt;span&gt;{props.emoji}&lt;/span&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout hint">
+        <p><strong>If you get stuck 🧠</strong></p>
+        <p class="muted">It’s fine to skip the color and only pass <code>skill</code> + <code>emoji</code>. That already demonstrates props correctly.</p>
+      </div>
+    </section>
+
+    <section id="images">
+      <h2>🖼️ Avatar image setup</h2>
+      <p>
+        In CodeSandbox, you can upload your avatar image by dragging it into the <code>public</code> folder.
+        Then you can reference it by filename.
+      </p>
+
+      <pre><code>function Avatar() {
+  return (
+    &lt;img
+      className="avatar"
+      src="jonas.jpeg" // or your own file name
+      alt="Your Name"
+    /&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Reminder ✅</strong></p>
+        <p class="muted">Always include an <code>alt</code> attribute for accessibility (and to satisfy lint rules).</p>
+      </div>
+    </section>
+
+    <section id="css">
+      <h2>🧾 CSS class names + JSX rules recap</h2>
+      <p>
+        The lecture mentions a starter stylesheet (often named <code>styles.css</code>) that contains class names.
+        Reading the CSS file is part of the challenge because it tells you which class names to apply.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Importing CSS (typical setup) 📄</h3>
+          <pre><code>// Example (where you import depends on setup)
+import "./styles.css";</code></pre>
+          <p class="muted">Bundlers inject CSS into the app after import.</p>
+        </div>
+
+        <div class="card">
+          <h3>JSX rule: className ✅</h3>
+          <pre><code>// ❌ Wrong
+&lt;div class="card"&gt;&lt;/div&gt;
+
+// ✅ Correct
+&lt;div className="card"&gt;&lt;/div&gt;</code></pre>
+          <p class="muted">In JSX, use <code>className</code> instead of <code>class</code>.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Mini checklist ✅</strong></p>
+        <ul>
+          <li>Did you apply the correct class names from the CSS?</li>
+          <li>Did you use <code>className</code> (not <code>class</code>)?</li>
+          <li>Do your components return exactly <strong>one</strong> root element?</li>
+          <li>Did you pass props and read them inside the child?</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <h2>✅ Final checklist & common mistakes</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>What you should end up with 🎯</h3>
+          <ul>
+            <li>Card container with border</li>
+            <li>Avatar image with correct class name</li>
+            <li>Name + bio in an Intro component</li>
+            <li>Multiple Skill components inside SkillList</li>
+            <li>Each Skill customized via props (skill + emoji, optional color)</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Common mistakes ⚠️</h3>
+          <ul>
+            <li>Using <code>class</code> instead of <code>className</code></li>
+            <li>Forgetting to import CSS (so nothing is styled)</li>
+            <li>Forgetting to add avatar class (image becomes huge)</li>
+            <li>Not passing props (skills look identical)</li>
+            <li>Typos in prop names (e.g., <code>emoji</code> vs <code>emjoji</code>)</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Confidence booster 💡</h3>
+          <p class="muted">
+            If you couldn’t do everything on your first try, that’s expected. Try, compare with the solution,
+            then rebuild once more from memory. That’s where the learning locks in.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout hint">
+        <p><strong>Next steps 🚀</strong></p>
+        <p class="muted">After you finish, challenge yourself: add more skills, tweak colors, and adjust the layout using the provided CSS.</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

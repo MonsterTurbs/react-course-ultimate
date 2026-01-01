@@ -1,0 +1,396 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Displaying a Loading Indicator — React Router useNavigation (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --good: #047857;
+      --warn: #b45309;
+      --danger: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 14px;
+      margin: 12px 0;
+    }
+
+    .soft { background: var(--soft); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #eef2ff;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f7faff;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--good);
+      background: #ecfdf5;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+    }
+
+    .danger {
+      border-left: 4px solid var(--danger);
+      background: #fef2f2;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+
+    .table th, .table td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    .table th {
+      background: var(--soft);
+      text-align: left;
+    }
+
+    /* Print styles (A4, clean margins, no URL after links) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Keep blocks from splitting awkwardly */
+      header, .card, pre, .note, .table { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Printer-friendly sizing */
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li, .table { font-size: 12.2px; }
+
+      /* Remove automatic URL printing */
+      a[href]::after { content: "" !important; }
+
+      /* Ensure code blocks print legibly */
+      pre {
+        color: #111 !important;
+        background: #f2f2f2 !important;
+        border: 1px solid #ddd;
+      }
+
+      .chip {
+        border-color: #ddd;
+        background: #f7f7f7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="kicker">⏳ UX Improvements — Route Transitions</p>
+      <h1>🌀 Displaying a Loading Indicator (React Router <code>useNavigation</code>)</h1>
+      <p class="subtitle">
+        Show a global spinner during route-based data loading by reading the router’s navigation state.
+      </p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">🧭 useNavigation()</span>
+        <span class="chip">⏳ navigation.state</span>
+        <span class="chip">🌀 Loader component</span>
+        <span class="chip">🌍 Global indicator</span>
+        <span class="chip">📥 Route loaders</span>
+        <span class="chip">🧱 AppLayout</span>
+      </div>
+    </header>
+
+    <section class="card soft">
+      <h2>🎯 Why we need a loading indicator</h2>
+      <p>
+        When you navigate (e.g., Home → Cart → Menu), there can be a small delay between the click and the data arriving.
+        During that delay, the app should show feedback (spinner/loader) so users know something is happening.
+      </p>
+      <div class="note">
+        ✅ The goal: show a loader while route data is being fetched.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧠 The problem: “Where is the isLoading state?”</h2>
+      <p>
+        Unlike a typical <code>useEffect</code> fetch, there is no local component <code>isLoading</code> state.
+        With React Router loaders, the router triggers fetching, so we should read the router’s own navigation state.
+      </p>
+    </section>
+
+    <section class="card soft">
+      <h2>🧭 Solution: use <code>useNavigation()</code></h2>
+      <p>
+        React Router provides <strong><code>useNavigation()</code></strong> (not <code>useNavigate</code>).
+        This hook exposes the current navigation status of the <strong>entire router</strong>.
+      </p>
+
+      <table class="table" aria-label="Navigation states">
+        <thead>
+          <tr>
+            <th>State</th>
+            <th>Meaning</th>
+            <th>When you might see it</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>idle</code></td>
+            <td>Nothing is happening right now</td>
+            <td>Normal browsing after data has loaded</td>
+          </tr>
+          <tr>
+            <td><code>loading</code></td>
+            <td>A route transition is loading data</td>
+            <td>Navigating to a page that has a loader</td>
+          </tr>
+          <tr>
+            <td><code>submitting</code></td>
+            <td>A route action is submitting form data</td>
+            <td>Submitting a form tied to an action</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        ✅ This state is global: if any page is loading, <code>navigation.state</code> reflects it.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🌍 Why the loader should be global (not page-specific)</h2>
+      <p>
+        Because navigation state is global, it’s usually better to show a generic loader at the layout level.
+        You won’t always know (or care) which specific page is fetching — you just want to show “loading”.
+      </p>
+      <div class="note warn">
+        ⚠️ Putting a loader inside a single page can be misleading because the router’s loading state can be triggered
+        by other routes too.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>✅ Implementation idea (inside <code>AppLayout</code>)</h2>
+      <p>
+        Read the router’s navigation state, derive a boolean, and conditionally render a loader overlay.
+        Important: the page content should still render; the loader just appears on top.
+      </p>
+
+      <h3>1) Read navigation state</h3>
+      <pre>import { Outlet, useNavigation } from "react-router-dom";
+
+export default function AppLayout() {
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
+
+  return (
+    <div className="Layout">
+      <Header />
+
+      {/* Show the loader on top, but keep rendering the app */}
+      {isLoading && <Loader />}
+
+      <main>
+        <Outlet />
+      </main>
+
+      <CartOverview />
+    </div>
+  );
+}</pre>
+
+      <div class="note">
+        ✅ This is “additive rendering”: you do NOT render either the page OR the loader — you render the page AND the loader.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🌀 Create a <code>Loader.jsx</code> component</h2>
+      <p>
+        The lecture creates a simple <code>Loader</code> component.
+        The name is slightly confusing because React Router also calls data-fetching functions “loaders”, but the UI spinner
+        is a familiar name, so the course uses it.
+      </p>
+
+      <h3>Conceptual loader component</h3>
+      <pre>export default function Loader() {
+  return &lt;div className="Loader"&gt;Loading...&lt;/div&gt;;
+}</pre>
+
+      <div class="note warn">
+        ⚠️ Styling is deferred. Later, Tailwind/CSS will make this loader overlay the entire page.
+      </div>
+    </section>
+
+    <section class="card soft">
+      <h2>🧪 Quick test (expected behavior)</h2>
+      <ul>
+        <li>Navigate from a route with no loader to <code>/menu</code> (which has a loader).</li>
+        <li>For a brief moment, <code>navigation.state</code> becomes <code>loading</code>.</li>
+        <li>The <code>&lt;Loader /&gt;</code> appears, then disappears when data arrives (<code>idle</code>).</li>
+      </ul>
+      <div class="note good">
+        ✅ Result: better user experience during slow network responses.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="card">
+      <h2>🧠 Mini self-check</h2>
+      <ol>
+        <li>❓ What hook do we use to read route loading status?</li>
+        <li>❓ What are the common values of <code>navigation.state</code>?</li>
+        <li>❓ Why is the loader placed in <code>AppLayout</code> instead of in the Menu page?</li>
+        <li>❓ Why do we still render <code>&lt;Outlet /&gt;</code> even while loading?</li>
+      </ol>
+    </section>
+
+    <section class="card soft">
+      <h2>➡️ What’s next</h2>
+      <p>
+        With a global loading indicator in place, the course continues deeper into React Router’s data APIs.
+        Next up: improving UX further and handling more data-loading situations.
+      </p>
+    </section>
+
+    <footer class="muted" style="margin-top:16px; font-size:12px;">
+      Print format: A4, single-column, word-wrapped, clean margins.
+    </footer>
+  </main>
+</body>
+</html>

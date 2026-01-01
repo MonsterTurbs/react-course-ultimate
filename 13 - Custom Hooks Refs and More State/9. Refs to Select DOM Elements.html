@@ -1,0 +1,329 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Refs to Select DOM Elements (Focus + Enter Shortcut)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🧠 React Study Guide: Refs to Select DOM Elements (Focus + Enter Shortcut)</h1>
+      <p class="subtitle">Learn the “React way” to access a DOM element using <code>useRef</code>, then add a keyboard shortcut: pressing <strong>Enter</strong> focuses the search input and clears the query.</p>
+      <div class="meta">
+        <span class="chip">🧷 Hook: <strong>useRef</strong></span>
+        <span class="chip">🎯 Feature: focus input on mount</span>
+        <span class="chip">⌨️ Feature: Enter key focuses + clears</span>
+        <span class="chip">🧹 Topic: effect cleanup + deps</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Goal of this lecture</h2>
+      <ul>
+        <li>✅ Replace <code>document.querySelector</code> with a <strong>ref</strong>.</li>
+        <li>✅ Auto-focus the input when the component mounts.</li>
+        <li>✅ Add a global keyboard shortcut: press <strong>Enter</strong> to focus input and clear query.</li>
+        <li>✅ Prevent the shortcut when the input is already focused.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Main idea:</strong> With refs, you connect the DOM element to your logic declaratively (no selectors needed).
+      </div>
+    </section>
+
+    <section>
+      <h2>🧷 Using refs with DOM elements: the 3 steps</h2>
+
+      <div class="rule">
+        <h3>Step 1) Create the ref</h3>
+        <p>When targeting a DOM element, the initial value is usually <code>null</code>.</p>
+        <pre><code>import { useEffect, useRef } from "react";
+
+const inputEl = useRef(null);</code></pre>
+      </div>
+
+      <div class="rule">
+        <h3>Step 2) Attach it to the element using the <code>ref</code> prop</h3>
+        <pre><code>return (
+  &lt;input
+    ref={inputEl}
+    className="search"
+    placeholder="Search movies..."
+  /&gt;
+);</code></pre>
+        <p class="muted">Now React will put the actual DOM node into <code>inputEl.current</code> after render.</p>
+      </div>
+
+      <div class="rule">
+        <h3>Step 3) Use it inside an effect (after the DOM exists)</h3>
+        <p>Because <code>inputEl.current</code> is assigned after the DOM is created, the safe place to use it is inside <code>useEffect</code>.</p>
+        <pre><code>useEffect(() =&gt; {
+  inputEl.current?.focus();
+  console.log(inputEl.current);
+}, []);</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Why effect?</strong> Effects run after the browser has painted the DOM, so the ref has been attached.
+      </div>
+    </section>
+
+    <section>
+      <h2>✨ Building a nicer feature: Press Enter to focus + clear</h2>
+      <p>The desired UX is:</p>
+      <ul>
+        <li>⌨️ From anywhere in the app, press <strong>Enter</strong> → focus the search input.</li>
+        <li>🧽 Also clear any existing search text (<code>setQuery("")</code>).</li>
+        <li class="warn">⚠️ But if the input is already focused, pressing Enter should NOT wipe what you’re typing.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Note:</strong> This time we do need a manual listener on <code>document</code> (there’s no ref for the whole document).
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Implementation pattern: add event listener + cleanup</h2>
+      <p>We attach a <code>keydown</code> listener on mount, then remove it on unmount to avoid leaks and duplicate listeners.</p>
+
+      <pre><code>useEffect(() =&gt; {
+  function onKeyDown(e) {
+    if (e.code !== "Enter") return;
+
+    // Don't trigger when input is already focused
+    if (document.activeElement === inputEl.current) return;
+
+    inputEl.current?.focus();
+    setQuery("");
+  }
+
+  document.addEventListener("keydown", onKeyDown);
+  return () =&gt; document.removeEventListener("keydown", onKeyDown);
+}, [setQuery]);</code></pre>
+
+      <div class="callout">
+        <strong>Why include <code>[setQuery]</code>?</strong> React’s exhaustive-deps rule wants all external values used in the effect.
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Full example (Search component sketch)</h2>
+      <p>This matches the lecture’s final behavior in one place.</p>
+
+      <pre><code>import { useEffect, useRef } from "react";
+
+export default function Search({ query, setQuery }) {
+  const inputEl = useRef(null);
+
+  // Focus input on mount
+  useEffect(() =&gt; {
+    inputEl.current?.focus();
+  }, []);
+
+  // Press Enter anywhere to focus input + clear query
+  useEffect(() =&gt; {
+    function onKeyDown(e) {
+      if (e.code !== "Enter") return;
+      if (document.activeElement === inputEl.current) return;
+
+      inputEl.current?.focus();
+      setQuery("");
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () =&gt; document.removeEventListener("keydown", onKeyDown);
+  }, [setQuery]);
+
+  return (
+    &lt;input
+      ref={inputEl}
+      className="search"
+      value={query}
+      onChange={(e) =&gt; setQuery(e.target.value)}
+      placeholder="Search movies..."
+    /&gt;
+  );
+}</code></pre>
+
+      <p class="muted">If you see behavior not updating until refresh, it’s usually because the file didn’t reload or a stale listener existed; a full reload resets listeners.</p>
+    </section>
+
+    <section>
+      <h2>🧠 Why <code>document.activeElement</code> solves the “delete while typing” bug</h2>
+      <p><code>document.activeElement</code> returns the element that currently has focus.</p>
+      <ul>
+        <li>✅ If the active element is the input itself, we skip the shortcut.</li>
+        <li>✅ That prevents <code>setQuery("")</code> from wiping text the user is entering.</li>
+      </ul>
+
+      <pre><code>if (document.activeElement === inputEl.current) return;</code></pre>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>🧷 Use refs for DOM nodes: <code>const x = useRef(null)</code> + <code>ref={x}</code>.</li>
+        <li>✅ Use refs inside <code>useEffect</code> (after the DOM exists).</li>
+        <li>⌨️ For global keyboard shortcuts, use <code>document.addEventListener</code> + cleanup.</li>
+        <li>🧹 Always remove listeners in cleanup to avoid duplicates.</li>
+        <li>🧠 Include dependencies like <code>setQuery</code> in the effect dependency array.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Rule of thumb:</strong> If changing the value should update the UI, use state. If you just need to “remember” something (like a DOM node), use a ref.
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

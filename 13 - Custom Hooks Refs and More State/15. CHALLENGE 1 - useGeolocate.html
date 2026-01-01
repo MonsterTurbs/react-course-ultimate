@@ -1,0 +1,408 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Challenge: Build a useGeolocation Custom Hook</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .compare{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 4px;
+      font-size: 13.5px;
+    }
+    .compare th,
+    .compare td{
+      border:1px solid var(--border);
+      padding: 10px 10px;
+      vertical-align: top;
+    }
+    .compare th{
+      background: var(--panel);
+      text-align:left;
+      font-weight:700;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+    .danger{ color: var(--danger); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🧠 React Study Guide: Challenge 1 — Build <code>useGeolocation</code></h1>
+      <p class="subtitle">Practice creating a custom hook by extracting working geolocation logic out of a component, then reusing the hook while keeping the UI behavior exactly the same.</p>
+      <div class="meta">
+        <span class="chip">🧷 Custom Hook: <strong>useGeolocation</strong></span>
+        <span class="chip">📦 Return: <code>{ position, isLoading, error, getPosition }</code></span>
+        <span class="chip">♻️ Focus: reusable non-visual logic</span>
+        <span class="chip">🚫 Exclude: click counter logic</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What the starter app does (before refactor)</h2>
+      <ul>
+        <li>📍 Click a button to request your current GPS position via the browser’s Geolocation API.</li>
+        <li>✅ Browser asks permission; once allowed, you get <code>lat</code> and <code>lng</code>.</li>
+        <li>🗺️ A link opens OpenStreetMap at your location.</li>
+        <li>🔁 The app also counts how many times you requested the position (a click counter).</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Challenge goal:</strong> Extract the geolocation logic into a reusable hook named <code>useGeolocation</code>, then make the component work exactly as before.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Key design requirement: keep the hook reusable</h2>
+      <p>The lecture explicitly encourages you to think about reusability:</p>
+      <ul>
+        <li>✅ The hook should focus on geolocation only (loading, error, coordinates, requesting position).</li>
+        <li class="warn">⚠️ The click counter is UI-specific and should stay in the component (not the hook).</li>
+      </ul>
+
+      <table class="compare" aria-label="What belongs in hook vs component">
+        <thead>
+          <tr>
+            <th>Inside <code>useGeolocation</code></th>
+            <th>Inside the component (App/UI)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <ul>
+                <li><code>position</code> state (lat/lng object)</li>
+                <li><code>isLoading</code> state</li>
+                <li><code>error</code> state</li>
+                <li><code>getPosition()</code> handler that calls <code>navigator.geolocation</code></li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li><code>countClicks</code> state</li>
+                <li><code>handleClick()</code> that increments clicks then calls <code>getPosition()</code></li>
+                <li>JSX rendering (button, map link, counters)</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>🪜 Step-by-step solution outline (what you do)</h2>
+      <div class="grid">
+        <div class="rule">
+          <h3>1) Identify the “geolocation unit”</h3>
+          <p class="muted">Grab all state + handlers that are purely about getting a position.</p>
+          <ul>
+            <li><code>position</code>, <code>isLoading</code>, <code>error</code></li>
+            <li><code>getPosition</code> that triggers the browser geolocation</li>
+          </ul>
+        </div>
+
+        <div class="rule">
+          <h3>2) Create the hook file</h3>
+          <pre><code>src/useGeolocation.js</code></pre>
+          <p>Named export is typical for hooks:</p>
+          <pre><code>export function useGeolocation() {
+  // ...
+}</code></pre>
+        </div>
+
+        <div class="rule">
+          <h3>3) Return what the component needs</h3>
+          <p>Return an object so it’s self-documenting:</p>
+          <pre><code>return { position, isLoading, error, getPosition };</code></pre>
+        </div>
+
+        <div class="rule">
+          <h3>4) Keep click counting outside</h3>
+          <p>Create <code>handleClick</code> in the component:</p>
+          <pre><code>function handleClick() {
+  setCountClicks(c =&gt; c + 1);
+  getPosition();
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Example implementation: <code>useGeolocation</code> hook</h2>
+      <p>This follows the “quick solution” style described in the transcript: extract the hook logic, return the values and handler, and keep extra UI logic outside.</p>
+
+      <pre><code>import { useState } from "react";
+
+export function useGeolocation() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [position, setPosition] = useState(null);
+  const [error, setError] = useState("");
+
+  function getPosition() {
+    if (!navigator.geolocation)
+      return setError("Your browser does not support geolocation");
+
+    setIsLoading(true);
+    setError("");
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) =&gt; {
+        setPosition({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        });
+        setIsLoading(false);
+      },
+      (err) =&gt; {
+        setError(err.message);
+        setIsLoading(false);
+      }
+    );
+  }
+
+  return { isLoading, position, error, getPosition };
+}</code></pre>
+
+      <div class="callout">
+        <strong>Why return <code>position</code> as an object?</strong> It keeps related data together, and the consumer can destructure it (including nested destructuring).
+      </div>
+    </section>
+
+    <section>
+      <h2>🔌 Use it in the component (and keep click count outside)</h2>
+      <p>Your component can now be much cleaner. It owns the click counter, but uses the hook for geolocation.</p>
+
+      <pre><code>import { useState } from "react";
+import { useGeolocation } from "./useGeolocation";
+
+export default function App() {
+  const [countClicks, setCountClicks] = useState(0);
+
+  const { isLoading, position, error, getPosition } = useGeolocation();
+
+  // Optional: nested destructuring if position exists
+  const lat = position?.lat;
+  const lng = position?.lng;
+
+  function handleClick() {
+    setCountClicks((c) =&gt; c + 1);
+    getPosition();
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={handleClick} disabled={isLoading}&gt;
+        {isLoading ? "Loading..." : "Get my position"}
+      &lt;/button&gt;
+
+      &lt;p&gt;You requested position {countClicks} times&lt;/p&gt;
+
+      {error &amp;&amp; &lt;p&gt;{error}&lt;/p&gt;}
+
+      {lat &amp;&amp; lng &amp;&amp; (
+        &lt;a
+          href={`https://www.openstreetmap.org/#map=16/${lat}/${lng}`}
+          target="_blank"
+          rel="noreferrer"
+        &gt;
+          Open in OpenStreetMap
+        &lt;/a&gt;
+      )}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <strong>Main win:</strong> All “geolocation concerns” live in one reusable hook. The component keeps UI-specific concerns like counting clicks.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Notes from the solution discussion</h2>
+      <ul>
+        <li>✅ The hook returns an object, and the component destructures it immediately.</li>
+        <li>✅ You can also do nested destructuring of <code>position</code> (e.g., <code>const { lat, lng } = position</code>) if you ensure it’s not null.</li>
+        <li>🧩 Extracting the hook may force a small refactor: create a separate <code>handleClick</code> in the component to keep click counting outside.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧪 Mini-checklist to verify your solution</h2>
+      <ul>
+        <li>✅ Clicking the button prompts for geolocation permission and loads coordinates.</li>
+        <li>✅ OpenStreetMap link works and points to the correct lat/lng.</li>
+        <li>✅ <code>isLoading</code> disables the button (or changes its label) while requesting.</li>
+        <li>✅ Errors show when geolocation fails or is unsupported.</li>
+        <li>✅ Click counter still increments, but it’s <strong>not inside</strong> the hook.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>🧷 Custom hooks encapsulate non-visual logic that uses hooks.</li>
+        <li>♻️ For reusability, keep the hook focused on one job (here: geolocation).</li>
+        <li>🧱 UI-specific behavior (like counting button clicks) should remain outside.</li>
+        <li>📦 Return the minimal set of values/actions needed by the UI.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

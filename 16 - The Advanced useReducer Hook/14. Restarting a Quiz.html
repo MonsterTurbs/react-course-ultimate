@@ -1,0 +1,316 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Quiz (useReducer) — Restarting a Quiz (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e7e7e7;
+      --soft: #f7f7f7;
+      --code-bg: #fbfbfb;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    h2 {
+      font-size: 16.5px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 14.5px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    .callout {
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-left: 4px solid #cfcfcf;
+      padding: 12px 12px;
+      margin: 12px 0;
+      border-radius: 8px;
+    }
+
+    .badge {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-right: 6px;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 20px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: var(--code-bg);
+      border-radius: 8px;
+      overflow: auto;
+      white-space: pre-wrap;      /* wrap long lines */
+      word-break: break-word;     /* prevent cut-off in print */
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* Print-friendly settings */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { padding: 0; margin: 0; max-width: none; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; } /* do not print URLs */
+      pre { border-color: #d8d8d8; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>♻️ Restarting a Quiz (React Quiz + useReducer)</h1>
+      <p class="subtitle">Reviewer / study guide — focus: adding a “Restart quiz” button by dispatching a <code>restart</code> action and resetting state cleanly.</p>
+    </header>
+
+    <section>
+      <h2>What you’re building</h2>
+      <p>
+        You’re adding a simple feature that lets the user restart the quiz after finishing.
+        With <code>useReducer</code>, this becomes straightforward because you can reset multiple related state values in one reducer case.
+      </p>
+
+      <div class="callout">
+        <div class="grid">
+          <div><span class="badge">🧠 Key idea</span>Restarting = a <strong>single state transition</strong> (one dispatched action) that resets multiple fields.</div>
+          <div><span class="badge">🎯 Goal</span>Keep the questions in memory (do <em>not</em> refetch), but reset everything else (index, answer, points, status, etc.).</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>How the flow works</h2>
+      <ol>
+        <li>Quiz ends → status becomes <code>"finished"</code> → <code>&lt;FinishScreen /&gt;</code> is shown ✅</li>
+        <li>User clicks <strong>Restart quiz</strong> → dispatch <code>{ type: "restart" }</code> ✅</li>
+        <li>Reducer handles <code>restart</code> → returns a reset state ✅</li>
+        <li>UI goes back to the start screen (<code>status: "ready"</code>) and the same questions remain ✅</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Step-by-step implementation</h2>
+
+      <h3>1) Add the “Restart quiz” button in <code>FinishScreen</code></h3>
+      <p>
+        Place it under the result/highscore text. Use the same button classes used elsewhere (commonly <code>btn btn-ui</code>).
+      </p>
+
+      <pre><code>// FinishScreen.jsx (example)
+export default function FinishScreen({ points, maxPossiblePoints, highscore, dispatch }) {
+  const percentage = Math.floor((points / maxPossiblePoints) * 100);
+
+  return (
+    &lt;&gt;
+      &lt;p className="result"&gt;
+        You scored &lt;strong&gt;{points}&lt;/strong&gt; out of {maxPossiblePoints} ({percentage}%)
+      &lt;/p&gt;
+
+      &lt;p className="highscore"&gt;(Highscore: {highscore} points)&lt;/p&gt;
+
+      &lt;button
+        className="btn btn-ui"
+        onClick={() =&gt; dispatch({ type: "restart" })}
+      &gt;
+        Restart quiz
+      &lt;/button&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Tip:</strong> If you see <code>dispatch is not a function</code>, it almost always means you forgot to pass <code>dispatch</code> as a prop into <code>FinishScreen</code> (see step 2).</p>
+      </div>
+
+      <h3>2) Pass <code>dispatch</code> into <code>FinishScreen</code> from <code>App</code></h3>
+      <pre><code>// App.jsx (inside render)
+{status === "finished" &amp;&amp; (
+  &lt;FinishScreen
+    points={points}
+    maxPossiblePoints={maxPossiblePoints}
+    highscore={highscore}
+    dispatch={dispatch}
+  /&gt;
+)}
+</code></pre>
+
+      <h3>3) Add the <code>restart</code> case in the reducer</h3>
+      <p>
+        There are two valid patterns. Both work. Choose one and be consistent.
+      </p>
+
+      <div class="hr"></div>
+
+      <h3>Pattern A (recommended): reset to initial state, keep questions</h3>
+      <p class="mini">This is explicit: “go back to initial defaults, but reuse already-fetched questions.”</p>
+      <pre><code>// reducer.js
+case "restart":
+  return {
+    ...initialState,
+    questions: state.questions, // keep fetched questions
+    status: "ready",
+    highscore: state.highscore, // optional: keep highscore across restarts
+  };
+</code></pre>
+
+      <div class="callout">
+        <p>
+          <strong>About highscore:</strong> In many quiz apps, the highscore persists across restarts.
+          If you prefer to reset it too, remove the <code>highscore</code> line above.
+        </p>
+      </div>
+
+      <h3>Pattern B: keep the current state, override specific fields</h3>
+      <p class="mini">This is “surgical”: you reset only what you want, leaving everything else intact.</p>
+      <pre><code>// reducer.js
+case "restart":
+  return {
+    ...state,
+    status: "ready",
+    index: 0,
+    answer: null,
+    points: 0,
+    // highscore: 0, // optional
+  };
+</code></pre>
+
+      <div class="hr"></div>
+
+      <h3>4) Quick test checklist</h3>
+      <ul>
+        <li>✅ Finish the quiz → you see the finish screen</li>
+        <li>✅ Click <strong>Restart quiz</strong> → you return to the start screen</li>
+        <li>✅ Questions are still there (no refetch needed)</li>
+        <li>✅ <code>index</code> resets to 0, <code>answer</code> resets to <code>null</code>, <code>points</code> resets to 0</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Why this is a “useReducer win”</h2>
+      <p>
+        Restarting is a great example of why reducers feel clean:
+        you map a single action (<code>restart</code>) to a single state transition (reset relevant state).
+        All logic lives in one place (the reducer), and components mostly just dispatch events.
+      </p>
+
+      <div class="callout">
+        <p>
+          🗺️ When you come back to the project later, reading the reducer cases (<code>dataReceived</code>, <code>start</code>, <code>newAnswer</code>, <code>nextQuestion</code>, <code>finish</code>, <code>restart</code>) tells you the app’s entire “state machine” at a glance.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Common bug: “dispatch is not a function”</h2>
+      <p>
+        This happens when <code>FinishScreen</code> expects a <code>dispatch</code> prop but the parent didn’t pass it.
+      </p>
+      <ul>
+        <li>✅ Fix: pass <code>dispatch={dispatch}</code> to <code>&lt;FinishScreen /&gt;</code></li>
+        <li>✅ Double-check your component signature: <code>function FinishScreen({ ..., dispatch })</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Next feature (teaser): the Timer ⏱️</h2>
+      <p>
+        The next lecture typically introduces a timer that counts down while the quiz is active.
+        When time runs out, the app transitions automatically to <code>status: "finished"</code>.
+        Conceptually, it’s the same reducer-driven approach: the timer triggers a dispatched action.
+      </p>
+    </section>
+
+    <footer class="mini" style="margin-top: 18px; border-top: 1px solid var(--border); padding-top: 10px;">
+      <div>Print tip: Use your browser’s Print dialog → Paper size A4 → Margins “Default” or “Minimum”.</div>
+    </footer>
+  </main>
+</body>
+</html>

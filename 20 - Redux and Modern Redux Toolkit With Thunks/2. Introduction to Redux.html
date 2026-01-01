@@ -1,0 +1,371 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redux — Introduction (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 56px;
+    }
+
+    header {
+      padding: 18px 16px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.6rem;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main {
+      margin-top: 18px;
+    }
+
+    section {
+      margin: 18px 0;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.15rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.02rem;
+    }
+
+    p { margin: 10px 0; }
+
+    ul { margin: 8px 0 0 20px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #f6f9ff;
+      padding: 12px 12px 12px 14px;
+      border-radius: 10px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .k {
+      font-weight: 700;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92rem;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0b1020;
+      color: #e9eefc;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .muted { color: var(--muted); }
+
+    /* Print settings (A4) */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body {
+        background: #fff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .page {
+        max-width: none;
+        padding: 0;
+        margin: 0;
+      }
+      section, header {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      pre {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      a {
+        color: inherit;
+        text-decoration: underline;
+      }
+      a[href]:after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧠 Redux — Introduction (Reviewer / Study Guide)</h1>
+      <p class="subtitle">Understand what Redux is, when to use it, and how its core mechanics compare to <span class="k">useReducer</span> and Context.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Global State Management</span>
+        <span class="chip">🧩 Builds on: useReducer + Context</span>
+        <span class="chip">🛠 Tools: Redux, react-redux, Redux Toolkit (later)</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) What is Redux?</h2>
+        <p>✅ <span class="k">Redux</span> is a <span class="k">third‑party library</span> for managing <span class="k">global state</span> in an application. It’s not limited to React; it can be used with other frameworks or even plain JavaScript. 🙂</p>
+
+        <div class="callout">
+          <p><span class="k">Big idea:</span> Put global state in <span class="k">one store</span> (single source of truth) and update it by <span class="k">dispatching actions</span>.</p>
+        </div>
+
+        <p class="muted">In React projects, Redux is commonly connected through the <span class="k">react-redux</span> library.</p>
+      </section>
+
+      <section>
+        <h2>2) Redux vs useReducer vs Context</h2>
+        <div class="grid">
+          <div class="card">
+            <p class="k">🪝 useReducer (local state)</p>
+            <ul>
+              <li>State lives inside a component (or a component tree).</li>
+              <li>Updates happen by dispatching actions to a reducer.</li>
+              <li>Good for complex local state transitions.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <p class="k">🌐 Context + useReducer (global-ish within subtree)</p>
+            <ul>
+              <li>Common pattern to share reducer state across many components.</li>
+              <li>Great for “app-level” state in medium projects (e.g., WorldWise app setup).</li>
+              <li>Can require careful optimization if lots of consumers + frequent updates.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <p class="k">🏪 Redux (global store)</p>
+            <ul>
+              <li>Global state in one central store.</li>
+              <li>Components anywhere can read from store and dispatch actions.</li>
+              <li>Very predictable update flow + strong ecosystem tooling.</li>
+            </ul>
+          </div>
+        </div>
+
+        <p>📎 A helpful mental model: Redux can feel like “Context + useReducer” — but it has its own conventions, ecosystem, and large-scale patterns that become useful in bigger apps.</p>
+      </section>
+
+      <section>
+        <h2>3) When should you use Redux?</h2>
+        <p>🧭 Redux used to be almost everywhere in React apps. Today, many apps don’t need it because there are more alternatives (and many apps mostly deal with <span class="k">remote state</span>).</p>
+
+        <h3>✅ Good reasons to learn Redux (still)</h3>
+        <ul>
+          <li>📚 You will likely encounter Redux in older codebases.</li>
+          <li>👥 Teams often have legacy Redux apps in production.</li>
+          <li>🏗️ Some apps genuinely need frequent updates to lots of global <span class="k">UI state</span>.</li>
+        </ul>
+
+        <h3>🎯 Best fit use case</h3>
+        <div class="callout">
+          <p><span class="k">Use Redux mainly when:</span> you have <span class="k">lots of global UI state</span> that updates <span class="k">frequently</span>.</p>
+          <p class="muted">UI state = state about the UI (filters, selections, steps, theme, local app data), not mainly fetched from a server.</p>
+        </div>
+
+        <h3>⚠️ A key distinction: UI state vs Remote state</h3>
+        <ul>
+          <li>🌐 <span class="k">Remote state</span>: fetched from a server / API. Often better handled by libraries like <span class="k">React Query</span> or <span class="k">SWR</span>.</li>
+          <li>🖥️ <span class="k">UI state</span>: local app data that doesn’t need server sync. Redux can shine here.</li>
+          <li>🧰 Modern Redux Toolkit also has <span class="k">RTK Query</span> (a data fetching solution), but the concept remains: remote state is a different problem.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>4) The Redux “Cycle” (Mechanics)</h2>
+        <p>Redux is easier if you already understand <span class="k">useReducer</span>. The main flow is similar, but Redux adds a global store and common conventions.</p>
+
+        <h3>🧩 useReducer recap (core idea)</h3>
+        <ul>
+          <li>📦 Create an <span class="k">action</span> (usually <span class="k">type</span> + <span class="k">payload</span>).</li>
+          <li>📨 <span class="k">dispatch(action)</span> to a reducer.</li>
+          <li>🧮 Reducer computes <span class="k">next state</span> from (state, action).</li>
+          <li>🔁 Component re-renders with updated state.</li>
+        </ul>
+
+        <h3>🏪 What Redux adds</h3>
+        <ul>
+          <li><span class="k">Store</span>: centralized container of global state (“single source of truth”).</li>
+          <li><span class="k">Multiple reducers</span>: typically one reducer per feature/domain (cart, user, theme, etc.).</li>
+          <li><span class="k">Action creators</span>: functions that generate actions to avoid writing objects repeatedly.</li>
+        </ul>
+
+        <div class="callout">
+          <p><span class="k">Important:</span> Reducers must be <span class="k">pure functions</span> ✅ (same input → same output, no side effects).</p>
+        </div>
+
+        <h3>🧠 Redux Cycle (step-by-step)</h3>
+        <ol>
+          <li>🙂 Component calls an <span class="k">action creator</span> and <span class="k">dispatches</span> its action.</li>
+          <li>🏪 Action reaches the <span class="k">store</span>.</li>
+          <li>🧮 The correct <span class="k">reducer</span> handles it and returns the next state.</li>
+          <li>🔁 React re-renders components that consume the updated store state.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>5) Practical mini examples (Beginner-friendly)</h2>
+        <p class="muted">These are small illustrative examples to connect the concepts. They’re not the full Redux setup yet.</p>
+
+        <h3>🧾 Action object</h3>
+        <pre>// action = instruction object
+{
+  type: "cart/addItem",
+  payload: { id: 42, title: "Milk", qty: 1 }
+}</pre>
+
+        <h3>🏭 Action creator</h3>
+        <pre>// action creator = function that builds actions
+function addItem(item) {
+  return {
+    type: "cart/addItem",
+    payload: item,
+  };
+}
+
+// usage in a component (conceptually)
+// dispatch(addItem({ id: 42, title: "Milk", qty: 1 }));</pre>
+
+        <h3>🧮 Reducer (pure function)</h3>
+        <pre>function cartReducer(state = { items: [] }, action) {
+  switch (action.type) {
+    case "cart/addItem":
+      return { ...state, items: [...state.items, action.payload] };
+
+    default:
+      return state;
+  }
+}</pre>
+
+        <h3>🗂️ “One reducer per feature” idea</h3>
+        <pre>// Example domains (feature slices)
+// - cartReducer
+// - userReducer
+// - themeReducer</pre>
+      </section>
+
+      <section>
+        <h2>6) Why this architecture is useful</h2>
+        <ul>
+          <li>🧼 Keeps <span class="k">state update logic</span> separate from UI components.</li>
+          <li>🔎 Predictable data flow (easy to debug and reason about).</li>
+          <li>🧩 Scales better in big apps: clear feature boundaries and consistent patterns.</li>
+        </ul>
+
+        <div class="callout">
+          <p>💡 If you like analogies: Redux is like a bank 🏦</p>
+          <ul>
+            <li>🧍 You = action creator (you prepare instructions)</li>
+            <li>📝 Instructions = action</li>
+            <li>🧑‍💼 Teller = dispatcher (passes instructions along)</li>
+            <li>🔒 Vault = store (where the valuable state lives)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>7) Quick checklist (for your notes)</h2>
+        <ul>
+          <li>✅ Redux = global state in a store + updates via actions.</li>
+          <li>✅ Similar to useReducer; Redux just centralizes state in a store.</li>
+          <li>✅ Action creators are common (but technically optional).</li>
+          <li>✅ Reducers must be pure.</li>
+          <li>✅ Components consuming store state re-render after updates.</li>
+          <li>🎯 Use Redux mainly for lots of frequently-updated global UI state.</li>
+        </ul>
+
+        <p class="muted">Up next in the course: you’ll implement Redux step-by-step, then modernize it using <span class="k">Redux Toolkit</span>, and later handle API calls with <span class="k">thunks</span>.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

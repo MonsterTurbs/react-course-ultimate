@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Foundations — Server-Side Rendering (SSR) vs Client-Side Rendering (CSR)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.6rem;
+      letter-spacing: -0.2px;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.86rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 1.25rem;
+      border-left: 5px solid var(--border);
+      padding-left: 10px;
+    }
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { margin: 8px 0 10px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .box {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .box strong { display: inline-block; margin-bottom: 6px; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    @media (max-width: 720px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+
+    .proscons {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .proscons .head {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .proscons .head div { padding: 10px 12px; }
+    .proscons .body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .proscons .cell {
+      padding: 10px 12px;
+      border-right: 1px solid var(--border);
+    }
+    .proscons .cell:last-child { border-right: 0; }
+
+    .timeline {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+    .timeline ol { margin: 6px 0 0 18px; }
+    .timeline li { margin: 8px 0; }
+    .kpi {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .mini-quiz details {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+    .mini-quiz summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+    }
+    .mini-quiz summary::-webkit-details-marker { display: none; }
+    .mini-quiz .answer {
+      margin-top: 8px;
+      color: #222;
+    }
+
+    .footer {
+      margin-top: 26px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      .chip, .box, .proscons, .timeline, .mini-quiz details {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      details { break-inside: avoid; }
+      .two-col, .proscons, .timeline, .box { break-inside: avoid; }
+      a[href]::after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Next.js Foundations — SSR vs CSR</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) • Single-column • Print-ready (A4)</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Server-Side Rendering (SSR)</span>
+        <span class="chip">🧩 Context: Full-stack React with Next.js</span>
+        <span class="chip">⚡ Focus: Performance, SEO, Interactivity</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Quick Context: Why are we talking about SSR again? 🕰️</h2>
+      <p>
+        Web apps have “swung” between where the HTML gets created:
+        <strong>server</strong> (old-school) → <strong>client</strong> (modern SPAs) → and now a
+        <strong>blend</strong> (modern full-stack frameworks).
+      </p>
+
+      <div class="box">
+        <strong>🧠 Simple idea:</strong>
+        <ul>
+          <li><strong>CSR (Client-Side Rendering)</strong> = browser builds the page using JavaScript.</li>
+          <li><strong>SSR (Server-Side Rendering)</strong> = server builds the HTML first, then sends it to the browser.</li>
+          <li><strong>Next.js / Remix / Nuxt / SvelteKit</strong> = combine “best of both worlds” (server + client).</li>
+        </ul>
+      </div>
+
+      <p>
+        Modern full-stack frameworks are <em>not</em> like classic PHP/WordPress sites.
+        They still use modern component-based UI, routing, and interactivity—just with smarter rendering options.
+      </p>
+    </section>
+
+    <section>
+      <h2>2) Core Definitions (Must Memorize) ✅</h2>
+
+      <div class="two-col">
+        <div class="box">
+          <strong>💻 Client-Side Rendering (CSR)</strong>
+          <p>
+            The browser downloads JavaScript, then JavaScript generates (renders) the HTML on the user’s computer.
+          </p>
+          <p><em>Think:</em> “JS first, UI later.”</p>
+        </div>
+
+        <div class="box">
+          <strong>🖥️ Server-Side Rendering (SSR)</strong>
+          <p>
+            The server generates the HTML upfront, and sends a “ready-to-see” page to the browser.
+          </p>
+          <p><em>Think:</em> “HTML first, JS later (if needed).”</p>
+        </div>
+      </div>
+
+      <div class="box">
+        <strong>📌 Key Vocabulary</strong>
+        <ul>
+          <li><strong>JavaScript bundle</strong> = the downloaded JS file(s) containing your app logic.</li>
+          <li><strong>Data fetching</strong> = requesting data from an API/database needed to show the page.</li>
+          <li><strong>Request waterfall</strong> = steps happen sequentially (download JS → render → fetch data), causing delays.</li>
+          <li><strong>Hydration</strong> = making server-rendered HTML interactive by attaching JavaScript behaviors.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) CSR vs SSR: Pros and Cons ⚖️</h2>
+
+      <div class="proscons" role="region" aria-label="CSR vs SSR pros and cons">
+        <div class="head">
+          <div>CSR (Client-Side Rendering) 💻</div>
+          <div>SSR (Server-Side Rendering) 🖥️</div>
+        </div>
+
+        <div class="body">
+          <div class="cell">
+            <h3>✅ Strengths</h3>
+            <ul>
+              <li>Very interactive “SPA feel” after first load ✨</li>
+              <li>Navigation often feels instant (no full reload) 🚀</li>
+              <li>Great for app-like tools behind login 🔒</li>
+            </ul>
+            <h3>⚠️ Weaknesses</h3>
+            <ul>
+              <li>Slow initial load if JS bundle is large 🐢</li>
+              <li>Data often fetched only after components mount → <em>waterfall</em> 🌊</li>
+              <li>SEO can be harder if content appears late 🔍</li>
+            </ul>
+          </div>
+
+          <div class="cell">
+            <h3>✅ Strengths</h3>
+            <ul>
+              <li>Faster initial page load (HTML already ready) ⚡</li>
+              <li>Server can fetch data <em>before</em> generating HTML 🧠</li>
+              <li>Excellent for SEO (content is pre-generated) 📈</li>
+            </ul>
+            <h3>⚠️ Weaknesses</h3>
+            <ul>
+              <li>Can be less interactive by default 🧊</li>
+              <li>Classic SSR navigation can cause full page reloads 🔄</li>
+              <li>Requires server infrastructure & rendering strategy 🏗️</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="box">
+        <strong>💡 Important nuance:</strong>
+        Modern frameworks (like Next.js) blur the line:
+        they can serve SSR HTML <em>and</em> then hydrate on the client for interactivity later.
+      </div>
+    </section>
+
+    <section>
+      <h2>4) SEO: Why SSR Often Wins 🔎</h2>
+      <p>
+        Search engines like Google prefer pages where the content is already present in HTML.
+      </p>
+      <ul>
+        <li><strong>SSR:</strong> content is pre-generated → easy to index ✅</li>
+        <li><strong>CSR:</strong> content may appear after JS runs + data loads → search engine could see “blank-ish” page ❌</li>
+      </ul>
+
+      <div class="box">
+        <strong>📌 Rule of thumb:</strong>
+        If your project’s success depends on Google traffic (discoverability), SSR is typically the safer choice.
+      </div>
+    </section>
+
+    <section>
+      <h2>5) When to Choose CSR vs SSR (Practical Decision Guide) 🧭</h2>
+
+      <div class="two-col">
+        <div class="box">
+          <strong>✅ Choose SSR for content-driven sites</strong>
+          <ul>
+            <li>E-commerce 🛒</li>
+            <li>Blogs ✍️</li>
+            <li>News sites 📰</li>
+            <li>Marketing / landing pages 📣</li>
+          </ul>
+          <p><span class="kpi">SEO matters</span> + users want content quickly.</p>
+        </div>
+
+        <div class="box">
+          <strong>✅ Choose CSR for app-like experiences</strong>
+          <ul>
+            <li>Internal tools (behind login) 🔒</li>
+            <li>Dashboards 📊</li>
+            <li>Highly interactive applications ⚙️</li>
+          </ul>
+          <p><span class="kpi">Interactivity matters</span> and SEO is irrelevant.</p>
+        </div>
+      </div>
+
+      <div class="box">
+        <strong>Example from the lecture 🏝️</strong>
+        <p>
+          “The Wild Oasis” (internal tool) is behind a login and not publicly indexed, so SEO does not matter.
+          CSR is a strong fit because interactivity is the priority.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Two Types of Server-Side Rendering: Static vs Dynamic 🧱</h2>
+
+      <div class="two-col">
+        <div class="box">
+          <strong>🧊 Static Rendering (SSG — Static Site Generation)</strong>
+          <ul>
+            <li>HTML is generated at <strong>build time</strong> (when deploying).</li>
+            <li>Server sends the same pre-built HTML to everyone.</li>
+            <li>Great when content doesn’t change often (or updates on a schedule).</li>
+          </ul>
+          <p><em>Think:</em> “Build once, serve many.”</p>
+        </div>
+
+        <div class="box">
+          <strong>🔥 Dynamic Rendering</strong>
+          <ul>
+            <li>HTML is generated <strong>per request</strong> (when a user visits).</li>
+            <li>Great when data changes frequently or is user-specific.</li>
+          </ul>
+          <p><em>Think:</em> “Generate on demand.”</p>
+        </div>
+      </div>
+
+      <div class="box">
+        <strong>📌 Note from the lecture:</strong>
+        Some developers call only <em>dynamic</em> rendering “true SSR.”
+        However, both static and dynamic are still “server-side” because HTML is not generated on the client.
+        Next.js uses this broader classification.
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Timeline: What happens when a user opens a page? ⏱️</h2>
+
+      <div class="two-col">
+        <div class="timeline">
+          <strong>💻 CSR Timeline (typical)</strong>
+          <ol>
+            <li>User requests page → server sends mostly “shell HTML” + CSS + big JS bundle 📦</li>
+            <li>Browser downloads & executes JS bundle 🧠</li>
+            <li>App realizes it needs data → fetch data from API → show spinner ⏳</li>
+            <li>Data arrives → app re-renders with real content ✅</li>
+          </ol>
+          <p>
+            <strong>Result:</strong> <span class="kpi">Largest Contentful Paint (LCP)</span> often happens later.
+          </p>
+        </div>
+
+        <div class="timeline">
+          <strong>🖥️ SSR Timeline (typical)</strong>
+          <ol>
+            <li>User requests page → server fetches required data first 🧾</li>
+            <li>Server generates HTML with data included 🏗️</li>
+            <li>Server sends complete HTML to browser ✅</li>
+            <li>Optional: JS bundle loads → hydration adds interactivity ✨</li>
+          </ol>
+          <p>
+            <strong>Result:</strong> <span class="kpi">Largest Contentful Paint (LCP)</span> often happens much earlier.
+          </p>
+        </div>
+      </div>
+
+      <div class="box">
+        <strong>📌 Metrics mentioned:</strong>
+        <ul>
+          <li><strong>First Paint</strong> = something appears (even just a shell).</li>
+          <li><strong>LCP (Largest Contentful Paint)</strong> = main meaningful content appears (more important).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>8) The 3 Main Takeaways (High-yield) 🎯</h2>
+      <ol>
+        <li><strong>SSR starts data fetching on the server</strong> (before rendering HTML).</li>
+        <li><strong>SSR moves rendering from client → server</strong> (server generates HTML).</li>
+        <li><strong>SSR usually improves LCP</strong> (content appears earlier), especially for content-heavy sites.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>9) “But what about interactivity?” → Hydration 💧</h2>
+      <p>
+        SSR pages can still become interactive. Even if the HTML arrives complete, the page can also ship a JS bundle.
+        When that JS runs, it “connects” event handlers and logic to the existing HTML—this is hydration.
+      </p>
+
+      <div class="box">
+        <strong>💧 Hydration (simple definition):</strong>
+        <p>
+          The process where static HTML becomes interactive by attaching JavaScript behavior to it.
+        </p>
+        <ul>
+          <li>Before hydration: page looks correct but may not respond to clicks/forms fully 🧊</li>
+          <li>After hydration: page becomes interactive like an SPA ✨</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mini-quiz">
+      <h2>10) Mini Quiz (Self-check) 🧪</h2>
+
+      <details>
+        <summary>Q1) Why can CSR be slow on the first load?</summary>
+        <div class="answer">
+          Because the browser often must download and execute a (possibly large) JavaScript bundle before rendering the real HTML.
+          Data fetching typically starts after components mount, causing a request waterfall.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q2) Why does SSR usually help SEO?</summary>
+        <div class="answer">
+          Because the HTML already contains the content when it reaches the browser, making it easier for search engines to index.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q3) Static vs Dynamic rendering: what’s the main difference?</summary>
+        <div class="answer">
+          Static: HTML is generated at build time. Dynamic: HTML is generated on each request.
+        </div>
+      </details>
+
+      <details>
+        <summary>Q4) What is hydration?</summary>
+        <div class="answer">
+          Hydration is when JavaScript “activates” server-rendered HTML, making it interactive (e.g., click handlers, state, etc.).
+        </div>
+      </details>
+    </section>
+
+    <section>
+      <h2>11) Quick “Cheat Sheet” (One-glance summary) 📎</h2>
+      <div class="box">
+        <ul>
+          <li><strong>CSR:</strong> JS renders HTML in browser → interactive SPA feel, but slower initial load & SEO challenges.</li>
+          <li><strong>SSR:</strong> server renders HTML first → faster initial content & better SEO, interactivity via hydration.</li>
+          <li><strong>SSG (Static):</strong> build-time HTML → fast, simple, great for stable content.</li>
+          <li><strong>Dynamic SSR:</strong> request-time HTML → best for frequently changing or user-specific data.</li>
+        </ul>
+      </div>
+    </section>
+
+    <p class="footer">
+      End of reviewer. Next topic teased in the lecture: a small experiment, then deeper Next.js concepts (including a dedicated lecture on static vs dynamic rendering).
+    </p>
+  </main>
+</body>
+</html>

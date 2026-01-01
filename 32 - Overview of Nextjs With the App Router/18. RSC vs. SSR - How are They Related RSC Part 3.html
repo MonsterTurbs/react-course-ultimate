@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js — RSC vs SSR (How They’re Related) — Reviewer</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #0b57d0;
+      --good: #0f766e;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --codebg: #0b1020;
+      --codefg: #e7eaf1;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Page layout (single column) */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, var(--soft));
+      padding: 18px 18px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    h2 {
+      margin: 18px 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 8px 20px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px 12px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .callout {
+      border-left: 5px solid var(--accent);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 12px 12px 10px;
+      margin: 12px 0;
+    }
+
+    .callout.good { border-left-color: var(--good); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.bad  { border-left-color: var(--bad); }
+
+    .callout .title {
+      margin: 0 0 6px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .callout p, .callout ul { color: #1a1a1a; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 860px) {
+      .two-col { grid-template-columns: 1fr 1fr; }
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow: auto;
+      max-width: 100%;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .inline-code {
+      background: #f4f6fb;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 8px;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* Print (A4) */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body {
+        font-size: 11.5pt;
+        line-height: 1.45;
+        color: #000;
+      }
+
+      .page { max-width: none; padding: 0; }
+
+      header, .card, .callout {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      a {
+        color: #000;
+        text-decoration: none;
+      }
+
+      /* Do not print URLs after links */
+      a[href]::after { content: ""; }
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .chip { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Next.js — RSC vs SSR: How Are They Related? (Reviewer)</h1>
+      <p class="subtitle">Beginner-friendly study guide based on the lecture transcript. Focus: how Server-Side Rendering (SSR) and React Server Components (RSC) are different, and how Next.js combines them.</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Next.js App Router + RSC</span>
+        <span class="chip">🖨️ A4 Print-ready</span>
+        <span class="chip">📄 Single-column layout</span>
+        <span class="chip">⚙️ Key idea: “React server/client” ≠ always “web server/browser”</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>1) Quick Goals</h2>
+        <ul>
+          <li>✅ Refresh what <strong>SSR</strong> means (HTML generated on a server per request).</li>
+          <li>✅ Refresh what <strong>RSC</strong> means (a React architecture that splits components into server vs client).</li>
+          <li>✅ Understand <strong>how Next.js combines SSR + RSC</strong> without confusion.</li>
+          <li>✅ Remember the one practical takeaway: <strong>initial render runs more on the server than you expect</strong>.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>2) SSR Refresher (Runtime / Dynamic SSR)</h2>
+        <p><strong>SSR (Server-Side Rendering)</strong> means:</p>
+        <ol>
+          <li>Start with a <strong>React component tree</strong>.</li>
+          <li>Render it on the server into <strong>HTML</strong>.</li>
+          <li>Send that HTML to the browser.</li>
+          <li>Also send the <strong>React bundle</strong> (React + app code) so the browser can <strong>hydrate</strong> the HTML.</li>
+        </ol>
+
+        <div class="callout good">
+          <p class="title">💧 Hydration (simple definition)</p>
+          <p>Hydration = attaching event handlers and interactivity back onto the server-rendered HTML so the page behaves like a real React app (buttons work, state updates, etc.).</p>
+        </div>
+
+        <pre><code>// SSR mental model (simplified)
+React component tree
+  -&gt; rendered on server
+  -&gt; HTML sent to browser
+  + React bundle sent to browser
+  -&gt; hydration makes it interactive</code></pre>
+      </section>
+
+      <section class="card">
+        <h2>3) RSC Refresher (What It Is—and What It’s Not)</h2>
+        <p><strong>React Server Components (RSC)</strong> is a React architecture where:</p>
+        <ul>
+          <li><strong>Server Components</strong> run on a “server environment” and can fetch data close to the data source (DB, private APIs), with <strong>zero client JS for that component</strong>.</li>
+          <li><strong>Client Components</strong> run in the browser for interactivity (state, effects, event handlers).</li>
+          <li>Boundaries are created by the <span class="inline-code">"use client"</span> directive.</li>
+        </ul>
+
+        <div class="callout warn">
+          <p class="title">⚠️ Critical: RSC ≠ SSR</p>
+          <p>
+            SSR is about <strong>HTML generation</strong> (usually per request). RSC is about <strong>component execution boundaries</strong> (server vs client) and shipping a special data format (the <strong>RSC payload</strong>).
+            They can work together, but they are <strong>separate technologies</strong>.
+          </p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>4) The Biggest Source of Confusion</h2>
+        <p>
+          Because both SSR and RSC contain the word “server,” many developers assume they refer to the same “server.”
+          The lecture’s key clarification is:
+        </p>
+
+        <div class="callout bad">
+          <p class="title">🧩 “Server” in RSC is not always the same as “web server” in SSR</p>
+          <ul>
+            <li><strong>SSR server</strong> = the runtime web server responding to requests (e.g., Next.js server).</li>
+            <li><strong>RSC “React server”</strong> = an environment where React executes server components (can be build-time or runtime, and does not have to be a traditional web server in theory).</li>
+            <li><strong>RSC “React client”</strong> = the consuming environment that takes outputs and completes rendering (not always a browser DOM; in SSR it can mean “render to HTML”).</li>
+          </ul>
+        </div>
+
+        <p class="mini">In practice, Next.js usually ties these together during runtime SSR, but conceptually they are different layers.</p>
+      </section>
+
+      <section class="card">
+        <h2>5) So How Does SSR Work When You Use RSC?</h2>
+        <p>
+          When Next.js combines <strong>SSR + RSC</strong>, SSR still behaves like SSR:
+          it renders the <strong>entire app</strong> to HTML and sends it to the browser.
+        </p>
+
+        <div class="callout good">
+          <p class="title">✅ Important lecture point</p>
+          <p>
+            On the <strong>initial server-side render</strong>, <strong>both server components and client components are rendered on the server</strong>
+            (to produce the initial HTML).
+          </p>
+        </div>
+
+        <p>
+          That sounds odd at first (“why render client components on the server?”), but it’s consistent:
+          before RSC existed, every component was effectively “client code,” and SSR still rendered them to HTML.
+          Next.js continues to do that for the initial HTML.
+        </p>
+
+        <div class="two-col">
+          <div class="callout">
+            <p class="title">🧠 Think of it like this</p>
+            <p>
+              <strong>SSR’s job</strong> is to create HTML fast for the first view.
+              It doesn’t care whether the component will later be interactive—HTML is HTML.
+            </p>
+          </div>
+          <div class="callout">
+            <p class="title">🔌 Then comes the “RSC + hydration” layer</p>
+            <p>
+              After HTML arrives, the browser needs the right code/data to hydrate client components
+              <em>and</em> to keep the RSC model working for later navigations.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>6) What Exactly Gets Sent to the Browser?</h2>
+        <p>In Next.js with SSR + RSC, the browser receives multiple “things”:</p>
+        <ul>
+          <li><strong>HTML</strong> — the initial page markup (fast first paint).</li>
+          <li><strong>React bundle / chunks</strong> — React + client component code (for hydration and navigation). 🧩</li>
+          <li><strong>RSC payload</strong> — a streamed, JSON-like structure that represents server-rendered output + placeholders/props for client components. 📦</li>
+        </ul>
+
+        <div class="callout warn">
+          <p class="title">📦 Why the RSC payload matters</p>
+          <p>
+            If Next.js sent only HTML, React would have a hard time merging future server updates
+            without losing client state. The RSC payload lets React reconcile updates while preserving state.
+          </p>
+        </div>
+
+        <pre><code>// Very simplified “what is delivered”
+1) HTML (initial content)
+2) JS (React + client components, split into chunks)
+3) RSC payload (server component results + client placeholders/props)</code></pre>
+      </section>
+
+      <section class="card">
+        <h2>7) Timeline: Initial Render vs After That</h2>
+
+        <h3>Initial render (first visit / refresh)</h3>
+        <ol>
+          <li>Next.js server receives request.</li>
+          <li>SSR runs and produces HTML for the route (includes output of server + client components).</li>
+          <li>HTML is sent to the browser (fast content display).</li>
+          <li>Browser downloads JS chunks + RSC payload (often streamed).</li>
+          <li>Hydration runs for client components → interactivity becomes available.</li>
+        </ol>
+
+        <div class="hr"></div>
+
+        <h3>After initial render (client-side navigation)</h3>
+        <ul>
+          <li>Client components run in the browser.</li>
+          <li>Server components run on the Next.js web server.</li>
+          <li>When a server component needs to re-run (e.g., route change), a <strong>new RSC payload</strong> is generated and sent to the browser.</li>
+          <li>React merges it into the existing tree, preserving client state where possible.</li>
+        </ul>
+
+        <div class="callout good">
+          <p class="title">✅ The one thing you should remember</p>
+          <p>
+            <strong>Initial SSR:</strong> server + client components can be executed on the server to produce HTML.
+            <br />
+            <strong>Afterwards:</strong> server components stay on server; client components stay in the browser.
+          </p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>8) Practical Mini-Examples</h2>
+
+        <h3>A) Client Component boundary</h3>
+        <pre><code>// Counter.js
+"use client";
+
+import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;
+      Count: {count}
+    &lt;/button&gt;
+  );
+}</code></pre>
+
+        <p>
+          On first load with SSR, the button’s markup can appear immediately (HTML),
+          but it becomes clickable only after hydration finishes. 💧
+        </p>
+
+        <h3>B) Server Component fetch</h3>
+        <pre><code>// app/cabins/page.js (Server Component by default)
+export default async function Page() {
+  const res = await fetch("https://jsonplaceholder.typicode.com/users");
+  const users = await res.json();
+
+  return (
+    &lt;ul&gt;
+      {users.map(u =&gt; (
+        &lt;li key={u.id}&gt;{u.name}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          <p class="title">🧠 What changes in RSC?</p>
+          <p>
+            That fetch can run “inside” the component because it executes on the server.
+            The HTML can be generated with data already included.
+          </p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>9) Quick Self-Test (Check Your Understanding)</h2>
+        <ol>
+          <li>What does SSR primarily produce? (Answer: ______)</li>
+          <li>What does hydration add back? (Answer: ______)</li>
+          <li>Are SSR and RSC the same technology? (Yes/No)</li>
+          <li>On initial SSR with RSC, are client components rendered on the server? (Yes/No)</li>
+          <li>After the initial render, where do server components execute? (Answer: ______)</li>
+        </ol>
+
+        <div class="callout good">
+          <p class="title">✅ Answer key</p>
+          <ul>
+            <li>1) HTML</li>
+            <li>2) Interactivity/event handlers (and React’s client-side behavior)</li>
+            <li>3) No</li>
+            <li>4) Yes (to produce HTML)</li>
+            <li>5) On the Next.js web server (runtime server)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>10) Cheat Sheet (One Screen Summary)</h2>
+        <ul>
+          <li>🧱 <strong>SSR</strong> = render React tree → HTML on server; send HTML + JS; hydrate.</li>
+          <li>🧩 <strong>RSC</strong> = split components: server components (data/zero JS) + client components (interactive JS).</li>
+          <li>🧠 <strong>Not the same</strong>: RSC complements SSR; it does not replace it.</li>
+          <li>📦 <strong>RSC payload</strong> = streamed data describing server output + client placeholders/props.</li>
+          <li>🚀 <strong>Initial render</strong> (SSR): both server + client components can be executed on the server to generate HTML.</li>
+          <li>🧭 <strong>After initial</strong>: server components run on server; client components run in browser; payloads update UI while preserving state.</li>
+        </ul>
+
+        <p class="mini">End of reviewer. You can now proceed to the project section (Wild Oasis website) with the mental model in place.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

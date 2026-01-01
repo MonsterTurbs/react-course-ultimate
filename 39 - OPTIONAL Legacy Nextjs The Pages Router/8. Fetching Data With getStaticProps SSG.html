@@ -1,0 +1,429 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Pages Router — Fetching Data with getStaticProps (SSG) | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --soft2: #fbfbfb;
+      --accent: #0b57d0;
+      --good: #0f766e;
+      --warn: #b45309;
+      --bad: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      padding: 18px 18px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .chips {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      font-size: 12px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .section-title {
+      margin: 0;
+      padding: 12px 14px;
+      background: var(--soft);
+      border-bottom: 1px solid var(--border);
+      font-size: 15px;
+    }
+
+    .content {
+      padding: 12px 14px;
+      font-size: 14px;
+    }
+
+    ul { margin: 8px 0 0 18px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.good { border-left-color: var(--good); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.bad  { border-left-color: var(--bad); }
+
+    .k {
+      display: inline-block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 6px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: hidden;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      white-space: pre-wrap;   /* important for printing */
+      word-break: break-word;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    .mini h3 {
+      margin: 0 0 6px;
+      font-size: 13.5px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 10px 0;
+    }
+
+    .checklist li { list-style: "☐ "; margin-left: 0; }
+    .checklist { margin-left: 22px; }
+
+    /* Print styles */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; }
+      section, header { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+      a { color: var(--text); text-decoration: none; }
+      a[href]:after { content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>📄 Next.js Pages Router: Fetching Data with <span class="k">getStaticProps</span> (SSG)</h1>
+      <p class="subtitle">Reviewer / Study Guide — beginner-friendly notes, examples, and key takeaways (print-ready A4, single-column).</p>
+      <div class="chips" aria-label="topics">
+        <span class="chip">🧠 Concept: Server data fetching (legacy)</span>
+        <span class="chip">⚙️ API: getStaticProps</span>
+        <span class="chip">🏗️ Rendering: SSG (Static Site Generation)</span>
+        <span class="chip">🖼️ Gotcha: next.config.js image hostname</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2 class="section-title">🎯 What you’ll learn (Goal of the lecture)</h2>
+        <div class="content">
+          <ul>
+            <li>How to fetch data on the <strong>server</strong> in the <strong>Next.js Pages Router</strong> using <span class="k">getStaticProps</span>.</li>
+            <li>How to pass fetched data into a page as <strong>props</strong> and render a list (example: cabins).</li>
+            <li>Why it’s called <strong>Static</strong> Props (and what <strong>SSG</strong> means).</li>
+            <li>The key Pages Router rule: <strong>data fetching method determines rendering strategy</strong> (static vs dynamic).</li>
+          </ul>
+
+          <div class="callout good">
+            ✅ Main outcome: Your <span class="k">/cabins</span> page is <strong>pre-rendered</strong> with data and sent as HTML (instead of fetching everything in the browser like traditional React).
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">🧩 Why we need getStaticProps in the Pages Router</h2>
+        <div class="content">
+          <p>
+            In the <strong>App Router</strong>, you could fetch data directly inside a <strong>Server Component</strong> (e.g., make the component <span class="k">async</span> and fetch at the top level).
+          </p>
+          <p>
+            In the <strong>Pages Router</strong>, pages are regular React components — and React components:
+          </p>
+          <ul>
+            <li>❌ Can’t do top-level server data fetching the same way as Server Components.</li>
+            <li>❌ If you fetch in the component normally, it tends to happen on the <strong>client</strong> (after hydration), which defeats server pre-rendering.</li>
+          </ul>
+
+          <div class="callout">
+            💡 So Next.js introduced special server-side data APIs for the Pages Router: <span class="k">getStaticProps</span> and <span class="k">getServerSideProps</span>.
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">🛠️ The recipe: Fetch cabins with getStaticProps</h2>
+        <div class="content">
+          <p><strong>Step-by-step flow</strong> (what Next.js does):</p>
+          <ol>
+            <li>Next.js runs <span class="k">getStaticProps</span> on the <strong>server</strong>.</li>
+            <li>You fetch your data there (e.g., <span class="k">getCabins()</span> from your data service).</li>
+            <li>You <strong>return</strong> the data inside an object: <span class="k">{ props: { ... } }</span>.</li>
+            <li>Next.js passes those props into your page component.</li>
+            <li>The page is generated as HTML (static generation) and sent to the browser.</li>
+          </ol>
+
+          <div class="hr"></div>
+
+          <p class="muted">Example skeleton (minimal):</p>
+          <pre><code>// pages/cabins.js
+import CabinList from "../components/CabinList";
+import { getCabins } from "../lib/data-service";
+
+export default function Cabins({ cabins }) {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Cabins&lt;/h1&gt;
+      &lt;CabinList cabins={cabins} /&gt;
+    &lt;/main&gt;
+  );
+}
+
+export async function getStaticProps() {
+  // ✅ runs on the server
+  const cabins = await getCabins();
+
+  return {
+    props: {
+      cabins, // must match the prop name used above
+    },
+  };
+}
+</code></pre>
+
+          <div class="callout warn">
+            ⚠️ Reminder: <span class="k">getStaticProps</span> logs appear in the <strong>server console</strong>, not the browser console. If you “console.log” inside it, refresh or restart dev server if needed.
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">🧠 Mental model (easy explanation)</h2>
+        <div class="content">
+          <div class="grid2">
+            <div class="mini">
+              <h3>🧱 Pages Router page component</h3>
+              <p class="muted">
+                Think of the page component as the “template” that renders UI.
+                It receives data via props.
+              </p>
+              <ul>
+                <li>Runs in the browser after hydration</li>
+                <li>Also server-rendered (initial HTML)</li>
+              </ul>
+            </div>
+
+            <div class="mini">
+              <h3>🏭 getStaticProps</h3>
+              <p class="muted">
+                Think of this as a server-only “data loader” that runs before the page HTML is produced.
+              </p>
+              <ul>
+                <li>✅ Runs on the server</li>
+                <li>✅ Returns props</li>
+                <li>✅ Enables SSG (static output)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout">
+            ✨ If you remember one sentence: <strong>Pages Router data fetching decides the page rendering strategy.</strong>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">📌 Why the name “Static Props”?</h2>
+        <div class="content">
+          <p>
+            It’s called <strong>getStaticProps</strong> because it’s used for <strong>Static Site Generation (SSG)</strong>.
+            That means the page is generated <em>statically</em> (not per-request).
+          </p>
+
+          <div class="callout">
+            🏗️ Pages Router rule:
+            <ul>
+              <li><span class="k">getStaticProps</span> ➜ page is <strong>static</strong> (SSG)</li>
+              <li><span class="k">getServerSideProps</span> ➜ page is <strong>dynamic</strong> (SSR per request)</li>
+            </ul>
+          </div>
+
+          <p>
+            This is more “explicit” than the App Router. In the Pages Router, you are clearly choosing the strategy by which function you use.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">🖼️ Common gotcha: Next.js Image hostname config</h2>
+        <div class="content">
+          <p>
+            If your cabin images are hosted on Supabase (or any external host), <span class="k">next/image</span>
+            requires an allowed hostname in <span class="k">next.config.js</span>.
+          </p>
+
+          <div class="callout warn">
+            ⚠️ Important: the hostname should NOT include <span class="k">https://</span>. Use only the host.
+          </div>
+
+          <pre><code>// next.config.js
+module.exports = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "YOUR-SUPABASE-PROJECT.supabase.co",
+      },
+    ],
+  },
+};
+</code></pre>
+
+          <p class="muted">
+            If you accidentally include <span class="k">https://</span> inside the hostname, Next.js will throw an error and images won’t render.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">🧪 Quick self-check (mini quiz)</h2>
+        <div class="content">
+          <ul>
+            <li>❓ Where does <span class="k">getStaticProps</span> run? <span class="muted">(Server or client?)</span></li>
+            <li>❓ What must <span class="k">getStaticProps</span> return so the page receives data?</li>
+            <li>❓ In the Pages Router, which function makes a page dynamic per request?</li>
+            <li>❓ Why don’t we just fetch inside the component like in normal React?</li>
+          </ul>
+
+          <div class="callout good">
+            ✅ Answers (quick):
+            <ul>
+              <li>Server</li>
+              <li><span class="k">{ props: { ... } }</span></li>
+              <li><span class="k">getServerSideProps</span></li>
+              <li>Because we want server pre-rendering, not client-only fetching</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">✅ Implementation checklist (what to verify in your code)</h2>
+        <div class="content">
+          <ul class="checklist">
+            <li>Your page file exists: <span class="k">pages/cabins.js</span></li>
+            <li>You exported <span class="k">export async function getStaticProps()</span></li>
+            <li>You fetched data inside it: <span class="k">const cabins = await getCabins()</span></li>
+            <li>You returned props correctly: <span class="k">return { props: { cabins } }</span></li>
+            <li>Your component receives the prop: <span class="k">function Cabins({ cabins })</span></li>
+            <li>You render a list using a component like <span class="k">&lt;CabinList cabins={cabins} /&gt;</span></li>
+            <li>Your external image host is configured correctly (hostname only, no protocol)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">➡️ What’s next?</h2>
+        <div class="content">
+          <p>
+            Next lecture: <span class="k">getServerSideProps</span> — you’ll compare it to <span class="k">getStaticProps</span>
+            to clearly see the difference between <strong>SSG</strong> and <strong>SSR per request</strong>.
+          </p>
+
+          <div class="callout">
+            📌 Tip for learning: write down one sentence for each:
+            <ul>
+              <li><span class="k">getStaticProps</span> = “build-time/static generation”</li>
+              <li><span class="k">getServerSideProps</span> = “request-time/dynamic rendering”</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

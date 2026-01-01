@@ -1,0 +1,1353 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Course Study Guide — Index</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111;
+      --muted:#666;
+      --border:#e5e5e5;
+      --panel:#fafafa;
+      --link:#0b57d0;
+      --focus:#1a73e8;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
+    }
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{
+      margin:0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.5;
+      overflow:hidden;
+    }
+    body.lock-scroll{ overflow:hidden !important; }
+
+    /* Layout */
+    .app{
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      height:100vh;
+      overflow:hidden;
+      transition: grid-template-columns .18s ease;
+    }
+    .app.sidebar-collapsed{ grid-template-columns: 0px 1fr; }
+
+    /* Sidebar */
+    .sidebar{
+      border-right:1px solid var(--border);
+      background:var(--panel);
+      display:flex;
+      flex-direction:column;
+      min-width:260px;
+      height:100vh;
+      overflow:hidden;
+      transition: transform .18s ease, width .18s ease, opacity .18s ease;
+    }
+    .app.sidebar-collapsed .sidebar{
+      width:0;
+      min-width:0;
+      opacity:0;
+      pointer-events:none;
+    }
+
+    .sidebar-header{
+      padding: 14px 14px 10px;
+      border-bottom:1px solid var(--border);
+      background:#fff;
+    }
+    .sidebar-title{
+      font-size:14px;
+      font-weight:700;
+      margin:0 0 8px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .sidebar-title span.badge{
+      font-weight:600;
+      font-size:12px;
+      color:#fff;
+      background:#111;
+      border-radius:999px;
+      padding:2px 8px;
+    }
+    .search{
+      width:100%;
+      padding:10px 10px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      outline:none;
+      font-size:13px;
+    }
+    .search:focus{
+      border-color:var(--focus);
+      box-shadow:0 0 0 2px rgba(26,115,232,.15);
+    }
+
+    .sidebar-body{
+      flex:1;
+      overflow-y:auto;
+      overflow-x:hidden;
+      padding:10px;
+      scrollbar-gutter: stable;
+    }
+
+    details.section{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:12px;
+      margin:10px 0;
+      overflow:hidden;
+      box-shadow: 0 1px 0 rgba(0,0,0,.02);
+    }
+    details.section > summary{
+      cursor:pointer;
+      list-style:none;
+      padding:10px 12px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      border-bottom:1px solid var(--border);
+      background:#fff;
+      user-select:none;
+    }
+    details.section > summary::-webkit-details-marker{ display:none }
+
+    .sec-left{ display:flex; flex-direction:column; gap:2px; }
+    .sec-name{ font-size:13px; font-weight:700; }
+    .sec-folder{
+      font-size:12px;
+      color:var(--muted);
+      overflow-wrap:anywhere;
+    }
+    .sec-count{
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+      padding-top:2px;
+    }
+
+    .lecture-list{ padding:8px 8px 10px; }
+    .lecture{
+      display:block;
+      text-decoration:none;
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:13px;
+      border:1px solid transparent;
+      overflow-wrap:anywhere;
+    }
+    .lecture:hover{
+      background:var(--panel);
+      border-color:var(--border);
+    }
+    .lecture.active{
+      background:#eef4ff;
+      border-color:#c7dcff;
+      color:#0b57d0;
+      font-weight:700;
+    }
+    .lecture small{
+      display:block;
+      color:var(--muted);
+      font-weight:400;
+      margin-top:2px;
+      font-size:12px;
+    }
+
+    /* Main */
+    .main{
+      display:flex;
+      flex-direction:column;
+      height:100vh;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    .topbar{
+      border-bottom:1px solid var(--border);
+      background:#fff;
+      padding:10px 14px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:1;
+    }
+
+    .crumb{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:260px;
+      flex:1;
+    }
+    .crumb .h1{
+      margin:0;
+      font-size:14px;
+      font-weight:800;
+      overflow-wrap:anywhere;
+    }
+    .crumb .h2{
+      margin:0;
+      font-size:12px;
+      color:var(--muted);
+      overflow-wrap:anywhere;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      color:#111;
+      padding:8px 10px;
+      border-radius:10px;
+      cursor:pointer;
+      font-size:13px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:hover{ background:var(--panel) }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; }
+    .btn.primary{
+      border-color:#c7dcff;
+      background:#eef4ff;
+      color:#0b57d0;
+      font-weight:700;
+    }
+
+    .content{
+      height:100%;
+      overflow:hidden;
+      background:#fff;
+    }
+    iframe#viewer{
+      width:100%;
+      height:100%;
+      border:0;
+      background:#fff;
+    }
+
+    /* Focus styles */
+    .btn:focus-visible,
+    .lecture:focus-visible,
+    details.section > summary:focus-visible{
+      outline: 2px solid rgba(26,115,232,.55);
+      outline-offset: 2px;
+    }
+
+    /* Mobile drawer */
+    .overlay{ display:none; }
+    @media (max-width: 920px){
+      body{ overflow:auto }
+      .app{ grid-template-columns: 1fr; }
+      .sidebar{
+        position:fixed;
+        inset:0 auto 0 0;
+        width:min(88vw, 360px);
+        box-shadow: var(--shadow);
+        transform: translateX(-105%);
+        opacity:1;
+        pointer-events:auto;
+        z-index:20;
+      }
+      .app.sidebar-open-mobile .sidebar{ transform: translateX(0); }
+
+      .overlay{
+        display:block;
+        position:fixed;
+        inset:0;
+        background: rgba(0,0,0,.25);
+        z-index:15;
+        opacity:0;
+        pointer-events:none;
+        transition: opacity .18s ease;
+      }
+      .app.sidebar-open-mobile ~ .overlay{
+        opacity:1;
+        pointer-events:auto;
+      }
+
+      .app.sidebar-collapsed{ grid-template-columns: 1fr; }
+    }
+
+    @media print{
+      .sidebar, .topbar, .overlay{ display:none !important; }
+      .app{ grid-template-columns: 1fr; height:auto; }
+      .main{ height:auto; }
+      .content{ height:auto; }
+      iframe#viewer{ height:100vh; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="app">
+    <aside class="sidebar" aria-label="Course navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-title">📘 React Course Reviewer <span class="badge">Index</span></div>
+        <input id="search" class="search" type="search" aria-label="Search lectures"
+               placeholder="Search lecture… (e.g., useState, props, router, redux)" />
+      </div>
+      <div id="sidebarBody" class="sidebar-body"></div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <button id="btnToggleSidebar" class="btn primary" type="button" title="Toggle sidebar (Desktop) / Open menu (Mobile)">
+          ☰ Menu
+        </button>
+
+        <button id="btnPrev" class="btn" type="button" title="Previous lecture">⬅️ Prev</button>
+        <button id="btnNext" class="btn" type="button" title="Next lecture">Next ➡️</button>
+        <button id="btnOpen" class="btn" type="button" title="Open current lecture in a new tab">🧾 Open</button>
+        <button id="btnPrint" class="btn" type="button" title="Print current lecture">🖨️ Print</button>
+
+        <div class="crumb" aria-live="polite">
+          <p id="currentTitle" class="h1">Select a lecture from the sidebar…</p>
+          <p id="currentPath" class="h2">Tip: Use search + Prev/Next. ✅</p>
+        </div>
+      </div>
+
+      <div class="content">
+        <iframe id="viewer" title="Lecture viewer" src="about:blank"></iframe>
+      </div>
+    </main>
+  </div>
+
+  <div id="overlay" class="overlay" aria-hidden="true"></div>
+
+  <script>
+    // ------------------------------------------------------------
+    // DATA: folders + lecture files (full list 01 - 40)
+    // NOTE: folder/file names must match your disk EXACTLY.
+    // ------------------------------------------------------------
+    const SECTIONS = [
+      {
+        folder: "01 - Welcome Welcome Welcome",
+        title: "01 - Welcome Welcome Welcome",
+        items: [
+          ["Course Roadmap and Projects", "1. Course Roadmap and Projects.html"],
+          ["Building Our First React App", "2. Building Our First React App.html"],
+          ["Watch Before You Start", "3. Watch Before You Start.html"],
+          ["Read Before You Start", "4. Read Before You Start.html"],
+          ["Downloading Course Material", "5. Downloading Course Material.html"],
+        ]
+      },
+      {
+        folder: "02 - PART 1 REACT FUNDAMENTALS 4 PROJECTS",
+        title: "02 - PART 1 REACT FUNDAMENTALS 4 PROJECTS",
+        items: [
+          ["Introduction to Part 1", "1. Introduction to Part 1.html"],
+          ["Useful Resources for Part 1", "2. Useful Resources for Part 1.html"],
+        ]
+      },
+      {
+        folder: "03 - A First Look at React",
+        title: "03 - A First Look at React",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Why Do Front-End Frameworks Exist", "2. Why Do Front-End Frameworks Exist.html"],
+          ["React vs. Vanilla JavaScript", "3. React vs. Vanilla JavaScript.html"],
+          ["What is React", "4. What is React.html"],
+          ["Setting Up Our Development Environment", "5. Setting Up Our Development Environment.html"],
+          ["Pure React", "6. Pure React.html"],
+          ["A Quick Look at Reacts Official Documentation", "7. A Quick Look at Reacts Official Documentation.html"],
+          ["Setting Up a New React Project - The Options", "8. Setting Up a New React Project - The Options.html"],
+          ["Setting Up a Project With Create-React-App", "9. Setting Up a Project With Create-React-App.html"],
+        ]
+      },
+      {
+        folder: "04 - Optional Review of Essential JavaScript for React",
+        title: "04 - Optional Review of Essential JavaScript for React",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Destructuring Objects and Arrays", "2. Destructuring Objects and Arrays.html"],
+          ["Rest Spread Operator", "3. Rest Spread Operator.html"],
+          ["Template Literals", "4. Template Literals.html"],
+          ["Ternaries Instead of if else Statements", "5. Ternaries Instead of if else Statements.html"],
+          ["Arrow Functions", "6. Arrow Functions.html"],
+          ["Short-Circuiting And Logical Operators - AND OR Nullish", "7. Short-Circuiting And Logical Operators - AND OR Nullish.html"],
+          ["Optional Chaining", "8. Optional Chaining.html"],
+          ["The Array map Method", "9. The Array map Method.html"],
+          ["The Array filter Method", "10. The Array filter Method.html"],
+          ["The Array reduce Method", "11. The Array reduce Method.html"],
+          ["The Array sort Method", "12. The Array sort Method.html"],
+          ["Working With Immutable Arrays", "13. Working With Immutable Arrays.html"],
+          ["Asynchronous JavaScript - Promises", "14. Asynchronous JavaScript - Promises.html"],
+          ["Asynchronous JavaScript - Async Await", "15. Asynchronous JavaScript - Async Await.html"],
+        ]
+      },
+      {
+        folder: "05 - Working With Components Props and JSX",
+        title: "05 - Working With Components Props and JSX",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Rendering the Root Component and Strict Mode", "2. Rendering the Root Component and Strict Mode.html"],
+          ["Before We Start Coding - Debugging", "3. Before We Start Coding - Debugging.html"],
+          ["Components as Building Blocks", "4. Components as Building Blocks.html"],
+          ["Creating And Reusing a Component", "5. Creating And Reusing a Component.html"],
+          ["What is JSX", "6. What is JSX.html"],
+          ["Creating More Components", "7. Creating More Components.html"],
+          ["JavaScript Logic in Components", "8. JavaScript Logic in Components.html"],
+          ["Separation of Concerns", "9. Separation of Concerns.html"],
+          ["Styling React Applications", "10. Styling React Applications.html"],
+          ["Passing and Receiving Props", "11. Passing and Receiving Props.html"],
+          ["Props, Immutability, and One-Way Data Flow", "12. Props, Immutability, and One-Way Data Flow.html"],
+          ["CHALLENGE 1 - Profile Card v1", "13. CHALLENGE 1 - Profile Card v1.html"],
+          ["The Rules of JSX", "14. The Rules of JSX.html"],
+          ["Rendering Lists", "15. Rendering Lists.html"],
+          ["Conditional Rendering With AND", "16. Conditional Rendering With AND.html"],
+          ["Conditional Rendering With Ternaries", "17. Conditional Rendering With Ternaries.html"],
+          ["Conditional Rendering With Multiple Returns", "18. Conditional Rendering With Multiple Returns.html"],
+          ["Extracting JSX Into a New Component", "19. Extracting JSX Into a New Component.html"],
+          ["Destructuring Props", "20. Destructuring Props.html"],
+          ["React Fragments", "21. React Fragments.html"],
+          ["Setting Classes and Text Conditionally", "22. Setting Classes and Text Conditionally.html"],
+          ["Section Summary", "23. Section Summary.html"],
+          ["CHALLENGE 2 - Profile Card v2", "24. CHALLENGE 2 - Profile Card v2.html"],
+        ]
+      },
+      {
+        folder: "06 - State Events and Forms Interactive Components",
+        title: "06 - State Events and Forms Interactive Components",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Lets Build a Steps Component", "2. Lets Build a Steps Component.html"],
+          ["Handling Events the React Way", "3. Handling Events the React Way.html"],
+          ["What is State in React", "4. What is State in React.html"],
+          ["Creating a State Variable With useState", "5. Creating a State Variable With useState.html"],
+          ["Dont Set State Manually", "6. Dont Set State Manually.html"],
+          ["The Mechanics of State", "7. The Mechanics of State.html"],
+          ["Adding Another Piece of State", "8. Adding Another Piece of State.html"],
+          ["React Developer Tools", "9. React Developer Tools.html"],
+          ["Updating State Based on Current State", "10. Updating State Based on Current State.html"],
+          ["More Thoughts About State - State Guidelines", "11. More Thoughts About State - State Guidelines.html"],
+          ["A Vanilla JavaScript Implementation", "12. A Vanilla JavaScript Implementation.html"],
+          ["CHALLENGE 1 - Date Counter v1", "13. CHALLENGE 1 - Date Counter v1.html"],
+          ["Starting a New Project - The Far Away Travel List", "14. Starting a New Project - The Far Away Travel List.html"],
+          ["Building the Layout", "15. Building the Layout.html"],
+          ["Rendering the Items List", "16. Rendering the Items List.html"],
+          ["Building a Form and Handling Submissions", "17. Building a Form and Handling Submissions.html"],
+          ["Controlled Elements", "18. Controlled Elements.html"],
+          ["State vs. Props", "19. State vs. Props.html"],
+          ["EXERCISE 1 - Flashcards", "20. EXERCISE 1 - Flashcards.html"],
+          ["CHALLENGE 2 - Date Counter v2", "21. CHALLENGE 2 - Date Counter v2.html"],
+        ]
+      },
+      {
+        folder: "07 - Thinking In React State Management",
+        title: "07 - Thinking In React State Management",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["What is Thinking in React", "2. What is Thinking in React.html"],
+          ["Fundamentals of State Management", "3. Fundamentals of State Management.html"],
+          ["Thinking About State and Lifting State Up", "4. Thinking About State and Lifting State Up.html"],
+          ["Reviewing Lifting Up State", "5. Reviewing Lifting Up State.html"],
+          ["Deleting an Item - More Child-to-Parent Communication", "6. Deleting an Item - More Child-to-Parent Communication.html"],
+          ["Updating an Item - Complex Immutable Data Operation", "7. Updating an Item - Complex Immutable Data Operation.html"],
+          ["Derived State", "8. Derived State.html"],
+          ["Calculating Statistics as Derived State", "9. Calculating Statistics as Derived State.html"],
+          ["Sorting Items", "10. Sorting Items.html"],
+          ["Clearing the List", "11. Clearing the List.html"],
+          ["Moving Components Into Separate Files", "12. Moving Components Into Separate Files.html"],
+          ["EXERCISE 1 - Accordion Component v1", "13. EXERCISE 1 - Accordion Component v1.html"],
+          ["The children Prop - Making a Reusable Button", "14. The children Prop - Making a Reusable Button.html"],
+          ["More Reusability With the children Prop", "15. More Reusability With the children Prop.html"],
+          ["EXERCISE 2 - Accordion Component v2", "16. EXERCISE 2 - Accordion Component v2.html"],
+          ["CHALLENGE 1 - Tip Calculator", "17. CHALLENGE 1 - Tip Calculator.html"],
+        ]
+      },
+      {
+        folder: "08 - Optional Practice Project Eat N Split",
+        title: "08 - Optional Practice Project Eat N Split",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Project Setup", "2. Project Setup.html"],
+          ["Building the Static App - List of Friends", "3. Building the Static App - List of Friends.html"],
+          ["Building the Static App - Forms", "4. Building the Static App - Forms.html"],
+          ["Displaying the New Friend Form", "5. Displaying the New Friend Form.html"],
+          ["Adding a New Friend", "6. Adding a New Friend.html"],
+          ["Selecting a Friend", "7. Selecting a Friend.html"],
+          ["Creating Controlled Elements", "8. Creating Controlled Elements.html"],
+          ["Splitting a Bill", "9. Splitting a Bill.html"],
+        ]
+      },
+      {
+        folder: "09 - PART 2 INTERMEDIATE REACT 2 PROJECTS",
+        title: "09 - PART 2 INTERMEDIATE REACT 2 PROJECTS",
+        items: [
+          ["Introduction to Part 2", "1. Introduction to Part 2.html"],
+          ["Useful Resources for Part 2", "2. Useful Resources for Part 2.html"],
+        ]
+      },
+      {
+        folder: "10 - Thinking in React Components Composition and Reusability",
+        title: "10 - Thinking in React Components Composition and Reusability",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Setting Up the usePopcorn Project", "2. Setting Up the usePopcorn Project.html"],
+          ["How to Split a UI Into Components", "3. How to Split a UI Into Components.html"],
+          ["Splitting Components in Practice", "4. Splitting Components in Practice.html"],
+          ["Component Categories", "5. Component Categories.html"],
+          ["Prop Drilling", "6. Prop Drilling.html"],
+          ["Component Composition", "7. Component Composition.html"],
+          ["Fixing Prop Drilling With Composition - And Building a Layout", "8. Fixing Prop Drilling With Composition - And Building a Layout.html"],
+          ["Using Composition to Make a Reusable Box", "9. Using Composition to Make a Reusable Box.html"],
+          ["Passing Elements as Props - Alternative to children", "10. Passing Elements as Props - Alternative to children.html"],
+          ["Building a Reusable Star Rating Component", "11. Building a Reusable Star Rating Component.html"],
+          ["Creating the Stars", "12. Creating the Stars.html"],
+          ["Handling Hover Events", "13. Handling Hover Events.html"],
+          ["Props as a Component API", "14. Props as a Component API.html"],
+          ["Improving Reusability With Props", "15. Improving Reusability With Props.html"],
+          ["PropTypes", "16. PropTypes.html"],
+          ["CHALLENGE 1 - Text Expander Component", "17. CHALLENGE 1 - Text Expander Component.html"],
+        ]
+      },
+      {
+        folder: "11 - How React Works Behind the Scenes",
+        title: "11 - How React Works Behind the Scenes",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Project Setup and Walkthrough", "2. Project Setup and Walkthrough.html"],
+          ["Components, Instances, and Elements", "3. Components, Instances, and Elements.html"],
+          ["Instances and Elements in Practice", "4. Instances and Elements in Practice.html"],
+          ["How Rendering Works - Overview", "5. How Rendering Works - Overview.html"],
+          ["How Rendering Works - The Render Phase", "6. How Rendering Works - The Render Phase.html"],
+          ["How Rendering Works - The Commit Phase", "7. How Rendering Works - The Commit Phase.html"],
+          ["How Diffing Works", "8. How Diffing Works.html"],
+          ["Diffing Rules in Practice", "9. Diffing Rules in Practice.html"],
+          ["The Key Prop", "10. The Key Prop.html"],
+          ["Resetting State With the Key Prop", "11. Resetting State With the Key Prop.html"],
+          ["Using the Key Prop to Fix Our Eat N Split App", "12. Using the Key Prop to Fix Our Eat N Split App.html"],
+          ["Rules for Render Logic - Pure Components", "13. Rules for Render Logic - Pure Components.html"],
+          ["State Update Batching", "14. State Update Batching.html"],
+          ["State Update Batching in Practice", "15. State Update Batching in Practice.html"],
+          ["How Events Work in React", "16. How Events Work in React.html"],
+          ["Libraries vs. Frameworks - The React Ecosystem", "17. Libraries vs. Frameworks - The React Ecosystem.html"],
+          ["Section Summary - Practical Takeaways", "18. Section Summary - Practical Takeaways.html"],
+        ]
+      },
+      {
+        folder: "12 - Effects and Data Fetching",
+        title: "12 - Effects and Data Fetching",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["The Component Lifecycle", "2. The Component Lifecycle.html"],
+          ["How NOT to Fetch Data in React", "3. How NOT to Fetch Data in React.html"],
+          ["useEffect to the Rescue", "4. useEffect to the Rescue.html"],
+          ["A First Look at Effects", "5. A First Look at Effects.html"],
+          ["Using an async Function", "6. Using an async Function.html"],
+          ["Adding a Loading State", "7. Adding a Loading State.html"],
+          ["Handling Errors", "8. Handling Errors.html"],
+          ["The useEffect Dependency Array", "9. The useEffect Dependency Array.html"],
+          ["Synchronizing Queries With Movie Data", "10. Synchronizing Queries With Movie Data.html"],
+          ["Selecting a Movie", "11. Selecting a Movie.html"],
+          ["Loading Movie Details", "12. Loading Movie Details.html"],
+          ["Adding a Watched Movie", "13. Adding a Watched Movie.html"],
+          ["Adding a New Effect - Changing Page Title", "14. Adding a New Effect - Changing Page Title.html"],
+          ["The useEffect Cleanup Function", "15. The useEffect Cleanup Function.html"],
+          ["Cleaning Up the Title", "16. Cleaning Up the Title.html"],
+          ["Cleaning Up Data Fetching", "17. Cleaning Up Data Fetching.html"],
+          ["One More Effect - Listening to a Keypress", "18. One More Effect - Listening to a Keypress.html"],
+          ["CHALLENGE 1 - Currency Converter", "19. CHALLENGE 1 - Currency Converter.html"],
+        ]
+      },
+      {
+        folder: "13 - Custom Hooks Refs and More State",
+        title: "13 - Custom Hooks Refs and More State",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["React Hooks and Their Rules", "2. React Hooks and Their Rules.html"],
+          ["The Rules of Hooks in Practice", "3. The Rules of Hooks in Practice.html"],
+          ["More Details of useState", "4. More Details of useState.html"],
+          ["Initializing State With a Callback - Lazy Initial State", "5. Initializing State With a Callback - Lazy Initial State.html"],
+          ["useState Summary", "6. useState Summary.html"],
+          ["How NOT to Select DOM Elements in React", "7. How NOT to Select DOM Elements in React.html"],
+          ["Introducing Another Hook - useRef", "8. Introducing Another Hook - useRef.html"],
+          ["Refs to Select DOM Elements", "9. Refs to Select DOM Elements.html"],
+          ["Refs to Persist Data Between Renders", "10. Refs to Persist Data Between Renders.html"],
+          ["What are Custom Hooks - When to Create One", "11. What are Custom Hooks - When to Create One.html"],
+          ["Creating our First Custom Hook - useMovies", "12. Creating our First Custom Hook - useMovies.html"],
+          ["Creating useLocalStorageState", "13. Creating useLocalStorageState.html"],
+          ["Creating useKey", "14. Creating useKey.html"],
+          ["CHALLENGE 1 - useGeolocate", "15. CHALLENGE 1 - useGeolocate.html"],
+        ]
+      },
+      {
+        folder: "14 - Optional React Before Hooks Class Based React",
+        title: "14 - Optional React Before Hooks Class Based React",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Our First Class Component", "2. Our First Class Component.html"],
+          ["Working With Event Handlers", "3. Working With Event Handlers.html"],
+          ["Class Components vs. Function Components", "4. Class Components vs. Function Components.html"],
+          ["Starting the Classy Weather App", "5. Starting the Classy Weather App.html"],
+          ["Fetching Weather Data", "6. Fetching Weather Data.html"],
+          ["Displaying the Weather", "7. Displaying the Weather.html"],
+          ["Removing Boilerplate Code With Class Fields", "8. Removing Boilerplate Code With Class Fields.html"],
+          ["Child to Parent Communication", "9. Child to Parent Communication.html"],
+          ["Lifecycle Methods", "10. Lifecycle Methods.html"],
+        ]
+      },
+      {
+        folder: "15 - PART 3 ADVANCED REACT REDUX 4 PROJECTS",
+        title: "15 - PART 3 ADVANCED REACT REDUX 4 PROJECTS",
+        items: [
+          ["Introduction to Part 3", "1. Introduction to Part 3.html"],
+          ["Useful Resources for Part 3", "2. Useful Resources for Part 3.html"],
+        ]
+      },
+      {
+        folder: "16 - The Advanced useReducer Hook",
+        title: "16 - The Advanced useReducer Hook",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Yet Another Hook - useReducer", "2. Yet Another Hook - useReducer.html"],
+          ["Managing Related Pieces of State", "3. Managing Related Pieces of State.html"],
+          ["Managing State With useReducer", "4. Managing State With useReducer.html"],
+          ["The React Quiz App", "5. The React Quiz App.html"],
+          ["Loading Questions from a Fake API", "6. Loading Questions from a Fake API.html"],
+          ["Handling Loading, Error, and Ready Status", "7. Handling Loading, Error, and Ready Status.html"],
+          ["Starting a New Quiz", "8. Starting a New Quiz.html"],
+          ["Displaying Questions", "9. Displaying Questions.html"],
+          ["Handling New Answers", "10. Handling New Answers.html"],
+          ["Moving to the Next Question", "11. Moving to the Next Question.html"],
+          ["Displaying Progress", "12. Displaying Progress.html"],
+          ["Finishing a Quiz", "13. Finishing a Quiz.html"],
+          ["Restarting a Quiz", "14. Restarting a Quiz.html"],
+          ["Setting Up a Timer With useEffect", "15. Setting Up a Timer With useEffect.html"],
+          ["Section Summary - useState vs. useReducer", "16. Section Summary - useState vs. useReducer.html"],
+          ["CHALLENGE 1 - Creating a Bank Account With useReducer", "17. CHALLENGE 1 - Creating a Bank Account With useReducer.html"],
+        ]
+      },
+      {
+        folder: "17 - React Router Building Single Page Applications SPA",
+        title: "17 - React Router Building Single Page Applications SPA",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Creating Our First App With Vite - WorldWise", "2. Creating Our First App With Vite - WorldWise.html"],
+          ["Routing and Single-Page Applications SPAs", "3. Routing and Single-Page Applications SPAs.html"],
+          ["Implementing Main Pages and Routes", "4. Implementing Main Pages and Routes.html"],
+          ["Linking Between Routes With Link and NavLink", "5. Linking Between Routes With Link and NavLink.html"],
+          ["Styling Options For React Applications", "6. Styling Options For React Applications.html"],
+          ["Using CSS Modules", "7. Using CSS Modules.html"],
+          ["Building the Pages", "8. Building the Pages.html"],
+          ["Building the App Layout", "9. Building the App Layout.html"],
+          ["Nested Routes and Index Route", "10. Nested Routes and Index Route.html"],
+          ["Implementing the Cities List", "11. Implementing the Cities List.html"],
+          ["Implementing the Countries List", "12. Implementing the Countries List.html"],
+          ["Storing State in the URL", "13. Storing State in the URL.html"],
+          ["Dynamic Routes With URL Parameters", "14. Dynamic Routes With URL Parameters.html"],
+          ["Reading and Setting a Query String", "15. Reading and Setting a Query String.html"],
+          ["Programmatic Navigation with useNavigate", "16. Programmatic Navigation with useNavigate.html"],
+          ["Programmatic Navigation with Navigate", "17. Programmatic Navigation with Navigate.html"],
+        ]
+      },
+      {
+        folder: "18 - Advanced State Management The Context API",
+        title: "18 - Advanced State Management The Context API",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["CHALLENGE 1 - Understand The Atomic Blog App", "2. CHALLENGE 1 - Understand The Atomic Blog App.html"],
+          ["What is the Context API", "3. What is the Context API.html"],
+          ["Creating and Providing a Context", "4. Creating and Providing a Context.html"],
+          ["Consuming the Context", "5. Consuming the Context.html"],
+          ["Advanced Pattern - A Custom Provider and Hook", "6. Advanced Pattern - A Custom Provider and Hook.html"],
+          ["Thinking In React - Advanced State Management", "7. Thinking In React - Advanced State Management.html"],
+          ["Back to WorldWise - Creating a CitiesContext", "8. Back to WorldWise - Creating a CitiesContext.html"],
+          ["Consuming the CitiesContext", "9. Consuming the CitiesContext.html"],
+          ["Finishing the City View", "10. Finishing the City View.html"],
+          ["Including a Map With the Leaflet Library", "11. Including a Map With the Leaflet Library.html"],
+          ["Displaying City Markers on Map", "12. Displaying City Markers on Map.html"],
+          ["Interacting With the Map", "13. Interacting With the Map.html"],
+          ["Setting Map Position With Geolocation", "14. Setting Map Position With Geolocation.html"],
+          ["Fetching City Data in the Form", "15. Fetching City Data in the Form.html"],
+          ["Creating a New City", "16. Creating a New City.html"],
+          ["Deleting a City", "17. Deleting a City.html"],
+          ["Advanced State Management System - Context and useReducer", "18. Advanced State Management System - Context and useReducer.html"],
+          ["Adding Fake Authentication - Setting Up Context", "19. Adding Fake Authentication - Setting Up Context.html"],
+          ["Adding Fake Authentication - Implementing Login", "20. Adding Fake Authentication - Implementing Login.html"],
+          ["Adding Fake Authentication - Protecting a Route", "21. Adding Fake Authentication - Protecting a Route.html"],
+          ["CHALLENGE 2 - Refactoring React Quiz to Context API", "22. CHALLENGE 2 - Refactoring React Quiz to Context API.html"],
+        ]
+      },
+      {
+        folder: "19 - Performance Optimization and Advanced useEffect",
+        title: "19 - Performance Optimization and Advanced useEffect",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Performance Optimization and Wasted Renders", "2. Performance Optimization and Wasted Renders.html"],
+          ["The Profiler Developer Tool", "3. The Profiler Developer Tool.html"],
+          ["A Surprising Optimization Trick With children", "4. A Surprising Optimization Trick With children.html"],
+          ["Understanding memo", "5. Understanding memo.html"],
+          ["memo in Practice", "6. memo in Practice.html"],
+          ["Understanding useMemo and useCallback", "7. Understanding useMemo and useCallback.html"],
+          ["useMemo in Practice", "8. useMemo in Practice.html"],
+          ["useCallback in Practice", "9. useCallback in Practice.html"],
+          ["Optimizing Context Re-Renders", "10. Optimizing Context Re-Renders.html"],
+          ["Back to The WorldWise App", "11. Back to The WorldWise App.html"],
+          ["Optimizing Bundle Size With Code Splitting", "12. Optimizing Bundle Size With Code Splitting.html"],
+          ["Dont Optimize Prematurely", "13. Dont Optimize Prematurely.html"],
+          ["useEffect Rules and Best Practices", "14. useEffect Rules and Best Practices.html"],
+          ["CHALLENGE 1 - Fix Performance Issues in Workout Timer", "15. CHALLENGE 1 - Fix Performance Issues in Workout Timer.html"],
+          ["Setting State Based on Other State Updates", "16. Setting State Based on Other State Updates.html"],
+          ["Using Helper Functions In Effects", "17. Using Helper Functions In Effects.html"],
+          ["Closures in Effects", "18. Closures in Effects.html"],
+        ]
+      },
+      {
+        folder: "20 - Redux and Modern Redux Toolkit With Thunks",
+        title: "20 - Redux and Modern Redux Toolkit With Thunks",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Introduction to Redux", "2. Introduction to Redux.html"],
+          ["Creating a Reducer - Bank Account", "3. Creating a Reducer - Bank Account.html"],
+          ["Creating a Redux Store", "4. Creating a Redux Store.html"],
+          ["Working With Action Creators", "5. Working With Action Creators.html"],
+          ["Adding More State - Customer", "6. Adding More State - Customer.html"],
+          ["Professional Redux File Structure - State Slices", "7. Professional Redux File Structure - State Slices.html"],
+          ["Back to React - Connecting our Redux App With React", "8. Back to React - Connecting our Redux App With React.html"],
+          ["Dispatching Actions from Our React App", "9. Dispatching Actions from Our React App.html"],
+          ["The Legacy Way of Connecting Components to Redux", "10. The Legacy Way of Connecting Components to Redux.html"],
+          ["Redux Middleware and Thunks", "11. Redux Middleware and Thunks.html"],
+          ["Making an API Call With Redux Thunks", "12. Making an API Call With Redux Thunks.html"],
+          ["The Redux DevTools", "13. The Redux DevTools.html"],
+          ["What is Redux Toolkit RTK", "14. What is Redux Toolkit RTK.html"],
+          ["Creating the Store With RTK", "15. Creating the Store With RTK.html"],
+          ["Creating the Account Slice", "16. Creating the Account Slice.html"],
+          ["Back to Thunks", "17. Back to Thunks.html"],
+          ["Creating the Customer Slice", "18. Creating the Customer Slice.html"],
+          ["Redux vs. Context API", "19. Redux vs. Context API.html"],
+        ]
+      },
+      {
+        folder: "21 - PART 4 PROFESSIONAL REACT DEVELOPMENT 2 PROJECTS",
+        title: "21 - PART 4 PROFESSIONAL REACT DEVELOPMENT 2 PROJECTS",
+        items: [
+          ["Introduction to Part 4", "1. Introduction to Part 4.html"],
+          ["Useful Resources for Part 4", "2. Useful Resources for Part 4.html"],
+        ]
+      },
+      {
+        folder: "22 - React Router With Data Loading v6 4",
+        title: "22 - React Router With Data Loading v6 4",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Setting Up a New Project - Fast React Pizza Co", "2. Setting Up a New Project - Fast React Pizza Co.html"],
+          ["Application Planning", "3. Application Planning.html"],
+          ["Setting Up a Professional File Structure", "4. Setting Up a Professional File Structure.html"],
+          ["A New Way Of Implementing Routes", "5. A New Way Of Implementing Routes.html"],
+          ["Building the App Layout", "6. Building the App Layout.html"],
+          ["Fetching Data With React Router Loaders - Pizza Menu", "7. Fetching Data With React Router Loaders - Pizza Menu.html"],
+          ["Displaying a Loading Indicator", "8. Displaying a Loading Indicator.html"],
+          ["Handling Errors With Error Elements", "9. Handling Errors With Error Elements.html"],
+          ["Fetching Orders", "10. Fetching Orders.html"],
+          ["Writing Data With React Router Actions", "11. Writing Data With React Router Actions.html"],
+          ["Error Handling in Form Actions", "12. Error Handling in Form Actions.html"],
+        ]
+      },
+      {
+        folder: "23 - Optional Tailwind CSS Crash Course Styling the App",
+        title: "23 - Optional Tailwind CSS Crash Course Styling the App",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["What is Tailwind CSS", "2. What is Tailwind CSS.html"],
+          ["Setting Up Tailwind CSS", "3. Setting Up Tailwind CSS.html"],
+          ["Working With Color", "4. Working With Color.html"],
+          ["Styling Text", "5. Styling Text.html"],
+          ["The Box Model - Spacing, Borders, and Display", "6. The Box Model - Spacing, Borders, and Display.html"],
+          ["Responsive Design", "7. Responsive Design.html"],
+          ["Using Flexbox", "8. Using Flexbox.html"],
+          ["Using CSS Grid", "9. Using CSS Grid.html"],
+          ["Styling Buttons - Element States and Transitions", "10. Styling Buttons - Element States and Transitions.html"],
+          ["Styling Form Elements", "11. Styling Form Elements.html"],
+          ["Reusing Styles With apply", "12. Reusing Styles With apply.html"],
+          ["Reusing Styles With React Components", "13. Reusing Styles With React Components.html"],
+          ["Absolute Positioning, z-index, and More", "14. Absolute Positioning, z-index, and More.html"],
+          ["Configuring Tailwind - Custom Font Family", "15. Configuring Tailwind - Custom Font Family.html"],
+          ["Styling the Menu", "16. Styling the Menu.html"],
+          ["Styling the Cart", "17. Styling the Cart.html"],
+          ["Styling the Order Form", "18. Styling the Order Form.html"],
+          ["Styling the Order Overview", "19. Styling the Order Overview.html"],
+        ]
+      },
+      {
+        folder: "24 - Adding Redux and Advanced React Router",
+        title: "24 - Adding Redux and Advanced React Router",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Modeling the User State With Redux Toolkit", "2. Modeling the User State With Redux Toolkit.html"],
+          ["Reading and Updating the User State", "3. Reading and Updating the User State.html"],
+          ["Modeling the Cart State", "4. Modeling the Cart State.html"],
+          ["Adding Menu Items to the Cart", "5. Adding Menu Items to the Cart.html"],
+          ["Building the Cart Overview With Redux Selectors", "6. Building the Cart Overview With Redux Selectors.html"],
+          ["Building the Cart Page", "7. Building the Cart Page.html"],
+          ["Deleting Cart Items", "8. Deleting Cart Items.html"],
+          ["Updating Cart Quantities", "9. Updating Cart Quantities.html"],
+          ["Using the Cart for New Orders", "10. Using the Cart for New Orders.html"],
+          ["Redux Thunks With createAsyncThunk", "11. Redux Thunks With createAsyncThunk.html"],
+          ["Integrating Geolocation", "12. Integrating Geolocation.html"],
+          ["Fetching Data Without Navigation - useFetcher", "13. Fetching Data Without Navigation - useFetcher.html"],
+          ["Updating Data Without Navigation", "14. Updating Data Without Navigation.html"],
+        ]
+      },
+      {
+        folder: "25 - Setting Up Our Biggest Project Styled Components",
+        title: "25 - Setting Up Our Biggest Project Styled Components",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Application Planning", "2. Application Planning.html"],
+          ["Role Play 1 - Help Isabelle to Plan an App", "3. Role Play 1 - Help Isabelle to Plan an App.html"],
+          ["Setting Up the Project - The Wild Oasis", "4. Setting Up the Project - The Wild Oasis.html"],
+          ["Introduction to Styled Components", "5. Introduction to Styled Components.html"],
+          ["Global Styles With Styled Components", "6. Global Styles With Styled Components.html"],
+          ["Styled Component Props and the css Function", "7. Styled Component Props and the css Function.html"],
+          ["Building More Reusable Styled Components", "8. Building More Reusable Styled Components.html"],
+          ["Setting Up Pages and Routes", "9. Setting Up Pages and Routes.html"],
+          ["Building the App Layout", "10. Building the App Layout.html"],
+          ["Building the Sidebar and Main Navigation", "11. Building the Sidebar and Main Navigation.html"],
+        ]
+      },
+      {
+        folder: "26 - Supabase Crash Course Building a Back End",
+        title: "26 - Supabase Crash Course Building a Back End",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["What is Supabase", "2. What is Supabase.html"],
+          ["Creating a New Database", "3. Creating a New Database.html"],
+          ["Modeling Application State", "4. Modeling Application State.html"],
+          ["Creating Tables", "5. Creating Tables.html"],
+          ["Relationships Between Tables", "6. Relationships Between Tables.html"],
+          ["Adding Security Policies RLS", "7. Adding Security Policies RLS.html"],
+          ["Connecting Supabase With Our React App", "8. Connecting Supabase With Our React App.html"],
+          ["Setting Up Storage Buckets", "9. Setting Up Storage Buckets.html"],
+        ]
+      },
+      {
+        folder: "27 - React Query Managing Remote State",
+        title: "27 - React Query Managing Remote State",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["What is React Query", "2. What is React Query.html"],
+          ["Setting Up React Query", "3. Setting Up React Query.html"],
+          ["Make Sure to Use React Query v4", "4. Make Sure to Use React Query v4.html"],
+          ["Fetching Cabin Data", "5. Fetching Cabin Data.html"],
+          ["Mutations - Deleting a Cabin", "6. Mutations - Deleting a Cabin.html"],
+          ["Displaying Toasts Notifications", "7. Displaying Toasts Notifications.html"],
+          ["Introducing Another Library - React Hook Form", "8. Introducing Another Library - React Hook Form.html"],
+          ["Creating a New Cabin", "9. Creating a New Cabin.html"],
+          ["Handling Form Errors", "10. Handling Form Errors.html"],
+          ["Uploading Images to Supabase", "11. Uploading Images to Supabase.html"],
+          ["Editing a Cabin", "12. Editing a Cabin.html"],
+          ["Abstracting React Query Into Custom Hooks", "13. Abstracting React Query Into Custom Hooks.html"],
+          ["Duplicating Cabins", "14. Duplicating Cabins.html"],
+          ["Fetching Applications Settings", "15. Fetching Applications Settings.html"],
+          ["Updating Application Settings", "16. Updating Application Settings.html"],
+        ]
+      },
+      {
+        folder: "28 - Advanced React Patterns",
+        title: "28 - Advanced React Patterns",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["An Overview of Reusability in React", "2. An Overview of Reusability in React.html"],
+          ["Setting Up an Example", "3. Setting Up an Example.html"],
+          ["The Render Props Pattern", "4. The Render Props Pattern.html"],
+          ["A Look at Higher-Order Components HOC", "5. A Look at Higher-Order Components HOC.html"],
+          ["The Compound Component Pattern", "6. The Compound Component Pattern.html"],
+          ["Building a Modal Window Using a React Portal", "7. Building a Modal Window Using a React Portal.html"],
+          ["Converting the Modal to a Compound Component", "8. Converting the Modal to a Compound Component.html"],
+          ["Detecting a Click Outside the Modal", "9. Detecting a Click Outside the Modal.html"],
+          ["Confirming Cabin Deletions", "10. Confirming Cabin Deletions.html"],
+          ["Building a Reusable Table", "11. Building a Reusable Table.html"],
+          ["Applying the Render Props Pattern", "12. Applying the Render Props Pattern.html"],
+          ["Building a Reusable Context Menu", "13. Building a Reusable Context Menu.html"],
+        ]
+      },
+      {
+        folder: "29 - Optional Implementing More Features Authentication Dark Mode Dashboard etc",
+        title: "29 - Optional Implementing More Features Authentication Dark Mode Dashboard etc",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Client-Side Filtering - Filtering Cabins", "2. Client-Side Filtering - Filtering Cabins.html"],
+          ["Client-Side Sorting - Sorting Cabins", "3. Client-Side Sorting - Sorting Cabins.html"],
+          ["Building the Bookings Table", "4. Building the Bookings Table.html"],
+          ["Uploading Sample Data", "5. Uploading Sample Data.html"],
+          ["API-Side Filtering - Filtering Bookings", "6. API-Side Filtering - Filtering Bookings.html"],
+          ["API-Side Sorting - Sorting Bookings", "7. API-Side Sorting - Sorting Bookings.html"],
+          ["Building a Reusable Pagination Component", "8. Building a Reusable Pagination Component.html"],
+          ["API-Side Pagination - Paginating Bookings", "9. API-Side Pagination - Paginating Bookings.html"],
+          ["Prefetching With React Query", "10. Prefetching With React Query.html"],
+          ["Building the Single Booking Page", "11. Building the Single Booking Page.html"],
+          ["Checking In a Booking", "12. Checking In a Booking.html"],
+          ["Adding Optional Breakfast", "13. Adding Optional Breakfast.html"],
+          ["Checking Out a Booking - Fixing a Small Bug", "14. Checking Out a Booking - Fixing a Small Bug.html"],
+          ["Deleting a Booking", "15. Deleting a Booking.html"],
+          ["Authentication - User Login With Supabase", "16. Authentication - User Login With Supabase.html"],
+          ["Authorization - Protecting Routes", "17. Authorization - Protecting Routes.html"],
+          ["User Logout", "18. User Logout.html"],
+          ["Fixing an Important Bug", "19. Fixing an Important Bug.html"],
+          ["Building the Sign Up Form", "20. Building the Sign Up Form.html"],
+          ["User Sign Up", "21. User Sign Up.html"],
+          ["Authorization on Supabase - Protecting Database RLS", "22. Authorization on Supabase - Protecting Database RLS.html"],
+          ["Building The App Header", "23. Building The App Header.html"],
+          ["Updating User Data and Password", "24. Updating User Data and Password.html"],
+          ["Implementing Dark Mode With CSS Variables", "25. Implementing Dark Mode With CSS Variables.html"],
+          ["Building the Dashboard Layout", "26. Building the Dashboard Layout.html"],
+          ["Computing Recent Bookings and Stays", "27. Computing Recent Bookings and Stays.html"],
+          ["Displaying Statistics", "28. Displaying Statistics.html"],
+          ["Displaying a Line Chart With the Recharts Library", "29. Displaying a Line Chart With the Recharts Library.html"],
+          ["Displaying a Pie Chart", "30. Displaying a Pie Chart.html"],
+          ["Displaying Stays for Current Day", "31. Displaying Stays for Current Day.html"],
+          ["Error Boundaries", "32. Error Boundaries.html"],
+          ["Final Touches - Fixing Bugs", "33. Final Touches - Fixing Bugs.html"],
+        ]
+      },
+      {
+        folder: "30 - Deployment With Netlify and Vercel",
+        title: "30 - Deployment With Netlify and Vercel",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Deploying to Netlify", "2. Deploying to Netlify.html"],
+          ["Setting Up a Git and GitHub Repository", "3. Setting Up a Git and GitHub Repository.html"],
+          ["Deploying to Vercel", "4. Deploying to Vercel.html"],
+        ]
+      },
+      {
+        folder: "31 - PART 5 FULL STACK REACT WITH NEXTJS 1 PROJECT",
+        title: "31 - PART 5 FULL STACK REACT WITH NEXTJS 1 PROJECT",
+        items: [
+          ["Introduction to Part 5", "1. Introduction to Part 5.html"],
+          ["Useful Resources for Part 5", "2. Useful Resources for Part 5.html"],
+        ]
+      },
+      {
+        folder: "32 - Overview of Nextjs With the App Router",
+        title: "32 - Overview of Nextjs With the App Router",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Download Fresh Starter Files - Slides", "2. Download Fresh Starter Files - Slides.html"],
+          ["An Overview of Server-Side Rendering SSR", "3. An Overview of Server-Side Rendering SSR.html"],
+          ["Experiment - Manual SSR With React DOM and Node.js", "4. Experiment - Manual SSR With React DOM and Node.js.html"],
+          ["The Missing Piece - Hydration", "5. The Missing Piece - Hydration.html"],
+          ["Implementing Hydration", "6. Implementing Hydration.html"],
+          ["What is Next.js", "7. What is Next.js.html"],
+          ["Setting Up a Next.js Project", "8. Setting Up a Next.js Project.html"],
+          ["Frequent Next.js Updates - Documentation", "9. Frequent Next.js Updates - Documentation.html"],
+          ["Defining Routes and Pages", "10. Defining Routes and Pages.html"],
+          ["Navigating Between Pages", "11. Navigating Between Pages.html"],
+          ["Creating a Layout", "12. Creating a Layout.html"],
+          ["What are React Server Components RSC Part 1", "13. What are React Server Components RSC Part 1.html"],
+          ["Fetching Data in a Page", "14. Fetching Data in a Page.html"],
+          ["Adding Interactivity With Client Components", "15. Adding Interactivity With Client Components.html"],
+          ["Displaying a Loading Indicator", "16. Displaying a Loading Indicator.html"],
+          ["How RSC Works Behind the Scenes RSC Part 2", "17. How RSC Works Behind the Scenes RSC Part 2.html"],
+          ["RSC vs. SSR - How are They Related RSC Part 3", "18. RSC vs. SSR - How are They Related RSC Part 3.html"],
+        ]
+      },
+      {
+        folder: "33 - Starting to Build the Wild Oasis Website",
+        title: "33 - Starting to Build the Wild Oasis Website",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Project Planning - The Wild Oasis Customer Website", "2. Project Planning - The Wild Oasis Customer Website.html"],
+          ["Project Organization", "3. Project Organization.html"],
+          ["Styling With Tailwind CSS", "4. Styling With Tailwind CSS.html"],
+          ["Adding Page Metadata and Favicon", "5. Adding Page Metadata and Favicon.html"],
+          ["Loading and Optimizing Fonts", "6. Loading and Optimizing Fonts.html"],
+          ["Improving the Navigation and Root Layout", "7. Improving the Navigation and Root Layout.html"],
+          ["Optimizing Images With Next.js Image Component", "8. Optimizing Images With Next.js Image Component.html"],
+          ["Building the Home Page", "9. Building the Home Page.html"],
+          ["Building the About Page With Responsive Images", "10. Building the About Page With Responsive Images.html"],
+          ["Adding Nested Routes and Pages", "11. Adding Nested Routes and Pages.html"],
+          ["Adding a Nested Layout", "12. Adding a Nested Layout.html"],
+        ]
+      },
+      {
+        folder: "34 - Data Fetching Caching and Rendering",
+        title: "34 - Data Fetching Caching and Rendering",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Setting Up Supabase", "2. Setting Up Supabase.html"],
+          ["Fetching and Displaying Cabin List", "3. Fetching and Displaying Cabin List.html"],
+          ["Streaming Route Segments With loading.js File", "4. Streaming Route Segments With loading.js File.html"],
+          ["What is React Suspense", "5. What is React Suspense.html"],
+          ["Streaming UI With Suspense - Cabin List", "6. Streaming UI With Suspense - Cabin List.html"],
+          ["Dynamic Route Segments - Building the Cabin Page", "7. Dynamic Route Segments - Building the Cabin Page.html"],
+          ["Generating Dynamic Metadata", "8. Generating Dynamic Metadata.html"],
+          ["Error Handling - Setting Up Error Boundaries", "9. Error Handling - Setting Up Error Boundaries.html"],
+          ["Error Handling - Not Found Errors", "10. Error Handling - Not Found Errors.html"],
+          ["Different Types of SSR - Static vs. Dynamic Rendering", "11. Different Types of SSR - Static vs. Dynamic Rendering.html"],
+          ["Analyzing Rendering in Our App", "12. Analyzing Rendering in Our App.html"],
+          ["Making Dynamic Pages Static With generateStaticParams", "13. Making Dynamic Pages Static With generateStaticParams.html"],
+          ["Static Site Generation SSG", "14. Static Site Generation SSG.html"],
+          ["Partial Pre-Rendering", "15. Partial Pre-Rendering.html"],
+          ["How Next.js Caches Data", "16. How Next.js Caches Data.html"],
+          ["Experimenting With Caching and ISR", "17. Experimenting With Caching and ISR.html"],
+          ["CHALLENGE 1 - Fetching the Number of Cabins", "18. CHALLENGE 1 - Fetching the Number of Cabins.html"],
+        ]
+      },
+      {
+        folder: "35 - Client and Server Interactions",
+        title: "35 - Client and Server Interactions",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Blurring the Boundary Between Server and Client RSC Part 4", "2. Blurring the Boundary Between Server and Client RSC Part 4.html"],
+          ["Client Components in Server Components", "3. Client Components in Server Components.html"],
+          ["Highlighting Current Side Navigation Link", "4. Highlighting Current Side Navigation Link.html"],
+          ["Sharing State Between Client and Server - The URL", "5. Sharing State Between Client and Server - The URL.html"],
+          ["Advanced - Server Components in Client Components", "6. Advanced - Server Components in Client Components.html"],
+          ["Data Fetching Strategies for the Reservation Section", "7. Data Fetching Strategies for the Reservation Section.html"],
+          ["Using the Context API for State Management", "8. Using the Context API for State Management.html"],
+          ["Creating an API Endpoint With Route Handlers", "9. Creating an API Endpoint With Route Handlers.html"],
+        ]
+      },
+      {
+        folder: "36 - Authentication With NextAuth Authjs",
+        title: "36 - Authentication With NextAuth Authjs",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Setting Up NextAuth", "2. Setting Up NextAuth.html"],
+          ["Getting the User Session", "3. Getting the User Session.html"],
+          ["What is Middleware in Next.js", "4. What is Middleware in Next.js.html"],
+          ["Protecting Routes With NextAuth Middleware", "5. Protecting Routes With NextAuth Middleware.html"],
+          ["Building a Custom Sign In Page", "6. Building a Custom Sign In Page.html"],
+          ["Building a Custom Sign Out Button", "7. Building a Custom Sign Out Button.html"],
+          ["Creating a New Guest on First Sign In", "8. Creating a New Guest on First Sign In.html"],
+        ]
+      },
+      {
+        folder: "37 - Mutations With Server Actions Modern React Hooks",
+        title: "37 - Mutations With Server Actions Modern React Hooks",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["What are Server Actions", "2. What are Server Actions.html"],
+          ["Updating the Profile Using a Server Action", "3. Updating the Profile Using a Server Action.html"],
+          ["Manual Cache Revalidation", "4. Manual Cache Revalidation.html"],
+          ["Displaying a Loading Indicator - The useFormStatus Hook", "5. Displaying a Loading Indicator - The useFormStatus Hook.html"],
+          ["Building the Guests Reservations Page", "6. Building the Guests Reservations Page.html"],
+          ["Deleting a Reservation", "7. Deleting a Reservation.html"],
+          ["Another Loading Indicator - The useTransition Hook", "8. Another Loading Indicator - The useTransition Hook.html"],
+          ["CHALLENGE 1 - Updating a Reservation", "9. CHALLENGE 1 - Updating a Reservation.html"],
+          ["Removing Reservations Immediately - The useOptimistic Hook", "10. Removing Reservations Immediately - The useOptimistic Hook.html"],
+          ["Back to the Cabin Page - Finishing the Date Selector", "11. Back to the Cabin Page - Finishing the Date Selector.html"],
+          ["Creating a New Reservation", "12. Creating a New Reservation.html"],
+        ]
+      },
+      {
+        folder: "38 - Deployment With Vercel",
+        title: "38 - Deployment With Vercel",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Setting Up the GitHub Repository", "2. Setting Up the GitHub Repository.html"],
+          ["Deploying to Vercel", "3. Deploying to Vercel.html"],
+          ["Updating Environment Variables and OAuth Credentials", "4. Updating Environment Variables and OAuth Credentials.html"],
+        ]
+      },
+      {
+        folder: "39 - OPTIONAL Legacy Nextjs The Pages Router",
+        title: "39 - OPTIONAL Legacy Nextjs The Pages Router",
+        items: [
+          ["Section Overview", "1. Section Overview.html"],
+          ["Setting Up Another Project", "2. Setting Up Another Project.html"],
+          ["Routes, Pages, and Navigation", "3. Routes, Pages, and Navigation.html"],
+          ["Dynamic Routes", "4. Dynamic Routes.html"],
+          ["Creating a Layout With a Custom _App", "5. Creating a Layout With a Custom _App.html"],
+          ["Creating Pages", "6. Creating Pages.html"],
+          ["Defining Page Title and Favicon", "7. Defining Page Title and Favicon.html"],
+          ["Fetching Data With getStaticProps SSG", "8. Fetching Data With getStaticProps SSG.html"],
+          ["Fetching Data With getServerSideProps SSR", "9. Fetching Data With getServerSideProps SSR.html"],
+          ["API Routes", "10. API Routes.html"],
+          ["Handling Form Submissions", "11. Handling Form Submissions.html"],
+        ]
+      },
+      {
+        folder: "40 - The End",
+        title: "40 - The End",
+        items: [
+          ["Where to Go from Here", "1. Where to Go from Here.html"],
+        ]
+      },
+    ];
+
+    // Flatten into ordered lecture list for Prev/Next
+    const LECTURES = [];
+    SECTIONS.forEach((sec) => {
+      sec.items.forEach(([title, file]) => {
+        LECTURES.push({
+          sectionTitle: sec.title,
+          folder: sec.folder,
+          title,
+          file,
+          path: `${sec.folder}/${file}`
+        });
+      });
+    });
+
+    // UI elements
+    const app = document.getElementById("app");
+    const overlay = document.getElementById("overlay");
+    const sidebarBody = document.getElementById("sidebarBody");
+    const searchInput = document.getElementById("search");
+    const viewer = document.getElementById("viewer");
+    const currentTitle = document.getElementById("currentTitle");
+    const currentPath = document.getElementById("currentPath");
+    const btnPrev = document.getElementById("btnPrev");
+    const btnNext = document.getElementById("btnNext");
+    const btnOpen = document.getElementById("btnOpen");
+    const btnPrint = document.getElementById("btnPrint");
+    const btnToggleSidebar = document.getElementById("btnToggleSidebar");
+
+    // State
+    let currentIndex = -1;
+
+    function escapeHtml(s) {
+      return (s || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function isMobile() {
+      return window.matchMedia("(max-width: 920px)").matches;
+    }
+
+    function setSidebarStateDesktop(collapsed) {
+      if (collapsed) app.classList.add("sidebar-collapsed");
+      else app.classList.remove("sidebar-collapsed");
+      try { localStorage.setItem("react_index_sidebar_collapsed", collapsed ? "1" : "0"); } catch (e) {}
+    }
+
+    function openSidebarMobile() {
+      app.classList.add("sidebar-open-mobile");
+      overlay.setAttribute("aria-hidden", "false");
+      document.body.classList.add("lock-scroll");
+    }
+
+    function closeSidebarMobile() {
+      app.classList.remove("sidebar-open-mobile");
+      overlay.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("lock-scroll");
+    }
+
+    function toggleSidebar() {
+      if (isMobile()) {
+        if (app.classList.contains("sidebar-open-mobile")) closeSidebarMobile();
+        else openSidebarMobile();
+      } else {
+        const collapsed = app.classList.contains("sidebar-collapsed");
+        setSidebarStateDesktop(!collapsed);
+      }
+    }
+
+    function buildSidebar() {
+      sidebarBody.innerHTML = "";
+      SECTIONS.forEach((sec, secIdx) => {
+        const details = document.createElement("details");
+        details.className = "section";
+        if (secIdx < 3) details.open = true;
+
+        const summary = document.createElement("summary");
+        summary.innerHTML = `
+          <div class="sec-left">
+            <div class="sec-name">📌 ${escapeHtml(sec.title)}</div>
+            <div class="sec-folder">${escapeHtml(sec.folder)}</div>
+          </div>
+          <div class="sec-count">(${sec.items.length})</div>
+        `;
+        details.appendChild(summary);
+
+        const list = document.createElement("div");
+        list.className = "lecture-list";
+
+        sec.items.forEach(([title, file]) => {
+          const path = `${sec.folder}/${file}`;
+          const a = document.createElement("a");
+          a.className = "lecture";
+          a.href = `#file=${encodeURIComponent(path)}`;
+          a.dataset.path = path;
+          a.dataset.title = title;
+          a.dataset.section = sec.title;
+          a.innerHTML = `📄 ${escapeHtml(title)}<small>${escapeHtml(path)}</small>`;
+          a.addEventListener("click", (e) => {
+            e.preventDefault();
+            loadByPath(path, true);
+            if (isMobile()) closeSidebarMobile();
+          });
+          list.appendChild(a);
+        });
+
+        details.appendChild(list);
+        sidebarBody.appendChild(details);
+      });
+    }
+
+    function setActiveLink(path) {
+      document.querySelectorAll(".lecture").forEach(a => {
+        a.classList.toggle("active", a.dataset.path === path);
+      });
+    }
+
+    function updateTopbar() {
+      if (currentIndex < 0) {
+        btnPrev.disabled = true;
+        btnNext.disabled = true;
+        btnOpen.disabled = true;
+        btnPrint.disabled = true;
+        currentTitle.textContent = "Select a lecture from the sidebar…";
+        currentPath.textContent = "Tip: Use search, then click a lecture. ✅";
+        return;
+      }
+
+      const item = LECTURES[currentIndex];
+      btnPrev.disabled = currentIndex === 0;
+      btnNext.disabled = currentIndex === LECTURES.length - 1;
+      btnOpen.disabled = false;
+      btnPrint.disabled = false;
+
+      currentTitle.textContent = `🧠 ${item.title}`;
+      currentPath.textContent = `📂 ${item.sectionTitle}  •  ${item.path}`;
+    }
+
+    function scrollIframeToTop() {
+      try {
+        viewer.contentWindow.scrollTo(0, 0);
+        const doc = viewer.contentDocument;
+        if (doc) {
+          doc.documentElement.scrollTop = 0;
+          doc.body && (doc.body.scrollTop = 0);
+        }
+      } catch (err) {}
+    }
+
+    function loadByPath(path, pushHash) {
+      const idx = LECTURES.findIndex(x => x.path === path);
+      if (idx === -1) return;
+
+      currentIndex = idx;
+      const item = LECTURES[currentIndex];
+
+      viewer.src = item.path;
+
+      setActiveLink(item.path);
+      updateTopbar();
+
+      if (pushHash) {
+        const newHash = `file=${encodeURIComponent(item.path)}`;
+        if (location.hash !== `#${newHash}`) location.hash = newHash;
+      }
+    }
+
+    function loadFromHash() {
+      const h = location.hash || "";
+      const m = h.match(/file=([^&]+)/);
+      if (!m || !m[1]) return false;
+
+      const path = decodeURIComponent(m[1]);
+      const currentPath = currentIndex >= 0 ? LECTURES[currentIndex].path : "";
+      if (path === currentPath) return true; // guard to prevent double-load
+
+      loadByPath(path, false);
+      return true;
+    }
+
+    // iframe load: scroll to top
+    viewer.addEventListener("load", () => {
+      scrollIframeToTop();
+    });
+
+    // Prev/Next
+    btnPrev.addEventListener("click", () => {
+      if (currentIndex > 0) loadByPath(LECTURES[currentIndex - 1].path, true);
+    });
+    btnNext.addEventListener("click", () => {
+      if (currentIndex >= 0 && currentIndex < LECTURES.length - 1) {
+        loadByPath(LECTURES[currentIndex + 1].path, true);
+      }
+    });
+
+    // Open / Print
+    btnOpen.addEventListener("click", () => {
+      if (currentIndex < 0) return;
+      window.open(LECTURES[currentIndex].path, "_blank");
+    });
+
+    btnPrint.addEventListener("click", () => {
+      if (currentIndex < 0) return;
+      try {
+        viewer.contentWindow.focus();
+        viewer.contentWindow.print();
+      } catch (err) {
+        window.open(LECTURES[currentIndex].path, "_blank");
+      }
+    });
+
+    // Sidebar controls
+    btnToggleSidebar.addEventListener("click", toggleSidebar);
+    overlay.addEventListener("click", () => { if (isMobile()) closeSidebarMobile(); });
+
+    // ESC closes sidebar on mobile
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && isMobile() && app.classList.contains("sidebar-open-mobile")) {
+        closeSidebarMobile();
+      }
+    });
+
+    // Search: filter lectures + auto-open matching sections
+    searchInput.addEventListener("input", () => {
+      const q = (searchInput.value || "").trim().toLowerCase();
+
+      document.querySelectorAll("details.section").forEach(details => {
+        let anyVisible = false;
+
+        details.querySelectorAll(".lecture").forEach(a => {
+          const text = `${a.dataset.title} ${a.dataset.path} ${a.dataset.section}`.toLowerCase();
+          const isMatch = !q || text.includes(q);
+          const isActive = a.classList.contains("active");
+
+          a.style.display = (isMatch || isActive) ? "block" : "none";
+          if (a.style.display !== "none") anyVisible = true;
+        });
+
+        if (q) details.open = anyVisible;
+      });
+    });
+
+    // Back/forward
+    window.addEventListener("hashchange", () => { loadFromHash(); });
+
+    // On resize: close mobile drawer
+    window.addEventListener("resize", () => {
+      if (!isMobile()) closeSidebarMobile();
+    });
+
+    // Init
+    buildSidebar();
+
+    // Restore desktop collapsed preference
+    try {
+      const collapsed = localStorage.getItem("react_index_sidebar_collapsed") === "1";
+      if (!isMobile()) setSidebarStateDesktop(collapsed);
+    } catch (e) {}
+
+    // Load hash target, otherwise load first lecture
+    if (!loadFromHash()) {
+      if (LECTURES.length > 0) loadByPath(LECTURES[0].path, true);
+      else updateTopbar();
+    }
+  </script>
+</body>
+</html>

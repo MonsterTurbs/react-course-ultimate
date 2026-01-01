@@ -1,0 +1,476 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Rendering Lists (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --hint: #eef6ff;
+      --warn: #fff3cd;
+      --ok: #eaffea;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.hint { border-left-color: #90caf9; background: var(--hint); }
+    .callout.warn { border-left-color: #ffe08a; background: var(--warn); }
+    .callout.ok { border-left-color: #7ad27a; background: var(--ok); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .term {
+      display: inline-block;
+      padding: 1px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>📋 Rendering Lists in React — Reviewer</h1>
+      <p class="subtitle">How to render one component per item in an array using <code>.map()</code>, add React keys, and write semantic markup with <code>&lt;ul&gt;</code>/<code>&lt;li&gt;</code>. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print dialog, set Paper size = A4, Margins = Default.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#meaning">What “rendering a list” means</a></li>
+          <li><a href="#map">The core tool: JavaScript <code>.map()</code></a></li>
+          <li><a href="#props">Passing props: per-field vs whole object</a></li>
+          <li><a href="#key">Keys: why React warns you</a></li>
+          <li><a href="#semantic">Semantic markup: <code>ul</code> + <code>li</code></a></li>
+          <li><a href="#foreach">Why <code>forEach</code> doesn’t work in JSX</a></li>
+          <li><a href="#review">Quick review + common mistakes</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="meaning">
+      <h2>🧠 What “rendering a list” means</h2>
+      <p>
+        Rendering a list means: you have an <strong>array</strong> (usually data) and you want to create
+        <strong>one component per item</strong>.
+      </p>
+
+      <div class="callout">
+        <p><strong>Example scenario 🍕</strong></p>
+        <p class="muted">You have an array of pizza objects. For every pizza object, render one <code>&lt;Pizza /&gt;</code> component.</p>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Goal ✅</strong></p>
+        <p class="muted">If the array has 4 items → render 4 components. If it has 10 items → render 10 components.</p>
+      </div>
+    </section>
+
+    <section id="map">
+      <h2>🔁 The core tool: JavaScript <code>.map()</code></h2>
+      <p>
+        React doesn’t give you a special “list component.” Instead, you use the JavaScript you already know.
+        The key method is <span class="term">Array.prototype.map()</span>.
+      </p>
+
+      <div class="callout hint">
+        <p><strong>Why <code>map</code> works in JSX ✅</strong></p>
+        <p class="muted"><code>map</code> returns a <strong>new array</strong>. In React, an array of JSX elements can be rendered directly.</p>
+      </div>
+
+      <h3>Basic pattern (one component per item) 🧩</h3>
+      <pre><code>function Menu() {
+  return (
+    &lt;div&gt;
+      {pizzaData.map((pizza) =&gt; (
+        &lt;Pizza /&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <p class="muted">In real usage, you pass props so each component gets its own data (next section).</p>
+
+      <h3>JSX comments reminder 🗒️</h3>
+      <p class="muted">A JSX comment is just JavaScript mode + a JavaScript comment:</p>
+      <pre><code>{/* This is a JSX comment ✅ */}</code></pre>
+    </section>
+
+    <section id="props">
+      <h2>📦 Passing props: per-field vs whole object</h2>
+      <p>
+        When you map, you usually want each rendered component to receive data.
+        There are two common approaches:
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Approach A: pass individual fields 🧾</h3>
+          <p class="muted">Works, but can get repetitive when there are many fields.</p>
+          <pre><code>{pizzaData.map((pizza) =&gt; (
+  &lt;Pizza
+    name={pizza.name}
+    ingredients={pizza.ingredients}
+    price={pizza.price}
+    photoName={pizza.photoName}
+  /&gt;
+))}</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Approach B: pass the whole object 🧠</h3>
+          <p class="muted">Common in real projects: fewer props in the parent; child reads what it needs.</p>
+          <pre><code>{pizzaData.map((pizza) =&gt; (
+  &lt;Pizza pizzaObj={pizza} /&gt;
+))}</code></pre>
+
+          <p class="muted">Then inside <code>Pizza</code>:</p>
+          <pre><code>function Pizza(props) {
+  const p = props.pizzaObj;
+
+  return (
+    &lt;li className="pizza"&gt;
+      &lt;img src={p.photoName} alt={p.name} /&gt;
+      &lt;div&gt;
+        &lt;h3&gt;{p.name}&lt;/h3&gt;
+        &lt;p&gt;{p.ingredients}&lt;/p&gt;
+        &lt;span&gt;{p.price}&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/li&gt;
+  );
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="callout hint">
+        <p><strong>Practical tip ✅</strong></p>
+        <p class="muted">Passing the full object is often cleaner, especially when the child needs multiple properties.</p>
+      </div>
+    </section>
+
+    <section id="key">
+      <h2>🔑 Keys: why React warns you</h2>
+      <p>
+        When you render a list, React will warn:
+        <em>“Each child in a list should have a unique key prop.”</em>
+      </p>
+
+      <div class="callout warn">
+        <p><strong>What you must do ⚠️</strong></p>
+        <p class="muted">Add a <code>key</code> prop to the top-level element you return from <code>map</code> (usually the component).</p>
+      </div>
+
+      <h3>Example: using a unique property ✅</h3>
+      <pre><code>{pizzaData.map((pizza) =&gt; (
+  &lt;Pizza key={pizza.name} pizzaObj={pizza} /&gt;
+))}</code></pre>
+
+      <p class="muted">
+        In the lecture, <code>name</code> is unique, so it works as a key.
+        (In real apps, an <code>id</code> is usually the best key.)
+      </p>
+
+      <div class="callout">
+        <p><strong>Why keys exist (simple explanation) 🧠</strong></p>
+        <p class="muted">React uses keys to track items between renders, enabling performance optimizations and correct UI updates when lists change.</p>
+      </div>
+    </section>
+
+    <section id="semantic">
+      <h2>🧱 Semantic markup: <code>ul</code> + <code>li</code></h2>
+      <p>
+        If you are rendering a list of items, use semantic HTML:
+        <code>&lt;ul&gt;</code> (unordered list) and <code>&lt;li&gt;</code> (list item).
+      </p>
+
+      <h3>Recommended structure ✅</h3>
+      <pre><code>function Menu() {
+  return (
+    &lt;main className="menu"&gt;
+      &lt;h2&gt;Our menu 🍕&lt;/h2&gt;
+
+      &lt;ul className="pizzas"&gt;
+        {pizzaData.map((pizza) =&gt; (
+          &lt;Pizza key={pizza.name} pizzaObj={pizza} /&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+
+      <div class="callout hint">
+        <p><strong>Styling tip 🎨</strong></p>
+        <p class="muted">The lecture mentions adding a class like <code>pizzas</code> to apply grid styling from CSS.</p>
+      </div>
+    </section>
+
+    <section id="foreach">
+      <h2>🚫 Why <code>forEach</code> doesn’t work in JSX</h2>
+      <p>
+        It feels natural to say “render one pizza for each pizza,” but <code>forEach</code> is not the right tool.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3><code>forEach</code> ❌</h3>
+          <p class="muted"><code>forEach</code> returns <strong>undefined</strong>, so React has nothing to render.</p>
+          <pre><code>// ❌ This produces nothing useful to render
+&lt;ul&gt;
+  {pizzaData.forEach((pizza) =&gt; (
+    &lt;Pizza pizzaObj={pizza} /&gt;
+  ))}
+&lt;/ul&gt;</code></pre>
+        </div>
+
+        <div class="card">
+          <h3><code>map</code> ✅</h3>
+          <p class="muted"><code>map</code> returns a <strong>new array of JSX</strong>, which React can render.</p>
+          <pre><code>// ✅ Returns an array of &lt;Pizza /&gt; elements
+&lt;ul&gt;
+  {pizzaData.map((pizza) =&gt; (
+    &lt;Pizza key={pizza.name} pizzaObj={pizza} /&gt;
+  ))}
+&lt;/ul&gt;</code></pre>
+        </div>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Memorize this sentence ✅</strong></p>
+        <p class="muted">In JSX, you must return a value. <code>map</code> returns an array (renderable). <code>forEach</code> returns nothing (not renderable).</p>
+      </div>
+    </section>
+
+    <section id="review">
+      <h2>📝 Quick review + common mistakes</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>What you did in this lecture ✅</h3>
+          <ul>
+            <li>Used <code>.map()</code> to turn an array into an array of components</li>
+            <li>Passed props dynamically for each item</li>
+            <li>Added a unique <code>key</code> to silence warnings and help React</li>
+            <li>Converted markup to semantic <code>ul</code>/<code>li</code></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Common mistakes ⚠️</h3>
+          <ul>
+            <li>Forgetting <code>key</code> (React warning in console)</li>
+            <li>Using a non-unique key (causes weird UI behavior later)</li>
+            <li>Using <code>forEach</code> instead of <code>map</code></li>
+            <li>Returning multiple root elements from a component</li>
+            <li>Not passing data → all rendered items look the same</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Mini self-check ✅</h3>
+          <ul>
+            <li>What does <code>map</code> return?</li>
+            <li>Where should the <code>key</code> be placed?</li>
+            <li>Why is semantic HTML (ul/li) helpful?</li>
+            <li>What happens if you delete an item from the array?</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout hint">
+        <p><strong>Next concept preview 👀</strong></p>
+        <p class="muted">The lecture mentions “sold out” styling and more conditional rendering patterns coming soon.</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

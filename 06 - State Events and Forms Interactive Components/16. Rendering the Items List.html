@@ -1,0 +1,369 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Far Away — Rendering the Items List | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn{ background:#ffffff; }
+      .card, .term, pre, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Rendering the Items List — Far Away 🧳</h1>
+      <p class="subtitle">
+        Lecture reviewer: render an array of packing items into the UI using <strong>map()</strong>, props, and conditional styling.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">📋 Rendering lists</span>
+        <span class="chip">🗺️ Array.map()</span>
+        <span class="chip">🧩 Item component</span>
+        <span class="chip">📦 Props</span>
+        <span class="chip">🎯 Conditional styles</span>
+        <span class="chip">🏷️ className + CSS</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Why This Lecture Matters</h2>
+      <div class="callout">
+        <p><strong>Rendering lists is one of the most common React tasks.</strong> 🙂</p>
+        <p>
+          Most real apps display data as lists: tasks, products, messages, reports, etc.
+          Here, we render a list of “packing items” from an array of objects.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>The data model (items array)</h3>
+        <p class="mini">Each item is an object with these key fields:</p>
+        <ul>
+          <li><code>id</code> — unique identifier</li>
+          <li><code>description</code> — text label (e.g., “Passport”)</li>
+          <li><code>quantity</code> — number needed (e.g., 2)</li>
+          <li><code>packed</code> — boolean, whether packed already (<code>true</code>/<code>false</code>)</li>
+        </ul>
+        <p class="mini">The <code>packed</code> flag changes how an item looks (e.g., strike-through when packed).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Step-by-Step: Rendering the List</h2>
+
+      <div class="card">
+        <h3>A) Use semantic HTML ✅</h3>
+        <ul>
+          <li>Use <code>&lt;ul&gt;</code> for the list container (unordered list).</li>
+          <li>Use <code>&lt;li&gt;</code> for each list row.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>B) Use <code>map()</code> to generate components 🗺️</h3>
+        <ul>
+          <li>Switch to “JavaScript mode” inside JSX using curly braces: <code>{ ... }</code></li>
+          <li>Call <code>items.map(...)</code> to return one UI element per item.</li>
+          <li>Render an <code>&lt;Item /&gt;</code> component for each item and pass the item as a prop.</li>
+        </ul>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Common beginner trap:</strong> forgetting the container structure required by the CSS.</p>
+        <p class="mini">
+          In this project, the CSS expects a wrapper <code>&lt;div className="list"&gt;</code> to contain both the list
+          and (later) the sorting/filter UI.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Correct structure (important for styling) 🏷️</h3>
+        <pre><code>// PackingList layout structure
+function PackingList() {
+  return (
+    &lt;div className="list"&gt;
+      &lt;ul&gt;
+        {initialItems.map((item) =&gt; (
+          &lt;Item item={item} /&gt;
+        ))}
+      &lt;/ul&gt;
+
+      {/* Later: filters/sorting controls */}
+    &lt;/div&gt;
+  );
+}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) The Item Component (Props + Rendering Fields)</h2>
+      <div class="card">
+        <h3>Props destructuring 📦</h3>
+        <p class="mini">
+          Instead of writing <code>function Item(props)</code> and using <code>props.item</code>,
+          you can destructure immediately: <code>function Item({ item })</code>.
+        </p>
+        <pre><code>function Item({ item }) {
+  return (
+    &lt;li&gt;
+      &lt;span&gt;{item.quantity} {item.description}&lt;/span&gt;
+      &lt;button&gt;❌&lt;/button&gt;
+    &lt;/li&gt;
+  );
+}</code></pre>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>UI goal:</strong> show quantity + description (and later a checkbox to mark packed). 🙂</p>
+        <p class="mini">For now, the delete button is only visual (no handler yet).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Conditional Styling for Packed Items (Strike-Through)</h2>
+      <p>
+        The lecture demonstrates conditional styling using a ternary operator to decide which <code>style</code> object to apply.
+      </p>
+
+      <div class="term">
+        <div class="icon">🎯</div>
+        <div class="body">
+          <p class="title">Why conditional styling?</p>
+          <p class="desc">Packed items should visually look “done” (strike-through) so users can quickly scan progress.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Inline style approach (ternary) ✨</h3>
+        <pre><code>function Item({ item }) {
+  return (
+    &lt;li&gt;
+      &lt;span
+        style={
+          item.packed
+            ? { textDecoration: "line-through" }
+            : {}
+        }
+      &gt;
+        {item.quantity} {item.description}
+      &lt;/span&gt;
+      &lt;button&gt;❌&lt;/button&gt;
+    &lt;/li&gt;
+  );
+}</code></pre>
+      </div>
+
+      <div class="callout">
+        <p><strong>Key idea:</strong> <code>packed</code> is already a boolean, so you can use it directly in conditions. ✅</p>
+        <p class="mini">If <code>packed === true</code>, apply strike-through. Otherwise, apply no extra styling.</p>
+      </div>
+
+      <div class="card">
+        <h3>Small improvement: nicer “days ago” style (optional)</h3>
+        <p class="mini">
+          Not required by the lecture, but you can expand styles later (e.g., reduce opacity, change color). For now, strike-through is enough.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Common Mistakes (and Fixes) 🧯</h2>
+
+      <div class="card">
+        <h3>❌ Mistake: Styling looks wrong</h3>
+        <ul>
+          <li><strong>Cause:</strong> you applied <code>className="list"</code> to the wrong element (e.g., to <code>&lt;ul&gt;</code> instead of a wrapper <code>&lt;div&gt;</code>).</li>
+          <li><strong>Fix:</strong> wrap the <code>&lt;ul&gt;</code> in <code>&lt;div className="list"&gt;...&lt;/div&gt;</code>.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>❌ Mistake: “Item is not defined”</h3>
+        <ul>
+          <li><strong>Cause:</strong> you used <code>&lt;Item /&gt;</code> before creating the component.</li>
+          <li><strong>Fix:</strong> define <code>function Item(...)</code> and export/use it properly.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>❌ Mistake: Missing spaces in JSX</h3>
+        <ul>
+          <li><strong>Cause:</strong> JSX can collapse whitespace, and formatting tools sometimes add/remove spacing.</li>
+          <li><strong>Fix:</strong> ensure you output <code>{item.quantity} {item.description}</code> with an actual space in between.</li>
+        </ul>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Note:</strong> In real apps, list items should include a <code>key</code> prop. 🔑</p>
+        <p class="mini">
+          The transcript section you provided doesn’t mention it explicitly, but React expects it when rendering lists.
+          When you add it later, use: <code>&lt;Item key={item.id} item={item} /&gt;</code>.
+        </p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>6) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>Why do we use <code>map()</code> when rendering lists in React?</li>
+          <li>What is the purpose of the <code>packed</code> property?</li>
+          <li>Why must each <code>Item</code> return an <code>&lt;li&gt;</code> (and not a random tag)?</li>
+          <li>What’s the difference between passing <code>item</code> as a prop vs destructuring it in the function parameters?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li><code>map()</code> converts an array of data into an array of UI elements.</li>
+          <li><code>packed</code> drives conditional rendering/styling (e.g., strike-through).</li>
+          <li><code>&lt;ul&gt;</code> should have direct children <code>&lt;li&gt;</code> for valid semantic HTML.</li>
+          <li>Destructuring makes code cleaner: <code>function Item({ item })</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Keep margins around ~14mm and enable background graphics only if you want shaded callouts.
+    </footer>
+  </main>
+</body>
+</html>

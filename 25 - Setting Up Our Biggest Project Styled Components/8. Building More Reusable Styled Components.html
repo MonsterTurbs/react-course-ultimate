@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Building More Reusable Styled Components — Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f7f7f9;
+      --chip: #f3f4f6;
+      --ok: #0b7a2a;
+      --warn: #8a4b00;
+      --danger: #b00020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.danger { border-left-color: var(--danger); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    @media (min-width: 900px) {
+      .grid2 { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Print rules */
+    @page { size: A4; margin: 18mm; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      pre { overflow: visible; white-space: pre-wrap; word-break: break-word; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧱 Building More Reusable Styled Components</h1>
+      <p class="subtitle">
+        Reviewer / study guide: create a reusable <strong>Row</strong> layout component and upgrade the existing <strong>Button</strong>
+        to support <em>size</em> + <em>variation</em> props (with defaults), using styled-components patterns.
+      </p>
+      <div class="meta">
+        <span class="chip">↔️/↕️ Row layouts</span>
+        <span class="chip">🎛️ Props-driven styles</span>
+        <span class="chip">🧱 Design-system building blocks</span>
+        <span class="chip">✅ Default props</span>
+        <span class="chip">🧠 sizes + variations maps</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>✅ Goal of this lecture</h2>
+        <p>
+          We want two reusable UI building blocks we’ll use constantly in the Wild Oasis app:
+        </p>
+        <ul>
+          <li>🧩 <strong>Row</strong>: a layout component that can be <strong>horizontal</strong> or <strong>vertical</strong></li>
+          <li>🔘 <strong>Button</strong>: one component that supports multiple <strong>sizes</strong> and <strong>variations</strong></li>
+        </ul>
+        <div class="callout ok">
+          Think of this as the start of a small <strong>design system</strong>: consistent primitives you reuse everywhere.
+        </div>
+      </section>
+
+      <section>
+        <h2>1) ↔️/↕️ Build a reusable <code>Row</code> component</h2>
+        <p>
+          The UI often needs sections placed side-by-side (horizontal) or stacked (vertical). Instead of repeating flex CSS,
+          create a reusable component.
+        </p>
+
+        <h3>📄 File: <code>ui/Row.jsx</code></h3>
+        <pre><code>import styled, { css } from "styled-components";
+
+const Row = styled.div`
+  display: flex;
+
+  ${props =>
+    props.type === "horizontal" &&
+    css`
+      justify-content: space-between;
+      align-items: center;
+    `}
+
+  ${props =>
+    props.type === "vertical" &&
+    css`
+      flex-direction: column;
+      gap: 1.6rem;
+    `}
+`;
+
+Row.defaultProps = {
+  type: "vertical",
+};
+
+export default Row;
+</code></pre>
+
+        <div class="callout ok">
+          <strong>Default props:</strong> If you don’t pass <code>type</code>, it becomes <code>"vertical"</code> automatically.
+        </div>
+
+        <h3>Usage examples</h3>
+        <pre><code>import Row from "./ui/Row";
+import Heading from "./ui/Heading";
+
+function Example() {
+  return (
+    &lt;Row type="vertical"&gt;
+      &lt;Row type="horizontal"&gt;
+        &lt;Heading as="h1"&gt;The Wild Oasis&lt;/Heading&gt;
+        &lt;div&gt;...some box content...&lt;/div&gt;
+      &lt;/Row&gt;
+
+      &lt;Row&gt;
+        &lt;form&gt;...inputs...&lt;/form&gt;
+        &lt;div&gt;...another box...&lt;/div&gt;
+      &lt;/Row&gt;
+    &lt;/Row&gt;
+  );
+}
+</code></pre>
+
+        <p class="note">
+          The inner <code>&lt;Row&gt;</code> defaults to <code>type="vertical"</code> because of <code>Row.defaultProps</code>.
+        </p>
+
+        <div class="callout warn">
+          The transcript mentions you can also set defaults via destructuring like <code>({ type = "vertical" })</code>.
+          But for styled-components (where there’s no component function body), <code>defaultProps</code> is convenient.
+        </div>
+      </section>
+
+      <section>
+        <h2>2) 🔘 Upgrade <code>Button</code>: sizes + variations</h2>
+        <p>
+          Instead of hardcoding one look, we want a flexible API:
+        </p>
+        <ul>
+          <li>📏 <strong>size</strong>: <code>small</code> | <code>medium</code> | <code>large</code></li>
+          <li>🎨 <strong>variation</strong>: <code>primary</code> | <code>secondary</code> | <code>danger</code></li>
+        </ul>
+
+        <div class="callout ok">
+          This creates 3 × 3 = <strong>9 possible button combinations</strong> with one component.
+        </div>
+
+        <h3>Key technique: store CSS snippets in objects</h3>
+        <p>
+          The starter code already includes objects like <code>sizes</code> and <code>variations</code>.
+          Your job is to select the correct entry based on props:
+        </p>
+        <pre><code>${props => sizes[props.size]}
+${props => variations[props.variation]}</code></pre>
+
+        <h3>📄 File: <code>ui/Button.jsx</code> (core idea)</h3>
+        <pre><code>import styled from "styled-components";
+
+const sizes = {
+  small: "font-size: 1.2rem; padding: 0.4rem 0.8rem;",
+  medium: "font-size: 1.4rem; padding: 0.8rem 1.2rem;",
+  large: "font-size: 1.6rem; padding: 1.2rem 1.6rem;",
+};
+
+const variations = {
+  primary: "background-color: var(--color-brand-600); color: var(--color-brand-50);",
+  secondary: "background-color: var(--color-grey-0); color: var(--color-grey-600); border: 1px solid var(--color-grey-200);",
+  danger: "background-color: var(--color-red-700); color: var(--color-red-50);",
+};
+
+const Button = styled.button`
+  border: none;
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+
+  ${props => sizes[props.size]}
+  ${props => variations[props.variation]}
+`;
+
+Button.defaultProps = {
+  variation: "primary",
+  size: "medium",
+};
+
+export default Button;
+</code></pre>
+
+        <div class="callout warn">
+          Your actual project may already have richer CSS inside <code>sizes</code> and <code>variations</code>.
+          The important concept is the <strong>lookup by prop</strong>.
+        </div>
+
+        <h3>Usage examples</h3>
+        <pre><code>import Button from "./ui/Button";
+
+function ButtonsDemo() {
+  return (
+    &lt;&gt;
+      &lt;Button&gt;Primary (default)&lt;/Button&gt;
+      &lt;Button variation="secondary" size="small"&gt;Secondary Small&lt;/Button&gt;
+      &lt;Button variation="danger" size="large"&gt;Danger Large&lt;/Button&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+      </section>
+
+      <section>
+        <h2>🧠 Quick mental checklist</h2>
+        <ul>
+          <li>🧩 Use reusable layout primitives (Row) to avoid repeating flex CSS.</li>
+          <li>🎛️ Use props to control styles, especially when UI has patterns (horizontal vs vertical).</li>
+          <li>🧠 For variants (buttons), define a <strong>map/object</strong> of CSS snippets and pick by key.</li>
+          <li>✅ Add <code>defaultProps</code> so the component is pleasant to use (less boilerplate).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>📝 Mini-quiz</h2>
+        <ol>
+          <li>Why is <code>Row</code> useful beyond just “saving some typing”?</li>
+          <li>What happens if you render <code>&lt;Row&gt;</code> without a <code>type</code> prop?</li>
+          <li>How does <code>variations[props.variation]</code> work in JavaScript?</li>
+          <li>What are the 9 button combinations implied by 3 sizes × 3 variations?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>➡️ Next step</h2>
+        <div class="callout ok">
+          With <code>Heading</code>, <code>Row</code>, <code>Input</code>, and <code>Button</code> patterns established, you’re ready to
+          build real pages and features in the Wild Oasis app using consistent UI primitives.
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

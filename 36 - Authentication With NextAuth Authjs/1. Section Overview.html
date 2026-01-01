@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Authentication (NextAuth / Auth.js) — Section Overview Reviewer</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #0b57d0;
+      --accent-2: #1a73e8;
+      --good: #0f766e;
+      --warn: #b45309;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column, print-friendly container */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 18px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 12.5px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 12px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul { margin: 8px 0 0 18px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 5px solid var(--accent);
+      background: #f6f9ff;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .callout strong { color: #0b2a63; }
+
+    .good {
+      border-left-color: var(--good);
+      background: #f0fdfa;
+    }
+
+    .warn {
+      border-left-color: var(--warn);
+      background: #fff7ed;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0b1220;
+      color: #e6edf3;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 860px) {
+      .two-col { grid-template-columns: 1fr 1fr; }
+    }
+
+    footer {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12.5px;
+      text-align: center;
+    }
+
+    /* PRINT SETTINGS (A4, clean margins, no weird cutoffs) */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-color: #d9d9d9; box-shadow: none; }
+      a { color: inherit; text-decoration: none; }
+      pre {
+        background: #ffffff;
+        color: #111111;
+        border-color: #d9d9d9;
+      }
+      .chip { border-color: #d9d9d9; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🔐 Next.js Authentication — Section Overview (NextAuth / Auth.js)</h1>
+      <p class="subtitle">
+        Reviewer / study guide based on the provided lecture transcript. Designed to be easy to print on A4 white bond paper.
+      </p>
+      <div class="meta">
+        <span class="chip">🧠 Focus: Concepts + “recipe” mindset</span>
+        <span class="chip">⚙️ Tools: Auth.js (NextAuth), Google Provider</span>
+        <span class="chip">🛡️ Authorization: Next.js Middleware</span>
+        <span class="chip">🗄️ Data: Supabase user records</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>📌 What this section will build</h2>
+        <p>
+          This section focuses on adding <strong>authentication</strong> to a real-world Next.js app — a feature you’ll almost always need.
+          You will use the well-known library <strong>NextAuth</strong>, which has been <strong>renamed to Auth.js</strong>, to implement a multi-provider auth system.
+        </p>
+
+        <div class="callout good">
+          <strong>Key outcome ✅</strong>
+          <p style="margin:8px 0 0;">
+            By the end, you’ll have a repeatable <strong>step-by-step recipe</strong> you can reuse to add authentication + authorization in future Next.js apps.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Core terms (beginner-friendly)</h2>
+        <div class="two-col">
+          <div>
+            <h3>🔑 Authentication (AuthN)</h3>
+            <p>
+              Answers: <strong>“Who is this user?”</strong>
+            </p>
+            <ul>
+              <li>Example: “Sign in with Google” verifies the user’s identity.</li>
+              <li>Result: your app gets a <em>session</em> (or token) proving the user is logged in.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>🛂 Authorization (AuthZ)</h3>
+            <p>
+              Answers: <strong>“What is this user allowed to do?”</strong>
+            </p>
+            <ul>
+              <li>Example: Only logged-in users can access <code>/account</code>.</li>
+              <li>Example: Admin users can access admin routes; regular users cannot.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <strong>Common mistake ⚠️</strong>
+          <p style="margin:8px 0 0;">
+            Authentication ≠ Authorization. Logging in does not automatically mean the user has permission to access everything.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧰 Tools you’ll use in this section</h2>
+        <ul>
+          <li><strong>Auth.js (NextAuth)</strong> — handles login flows, sessions, and providers.</li>
+          <li><strong>Google Provider</strong> — users log in using their Google accounts.</li>
+          <li><strong>Next.js Middleware</strong> — runs before a request reaches a route; great for protecting pages.</li>
+          <li><strong>Supabase database</strong> — store a user record for each new user who signs up.</li>
+        </ul>
+
+        <h3>🧠 Mental model</h3>
+        <ul>
+          <li>Auth.js handles the “login mechanics”.</li>
+          <li>Your app decides “where users can go” (authorization) and “how to store user info” (Supabase record).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 What you’ll end up with (practical recipe)</h2>
+        <p>Here’s the high-level workflow you’re building:</p>
+        <ol style="margin: 8px 0 0 18px;">
+          <li>👤 User clicks <strong>Sign in with Google</strong>.</li>
+          <li>✅ Auth.js completes the OAuth flow and creates a <strong>session</strong>.</li>
+          <li>🧱 Middleware checks the session for protected routes (authorization gate).</li>
+          <li>🗄️ If it’s a new user, your app creates a <strong>Supabase user record</strong>.</li>
+          <li>🚀 User can now access the correct parts of the app based on login/permissions.</li>
+        </ol>
+
+        <div class="callout">
+          <strong>Why this matters</strong>
+          <p style="margin:8px 0 0;">
+            This pattern (provider login + session + route protection + user profile storage) is the common backbone of many production apps.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>💡 Tiny examples (to make it concrete)</h2>
+        <h3>1) Protecting a route</h3>
+        <p>
+          Imagine your app has an <code>/account</code> page. If the user isn’t logged in, you redirect them to <code>/login</code>.
+        </p>
+        <pre><code>// Pseudocode concept (not full implementation)
+if (!session) redirect('/login');
+</code></pre>
+
+        <h3>2) Creating a user record in Supabase</h3>
+        <p>
+          When a user signs in for the first time, you store an entry in your database so you can save profile fields later.
+        </p>
+        <pre><code>// Pseudocode concept
+if (isNewUser) {
+  supabase.users.insert({
+    email: user.email,
+    name: user.name,
+    provider: 'google'
+  });
+}
+</code></pre>
+      </section>
+
+      <section>
+        <h2>📝 Quick self-check</h2>
+        <ul>
+          <li>✅ Can you explain AuthN vs AuthZ in one sentence each?</li>
+          <li>✅ Why do we use middleware for authorization?</li>
+          <li>✅ Why store a user record in Supabase even if Auth.js manages login?</li>
+          <li>✅ What benefit do “providers” give (like Google login)?</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧭 What’s next</h2>
+        <p>
+          This lecture is only the overview. Next, you will implement the actual authentication flow (Google login), then add
+          authorization using middleware, and finally connect it to Supabase so each user has a persistent profile record.
+        </p>
+      </section>
+
+      <footer>
+        <p>
+          Print tip: In your browser print dialog, enable “Background graphics” if you want callout shading. Otherwise, it still prints cleanly.
+        </p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,327 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JavaScript Reviewer — Array.filter() (React Prep)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --note: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.65rem;
+      line-height: 1.25;
+      margin: 0 0 8px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 1.02rem;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { margin: 10px 0 10px 22px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      padding: 10px 12px;
+      background: var(--note);
+      margin: 10px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow: auto;
+      white-space: pre-wrap;      /* wrap for print */
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      border: 0;
+      margin: 14px 0;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      a[href]:after { content: ""; } /* do NOT print URLs */
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 JavaScript Reviewer: <code>Array.filter()</code> (React Prep)</h1>
+      <p class="subtitle">
+        Goal: learn how to keep only the items you want from an array—this is a daily skill in React.
+      </p>
+      <div class="meta">
+        <span class="chip">📄 A4 print-ready</span>
+        <span class="chip">🧩 Single-column</span>
+        <span class="chip">✅ Beginner-friendly</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Big Idea (What <code>filter</code> does)</h2>
+      <p>
+        🧹 <strong><code>filter</code> loops over an array and returns a new array</strong> containing only the elements that pass your condition.
+      </p>
+
+      <div class="callout">
+        <strong>✅ Functional (non-mutating) mindset</strong>
+        <div>
+          <code>filter</code> does <strong>not</strong> change the original array. It returns a brand-new array.
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>📌 Mental model</strong>
+        <div>
+          “Keep this item?” If your callback returns <strong>true</strong> → keep it. If <strong>false</strong> → throw it away.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Syntax (Core Pattern)</h2>
+      <pre><code>const newArray = oldArray.filter((element, index, array) =&gt; {
+  // return true to KEEP the element
+  // return false to REMOVE the element
+  return someCondition;
+});</code></pre>
+
+      <ul>
+        <li>✅ Callback runs once per element.</li>
+        <li>✅ Callback must return a boolean (or something truthy/falsy).</li>
+        <li>📏 Output array length can be <strong>smaller</strong>, the same, or even <strong>0</strong>.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>⚠️ Common mistake</strong>
+        <div>
+          Returning a value that is not a boolean is allowed, but be careful: JavaScript will convert it to truthy/falsy.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Example 1: Filter “long books” (pages &gt; 500)</h2>
+      <p>
+        📚 If <code>books</code> is an array of book objects, keep only those with more than 500 pages:
+      </p>
+      <pre><code>const longBooks = books.filter((book) =&gt; book.pages &gt; 500);
+
+// longBooks contains only books where the condition is true
+// books stays unchanged</code></pre>
+
+      <p>🔍 What happens per item:</p>
+      <ol>
+        <li>Check <code>book.pages &gt; 500</code></li>
+        <li>If true → that book goes into <code>longBooks</code></li>
+        <li>If false → the book is excluded</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>4) Example 2: Filter by a boolean field (movie adaptation)</h2>
+      <p>
+        🎬 If your objects have a boolean property like <code>hasMovieAdaptation</code>, you can return it directly:
+      </p>
+      <pre><code>const longBooksWithMovie = books
+  .filter((book) =&gt; book.pages &gt; 500)
+  .filter((book) =&gt; book.hasMovieAdaptation);
+
+// This works because the second filter returns true/false already</code></pre>
+
+      <div class="callout">
+        <strong>💡 Tip</strong>
+        <div>
+          Chaining filters is valid because <code>filter</code> returns an array.
+          In practice, you can also combine conditions in one filter for efficiency.
+        </div>
+      </div>
+
+      <h3>Combined version (often cleaner)</h3>
+      <pre><code>const longBooksWithMovie = books.filter(
+  (book) =&gt; book.pages &gt; 500 &amp;&amp; book.hasMovieAdaptation
+);</code></pre>
+    </section>
+
+    <section>
+      <h2>5) Example 3: Filter by array contents using <code>includes</code></h2>
+      <p>
+        🧭 If each book has <code>genres</code> like <code>["adventure", "fantasy", ...]</code>, you can filter by genre:
+      </p>
+      <pre><code>const adventureBooks = books.filter(
+  (book) =&gt; book.genres.includes("adventure")
+);</code></pre>
+
+      <div class="callout">
+        <strong>✅ Why this is common in React</strong>
+        <div>
+          You’ll often filter lists based on search, selected tags, dropdown filters, checkboxes, etc.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Combine <code>filter</code> + <code>map</code> (very common pattern)</h2>
+      <p>
+        🧱 Filter first, then transform. Example: keep adventure books, then extract titles for display:
+      </p>
+      <pre><code>const adventureTitles = books
+  .filter((book) =&gt; book.genres.includes("adventure"))
+  .map((book) =&gt; book.title);
+
+// adventureTitles: ["The Lord of the Rings", "Dune", "Harry Potter", ...]</code></pre>
+
+      <div class="callout">
+        <strong>📌 Pattern to remember</strong>
+        <div>
+          <strong>filter</strong> decides “which items stay”, then <strong>map</strong> decides “what each item becomes”.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Quick Checklist (Use <code>filter</code> when…)</h2>
+      <ul>
+        <li>✅ You want a <strong>subset</strong> of an array.</li>
+        <li>✅ You want to keep items that match a condition.</li>
+        <li>✅ You want to implement search, category filters, toggles, checkboxes, etc.</li>
+      </ul>
+      <hr class="hr" />
+      <p>🚫 Don’t use <code>filter</code> when:</p>
+      <ul>
+        <li>🚫 You need the same number of items (use <code>map</code>).</li>
+        <li>🚫 You need a single total/summary value (use <code>reduce</code>).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>8) Mini React Connection (Why you’re learning this)</h2>
+      <p>
+        🧩 In React, filtering is how you show “only what matches”:
+      </p>
+      <pre><code>// Concept (JSX)
+// const visible = items.filter(item =&gt; item.name.includes(query));
+// visible.map(item =&gt; &lt;Row key={item.id} item={item} /&gt;)</code></pre>
+      <p>
+        ✅ If you master <code>filter</code>, building searchable, interactive lists becomes much easier.
+      </p>
+    </section>
+
+    <section>
+      <h2>9) Quick Self-Test</h2>
+      <ol>
+        <li>🧠 Does <code>filter</code> mutate the original array?</li>
+        <li>📏 Can the output array be shorter than the input?</li>
+        <li>✅ What must the callback return for an element to be kept?</li>
+        <li>🧩 When would you chain <code>filter</code> and <code>map</code>?</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Next Up</h2>
+      <p>
+        ➡️ Next method: <strong><code>reduce</code></strong> — turn an array into a single value (sum, object, grouping, etc.).
+      </p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Starting the Classy Weather App (Class Components + Controlled Inputs)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .compare{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 4px;
+      font-size: 13.5px;
+    }
+    .compare th,
+    .compare td{
+      border:1px solid var(--border);
+      padding: 10px 10px;
+      vertical-align: top;
+    }
+    .compare th{
+      background: var(--panel);
+      text-align:left;
+      font-weight:700;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+    .danger{ color: var(--danger); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🌦️ React Study Guide: Starting the Classy Weather App</h1>
+      <p class="subtitle">We start building the <strong>Classy Weather</strong> UI using a class component. Focus: new <code>App</code> class, JSX scaffold, controlled input using <code>this.state</code>, and why you sometimes need to bind <code>this</code> for event handlers.</p>
+      <div class="meta">
+        <span class="chip">🏛️ Class Component</span>
+        <span class="chip">🧠 Controlled Input</span>
+        <span class="chip">🖱️ Click handler + binding</span>
+        <span class="chip">🧪 Debugging <code>this</code></span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What we do in this lecture</h2>
+      <ul>
+        <li>📄 Duplicate the previous file (Counter) so you can keep it as a reference</li>
+        <li>🧱 Start <code>App</code> from scratch as a class component</li>
+        <li>🖼️ Create the initial UI: title, input, and “Get Weather” button</li>
+        <li>🎛️ Turn the input into a <strong>controlled element</strong> using state</li>
+        <li>🔗 Learn when you must bind <code>this</code> for handlers</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧱 Step 1: Create a class-based <code>App</code> scaffold</h2>
+      <p>In a class component, you import React and extend <code>React.Component</code>. The component must have <code>render()</code>, which returns JSX.</p>
+
+      <pre><code>import React from "react";
+
+class App extends React.Component {
+  render() {
+    return (
+      &lt;div className="app"&gt;
+        &lt;h1&gt;Classy Weather&lt;/h1&gt;
+
+        &lt;div&gt;
+          &lt;input
+            type="text"
+            placeholder="Search for location..."
+          /&gt;
+
+          &lt;button&gt;Get Weather&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    );
+  }
+}
+
+export default App;</code></pre>
+
+      <div class="callout">
+        <strong>Note:</strong> The styling comes from a CSS file provided in this section. The lecture uses an <code>app</code> class name on the root div.
+      </div>
+    </section>
+
+    <section>
+      <h2>🎛️ Step 2: Make the input a controlled component</h2>
+      <p>A controlled input means <strong>React owns the input value</strong>. You store the input value in state and keep the input <code>value</code> in sync.</p>
+
+      <div class="rule">
+        <h3>Initialize state in the constructor</h3>
+        <p>Class components don’t use <code>useState</code>. Instead, set <code>this.state</code> inside <code>constructor</code>:</p>
+        <pre><code>constructor(props) {
+  super(props);
+
+  this.state = {
+    location: "Lisbon",
+  };
+}</code></pre>
+        <p class="muted">This constructor + <code>super(props)</code> pattern is classic class-component boilerplate.</p>
+      </div>
+
+      <div class="rule">
+        <h3>Connect state to the input</h3>
+        <pre><code>&lt;input
+  type="text"
+  placeholder="Search for location..."
+  value={this.state.location}
+  onChange={(e) =&gt; this.setState({ location: e.target.value })}
+/&gt;</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Why it works:</strong> Each keystroke triggers <code>onChange</code> → React updates state → component re-renders → input shows the updated state.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Important: <code>this.setState</code> in classes</h2>
+      <p>In class components, you update state via <code>this.setState</code>. For controlled inputs, it’s common to pass an object with updated fields.</p>
+      <pre><code>this.setState({ location: e.target.value });</code></pre>
+
+      <div class="callout">
+        <strong>Tip:</strong> You can inspect state in React DevTools. In class components, you won’t see a “Hooks” section; you’ll see a state object instead.
+      </div>
+    </section>
+
+    <section>
+      <h2>🖱️ Step 3: Add a button click handler (and meet the <code>this</code> trap)</h2>
+      <p>Next, we add a handler for the “Get Weather” button. The lecture defines a class method like <code>fetchWeather</code> and attaches it to <code>onClick</code>.</p>
+
+      <pre><code>fetchWeather() {
+  console.log("loading data");
+  console.log(this);
+}
+
+render() {
+  return (
+    &lt;button onClick={this.fetchWeather}&gt;Get Weather&lt;/button&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <strong>What you’ll see:</strong> Clicking the button logs “loading data”, but <code>this</code> is <code>undefined</code> inside <code>fetchWeather</code>.
+      </div>
+    </section>
+
+    <section>
+      <h2>🔗 Fix: bind the method in the constructor</h2>
+      <p>When you pass a class method as an event handler, it loses the correct <code>this</code> binding unless you bind it.</p>
+
+      <pre><code>constructor(props) {
+  super(props);
+
+  this.state = { location: "Lisbon" };
+
+  // ✅ Bind the method so `this` points to the component instance
+  this.fetchWeather = this.fetchWeather.bind(this);
+}</code></pre>
+
+      <div class="callout">
+        <strong>After binding:</strong> clicking the button logs the component instance (you’ll see state, props, etc.).
+      </div>
+
+      <div class="rule">
+        <h3>Why didn’t we bind the input onChange?</h3>
+        <p>Because the input handler was an <strong>inline arrow function</strong>:</p>
+        <pre><code>onChange={(e) =&gt; this.setState({ location: e.target.value })}</code></pre>
+        <p class="muted">The lecture notes you mainly need binding when the handler is defined as a separate class method and passed directly to JSX.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Quick checklist (if yours doesn’t work)</h2>
+      <ul>
+        <li>✅ Did you export <code>App</code> as default?</li>
+        <li>✅ Did you initialize <code>this.state = { location: "..." }</code>?</li>
+        <li>✅ Is your input using <code>value={this.state.location}</code>?</li>
+        <li>✅ Are you updating state on change via <code>this.setState</code>?</li>
+        <li>✅ Did you bind <code>fetchWeather</code> in the constructor?</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>🏛️ Class component setup: <code>class App extends React.Component</code> + <code>render()</code>.</li>
+        <li>🎛️ Controlled inputs work the same conceptually as in function components.</li>
+        <li>🧠 Class state lives in <code>this.state</code> and updates with <code>this.setState</code>.</li>
+        <li>⚠️ Class method handlers often need binding: <code>this.method = this.method.bind(this)</code>.</li>
+        <li>➡️ Next: actually fetch weather data (using the location state).</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

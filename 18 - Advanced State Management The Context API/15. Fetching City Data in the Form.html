@@ -1,0 +1,412 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Router + WorldWise — Fetching City Data in the Form (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --good:#137333;
+      --warn:#b26a00;
+      --bad:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 22px 18px;
+    }
+
+    header{
+      padding: 14px 14px 10px;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+    }
+
+    h1{
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pillrow{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main{ padding: 14px 2px 0; }
+
+    h2{
+      margin: 18px 0 8px;
+      font-size: 18px;
+    }
+
+    h3{
+      margin: 14px 0 6px;
+      font-size: 15px;
+    }
+
+    p{ margin: 8px 0; }
+
+    ul{ margin: 8px 0 8px 18px; padding: 0; }
+    li{ margin: 6px 0; }
+
+    .card{
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 10px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: var(--soft2);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout.good{ border-left-color: var(--good); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.bad{ border-left-color: var(--bad); }
+
+    .label{
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+      font-size: 12.5px;
+      line-height: 1.55;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .checklist li{ list-style: none; margin-left: -18px; }
+    .checklist li::before{ content: "☐"; display:inline-block; width: 1.3em; color: var(--muted); }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .divider{
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    /* Print */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header{ border-radius: 0; }
+      .pill{ border-color: #cfcfcf; }
+      pre{ page-break-inside: avoid; }
+      .card, .callout{ page-break-inside: avoid; }
+      h2, h3{ page-break-after: avoid; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🗺️ Fetching City Data in the Form (Reverse Geocoding)</h1>
+      <p class="subtitle">WorldWise + React Router — using URL state (lat/lng) to fetch city details, handle loading/errors, and prefill the form</p>
+      <div class="meta">
+        <div>📌 Focus: <strong>Form</strong> reads <strong>lat/lng</strong> from the URL → calls a reverse-geocoding API → sets <strong>cityName / country / emoji</strong></div>
+        <div>🧠 Key skill: extracting reusable logic into a <strong>custom hook</strong> (<code>useUrlPosition</code>)</div>
+      </div>
+      <div class="pillrow" aria-label="topic tags">
+        <span class="pill">🔗 URL state (Query string)</span>
+        <span class="pill">🪝 Custom hooks</span>
+        <span class="pill">🌍 Reverse geocoding</span>
+        <span class="pill">⏳ Loading + errors</span>
+        <span class="pill">🧩 useEffect dependencies</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>🎯 Goal of this lecture</h2>
+        <p>When the user clicks the map (e.g., Rome), the app navigates to the form route with <strong>lat</strong> and <strong>lng</strong> in the URL. The form should then:</p>
+        <ul>
+          <li>📥 Read <strong>lat/lng</strong> from the URL</li>
+          <li>🌍 Fetch location info from a <strong>reverse geocoding API</strong></li>
+          <li>✍️ Prefill fields like <strong>cityName</strong>, <strong>country</strong>, and an <strong>emoji flag</strong></li>
+          <li>🚫 If user clicked “middle of nowhere”, show a friendly error and hide the form</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>1) 🔗 Read position from the URL (Query string)</h2>
+        <div class="callout">
+          <div class="label">Why URL state?</div>
+          <p class="mini">Because it’s global, shareable, bookmarkable, and doesn’t require lifting/prop drilling or extra global state.</p>
+        </div>
+
+        <p>In the map, we already read <code>lat</code> and <code>lng</code> from the URL using React Router’s <code>useSearchParams</code>. Instead of copy-pasting that logic into the form, we extract it into a reusable hook.</p>
+
+        <h3>✅ Create a reusable hook: <code>useUrlPosition()</code></h3>
+        <pre><code>// hooks/useUrlPosition.js
+import { useSearchParams } from "react-router-dom";
+
+export function useUrlPosition() {
+  const [searchParams] = useSearchParams();
+
+  const lat = searchParams.get("lat");
+  const lng = searchParams.get("lng");
+
+  return [lat, lng];
+}
+</code></pre>
+
+        <div class="callout good">
+          <div class="label">✅ Benefit</div>
+          <p class="mini">You can now grab URL position anywhere with just: <code>const [lat, lng] = useUrlPosition();</code></p>
+        </div>
+
+        <h3>Use it in Map and Form</h3>
+        <pre><code>import { useUrlPosition } from "../hooks/useUrlPosition";
+
+const [lat, lng] = useUrlPosition();
+</code></pre>
+
+        <div class="callout warn">
+          <div class="label">⚠️ Note</div>
+          <p class="mini">The values returned by <code>searchParams.get()</code> are strings. Many map libraries accept strings, but for math you should convert using <code>Number(lat)</code> / <code>Number(lng)</code>.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) 🌍 Reverse geocoding inside the Form</h2>
+        <p>Reverse geocoding means: <strong>GPS coordinates → human-readable place info</strong> (city, country, country code, etc.).</p>
+
+        <div class="grid">
+          <div class="card">
+            <h3>🧠 Local vs global state decision</h3>
+            <ul>
+              <li>✅ This fetched data is used to prefill the form and create a new city object.</li>
+              <li>✅ It’s relevant only to the form flow, so it can be <strong>local state</strong> here.</li>
+              <li>❌ No need to store it inside Cities Context (unless other components need it too).</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>✅ Recommended state</h3>
+        <ul>
+          <li>⏳ <code>isLoadingGeocoding</code> — show spinner while fetching</li>
+          <li>🏙️ <code>cityName</code>, 🌎 <code>country</code>, 🇺🇳 <code>emoji</code> — fill form UI</li>
+          <li>🚫 <code>geocodingError</code> — friendly message if no city/country found</li>
+        </ul>
+
+        <h3>🪝 Fetch on mount and when <code>lat/lng</code> changes</h3>
+        <pre><code>useEffect(function () {
+  if (!lat || !lng) return;
+
+  async function fetchCityData() {
+    try {
+      setIsLoadingGeocoding(true);
+      setGeocodingError("");
+
+      const res = await fetch(`${BASE_URL}?latitude=${lat}&longitude=${lng}`);
+      const data = await res.json();
+
+      // Guard: user clicked water / nowhere
+      if (!data.countryCode) {
+        throw new Error("That doesn't seem to be a city. Click somewhere else 🙂");
+      }
+
+      setCityName(data.city || data.locality || "");
+      setCountry(data.countryName || "");
+      setEmoji(convertToEmoji(data.countryCode));
+    } catch (err) {
+      setGeocodingError(err.message);
+    } finally {
+      setIsLoadingGeocoding(false);
+    }
+  }
+
+  fetchCityData();
+}, [lat, lng]);
+</code></pre>
+
+        <div class="callout">
+          <div class="label">🧩 Why the dependency array matters</div>
+          <p class="mini">If you click a different spot on the map, the URL changes. Without <code>[lat, lng]</code>, the effect won’t rerun, so you’ll keep seeing old data.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) ⏳ UI states: loading and error rendering</h2>
+
+        <div class="callout warn">
+          <div class="label">⚠️ Rule of Hooks reminder</div>
+          <p class="mini">Never return early <em>before</em> calling hooks. Hooks must run in the same order on every render. Put conditional returns <strong>after</strong> all hooks.</p>
+        </div>
+
+        <h3>✅ Suggested render flow (simple and user-friendly)</h3>
+        <pre><code>// after hooks...
+if (isLoadingGeocoding) return &lt;Spinner /&gt;;
+if (geocodingError) return &lt;Message message={geocodingError} /&gt;;
+
+return (
+  &lt;form&gt;
+    {/* cityName, country, emoji already filled */}
+  &lt;/form&gt;
+);
+</code></pre>
+
+        <div class="callout good">
+          <div class="label">✅ UX result</div>
+          <p class="mini">User immediately understands what’s happening: “Loading…” while fetching, or a clear message if the location is invalid.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) 🇺🇳 Country emoji (flag) conversion</h2>
+        <p>You typically get a <strong>country code</strong> (e.g., <code>IT</code>, <code>PT</code>, <code>DE</code>) from the reverse geocoding response. You then convert it to an emoji flag using a helper like <code>convertToEmoji(countryCode)</code>.</p>
+
+        <div class="callout">
+          <div class="label">Why store emoji in state?</div>
+          <p class="mini">In this lecture, emoji comes from async data and is used in the UI. It’s fine to store it in state for simplicity (even though sometimes you could derive it).</p>
+        </div>
+
+        <pre><code>// Example usage after fetching:
+setEmoji(convertToEmoji(data.countryCode));
+</code></pre>
+      </section>
+
+      <section>
+        <h2>5) 🧪 Quick “gotchas” checklist</h2>
+        <ul class="checklist">
+          <li>URL <code>lat/lng</code> are present before fetching (guard with <code>if (!lat || !lng) return</code>).</li>
+          <li><code>useEffect</code> dependencies include <code>lat</code> and <code>lng</code>.</li>
+          <li>Loading state is set <strong>before</strong> fetch and reset in <code>finally</code>.</li>
+          <li>Error state is cleared at start of each fetch to avoid stale errors.</li>
+          <li>Handle “no city/country” results by throwing a user-friendly error.</li>
+          <li>Do not place early returns before hook calls (Rule of Hooks).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>6) 🧩 Mini practice (fast)</h2>
+        <div class="card">
+          <h3>✅ Exercise A: Make the hook more helpful</h3>
+          <p class="mini">Return numbers instead of strings:</p>
+          <pre><code>const lat = Number(searchParams.get("lat"));
+const lng = Number(searchParams.get("lng"));
+return [lat, lng];
+</code></pre>
+          <p class="mini">Then update guards accordingly (e.g., check for <code>Number.isFinite(lat)</code>).</p>
+        </div>
+
+        <div class="card">
+          <h3>✅ Exercise B: Prefer city over locality (already done)</h3>
+          <p class="mini">Keep this safe fallback order:</p>
+          <pre><code>setCityName(data.city || data.locality || "");
+</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>✅ Exercise C: Improve error message</h3>
+          <p class="mini">Show a message with a suggestion like: “Try clicking on a land area near a city.”</p>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="card">
+        <h2>🧾 Summary (what you should remember)</h2>
+        <ul>
+          <li>🔗 URL query string is a great place for shareable UI state like <code>lat</code>/<code>lng</code>.</li>
+          <li>🪝 If you repeat hook-based logic (e.g., reading URL position), extract a <strong>custom hook</strong>.</li>
+          <li>🌍 Reverse geocoding turns coordinates into city/country data for prefilling the form.</li>
+          <li>🧩 <code>useEffect</code> must depend on <code>lat</code> and <code>lng</code> to refetch when the URL changes.</li>
+          <li>⏳ Handle <strong>loading</strong> and <strong>error</strong> states so the UI stays clear and predictable.</li>
+        </ul>
+      </section>
+
+      <section class="callout good">
+        <div class="label">✅ Next lecture preview</div>
+        <p class="mini">You’ll use the fetched city details to create a new city object, add it to global cities state, and persist it to the fake API so it appears in the list.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

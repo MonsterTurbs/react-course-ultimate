@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Client Components in Server Components — Study Guide (Next.js App Router)</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+      --warnbg:#fff7ed;
+      --warnborder:#fed7aa;
+      --goodbg:#f0fdf4;
+      --goodborder:#bbf7d0;
+      --tipbg:#eff6ff;
+      --tipborder:#bfdbfe;
+      --purplebg:#faf5ff;
+      --purpleborder:#ddd6fe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 26px 18px 64px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, var(--panel));
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+      margin-bottom: 14px;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color:#222;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    h2{ margin:0 0 10px 0; font-size: 16px; }
+    h3{ margin:14px 0 8px 0; font-size: 14px; }
+
+    p{ margin: 8px 0; }
+    ul, ol{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .key{ font-weight:700; }
+
+    .callout{
+      border-left: 4px solid #111;
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .good{
+      border: 1px solid var(--goodborder);
+      background: var(--goodbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .warn{
+      border: 1px solid var(--warnborder);
+      background: var(--warnbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .tip{
+      border: 1px solid var(--tipborder);
+      background: var(--tipbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .purple{
+      border: 1px solid var(--purpleborder);
+      background: var(--purplebg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px;
+      border-radius: 12px;
+      overflow:auto;
+      border:1px solid #1b2547;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .mini{ font-size: 13px; color: var(--muted); }
+
+    .table{
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .table th, .table td{
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+
+    .table th{ text-align:left; background: var(--panel); }
+
+    /* Print CSS */
+    @media print{
+      @page{ size: A4; margin: 14mm; }
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width:none; padding:0; }
+      header, section{ break-inside: avoid; page-break-inside: avoid; }
+      pre, table{ break-inside: avoid; page-break-inside: avoid; border: 1px solid #000; }
+      .chip, .table th, .table td{ border-color:#000; }
+      .callout{ border-left-color:#000; }
+      .good, .warn, .tip, .purple{ border-color:#000; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🔵 Client Components in Server Components</h1>
+      <p class="sub">
+        Reviewer / study guide: adding interactivity to a Server Component by introducing a Client Component, and understanding how that affects the component tree.
+      </p>
+      <div class="meta">
+        <span class="chip">🟡 Server Component Page</span>
+        <span class="chip">🔵 <code>'use client'</code></span>
+        <span class="chip">🧠 Component Instances</span>
+        <span class="chip">⚡ Interactivity</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>✅ Goal of this lecture</h2>
+      <p>
+        Learn the first common interaction pattern: <span class="key">using a Client Component inside a Server Component</span>.
+        This is how you add interactivity (clicks, state, effects) to an otherwise server-rendered page.
+      </p>
+      <div class="callout">
+        <p>🧠 If the UI needs client-side interactivity, you must move that part of the UI into a Client Component.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>1) 🎛️ Example scenario: “Read more / expand text”</h2>
+      <p>
+        On the <span class="key">Cabins</span> page, imagine the description text is too long.
+        You want to show only a preview and then a button like “Show more”.
+      </p>
+      <ul>
+        <li>✅ Showing preview text is easy (server can render static HTML)</li>
+        <li>❌ Clicking a button and expanding content requires <span class="key">state</span> and <span class="key">event handlers</span></li>
+        <li>➡️ Therefore: create a <span class="key">Client Component</span> for this feature</li>
+      </ul>
+
+      <div class="tip">
+        <p>💡 Pattern: keep the page server-rendered, but “carve out” only the interactive part into a client component.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) 🧩 The TextExpander component (what it does)</h2>
+      <p>
+        The lecture uses a ready-made component called <span class="key">TextExpander</span>.
+        It tracks whether text is expanded and shows:
+      </p>
+      <ul>
+        <li>Collapsed: first 40 words</li>
+        <li>Expanded: full text (children)</li>
+      </ul>
+
+      <pre><code>// TextExpander (concept)
+'use client'
+
+import { useState } from 'react';
+
+export default function TextExpander({ children }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const words = String(children).split(' ');
+  const displayText = isExpanded
+    ? children
+    : words.slice(0, 40).join(' ') + '...';
+
+  return (
+    &lt;span&gt;
+      {displayText}{' '}
+      &lt;button onClick={() =&gt; setIsExpanded(e =&gt; !e)}&gt;
+        {isExpanded ? 'Show less' : 'Show more'}
+      &lt;/button&gt;
+    &lt;/span&gt;
+  );
+}
+</code></pre>
+
+      <div class="mini">
+        Note: your actual component may look slightly different. What matters is the idea: <span class="key">useState</span> ⇒ must be client.
+      </div>
+    </section>
+
+    <section>
+      <h2>3) 🚨 The classic error you’ll see</h2>
+      <p>
+        If you import and use <code>TextExpander</code> (uses <code>useState</code>) in a Server Component without marking it as client, Next.js will throw an error like:
+      </p>
+      <div class="warn">
+        <p>
+          “You’re importing a component that needs useState. It only works in a Client Component,
+          but none of its parents are marked with <code>'use client'</code> …”
+        </p>
+      </div>
+
+      <div class="good">
+        <p>✅ Fix: add the <code>'use client'</code> directive in the <span class="key">TextExpander</span> file (not the whole page).</p>
+      </div>
+
+      <div class="callout">
+        <p>🎯 Best practice: push Client Components as <span class="key">low</span> in the tree as possible to keep most of the page server-rendered.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) 📍 Why “Client as low as possible” matters</h2>
+      <p>
+        In the RSC model:
+      </p>
+      <ul>
+        <li>When a component is a Client Component, its children often become client-rendered too.</li>
+        <li>That can increase the client bundle size and slow down initial load.</li>
+      </ul>
+
+      <table class="table" aria-label="Where to place client components">
+        <thead>
+          <tr>
+            <th>Placement</th>
+            <th>Impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>✅ Client component is a “leaf” (low in the tree)</td>
+            <td>Only a small interactive part runs on the client</td>
+          </tr>
+          <tr>
+            <td>⚠️ Client component high in the tree</td>
+            <td>Large subtree becomes client-side, even if it could have been server-rendered</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="tip">
+        <p>💡 Think: “Make the smallest possible island of interactivity.”</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) 🧪 Demonstration: the same component can be server in one place and client in another</h2>
+      <p>
+        The lecture shows a neat trick using a <span class="key">Logo</span> component.
+        The Logo file does <span class="key">not</span> have <code>'use client'</code>.
+      </p>
+
+      <ul>
+        <li>🟡 If Logo is imported by a Server Component (e.g., Header), it becomes a <span class="key">Server Component instance</span>.</li>
+        <li>🔵 If Logo is imported by a Client Component (e.g., TextExpander), it becomes a <span class="key">Client Component instance</span>.</li>
+      </ul>
+
+      <div class="purple">
+        <p>
+          🧠 This is why we say: a component file is a “definition”, but it creates different <span class="key">instances</span> depending on where it’s imported/used.
+        </p>
+      </div>
+
+      <h3>How to prove it</h3>
+      <p>
+        If you add <code>console.log('LOGO')</code> inside Logo:
+      </p>
+      <ul>
+        <li>Logs in the terminal = server render</li>
+        <li>Logs in the browser console = client render</li>
+      </ul>
+
+      <div class="warn">
+        <p>⚠️ This is for learning/debugging only—don’t ship noisy logs in production.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 Quick recap</h2>
+      <ul>
+        <li>🔵 If a feature needs clicks/state/effects → it must be a Client Component.</li>
+        <li>🟡 Keep everything else as Server Components for performance.</li>
+        <li>📍 Put Client Components as low in the tree as possible (small interactive islands).</li>
+        <li>🌀 A component can produce server or client instances depending on where it’s imported.</li>
+      </ul>
+
+      <div class="good">
+        <p>✅ After this lecture, you should be comfortable adding small interactive Client Components into otherwise server-rendered pages.</p>
+      </div>
+    </section>
+
+    <p class="mini" style="margin-top:12px;">
+      Print tip: Use browser Print → A4. Margins, line height, and word-wrapping are configured to prevent cut-off.
+    </p>
+  </div>
+</body>
+</html>

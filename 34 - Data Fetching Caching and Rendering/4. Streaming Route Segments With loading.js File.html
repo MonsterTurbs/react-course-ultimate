@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js App Router — Streaming Route Segments with loading.js (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --soft2:#fbfbfc;
+      --accent:#0b57d0;
+      --good:#0f766e;
+      --warn:#b45309;
+      --bad:#b91c1c;
+      --code:#0b1020;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
+
+    header{
+      border-bottom:1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1{font-size: 26px; margin: 0 0 8px;}
+    .subtitle{margin:0; color:var(--muted); font-size: 14px;}
+
+    h2{font-size: 18px; margin: 18px 0 10px;}
+    h3{font-size: 15px; margin: 14px 0 8px;}
+
+    p{margin: 10px 0;}
+    ul{margin: 8px 0 10px 22px;}
+    li{margin: 6px 0;}
+
+    .chiprow{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+    .chip{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:var(--soft2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border: 1px solid var(--border);
+      border-left-width: 6px;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 12px 0;
+      background: var(--soft2);
+    }
+    .callout.good{border-left-color: var(--good);}
+    .callout.warn{border-left-color: var(--warn);}
+    .callout.bad{border-left-color: var(--bad);}
+    .callout .title{font-weight:700; margin:0 0 6px;}
+    .muted{color:var(--muted);}
+
+    code, pre{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+    pre{
+      background: var(--code);
+      color: #e8eefc;
+      border-radius: 12px;
+      padding: 12px;
+      overflow:auto;
+      margin: 10px 0;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    pre code{font-size: 12.5px;}
+
+    kbd{
+      font-family: inherit;
+      font-size: 12px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .grid2{display:grid; grid-template-columns: 1fr 1fr; gap: 12px;}
+    @media (max-width: 760px){
+      .grid2{grid-template-columns: 1fr;}
+    }
+
+    /* Print */
+    @page { size: A4; margin: 14mm; }
+
+    @media print{
+      body{background:#fff;}
+      .page{padding: 0; margin: 0; max-width: none;}
+      header{break-after: avoid;}
+      .chiprow{display:none;} /* optional: reduce clutter when printing */
+      .card, .callout, pre{break-inside: avoid; page-break-inside: avoid;}
+
+      /* Don’t print link URLs */
+      a[href]::after{content:"" !important;}
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🔄 Next.js Streaming Route Segments with <code>loading.js</code></h1>
+      <p class="subtitle">App Router • Global vs Route-Specific Loaders • Why <code>loading.js</code> implies Streaming • Why JavaScript must be enabled</p>
+      <div class="chiprow" aria-hidden="true">
+        <span class="chip">Next.js App Router</span>
+        <span class="chip">Server Components</span>
+        <span class="chip">Streaming</span>
+        <span class="chip">DX Patterns</span>
+        <span class="chip">Suspense Preview</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Learning goals</h2>
+      <ul>
+        <li>Understand what <code>loading.js</code> does and when it shows up.</li>
+        <li>Use a <strong>global</strong> loader (applies to the whole app) and a <strong>route-specific</strong> loader (only for <code>/cabins</code> and its subroutes).</li>
+        <li>Know the key trade-off: route-level <code>loading.js</code> can be <strong>too broad</strong> (it can hide static UI while only one part is fetching).</li>
+        <li>Remember the big rule: <strong><code>loading.js</code> enables streaming</strong> ➜ streaming requires <strong>JavaScript enabled</strong> in the browser.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧠 Big idea: “Instant fallback UI” while a route is fetching</h2>
+      <p>
+        In the Next.js App Router, you can create a file named <code>loading.js</code> to show an <strong>immediate loading state</strong>
+        while the route (page) is waiting on server data.
+      </p>
+
+      <div class="callout good">
+        <p class="title">✅ What users experience</p>
+        <p class="muted">
+          They immediately see a loading indicator, then the real page content “swaps in” once data is ready.
+          This feels faster than staring at a blank page.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <p class="title">⚠️ What this implies</p>
+        <p class="muted">
+          Creating <code>loading.js</code> activates <strong>streaming</strong>. Streaming in this context needs JavaScript enabled.
+          If JS is disabled, the app can get stuck showing the loader.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🌍 Global loader vs 🎯 Route-specific loader</h2>
+
+      <div class="grid2">
+        <div class="card">
+          <h3>🌍 Global <code>app/loading.js</code></h3>
+          <ul>
+            <li>Applies to <strong>all routes</strong> in the app.</li>
+            <li>Good as a default safety net.</li>
+            <li>If a more specific <code>loading.js</code> exists inside a route folder, that one wins.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🎯 Route-specific <code>app/cabins/loading.js</code></h3>
+          <ul>
+            <li>Applies to <strong><code>/cabins</code></strong> and all its <strong>subroutes</strong> (e.g., <code>/cabins/123</code>).</li>
+            <li>Overrides the global loader for that part of the site.</li>
+            <li>Lets you display more contextual text like “Loading cabin data…”.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout good">
+        <p class="title">✅ Priority rule</p>
+        <p class="muted"><strong>Nearest <code>loading.js</code> to the route wins.</strong> If none exists, Next.js falls back to the next loader up the tree (often the global one).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🛠️ Implementation walkthrough</h2>
+
+      <h3>1) Improve the global loader (replace text with a Spinner)</h3>
+      <p>
+        Your existing <code>app/loading.js</code> might show plain text like “LOADING DATA”.
+        You can improve it by rendering a reusable <code>Spinner</code> component.
+      </p>
+
+      <pre><code>// app/loading.js
+import Spinner from "@/app/_components/Spinner";
+
+export default function Loading() {
+  return &lt;Spinner /&gt;;
+}
+</code></pre>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Path reminder</p>
+        <p class="muted">In this project structure, shared UI components live in <code>app/_components</code> (underscore folder = not routable).</p>
+      </div>
+
+      <h3>2) Add a route-specific loader for <code>/cabins</code></h3>
+      <p>
+        Create <code>app/cabins/loading.js</code>. This will override the global loader only for the cabins segment.
+      </p>
+
+      <pre><code>// app/cabins/loading.js
+import Spinner from "@/app/_components/Spinner";
+
+export default function Loading() {
+  return (
+    &lt;div className="grid items-center justify-center gap-3"&gt;
+      &lt;Spinner /&gt;
+      &lt;p className="text-lg text-primary-200"&gt;
+        Loading cabin data…
+      &lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout good">
+        <p class="title">✅ Result</p>
+        <p class="muted">When navigating to <code>/cabins</code>, users see “Loading cabin data…” instead of the global loader.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🚦 Streaming: why <code>loading.js</code> can hide “static” content</h2>
+      <p>
+        A common surprise: you might notice that when <code>/cabins</code> is loading,
+        <strong>the whole route segment</strong> shows the loader—even parts that do not depend on data.
+      </p>
+
+      <div class="card">
+        <h3>Example situation</h3>
+        <ul>
+          <li>Heading text like “Cabins” is static (does not fetch).</li>
+          <li>The cabin list below it fetches from Supabase.</li>
+          <li>With route-level <code>loading.js</code>, <strong>both</strong> can be replaced by the loader while data is pending.</li>
+        </ul>
+        <p class="muted">
+          This is why developers often want <strong>more granular loading states</strong>.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <p class="title">⚠️ The solution (next lecture)</p>
+        <p class="muted">
+          For “loader only around the list” (not the heading), you typically use <strong>React Suspense</strong>
+          so you can wrap only the data-dependent part.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Test: what happens when JavaScript is disabled?</h2>
+      <p>
+        Because <code>loading.js</code> activates streaming, the experience can break when JavaScript is turned off.
+        You can test this in Chrome DevTools:
+      </p>
+
+      <ul>
+        <li>Open DevTools, then press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> (Windows/Linux) or <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> (macOS).</li>
+        <li>Search for “JavaScript” and choose <strong>Disable JavaScript</strong>.</li>
+        <li>Reload the page and observe: the loader may render, but the route may never complete.</li>
+      </ul>
+
+      <div class="callout bad">
+        <p class="title">🛑 Practical takeaway</p>
+        <p class="muted">
+          If “works without JavaScript” is a requirement, you must be careful with <code>loading.js</code> usage.
+          In this course project, JavaScript is assumed to be enabled.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 Quick mental model (memorize this)</h2>
+      <div class="card">
+        <ul>
+          <li>✅ <code>loading.js</code> = “show fallback UI while route segment is waiting”</li>
+          <li>✅ Put <code>loading.js</code> closer to a route to make it more specific</li>
+          <li>✅ Nearest loader overrides global loader</li>
+          <li>⚠️ Route-level loader can be “too broad” (hides static UI too)</li>
+          <li>⚠️ <code>loading.js</code> enables streaming → JavaScript must be enabled</li>
+          <li>➡️ For granular loaders: learn <strong>Suspense</strong></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Mini reviewer (self-check)</h2>
+      <div class="card">
+        <h3>Answer these without looking 👇</h3>
+        <ol>
+          <li>Where do you place a loader that applies to every route in the app?</li>
+          <li>Where do you place a loader that applies only to <code>/cabins</code>?</li>
+          <li>Which loader wins if both exist: global and route-specific?</li>
+          <li>Why can a route-level loader feel “too aggressive”?</li>
+          <li>Why might the page get stuck if JavaScript is disabled?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Suggested answers ✅</h3>
+        <ol>
+          <li><code>app/loading.js</code></li>
+          <li><code>app/cabins/loading.js</code></li>
+          <li>The nearest (most specific) loader</li>
+          <li>Because it can replace the entire route segment, including static content</li>
+          <li>Because streaming (enabled by <code>loading.js</code>) depends on JavaScript to complete the experience</li>
+        </ol>
+      </div>
+    </section>
+
+    <footer class="muted" style="border-top:1px solid var(--border); padding-top:12px; margin-top:18px; font-size:12px;">
+      <p><strong>Topic:</strong> Next.js App Router • <code>loading.js</code> • Streaming route segments • Preview of Suspense</p>
+    </footer>
+  </main>
+</body>
+</html>

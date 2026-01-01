@@ -1,0 +1,429 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Deleting Cart Items — Reusable Delete Button + Selector by ID (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f7f7f9;
+      --warn: #8a4b00;
+      --ok: #0b7a2a;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 36px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout strong { color: var(--text); }
+
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.ok { border-left-color: var(--ok); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 860px) {
+      .two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 18mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      pre { overflow: visible; white-space: pre-wrap; word-break: break-word; }
+      .chip { border-color: #dcdcdc; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🗑️ Deleting Cart Items (Redux)</h1>
+      <p class="subtitle">Study guide from the lecture transcript: reusable <code>DeleteItem</code> component, dispatching <code>deleteItem</code>, and creating a selector that gets quantity by pizza ID.</p>
+      <div class="meta">
+        <span class="chip">🧩 Hooks: <code>useDispatch</code>, <code>useSelector</code></span>
+        <span class="chip">🗑️ Action: <code>deleteItem(pizzaId)</code></span>
+        <span class="chip">♻️ Reusable component: <code>&lt;DeleteItem /&gt;</code></span>
+        <span class="chip">🔎 Selector factory: <code>getCurrentQuantityById(id)</code></span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goal of this lesson</h2>
+        <p>You will implement “delete pizza” behavior in two places:</p>
+        <ul>
+          <li>🛒 In the cart page (CartItem list)</li>
+          <li>📋 In the menu (Pizza menu items), so a user can undo mistakes quickly</li>
+        </ul>
+        <p>
+          The reducer logic already exists. So the UI work is mainly:
+          <strong>dispatch the correct action with the correct payload</strong>.
+        </p>
+      </section>
+
+      <section>
+        <h2>🧠 Key idea: make the delete button reusable</h2>
+        <p>
+          Because both the cart and the menu can need a delete button, the lecture creates a separate component:
+          <strong><code>DeleteItem.jsx</code></strong>.
+        </p>
+
+        <div class="callout ok">
+          <p><strong>✅ Why this is good practice</strong></p>
+          <ul>
+            <li>♻️ Reuse the same logic in multiple places</li>
+            <li>🧼 Cart/Menu components stay simpler</li>
+            <li>🧠 One place to fix bugs and improve behavior</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Step-by-step: build <code>DeleteItem</code> component</h2>
+        <p>
+          The delete reducer expects the payload to be the <strong>pizza ID</strong>.
+          So your <code>DeleteItem</code> component must receive that ID as a prop.
+        </p>
+
+        <pre><code>// DeleteItem.jsx
+import Button from "../ui/Button"; // path may vary
+import { useDispatch } from "react-redux";
+import { deleteItem } from "../cart/cartSlice"; // path may vary
+
+function DeleteItem({ pizzaId }) {
+  const dispatch = useDispatch();
+
+  return (
+    &lt;Button
+      type="small"
+      onClick={() =&gt; dispatch(deleteItem(pizzaId))}
+    &gt;
+      Delete
+    &lt;/Button&gt;
+  );
+}
+
+export default DeleteItem;
+</code></pre>
+
+        <div class="callout warn">
+          <p><strong>⚠️ Common mistake</strong></p>
+          <p>
+            If you forget to pass <code>pizzaId</code> into <code>deleteItem(...)</code>,
+            the reducer won’t know what to remove.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>➡️ Data flow: how the pizza ID reaches the delete button</h2>
+        <p>
+          The transcript highlights that the data flow can be confusing. Here is the flow in plain words:
+        </p>
+        <ol>
+          <li>🛒 The Cart page renders a list of <strong>CartItem</strong> components.</li>
+          <li>📦 Each CartItem receives an <code>item</code> object (includes <code>pizzaId</code>, name, quantity, totalPrice, etc.).</li>
+          <li>🧷 CartItem passes <code>pizzaId</code> down to <code>&lt;DeleteItem pizzaId={...} /&gt;</code>.</li>
+          <li>🗑️ DeleteItem dispatches <code>deleteItem(pizzaId)</code> when clicked.</li>
+        </ol>
+
+        <pre><code>// CartItem.jsx (conceptual)
+import DeleteItem from "./DeleteItem";
+
+function CartItem({ item }) {
+  return (
+    &lt;li&gt;
+      {/* ...render name, quantity, price... */}
+      &lt;DeleteItem pizzaId={item.pizzaId} /&gt;
+    &lt;/li&gt;
+  );
+}
+</code></pre>
+      </section>
+
+      <section>
+        <h2>📋 Reuse delete button in the menu (but only when it makes sense)</h2>
+        <p>
+          The lecture then adds <code>&lt;DeleteItem /&gt;</code> to each menu item.
+          That creates a problem:
+        </p>
+        <div class="callout warn">
+          <p><strong>Problem</strong></p>
+          <p>
+            The delete button shows up for every pizza, even when the pizza is <strong>not</strong> in the cart.
+            Deleting “nothing” does nothing and the UI looks wrong.
+          </p>
+        </div>
+
+        <p>
+          So we need a way to know whether a specific pizza is in the cart.
+          The solution: create a selector that returns the current quantity for a given pizza ID.
+        </p>
+      </section>
+
+      <section>
+        <h2>🔎 Advanced selector: get quantity by pizza ID (selector factory)</h2>
+        <p>
+          You can’t use the “total quantity” selector here, because you need per-pizza quantity.
+          The lecture creates a selector that works like this:
+        </p>
+        <ul>
+          <li>Call <code>getCurrentQuantityById(id)</code> with a pizza id</li>
+          <li>It returns a selector function: <code>(state) =&gt; number</code></li>
+          <li>That selector finds the item in <code>state.cart.cart</code> and returns its quantity (or 0)</li>
+        </ul>
+
+        <pre><code>// cartSlice.js
+export const getCurrentQuantityById = (id) =&gt; (state) =&gt;
+  state.cart.cart.find((item) =&gt; item.pizzaId === id)?.quantity ?? 0;
+</code></pre>
+
+        <div class="callout">
+          <p><strong>🧠 Why this is called a “selector factory”</strong></p>
+          <p>
+            Because it is a function that returns another function.
+            The outer function captures <code>id</code>, and the inner function receives <code>state</code>.
+          </p>
+        </div>
+
+        <div class="callout ok">
+          <p><strong>✅ What optional chaining and nullish coalescing do</strong></p>
+          <ul>
+            <li><code>?.quantity</code> safely reads quantity only if the item exists</li>
+            <li><code>?? 0</code> returns 0 if quantity is null/undefined (meaning: not in cart)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Using the selector in a MenuItem</h2>
+        <p>
+          Now you can compute whether a pizza is in the cart:
+          <code>isInCart = currentQuantity &gt; 0</code>.
+        </p>
+
+        <pre><code>// MenuItem.jsx (conceptual)
+import { useSelector } from "react-redux";
+import DeleteItem from "../cart/DeleteItem";
+import { getCurrentQuantityById } from "../cart/cartSlice";
+
+function MenuItem({ pizza }) {
+  const currentQuantity = useSelector(getCurrentQuantityById(pizza.id));
+  const isInCart = currentQuantity &gt; 0;
+
+  return (
+    &lt;div&gt;
+      {/* ...pizza details... */}
+
+      {isInCart &amp;&amp; &lt;DeleteItem pizzaId={pizza.id} /&gt;}
+
+      {/* Show Add To Cart only if NOT in cart (and not sold out) */}
+      {!isInCart &amp;&amp; !pizza.soldOut &amp;&amp; (
+        &lt;button&gt;Add to cart&lt;/button&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout ok">
+          <p><strong>✅ Result</strong></p>
+          <ul>
+            <li>Delete button shows only for pizzas currently in the cart</li>
+            <li>When you delete, “Add to cart” reappears</li>
+            <li>Cart + Menu stay synchronized (state-driven UI)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>⚙️ Performance note: why only one menu item updates</h2>
+        <p>
+          The lecture points out that when a pizza quantity changes, Redux will only cause re-renders for components
+          whose selected value changed.
+        </p>
+        <div class="callout">
+          <p><strong>In practice</strong></p>
+          <p>
+            If you log quantities in each menu item, you’ll notice only the affected pizza’s component updates.
+            That happens because <code>useSelector</code> subscribes to the store and compares selected values.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧯 Common issues and fixes</h2>
+        <ul>
+          <li>
+            ❌ <strong>“Cannot access 'id' before initialization”</strong>
+            <div class="callout"><strong>Fix:</strong> Ensure you define <code>id</code> before calling the selector, or move hooks above where needed.</div>
+          </li>
+          <li>
+            ❌ <strong>Wrong property name</strong> (e.g., <code>pizzaId</code> vs <code>id</code>)
+            <div class="callout"><strong>Fix:</strong> Verify the cart item shape in Redux DevTools and match exact keys.</div>
+          </li>
+          <li>
+            ❌ <strong>Delete button appears everywhere</strong>
+            <div class="callout"><strong>Fix:</strong> Gate it behind <code>isInCart</code> from <code>getCurrentQuantityById</code>.</div>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Mini-quiz (for retention)</h2>
+        <ol>
+          <li>Why create a reusable <code>DeleteItem</code> component instead of copying a button in two places?</li>
+          <li>What payload does <code>deleteItem</code> need, and why?</li>
+          <li>What does <code>getCurrentQuantityById(id)</code> return?</li>
+          <li>Why do we show Delete only when <code>currentQuantity &gt; 0</code>?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🧾 Quick recap</h2>
+        <ul>
+          <li>🗑️ Deleting is “easy” because the reducer already exists — just dispatch correctly</li>
+          <li>♻️ Build <code>DeleteItem</code> component so you can reuse it in Cart and Menu</li>
+          <li>🧷 Pass <code>pizzaId</code> as a prop so the action has the correct payload</li>
+          <li>🔎 Create <code>getCurrentQuantityById</code> to know if a pizza is currently in cart</li>
+          <li>🔁 Toggle UI: show Delete vs Add-to-cart based on <code>isInCart</code></li>
+          <li>➡️ Next lesson: update quantities (increase/decrease instead of duplicates)</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,501 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — State Update Batching (In Practice) | Reviewer</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f8;
+      --soft2: #fbfbfc;
+      --accent: #0b57d0;
+      --ok: #0f7b2f;
+      --warn: #8a4b00;
+      --bad: #9b1c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 44px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--soft2), #fff);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 14px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol {
+      margin: 8px 0 10px 20px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: #f3f7ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .ok {
+      border-left: 4px solid var(--ok);
+      background: #eefaf1;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #fff6ea;
+    }
+
+    .bad {
+      border-left: 4px solid var(--bad);
+      background: #fff0f0;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .kvs {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kv {
+      border: 1px dashed var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .kv b { display: inline-block; min-width: 210px; }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0b1020;
+      color: #e8eefc;
+      overflow: hidden;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    pre code {
+      white-space: pre-wrap;      /* wrap long lines */
+      word-break: break-word;
+    }
+
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .quiz {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--soft2);
+    }
+
+    .quiz details {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .quiz summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .footer {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    /* Print: A4, clean margins, no link URLs */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      :root { --soft: #ffffff; --soft2: #ffffff; }
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-color: #cfcfcf; box-shadow: none; }
+      pre { border-color: #cfcfcf; }
+      a[href]:after { content: ""; }
+      .chip { border-color: #cfcfcf; }
+      .footer { page-break-inside: avoid; }
+      details { break-inside: avoid; }
+      section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>⭐ React: State Update Batching (In Practice)</h1>
+      <p class="subtitle">Reviewer / Study Guide — based on the lecture transcript (TabContent experiments).</p>
+      <div class="meta">
+        <span class="chip">🧠 Focus: batching + async state</span>
+        <span class="chip">🧪 Proof: console.log("render")</span>
+        <span class="chip">⚙️ Tools: useState, setTimeout</span>
+        <span class="chip">🧷 Key idea: “state is stale until re-render”</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) What you are building in this lecture</h2>
+        <p>
+          You are inside a <span class="inline-code">TabContent</span> component and you implement missing button behaviors to
+          <b>observe React batching</b> and <b>prove state updates are asynchronous</b>.
+        </p>
+
+        <div class="kvs">
+          <div class="kv"><b>Undo button:</b> reset <span class="inline-code">showDetails</span> to <b>true</b> and <span class="inline-code">likes</span> to <b>0</b>.</div>
+          <div class="kv"><b>Triple “+++” button:</b> attempt to add <b>+3</b> likes (then fix it properly).</div>
+          <div class="kv"><b>Undo later button:</b> run undo after <b>2 seconds</b> to test batching outside events.</div>
+        </div>
+
+        <div class="note ok">
+          <div class="callout-title">✅ Mental model</div>
+          <p>
+            A button click triggers an event handler. React can batch multiple state updates inside that handler into
+            <b>one re-render</b>.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) Step-by-step: Implement <span class="inline-code">handleUndo</span> and prove batching</h2>
+
+        <h3>2.1 Add the undo handler</h3>
+        <pre><code>// TabContent.jsx
+function handleUndo() {
+  setShowDetails(true);
+  setLikes(0);
+}
+
+// ...
+<button onClick={handleUndo}>Undo</button></code></pre>
+
+        <div class="note">
+          <div class="callout-title">💡 Why this matters</div>
+          <p>
+            You are performing <b>two state updates</b> in one event handler. If React batches them, you should see
+            only <b>one render</b>.
+          </p>
+        </div>
+
+        <h3>2.2 Prove “rendering = calling the component function”</h3>
+        <pre><code>// Put this at top-level inside TabContent (render logic)
+console.log("render");</code></pre>
+
+        <p>
+          Now when you click the undo button, you expect the console to show only one <b>"render"</b> log.
+        </p>
+
+        <div class="note ok">
+          <div class="callout-title">✅ Result you observe</div>
+          <p>
+            Clicking <b>Undo</b> logs <b>one</b> “render” → React batched the two state updates.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) State updates are asynchronous (stale state demo)</h2>
+
+        <p>
+          The lecture demonstrates this by logging <span class="inline-code">likes</span> right after calling
+          <span class="inline-code">setLikes(0)</span>.
+        </p>
+
+        <pre><code>function handleUndo() {
+  setShowDetails(true);
+  setLikes(0);
+
+  // 👇 What prints here?
+  console.log(likes);
+}</code></pre>
+
+        <div class="note warn">
+          <div class="callout-title">⚠️ Key observation</div>
+          <p>
+            The console prints the <b>old value</b> (e.g., 5), not 0.
+            That is because <b>state variables update after the re-render</b>, not immediately.
+          </p>
+        </div>
+
+        <div class="note">
+          <div class="callout-title">🧠 Beginner-friendly explanation</div>
+          <p>
+            Think of <span class="inline-code">setLikes(0)</span> as “queue an update.” React will apply it later
+            when it re-renders. Until then, <span class="inline-code">likes</span> is still the old snapshot.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) “Why no re-render?” when setting the same state</h2>
+
+        <p>
+          The lecture asks: if you click Undo again (when it’s already reset), why no “render” log?
+        </p>
+
+        <div class="note ok">
+          <div class="callout-title">✅ Rule</div>
+          <p>
+            If the <b>new state equals the current state</b>, React can skip re-rendering that component instance.
+            Example: <span class="inline-code">showDetails</span> already <b>true</b> and <span class="inline-code">likes</span> already <b>0</b>.
+          </p>
+        </div>
+
+        <div class="note">
+          <div class="callout-title">🔍 Practical takeaway</div>
+          <p>
+            If you expect UI changes but nothing happens, verify that your “new” state value is actually different.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Triple increment bug: why <span class="inline-code">setLikes(likes + 1)</span> fails 3×</h2>
+
+        <h3>5.1 The “wrong” version (for learning)</h3>
+        <pre><code>function handleTripleInc() {
+  setLikes(likes + 1);
+  setLikes(likes + 1);
+  setLikes(likes + 1);
+}</code></pre>
+
+        <div class="note bad">
+          <div class="callout-title">❌ What you observe</div>
+          <p>
+            Likes increases by <b>only 1</b> instead of 3.
+          </p>
+        </div>
+
+        <div class="note">
+          <div class="callout-title">🧠 Why it happens</div>
+          <p>
+            All three lines read the same <b>stale</b> <span class="inline-code">likes</span> snapshot from the current render.
+            React queues three updates that all compute “oldLikes + 1”, so the final result is still just +1.
+          </p>
+        </div>
+
+        <h3>5.2 The correct version: functional updates</h3>
+        <pre><code>function handleTripleInc() {
+  setLikes((cur) =&gt; cur + 1);
+  setLikes((cur) =&gt; cur + 1);
+  setLikes((cur) =&gt; cur + 1);
+}</code></pre>
+
+        <div class="note ok">
+          <div class="callout-title">✅ Why this works</div>
+          <p>
+            The callback receives the <b>latest</b> value in the update queue:
+            0 → 1 → 2 → 3.
+          </p>
+        </div>
+
+        <div class="note warn">
+          <div class="callout-title">⚠️ Rule you should memorize</div>
+          <p>
+            Whenever new state depends on previous state, always use:
+            <span class="inline-code">setState(cur =&gt; next)</span>.
+          </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>5.3 “But it works now… why be strict?”</h3>
+        <p>
+          Even if <span class="inline-code">setLikes(likes + 1)</span> works today, it can break later when someone
+          calls your function multiple times or adds more updates. Functional updates keep you safe as code evolves.
+        </p>
+      </section>
+
+      <section>
+        <h2>6) React 18 batching outside event handlers (setTimeout demo)</h2>
+
+        <h3>6.1 Undo later: schedule state updates after 2 seconds</h3>
+        <pre><code>function handleUndoLater() {
+  setTimeout(() =&gt; {
+    handleUndo();
+  }, 2000);
+}
+
+<button onClick={handleUndoLater}>Undo in 2s</button></code></pre>
+
+        <div class="note ok">
+          <div class="callout-title">✅ React 18 behavior</div>
+          <p>
+            Even inside <span class="inline-code">setTimeout</span>, the two updates in <span class="inline-code">handleUndo</span>
+            are still batched → you see only <b>one</b> “render”.
+          </p>
+        </div>
+
+        <h3>6.2 Historical note: React 17 behavior</h3>
+        <div class="note warn">
+          <div class="callout-title">🕰️ Before React 18</div>
+          <p>
+            Automatic batching used to apply mainly to React event handlers. Updates in timeouts/promises could cause
+            multiple renders.
+          </p>
+        </div>
+
+        <div class="note">
+          <div class="callout-title">🙂 What you should remember</div>
+          <p>
+            In modern React (18+), batching is more consistent “everywhere,” which improves performance and reduces
+            surprise re-renders.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>7) Quick recap (memory-friendly)</h2>
+        <ul>
+          <li>🧪 <b>Batching:</b> multiple <span class="inline-code">setState</span> calls can produce <b>one re-render</b>.</li>
+          <li>⏳ <b>Async state:</b> reading state right after <span class="inline-code">setState</span> gives the <b>old</b> value.</li>
+          <li>🧼 <b>No-op updates:</b> if new state equals current state, React may skip re-render.</li>
+          <li>🧷 <b>Functional updates:</b> use <span class="inline-code">setX(cur =&gt; cur + 1)</span> when derived from previous state.</li>
+          <li>🧠 <b>React 18:</b> batching works outside event handlers (timeouts/promises/native events).</li>
+        </ul>
+      </section>
+
+      <section class="quiz">
+        <h2>8) Mini-Quiz (with answers)</h2>
+
+        <details>
+          <summary>Q1) In <span class="inline-code">handleUndo</span>, why does <span class="inline-code">console.log(likes)</span> print the old value?</summary>
+          <p><b>Answer:</b> Because state updates are applied on the next render. Until React re-renders, the current render’s state snapshot is still in scope (stale state).</p>
+        </details>
+
+        <details>
+          <summary>Q2) Why does <span class="inline-code">setLikes(likes + 1)</span> called 3 times only add +1?</summary>
+          <p><b>Answer:</b> All three calls read the same stale <span class="inline-code">likes</span> value, so they queue the same update (oldLikes + 1). Use functional updates instead.</p>
+        </details>
+
+        <details>
+          <summary>Q3) When can React skip a re-render?</summary>
+          <p><b>Answer:</b> When you set state to a value that is equal to the current state (no actual change), React may bail out and skip rendering.</p>
+        </details>
+
+        <details>
+          <summary>Q4) What is the safest pattern for updating state based on previous state?</summary>
+          <p><b>Answer:</b> <span class="inline-code">setState(cur =&gt; computeNext(cur))</span> (functional updates).</p>
+        </details>
+      </section>
+
+      <p class="footer">
+        Print tip: Open in browser → Ctrl+P / Cmd+P → Paper size: A4 → Margins: Default → Save as PDF.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

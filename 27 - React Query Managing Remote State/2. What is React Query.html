@@ -1,0 +1,448 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Query — What It Is (Reviewer / Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#4b5563;
+      --border:#e5e7eb;
+      --soft:#f8fafc;
+      --soft2:#f3f4f6;
+      --accent:#111827;
+      --callout:#0f172a;
+      --codebg:#0b1020;
+      --codefg:#e5e7eb;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column page container */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header{
+      padding: 18px 18px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 14px;
+    }
+
+    .kicker{
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 8px;
+    }
+
+    h1{
+      font-size: 28px;
+      line-height: 1.2;
+      margin: 0 0 10px;
+      color: var(--accent);
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: 12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 8px;
+    }
+
+    .chip{
+      display:inline-block;
+      padding: 6px 10px;
+      background: var(--soft2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    main{
+      margin-top: 18px;
+    }
+
+    section{
+      margin-top: 16px;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    h2{
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15px;
+      color: var(--accent);
+    }
+
+    p{ margin: 8px 0; }
+
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      margin-top: 10px;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      border-left: 6px solid var(--callout);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    .callout strong{ color: var(--accent); }
+
+    .grid{
+      display:grid;
+      gap: 12px;
+      grid-template-columns: 1fr;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--soft);
+    }
+
+    .term{
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .muted{ color: var(--muted); }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .divider{
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .qa{
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .qa .q{ font-weight: 700; }
+
+    .checklist{
+      list-style: none;
+      margin-left: 0;
+    }
+    .checklist li{ padding-left: 0; }
+
+    /* Print settings */
+    @media print{
+      @page{ size: A4; margin: 14mm; }
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header, section, .card, .callout, .qa{ break-inside: avoid; page-break-inside: avoid; }
+      pre{ break-inside: avoid; page-break-inside: avoid; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <p class="kicker">27 — React Query (Managing Remote State)</p>
+      <h1>What is React Query? (Reviewer / Study Guide)</h1>
+      <p class="subtitle">Beginner-friendly notes on <strong>React Query (TanStack Query)</strong>: remote state, caching, refetching, prefetching, mutations, and why it makes apps feel “magical”.</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Remote State</span>
+        <span class="chip">⚡ Focus: Caching + Sync</span>
+        <span class="chip">🧰 Tools: Queries + Mutations</span>
+        <span class="chip">🧩 Use case: Data-heavy apps</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>📌 Core idea (in plain terms)</h2>
+        <p>
+          <span class="term">React Query</span> is a powerful library for managing <span class="term">remote state</span> — data that lives on a server and must be fetched into your app.
+          Many developers describe it as the <span class="term">data-fetching library React is missing</span> because it reduces boilerplate and improves UX.
+        </p>
+
+        <div class="callout">
+          <p><strong>Remote state ≠ UI state</strong></p>
+          <p class="muted">
+            UI state is local (open/close modal, input value). Remote state is asynchronous, shared by many users, and can get out of sync across browsers.
+            That’s why remote state needs specialized features.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🛰️ What is “remote state”?</h2>
+        <div class="grid">
+          <div class="card">
+            <p><span class="term">UI state</span> (local)</p>
+            <ul>
+              <li>🪟 “Is sidebar open?”</li>
+              <li>✍️ “What’s inside this input?”</li>
+              <li>🎚️ “Which tab is selected?”</li>
+            </ul>
+          </div>
+          <div class="card">
+            <p><span class="term">Remote state</span> (server)</p>
+            <ul>
+              <li>🏨 cabins list from Supabase</li>
+              <li>📅 bookings (checked-in / checked-out)</li>
+              <li>👤 authenticated user data</li>
+              <li>⚙️ settings stored in DB</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout">
+          <p><strong>Why it’s tricky:</strong> remote data can change anytime.</p>
+          <p class="muted">Another user could update a cabin, so your app must refresh to stay consistent.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>✅ The most important React Query features (from the lecture)</h2>
+
+        <h3>1) 🗂️ Caching (the foundation)</h3>
+        <p>
+          When Component A fetches data (e.g., cabins), React Query stores it in a <span class="term">cache</span>.
+          Later, Component B can instantly reuse the same data without another API request.
+        </p>
+        <ul>
+          <li>🚀 Faster UI: no extra loading spinner for Component B</li>
+          <li>📉 Fewer network requests (less bandwidth)</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <h3>2) ⏳ Loading + ❌ Error states for free</h3>
+        <p>
+          React Query provides loading and error states automatically so you can focus on rendering the UI instead of writing repetitive state handling.
+        </p>
+
+        <div class="divider"></div>
+
+        <h3>3) 🔄 Automatic refetching (stay in sync)</h3>
+        <p>
+          React Query can refetch in certain situations, like after a timeout or when the user returns to the browser tab.
+          This helps keep app data consistent if another user changed server data.
+        </p>
+        <ul>
+          <li>🪟 Refetch on window focus</li>
+          <li>⏲️ Refetch after a “stale” time</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <h3>4) 🚀 Prefetching (fetch before it’s needed)</h3>
+        <p>
+          Prefetching means loading data <em>before</em> it’s shown, so navigation feels instant.
+          Classic example: <span class="term">pagination</span> (prefetch next page).
+        </p>
+
+        <div class="divider"></div>
+
+        <h3>5) 🧩 Easy mutations (update server data)</h3>
+        <p>
+          Mutations are operations like create/update/delete.
+          React Query provides tools to do this cleanly and then keep cache + UI updated.
+        </p>
+
+        <div class="divider"></div>
+
+        <h3>6) 📴 Offline support (use cached data)</h3>
+        <p>
+          If the user goes offline, cached data can still render screens (e.g., cabins list) so the app remains usable.
+        </p>
+      </section>
+
+      <section>
+        <h2>🧠 Mental model: “Component A” and “Component B”</h2>
+        <p>
+          Think of React Query as a smart layer between your components and the API.
+        </p>
+        <ul class="checklist">
+          <li>✅ Component A asks for <code>['cabins']</code> → React Query fetches → stores in cache</li>
+          <li>✅ Component B asks for <code>['cabins']</code> → React Query returns cached data instantly</li>
+          <li>🔄 Later, React Query can refetch to keep data up to date</li>
+        </ul>
+
+        <div class="callout">
+          <p><strong>Key idea:</strong> “Same query key” ⇒ “Same cached data”.</p>
+          <p class="muted">In practice, you design query keys like <code>['cabins']</code> or <code>['bookings', page]</code>.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Beginner-friendly examples</h2>
+        <p class="muted">
+          Note: Modern React Query is published as <code>@tanstack/react-query</code>. Many people still call it “React Query”.
+        </p>
+
+        <h3>Example A — Fetch cabins with caching</h3>
+        <pre><code>// services/apiCabins.js
+export async function getCabins() {
+  const res = await fetch('/api/cabins');
+  if (!res.ok) throw new Error('Cabins could not be loaded');
+  return res.json();
+}
+
+// features/cabins/useCabins.js
+import { useQuery } from '@tanstack/react-query';
+import { getCabins } from '../../services/apiCabins';
+
+export function useCabins() {
+  const { data: cabins, isLoading, error } = useQuery({
+    queryKey: ['cabins'],
+    queryFn: getCabins,
+  });
+
+  return { cabins, isLoading, error };
+}
+</code></pre>
+        <div class="qa">
+          <p class="q">🤔 What do you gain here?</p>
+          <p>✅ automatic cache, ✅ loading/error states, ✅ reuse data across components.</p>
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>Example B — Prefetch next page (pagination idea)</h3>
+        <pre><code>import { useQueryClient } from '@tanstack/react-query';
+
+function usePrefetchBookings(nextPage) {
+  const queryClient = useQueryClient();
+
+  // Preload next page in the background
+  queryClient.prefetchQuery({
+    queryKey: ['bookings', nextPage],
+    queryFn: () =&gt; fetch(`/api/bookings?page=${nextPage}`).then(r =&gt; r.json()),
+  });
+}
+</code></pre>
+
+        <div class="divider"></div>
+
+        <h3>Example C — Mutate: mark something as updated</h3>
+        <pre><code>import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+function useUpdateCabin() {
+  const queryClient = useQueryClient();
+
+  const { mutate: updateCabin, isPending } = useMutation({
+    mutationFn: ({ id, patch }) =&gt;
+      fetch(`/api/cabins/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      }).then(r =&gt; {
+        if (!r.ok) throw new Error('Update failed');
+        return r.json();
+      }),
+
+    // After mutation, refetch cabins so UI stays in sync
+    onSuccess: () =&gt; queryClient.invalidateQueries({ queryKey: ['cabins'] }),
+  });
+
+  return { updateCabin, isPending };
+}
+</code></pre>
+
+        <div class="callout">
+          <p><strong>InvalidateQueries</strong> = “Hey React Query, this cached data might be stale now.”</p>
+          <p class="muted">Then React Query refetches so the UI updates with fresh server data.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 Quick checklist (memory-friendly)</h2>
+        <ul class="checklist">
+          <li>🧠 React Query manages <strong>remote state</strong> (server data)</li>
+          <li>🗂️ Data is <strong>cached</strong> → reuse across components instantly</li>
+          <li>⏳ Gives <strong>loading</strong> and ❌ <strong>error</strong> states automatically</li>
+          <li>🔄 Can <strong>refetch</strong> to keep app in sync</li>
+          <li>🚀 Can <strong>prefetch</strong> for faster UX (pagination)</li>
+          <li>🧩 Supports <strong>mutations</strong> (update/create/delete) + sync cache</li>
+          <li>📴 Works well with <strong>offline</strong> scenarios due to cache</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🎯 Mini practice (optional)</h2>
+        <div class="qa">
+          <p class="q">1) If “Cabins” page and “Dashboard” both need cabins data, what should you do?</p>
+          <p>Use the same query key (e.g., <code>['cabins']</code>) so both pages share the cached result.</p>
+        </div>
+        <div class="qa" style="margin-top:10px;">
+          <p class="q">2) If another user updates a cabin, how do you keep your UI correct?</p>
+          <p>Use refetching strategies (window focus/stale time) or invalidate relevant queries after mutations.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>✅ Summary</h2>
+        <p>
+          React Query is a specialized tool for server data that provides caching, automatic loading/error states, refetching, prefetching, mutations, and offline-friendly behavior.
+          That’s why it’s a strong default choice for modern React apps that rely heavily on APIs.
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

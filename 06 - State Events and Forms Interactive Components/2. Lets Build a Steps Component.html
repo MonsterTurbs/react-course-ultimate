@@ -1,0 +1,444 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — Let’s Build a Steps Component (Static UI) — Reviewer</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #fcfcfc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 24px 20px 44px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .muted { color: var(--muted); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--codebg);
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-left: 6px;
+      white-space: nowrap;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+
+      /* Keep backgrounds/borders consistent */
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧭 React — Let’s Build a Steps Component (Static UI) <span class="tag">Events & State intro</span></h1>
+      <p class="subtitle">Reviewer / study guide from the transcript. Single-column, A4 print-ready. Focus: building the static UI (JSX + styling + dynamic text).</p>
+
+      <div class="toolbar" aria-hidden="false">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print settings, choose <strong>A4</strong> and set margins to default.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#goal">What you’re building</a></li>
+          <li><a href="#setup">Project setup (Create React App)</a></li>
+          <li><a href="#cleanup">Cleanup + starter files</a></li>
+          <li><a href="#static-ui">Build the static Steps component (JSX)</a></li>
+          <li><a href="#dynamic">Dynamic message + active step styling</a></li>
+          <li><a href="#takeaways">Key takeaways + common mistakes</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="goal">
+      <h2>🎯 What you’re building</h2>
+      <p>
+        You’ll build a small <strong>Steps</strong> component that shows <strong>Step 1 → Step 3</strong> with two buttons
+        (<em>Previous</em> and <em>Next</em>) and a message area.
+      </p>
+      <div class="callout">
+        <p><strong>✅ In this lecture:</strong> only the <strong>static UI</strong> (no click handling yet).</p>
+        <ul>
+          <li>🧱 Build the layout using JSX</li>
+          <li>🎨 Apply styling via CSS + inline styles</li>
+          <li>🧠 Show the message dynamically using a <code>messages</code> array and a <code>step</code> variable</li>
+          <li>🟣 Highlight the active step (conditionally set <code>className</code>)</li>
+        </ul>
+      </div>
+      <p class="muted">
+        Interactivity (button clicks) comes next when you learn event handlers and state.
+      </p>
+    </section>
+
+    <section id="setup">
+      <h2>🛠️ Project setup (Create React App)</h2>
+      <p>
+        You create a new project using <strong>Create React App</strong> (CRA). You’ll do this from your terminal/command prompt.
+      </p>
+      <div class="grid">
+        <div class="card">
+          <h3>1) Navigate to the folder you want</h3>
+          <ul>
+            <li>🪟 Windows: use <code>dir</code> to list folders</li>
+            <li>🍎 Mac/Linux: use <code>ls</code> to list folders</li>
+            <li>📁 Use <code>cd</code> to move into a folder (example: Desktop)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>2) Create the app</h3>
+          <p class="muted">The instructor locks CRA to version 5 for consistent results.</p>
+          <pre><code>npx create-react-app@5 steps</code></pre>
+        </div>
+        <div class="card">
+          <h3>3) Start the dev server</h3>
+          <p>
+            In VS Code’s integrated terminal (already inside the project folder), run:
+          </p>
+          <pre><code>npm start</code></pre>
+          <p class="muted">This opens the app in your browser automatically.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="cleanup">
+      <h2>🧹 Cleanup + starter files</h2>
+      <p>
+        To focus on learning, you remove most default CRA files and keep only what you need.
+      </p>
+      <div class="callout">
+        <p><strong>Typical approach:</strong></p>
+        <ul>
+          <li>✅ Keep: <code>src/App.js</code>, <code>src/index.js</code></li>
+          <li>🗑️ Delete: extra starter assets/files you won’t use right now</li>
+        </ul>
+      </div>
+
+      <h3>Bring in provided starter CSS</h3>
+      <ul>
+        <li>📄 Copy the provided CSS into <code>src/</code> (so your app can import it)</li>
+        <li>📄 Move the provided <code>vanilla.html</code> into <code>public/</code> (you’ll inspect it later)</li>
+      </ul>
+
+      <h3>Reset <code>App.js</code> to a clean baseline</h3>
+      <p>
+        The root component is almost always called <code>App</code>. CRA’s <code>index.js</code> imports and renders it.
+      </p>
+      <pre><code>export default function App() {
+  return &lt;h1&gt;Hello React! 👋&lt;/h1&gt;;
+}</code></pre>
+    </section>
+
+    <section id="static-ui">
+      <h2>🧩 Build the static Steps component (JSX)</h2>
+      <p>
+        The component structure is:
+      </p>
+      <ul>
+        <li>📦 Container: <code>&lt;div className="steps"&gt;</code></li>
+        <li>🔢 Numbers row: <code>&lt;div className="numbers"&gt;</code> with <strong>1, 2, 3</strong></li>
+        <li>💬 Message: <code>&lt;p className="message"&gt;...&lt;/p&gt;</code></li>
+        <li>🧷 Buttons: <code>&lt;div className="buttons"&gt;</code> with <em>Previous</em> and <em>Next</em></li>
+      </ul>
+
+      <h3>Starter JSX skeleton</h3>
+      <pre><code>export default function App() {
+  return (
+    &lt;div className="steps"&gt;
+      &lt;div className="numbers"&gt;
+        &lt;div&gt;1&lt;/div&gt;
+        &lt;div&gt;2&lt;/div&gt;
+        &lt;div&gt;3&lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;p className="message"&gt;Step X: Message goes here&lt;/p&gt;
+
+      &lt;div className="buttons"&gt;
+        &lt;button&gt;Previous&lt;/button&gt;
+        &lt;button&gt;Next&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>💡 Productivity tip:</strong> duplicating lines in VS Code is faster than re-typing repeated JSX blocks.</p>
+      </div>
+
+      <h3>Inline button styling (temporary)</h3>
+      <p>
+        The buttons are purple in the demo, so the instructor uses <strong>inline styles</strong> for the two buttons.
+        In JSX, inline styles use a <strong>JavaScript object</strong> (not a CSS string).
+      </p>
+      <pre><code>&lt;button
+  style={{ backgroundColor: "#7950f2", color: "#fff" }}
+&gt;
+  Previous
+&lt;/button&gt;</code></pre>
+      <p class="muted">Later you’ll likely move styles into CSS or a more scalable styling approach.</p>
+    </section>
+
+    <section id="dynamic">
+      <h2>🧠 Dynamic message + active step styling</h2>
+
+      <h3>1) Store messages outside the component</h3>
+      <p>
+        If data doesn’t depend on the component’s render, keep it <strong>outside</strong> to avoid recreating it every render.
+      </p>
+      <pre><code>const messages = [
+  "Learn React ⚛️",
+  "Apply to jobs 💼",
+  "Invest your new income 💰",
+];</code></pre>
+
+      <h3>2) Use a <code>step</code> variable (static for now)</h3>
+      <p>
+        For the static version, you hard-code <code>step</code> to a number. Later, this becomes <strong>state</strong>.
+      </p>
+      <pre><code>export default function App() {
+  const step = 1; // later: this will change via state
+
+  return (
+    &lt;p className="message"&gt;
+      Step {step}: {messages[step - 1]}
+    &lt;/p&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>🔍 Why <code>step - 1</code>?</strong></p>
+        <ul>
+          <li>Arrays are <strong>0-based</strong>: first item is index <code>0</code></li>
+          <li>Steps are <strong>1-based</strong>: Step 1, Step 2, Step 3</li>
+        </ul>
+      </div>
+
+      <h3>3) Conditionally add the “active” class to numbers</h3>
+      <p>
+        To highlight steps, you conditionally build a <code>className</code> string using a template literal.
+        Concept: if <code>step</code> is at least 2, then step 2 should look “active”, etc.
+      </p>
+      <pre><code>&lt;div className="numbers"&gt;
+  &lt;div className={`${step &gt;= 1 ? "active" : ""}`}&gt;1&lt;/div&gt;
+  &lt;div className={`${step &gt;= 2 ? "active" : ""}`}&gt;2&lt;/div&gt;
+  &lt;div className={`${step &gt;= 3 ? "active" : ""}`}&gt;3&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+      <p class="muted">
+        Note: when the condition is false, the class becomes an empty string. That’s fine.
+      </p>
+
+      <div class="callout">
+        <p><strong>✅ What you just practiced:</strong></p>
+        <ul>
+          <li>🧠 JavaScript inside JSX via curly braces: <code>{...}</code></li>
+          <li>🧩 Conditional logic via ternary operator</li>
+          <li>🎨 Conditional class names (a common React pattern)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="takeaways">
+      <h2>📌 Key takeaways + common beginner mistakes</h2>
+
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>🧱 Build UI first: get the JSX structure working before interactivity.</li>
+        <li>🗂️ Keep constant data (like <code>messages</code>) outside the component when possible.</li>
+        <li>🧠 Use JS expressions inside JSX to produce dynamic text and class names.</li>
+        <li>🎯 Next step: connect button clicks to updates (events + state).</li>
+      </ul>
+
+      <h3>Common mistakes to avoid</h3>
+      <ul>
+        <li>⚠️ Forgetting that JSX inline styles use an object: <code>style={{ ... }}</code> (double curly braces).</li>
+        <li>⚠️ Using <code>class</code> instead of <code>className</code> in JSX.</li>
+        <li>⚠️ Off-by-one errors when indexing arrays (remember <code>messages[step - 1]</code>).</li>
+        <li>⚠️ Writing statements inside JSX (use expressions like ternary; statements like <code>if</code> don’t go directly inside JSX).</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>➡️ What’s next?</strong> You’ll attach click handlers (<code>onClick</code>) and replace the hard-coded <code>step</code> with <strong>state</strong> so the UI updates when users press Next/Previous.</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>
+        Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

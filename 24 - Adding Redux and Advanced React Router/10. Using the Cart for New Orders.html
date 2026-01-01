@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Using the Cart for New Orders — Create Order + Clear Cart Hack + Priority Pricing (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f7f7f9;
+      --warn: #8a4b00;
+      --ok: #0b7a2a;
+      --info: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 36px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout strong { color: var(--text); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.info { border-left-color: var(--info); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 860px) {
+      .two-col { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 18mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      pre { overflow: visible; white-space: pre-wrap; word-break: break-word; }
+      .chip { border-color: #dcdcdc; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧾 Using the Cart for New Orders (Redux + React Router)</h1>
+      <p class="subtitle">Study guide from the lecture transcript: use Redux cart data in CreateOrder, handle empty cart, clear cart after submission (store dispatch hack), and show final button price with priority.</p>
+      <div class="meta">
+        <span class="chip">🧩 Hooks: <code>useSelector</code></span>
+        <span class="chip">🛒 Selector: <code>getCart</code></span>
+        <span class="chip">🧹 Action: <code>clearCart</code></span>
+        <span class="chip">🧾 Hidden field: serialize cart</span>
+        <span class="chip">⭐ Priority fee: +20%</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 What you will build in this lesson</h2>
+        <p>
+          Now that the cart is working, you will use the cart data to <strong>submit a new order</strong>.
+          The order creation logic already exists; the main job is to <strong>replace the fake cart</strong> with real Redux state.
+        </p>
+        <ul>
+          <li>✅ Select the full cart from Redux (no more fake cart object)</li>
+          <li>🕳️ If cart is empty, show <code>&lt;EmptyCart /&gt;</code></li>
+          <li>🧹 After submitting, clear the cart automatically</li>
+          <li>💰 Show the final total in the “Order now” button (including priority)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧩 Step 1: Replace the fake cart with Redux cart</h2>
+        <p>
+          In the CreateOrder feature, the starter code submits orders using a fake cart object.
+          You replace that by selecting the cart from Redux.
+        </p>
+
+        <pre><code>// CreateOrder.jsx (conceptual)
+import { useSelector } from "react-redux";
+import { getCart } from "../cart/cartSlice"; // path may vary
+
+const cart = useSelector(getCart);
+</code></pre>
+
+        <div class="callout warn">
+          <p><strong>⚠️ Very common bug</strong></p>
+          <p>
+            Do NOT call the selector yourself:
+            <code>useSelector(getCart())</code> ❌
+          </p>
+          <p>
+            The selector is a function that Redux will call for you.
+            You pass the function reference:
+            <code>useSelector(getCart)</code> ✅
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🕳️ Step 2: Block ordering when the cart is empty</h2>
+        <p>
+          If <code>cart.length</code> is 0, users should not be able to place an order.
+          The lecture reuses the <code>EmptyCart</code> component.
+        </p>
+
+        <pre><code>// CreateOrder.jsx (conceptual)
+import EmptyCart from "../cart/EmptyCart"; // path may vary
+
+if (!cart.length) return &lt;EmptyCart /&gt;;
+</code></pre>
+
+        <div class="callout ok">
+          <p><strong>✅ Result</strong></p>
+          <ul>
+            <li>Empty cart → user is redirected to add pizzas</li>
+            <li>Cart has items → CreateOrder form renders normally</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 Step 3: Pass cart data through the form (hidden field trick)</h2>
+        <p>
+          The transcript explains an important limitation: the route <em>action</em> (the form submit handler)
+          cannot directly read Redux state via <code>useSelector</code>.
+        </p>
+
+        <div class="callout info">
+          <p><strong>🧠 Why?</strong></p>
+          <p>
+            Hooks like <code>useSelector</code> only work inside React components.
+            A route action is a regular function.
+          </p>
+        </div>
+
+        <p>
+          The workaround used here is to serialize the cart into a hidden input.
+          On submit, the action reads the form data and can reconstruct the cart.
+        </p>
+
+        <pre><code>// CreateOrder.jsx (conceptual)
+&lt;input type="hidden" name="cart" value={JSON.stringify(cart)} /&gt;
+</code></pre>
+
+        <div class="callout">
+          <p><strong>Note</strong></p>
+          <p>
+            This is a deliberate “hack/trick,” but it keeps the action independent of Redux.
+            It is also easy to reason about during learning.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>✅ Step 4: Submit an order using the real cart</h2>
+        <p>
+          After wiring the Redux cart into the form, placing an order now uses the real pizzas you added.
+          You can verify in the UI that the created order contains the exact items and quantities.
+        </p>
+
+        <div class="callout warn">
+          <p><strong>Minor UI issue</strong></p>
+          <p>
+            If you see a React warning about <code>key</code> props, it often means you used the wrong id field.
+            Many cart items use <code>pizzaId</code> (not <code>id</code>).
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧹 Step 5: Clear the cart after a successful order (store dispatch hack)</h2>
+        <p>
+          In real shopping carts, once you place an order, the cart should reset.
+          The challenge: the cart-clearing logic needs to run inside the route action.
+        </p>
+
+        <div class="callout warn">
+          <p><strong>Constraint</strong></p>
+          <p>
+            You cannot use <code>useDispatch</code> inside an action.
+          </p>
+        </div>
+
+        <p>
+          The lecture demonstrates a hack: import the Redux store directly and dispatch on it.
+          This should not be overused, but it works for this learning project.
+        </p>
+
+        <pre><code>// createOrderAction.js (or where your action lives) — conceptual
+import store from "../store"; // path may vary
+import { clearCart } from "../cart/cartSlice";
+
+export async function action({ request }) {
+  // ...create order logic...
+
+  store.dispatch(clearCart());
+
+  // ...return redirect/response...
+}
+</code></pre>
+
+        <div class="callout warn">
+          <p><strong>⚠️ Why “don’t overuse”?</strong></p>
+          <p>
+            Dispatching via imported store can bypass some typical patterns and may reduce certain optimizations
+            (and makes code harder to test/structure in large apps).
+          </p>
+        </div>
+
+        <div class="callout ok">
+          <p><strong>✅ Result</strong></p>
+          <ul>
+            <li>Place order → order is created</li>
+            <li>Cart is automatically emptied</li>
+            <li>Cart overview disappears</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>💰 Step 6: Show final price in the “Order now” button</h2>
+        <p>
+          You already have a selector for total cart price.
+          Now you want the button text to show something like:
+          <strong>“Order now for €45.00”</strong>.
+        </p>
+
+        <pre><code>// CreateOrder.jsx (conceptual)
+import { useSelector } from "react-redux";
+import { getTotalCartPrice } from "../cart/cartSlice";
+import { formatCurrency } from "../utils/helpers"; // likely named export
+
+const totalCartPrice = useSelector(getTotalCartPrice);
+</code></pre>
+
+        <div class="divider"></div>
+
+        <h3>⭐ Add priority pricing (+20%)</h3>
+        <p>
+          Priority adds 20% of the cart price.
+          Since the checkbox changes the UI, you need state (reactive value), typically:
+          <code>withPriority</code>.
+        </p>
+
+        <pre><code>// CreateOrder.jsx (conceptual)
+const [withPriority, setWithPriority] = useState(false);
+
+const priorityPrice = withPriority ? totalCartPrice * 0.2 : 0;
+const totalPrice = totalCartPrice + priorityPrice;
+</code></pre>
+
+        <p>Then update the button label:</p>
+        <pre><code>&lt;button&gt;
+  Order now for {formatCurrency(totalPrice)}
+&lt;/button&gt;
+</code></pre>
+
+        <div class="callout ok">
+          <p><strong>✅ Result</strong></p>
+          <ul>
+            <li>Toggle priority checkbox → button price updates immediately</li>
+            <li>Priority fee is exactly 20% of cart total</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>☑️ Controlled checkbox + “on/off” vs “true/false” issue</h2>
+        <p>
+          The transcript mentions a subtle but real bug:
+          once you make the checkbox controlled (using React state), the submitted value may change.
+        </p>
+
+        <div class="two-col">
+          <div class="callout">
+            <p><strong>Before</strong> (uncontrolled checkbox)</p>
+            <p>
+              Form submission may send values like <code>"on"</code>.
+            </p>
+          </div>
+          <div class="callout warn">
+            <p><strong>After</strong> (controlled checkbox)</p>
+            <p>
+              You may end up with values like <code>"true"</code> / <code>"false"</code> (strings).
+              Your action must parse correctly.
+            </p>
+          </div>
+        </div>
+
+        <p>
+          If your action previously checked <code>value === "on"</code>, it will fail.
+          Update the condition to match the new value.
+        </p>
+
+        <pre><code>// action (conceptual)
+const data = Object.fromEntries(await request.formData());
+
+const priority = data.priority === "true"; // instead of checking "on"
+</code></pre>
+
+        <div class="callout">
+          <p><strong>Tip</strong></p>
+          <p>
+            When in doubt, temporarily log <code>data</code> to see what the form is actually sending.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧯 Common issues and quick fixes</h2>
+        <ul>
+          <li>
+            ❌ <strong>“Cannot read properties of undefined” in selector</strong>
+            <div class="callout"><strong>Fix:</strong> Ensure you did <code>useSelector(getCart)</code> (no parentheses), and confirm the state shape matches <code>state.cart.cart</code>.</div>
+          </li>
+          <li>
+            ❌ <strong>Order form shows even when cart is empty</strong>
+            <div class="callout"><strong>Fix:</strong> add <code>if (!cart.length) return &lt;EmptyCart /&gt;;</code>.</div>
+          </li>
+          <li>
+            ❌ <strong>Cart not cleared after ordering</strong>
+            <div class="callout"><strong>Fix:</strong> dispatch <code>clearCart()</code> inside the action (store dispatch hack).</div>
+          </li>
+          <li>
+            ❌ <strong>Priority not reflected in final order</strong>
+            <div class="callout"><strong>Fix:</strong> ensure the action parses the checkbox value correctly (<code>"true"</code> vs <code>"on"</code>).</div>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Mini-quiz (for retention)</h2>
+        <ol>
+          <li>Why can’t you use <code>useSelector</code> inside a React Router form action?</li>
+          <li>Why is <code>useSelector(getCart())</code> wrong?</li>
+          <li>What is the purpose of serializing the cart into a hidden input?</li>
+          <li>Why is importing the store in an action considered “hacky”?</li>
+          <li>How do you compute the priority fee?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🧾 Quick recap</h2>
+        <ul>
+          <li>🛒 Use Redux cart in CreateOrder via <code>useSelector(getCart)</code></li>
+          <li>🕳️ Empty cart → render <code>&lt;EmptyCart /&gt;</code></li>
+          <li>🧾 Pass cart to action via hidden input: <code>JSON.stringify(cart)</code></li>
+          <li>🧹 Clear cart after submit via store dispatch: <code>store.dispatch(clearCart())</code></li>
+          <li>💰 Display final price in button: cart total + 20% priority (when selected)</li>
+          <li>☑️ Watch out for checkbox values (<code>"on"</code> vs <code>"true"</code>)</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

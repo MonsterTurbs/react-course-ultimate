@@ -1,0 +1,379 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React useEffect Data Fetching — Handling Errors (Study Guide)</title>
+  <style>
+    /* =========
+       Print-friendly, A4, single-column layout
+       ========= */
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --accent:#0b57d0;
+      --ok:#0a7a2f;
+      --warn:#b45309;
+      --bad:#b42318;
+      --codebg:#f6f8fa;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 60px;
+    }
+
+    header{
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1{
+      margin: 0 0 6px;
+      font-size: 1.65rem;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .chip{
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    section{
+      margin: 18px 0;
+      padding: 0;
+    }
+
+    h2{
+      margin: 18px 0 10px;
+      font-size: 1.25rem;
+    }
+
+    h3{
+      margin: 14px 0 8px;
+      font-size: 1.08rem;
+    }
+
+    p{ margin: 8px 0; }
+
+    ul{ margin: 8px 0 8px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      background: #fff;
+      border-left: 6px solid var(--accent);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.ok{ border-left-color: var(--ok); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.bad{ border-left-color: var(--bad); }
+
+    .label{
+      font-weight: 700;
+      margin-right: 6px;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .95em;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      background: #fff;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .95em;
+      white-space: pre-wrap;      /* wrap long lines for printing */
+      overflow-wrap: anywhere;
+    }
+
+    .two-col{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini{
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .hr{
+      height:1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .checklist li{ list-style: "✅  "; }
+
+    .no-break{ break-inside: avoid; page-break-inside: avoid; }
+
+    /* ========= Print rules ========= */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; padding: 0; }
+      .chip, .callout, pre, .mini{ box-shadow:none !important; }
+      a{ color: var(--text); text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>⚠️ Handling Errors in Data Fetching (useEffect)</h1>
+      <p class="subtitle">A beginner-friendly reviewer on how to avoid “stuck loading”, show helpful error messages, and keep your UI stable.</p>
+      <div class="meta">
+        <span class="chip">📚 Topic: Effects & Data Fetching</span>
+        <span class="chip">🧠 Focus: try/catch + error state + conditional rendering</span>
+        <span class="chip">🖨️ A4 Print Ready</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Why error handling is non‑negotiable</h2>
+      <p>
+        When you fetch data (async work), always assume something can go wrong: users can go offline, the API can fail, or the API can return
+        an “unexpected shape” (missing properties). If you don’t handle errors, your app can get stuck showing <strong>Loading...</strong> forever.
+      </p>
+
+      <div class="callout warn">
+        <span class="label">Key problem:</span>
+        A failed request can leave <code>isLoading</code> as <strong>true</strong>, so the UI keeps waiting even though data will never arrive.
+        <span aria-hidden="true"> 😵</span>
+      </div>
+
+      <h3>Quick demo idea (as in the lecture)</h3>
+      <ul>
+        <li>Open DevTools → <strong>Network</strong></li>
+        <li>Throttle to <strong>Slow 3G</strong></li>
+        <li>Reload, then toggle <strong>Offline</strong> while the request is in flight</li>
+        <li>Observe: fetch fails and the UI can remain in loading state if not handled</li>
+      </ul>
+    </section>
+
+    <section class="no-break">
+      <h2>2) What can go wrong?</h2>
+      <div class="two-col">
+        <div class="mini">
+          <h3>🌐 Network / connection errors</h3>
+          <ul>
+            <li>User goes offline mid‑request</li>
+            <li>Request fails (e.g., <code>Failed to fetch</code>)</li>
+          </ul>
+        </div>
+        <div class="mini">
+          <h3>🧾 Server / API errors</h3>
+          <ul>
+            <li>Non‑2xx HTTP status (e.g., 401, 404, 500)</li>
+            <li>API returns “not found” or an error response</li>
+            <li>API response shape changes (missing <code>Search</code>)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) The standard pattern: try/catch/finally + error state</h2>
+      <p>
+        The reliable approach is:
+      </p>
+      <ul class="checklist">
+        <li>Set <code>isLoading</code> to <code>true</code> before the request</li>
+        <li>Clear previous errors before starting (optional but recommended)</li>
+        <li>Throw your own error when the response indicates failure</li>
+        <li>Catch errors and store a user‑friendly message in <code>error</code> state</li>
+        <li>Always set <code>isLoading</code> back to <code>false</code> in <code>finally</code></li>
+      </ul>
+
+      <div class="callout ok">
+        <span class="label">Why <code>finally</code> matters:</span>
+        If an error is thrown, code below the throw won’t run. <code>finally</code> runs no matter what, so loading gets reset. ✅
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Practical code example (matches the lecture flow)</h2>
+      <p>
+        This example demonstrates:
+        <strong>response.ok check</strong>, <strong>API “not found” check</strong>, and a clean UI state model.
+      </p>
+
+      <pre><code>// State you typically need
+const [movies, setMovies] = useState([]);
+const [isLoading, setIsLoading] = useState(false);
+const [error, setError] = useState(""); // store an error message string
+
+useEffect(function () {
+  async function fetchMovies() {
+    try {
+      setIsLoading(true);
+      setError(""); // clear previous error
+
+      const res = await fetch(`https://www.omdbapi.com/?apikey=${KEY}&s=${query}`);
+
+      // 1) HTTP-level failures
+      if (!res.ok) throw new Error("Something went wrong with fetching movies");
+
+      const data = await res.json();
+
+      // 2) API-level failures (OMDb uses Response: "False")
+      if (data.Response === "False") throw new Error("Movie not found");
+
+      setMovies(data.Search);
+    } catch (err) {
+      // err is a real JS Error object
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  fetchMovies();
+}, [query]);</code></pre>
+
+      <div class="callout warn">
+        <span class="label">Reminder:</span>
+        State updates are asynchronous. If you log <code>movies</code> right after <code>setMovies</code>, you may still see the old value.
+        Prefer logging <code>data.Search</code> inside the effect if you want immediate confirmation. 🧠
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Showing the error in the UI</h2>
+      <p>
+        Create a simple presentational component and render it only when an error exists.
+      </p>
+
+      <pre><code>function ErrorMessage({ message }) {
+  return (
+    &lt;p className="error"&gt;
+      ⚠️ {message}
+    &lt;/p&gt;
+  );
+}</code></pre>
+
+      <h3>Mutually exclusive UI states (important)</h3>
+      <p>
+        You generally want exactly <strong>one</strong> of these to show at any time:
+      </p>
+      <ul>
+        <li><strong>Loading</strong> (request in progress)</li>
+        <li><strong>Error</strong> (request failed)</li>
+        <li><strong>Data</strong> (request succeeded)</li>
+      </ul>
+
+      <pre><code>&lt;div className="box"&gt;
+  {isLoading &amp;&amp; &lt;Loader /&gt;}
+  {!isLoading &amp;&amp; !error &amp;&amp; &lt;MovieList movies={movies} /&gt;}
+  {!isLoading &amp;&amp; error &amp;&amp; &lt;ErrorMessage message={error} /&gt;}
+&lt;/div&gt;</code></pre>
+
+      <div class="callout bad">
+        <span class="label">Common bug:</span>
+        Forgetting <code>!isLoading</code> checks can accidentally show data + error at the same time.
+        Keep your conditions mutually exclusive. 🧪
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Handling “data.Search is undefined” (API returned no Search)</h2>
+      <p>
+        In the lecture, a fake query returns no results. OMDb responds with:
+        <code>Response: "False"</code> and no <code>Search</code> array.
+        If you run <code>setMovies(data.Search)</code> directly, you’ll get runtime errors later (e.g., trying to read <code>length</code> of <code>undefined</code>).
+      </p>
+
+      <div class="callout ok">
+        <span class="label">Fix:</span>
+        Check <code>data.Response === "False"</code> and throw a user-friendly error like <strong>“Movie not found”</strong>. ✅
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Mini reviewer: key takeaways</h2>
+      <ul>
+        <li>⚠️ Fetching can fail for many reasons: offline, server error, “not found”, unexpected response shape.</li>
+        <li>🧩 Use <code>try/catch</code> to catch failures and store the message in <code>error</code> state.</li>
+        <li>✅ Use <code>finally</code> to always reset <code>isLoading</code> so the UI never gets stuck.</li>
+        <li>🧠 Render exactly one UI state at a time: Loading OR Error OR Data.</li>
+        <li>🔍 For fetch: <code>res.ok</code> checks HTTP status; API responses may still contain “failure” info you must check.</li>
+      </ul>
+    </section>
+
+    <section class="no-break">
+      <h2>8) Quick self-check questions</h2>
+      <ol>
+        <li>Why is <code>finally</code> better than setting <code>isLoading</code> only at the end of the <code>try</code> block?</li>
+        <li>What’s the difference between an HTTP error (like 500) and an API “not found” response?</li>
+        <li>Why should your loading/error/data rendering conditions be mutually exclusive?</li>
+        <li>In OMDb, which field tells you “no results found”?</li>
+      </ol>
+
+      <div class="hr"></div>
+      <p class="subtitle">
+        End of study page — print this on A4 for a clean reviewer.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

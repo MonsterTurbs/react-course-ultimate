@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Pages Router — Handling Form Submissions (Contact Form + API Route)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --code-bg: #f3f4f6;
+      --accent: #0b57d0;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 0;
+      font-size: 13.5px;
+    }
+
+    .chips {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      white-space: nowrap;
+    }
+
+    main {
+      margin-top: 14px;
+      display: grid;
+      gap: 14px;
+    }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: #fff;
+      page-break-inside: avoid;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 8px;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 8px 12px;
+      background: #fff;
+      margin: 10px 0;
+    }
+
+    .warn {
+      border-left: 4px solid #b42318;
+      padding: 8px 12px;
+      background: #fff;
+      margin: 10px 0;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--code-bg);
+      overflow: auto;
+      white-space: pre;
+      page-break-inside: avoid;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kpi .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Print (A4) */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { font-size: 11.5pt; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-color: #cfcfcf; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; }
+      pre { overflow: visible; white-space: pre-wrap; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 Next.js Pages Router — Handling Form Submissions (Contact Form + API Route)</h1>
+      <p class="subtitle">Reviewer / study guide (beginner-friendly). Topic: connect a React form to a Pages Router API route using <code>fetch</code> and the <code>FormData</code> web API.</p>
+      <div class="chips">
+        <span class="chip">🧠 Uncontrolled Forms</span>
+        <span class="chip">📦 <code>FormData</code> + <code>Object.fromEntries</code></span>
+        <span class="chip">📨 POST <code>/api/contact</code></span>
+        <span class="chip">⏳ Loading state</span>
+        <span class="chip">✅ Success / ❌ Error UI</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goal of the lecture</h2>
+        <ul>
+          <li>Create an <strong>onSubmit handler</strong> in <code>pages/contact.js</code>.</li>
+          <li>Collect form input values <strong>without</strong> creating state per field (no “controlled inputs” required).</li>
+          <li>Send the data to a Pages Router <strong>API Route</strong> at <code>/api/contact</code>.</li>
+          <li>Show UI feedback: <strong>Sending…</strong>, success message, and error message.</li>
+        </ul>
+        <div class="note">
+          <strong>Key idea:</strong> In the Pages Router, API routes are the primary way to mutate data on the server (similar role to server actions in the App Router). ✅
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Two ways to handle forms in React</h2>
+        <div class="kpi">
+          <div class="box">
+            <strong>Option A: Controlled inputs (classic React)</strong>
+            <ul>
+              <li>Create 1 state variable per input</li>
+              <li>Use <code>value</code> + <code>onChange</code> on every field</li>
+              <li>React controls every keystroke</li>
+            </ul>
+          </div>
+          <div class="box">
+            <strong>Option B: Uncontrolled inputs (this lecture)</strong>
+            <ul>
+              <li>No state per field</li>
+              <li>Grab all values <strong>only on submit</strong> via the browser’s <code>FormData</code> API</li>
+              <li>Less boilerplate, still perfectly valid ✅</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>📦 Collecting form values with <code>FormData</code></h2>
+        <p>When the form is submitted, you receive a submit event <code>e</code>. The form element is <code>e.target</code>.</p>
+        <pre><code>// 1) Prevent page reload (keep SPA behavior)
+e.preventDefault();
+
+// 2) Create FormData from the submitted form
+const formData = new FormData(e.target);
+
+// 3) Convert entries() to a plain JS object
+const contactData = Object.fromEntries(formData.entries());
+
+console.log(contactData);
+// { fullName: "...", email: "...", subject: "...", message: "..." }</code></pre>
+        <div class="note">
+          <strong>Important:</strong> The keys in <code>contactData</code> come from your input <code>name</code> attributes. Example: <code>&lt;input name="email" /&gt;</code> becomes <code>{ email: "..." }</code>.
+        </div>
+      </section>
+
+      <section>
+        <h2>📨 Sending data to the API route (POST request)</h2>
+        <p>From the front end (React component), call your Pages Router API route:</p>
+        <pre><code>// Make the handler async
+async function handleSubmit(e) {
+  e.preventDefault();
+
+  // Prepare data
+  const formData = new FormData(e.target);
+  const contactData = Object.fromEntries(formData.entries());
+
+  // Loading UI
+  setIsSubmitting(true);
+
+  try {
+    // POST to /api/contact
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(contactData),
+    });
+
+    // Read JSON result
+    const result = await response.json();
+    const { success, message } = result;
+
+    // Update UI state
+    setSuccess(success);
+    setMessage(message);
+  } catch (err) {
+    setSuccess(false);
+    setMessage("Network error. Please try again.");
+  } finally {
+    setIsSubmitting(false);
+  }
+}</code></pre>
+        <div class="warn">
+          <strong>Common bug:</strong> If you forget <code>await fetch(...)</code> OR forget to make <code>handleSubmit</code> async, the UI won’t wait and your loading state won’t behave correctly. ⚠️
+        </div>
+      </section>
+
+      <section>
+        <h2>⏳ UX: loading state + button disable</h2>
+        <p>Disable the button during the request to prevent double-submits:</p>
+        <pre><code>&lt;button type="submit" disabled={isSubmitting}&gt;
+  {isSubmitting ? "Sending…" : "Send message"}
+&lt;/button&gt;</code></pre>
+        <p class="muted">You can also visually gray out the form while submitting (optional enhancement).</p>
+      </section>
+
+      <section>
+        <h2>✅ Show success screen, ❌ show error message</h2>
+        <p>A clean UX pattern: once successful, hide the form and show the server-provided message.</p>
+        <pre><code>{success ? (
+  &lt;p className="text-center text-lg"&gt;{message}&lt;/p&gt;
+) : (
+  &lt;form onSubmit={handleSubmit}&gt;
+    {/* fields... */}
+
+    {/* Error message if request failed */}
+    {!success &amp;&amp; message ? (
+      &lt;p className="text-red-600"&gt;{message}&lt;/p&gt;
+    ) : (
+      &lt;p&gt;&amp;nbsp;&lt;/p&gt;
+    )}
+
+    &lt;button type="submit" disabled={isSubmitting}&gt;
+      {isSubmitting ? "Sending…" : "Send message"}
+    &lt;/button&gt;
+  &lt;/form&gt;
+)}</code></pre>
+        <div class="note">
+          <strong>Why render an empty paragraph sometimes?</strong> Keeps layout stable (e.g., button alignment) even when there is no error text. ✅
+        </div>
+      </section>
+
+      <section>
+        <h2>🛠️ Server side: Pages Router API route basics</h2>
+        <p>In the Pages Router, API routes live only inside <code>pages/api</code>. Example: <code>pages/api/contact.js</code>.</p>
+        <h3>1) Guard clause: only allow POST</h3>
+        <pre><code>export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({
+      success: false,
+      message: "Please make a POST request.",
+    });
+  }
+
+  // ...handle POST
+}</code></pre>
+
+        <h3>2) Read request body</h3>
+        <p>If the client sends JSON, you parse it:</p>
+        <pre><code>const contactData = JSON.parse(req.body);
+// { fullName, email, subject, message }</code></pre>
+
+        <h3>3) Return a consistent JSON response</h3>
+        <pre><code>if (error) {
+  return res.status(500).json({
+    success: false,
+    message: "Could not send your message. Please try again.",
+  });
+}
+
+return res.status(200).json({
+  success: true,
+  message: "Thanks for your message. We will be in touch soon.",
+});</code></pre>
+      </section>
+
+      <section>
+        <h2>🧪 Debug checklist (fast)</h2>
+        <ul>
+          <li>✅ Form inputs have correct <code>name</code> attributes (these become object keys).</li>
+          <li>✅ <code>handleSubmit</code> uses <code>e.preventDefault()</code>.</li>
+          <li>✅ <code>fetch</code> is awaited: <code>await fetch(...)</code>.</li>
+          <li>✅ Request uses <code>method: "POST"</code>.</li>
+          <li>✅ Send JSON with <code>JSON.stringify</code> and set <code>Content-Type: application/json</code>.</li>
+          <li>✅ API route returns early on non-POST (<code>return res.status(405)...</code>).</li>
+          <li>✅ If using <code>JSON.parse(req.body)</code>, ensure the request body is actually JSON.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧾 Mental model: Pages Router vs App Router</h2>
+        <ul>
+          <li><strong>App Router:</strong> server actions + RSC model = mutations can happen without separate API endpoints.</li>
+          <li><strong>Pages Router:</strong> no server actions → for server-side mutations you commonly build API routes and call them from React via <code>fetch</code>.</li>
+          <li><strong>Pages Router feels simpler:</strong> mostly classic SSR/SSG patterns, fewer caching/streaming concepts.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>✅ Quick summary</h2>
+        <ul>
+          <li>Use <code>FormData</code> + <code>Object.fromEntries</code> to collect form values on submit (less boilerplate).</li>
+          <li>Call <code>/api/contact</code> with <code>fetch</code> (POST + JSON body).</li>
+          <li>Use UI state: <code>isSubmitting</code>, <code>success</code>, <code>message</code> for good feedback.</li>
+          <li>API route: guard clause for POST + parse body + insert to DB + return JSON result.</li>
+        </ul>
+        <p class="muted">End of lecture: you now have a working contact page connected to a server endpoint in the Pages Router.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

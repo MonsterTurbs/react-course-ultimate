@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js — Generating Dynamic Metadata (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --soft2: #fbfbfb;
+      --accent: #0b57d0;
+      --ok: #0f766e;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --codebg: #0b0f19;
+      --codefg: #e6edf3;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      hyphens: auto;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px 64px;
+    }
+
+    header {
+      padding: 18px 16px;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 1.65rem;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    section > .hd {
+      padding: 12px 14px;
+      background: var(--soft);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      margin: 0;
+    }
+
+    .tag {
+      font-size: 0.85rem;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 4px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .bd { padding: 14px 14px 16px; }
+
+    p { margin: 0 0 10px; }
+    ul { margin: 8px 0 0; padding-left: 18px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left-width: 6px;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+      margin: 10px 0;
+    }
+
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.danger { border-left-color: var(--danger); }
+
+    .callout .t {
+      font-weight: 700;
+      margin: 0 0 4px;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 780px) {
+      .grid2 { grid-template-columns: 1fr 1fr; }
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 10px;
+      overflow: auto;
+      border: 1px solid #111827;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      tab-size: 2;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92rem;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    footer {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      padding: 10px 2px 0;
+    }
+
+    /* Print rules (A4, no link URLs, clean spacing) */
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-color: #d9d9d9; }
+      .chip, .tag { border-color: #d9d9d9; }
+
+      /* Avoid printing link URLs */
+      a, a:visited { color: inherit; text-decoration: none; }
+      a[href]::after { content: "" !important; }
+
+      /* Prevent awkward breaks */
+      header, section, pre, .callout { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Slightly tighten */
+      h1 { font-size: 1.45rem; }
+      h2 { font-size: 1.08rem; }
+      pre { font-size: 0.86rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧭 Next.js: Generating Dynamic Metadata (Cabin Pages)</h1>
+      <p class="subtitle">Reviewer / Study Guide — Fixing dynamic page titles using <code>generateMetadata</code> for dynamic routes (e.g., <code>/cabins/[cabinId]</code>).</p>
+      <div class="meta">
+        <span class="chip">🎯 Goal: Correct titles per cabin</span>
+        <span class="chip">🧩 Topic: Next.js Metadata API</span>
+        <span class="chip">⚙️ Pattern: Dynamic route params → fetch → return metadata</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <div class="hd">
+          <h2>1) The Problem</h2>
+          <span class="tag">🧯 Bug / UX issue</span>
+        </div>
+        <div class="bd">
+          <p>On individual cabin pages (e.g., <code>/cabins/91</code>), the browser tab title falls back to the default (for example: <strong>“Welcome”</strong>) instead of showing something meaningful like <strong>“Cabin 004”</strong>.</p>
+
+          <div class="callout warn">
+            <p class="t">⚠️ Why this matters</p>
+            <ul>
+              <li><strong>User experience:</strong> Tabs become confusing when all pages look the same.</li>
+              <li><strong>SEO:</strong> A clear title helps search engines understand the page content.</li>
+              <li><strong>Consistency:</strong> Your static pages already set titles correctly, but dynamic pages do not.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="hd">
+          <h2>2) “Okay, I’ll just export metadata…” (Why it’s not enough)</h2>
+          <span class="tag">🧠 Static vs dynamic</span>
+        </div>
+        <div class="bd">
+          <p>A first attempt might be:</p>
+          <pre><code>// ❌ Static title (same for every cabin)
+export const metadata = {
+  title: "Cabin",
+};</code></pre>
+
+          <p>This fixes the “Welcome” fallback, but it’s still not ideal because it cannot include the cabin name (like <code>Cabin 004</code>) without fetching data.</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="hd">
+          <h2>3) The Correct Solution: <code>generateMetadata</code></h2>
+          <span class="tag">✅ Next.js convention</span>
+        </div>
+        <div class="bd">
+          <p>Next.js allows you to dynamically generate metadata by exporting an <strong>async function</strong> named <code>generateMetadata</code>.</p>
+
+          <div class="callout ok">
+            <p class="t">✅ Key idea</p>
+            <p><strong>Use route params → fetch the cabin → return an object with <code>title</code>.</strong></p>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <p><strong>What does <code>generateMetadata</code> receive?</strong></p>
+              <ul>
+                <li><code>params</code> (same concept as in the page component)</li>
+                <li>The property name matches your dynamic folder name (example: <code>[cabinId]</code>)</li>
+              </ul>
+            </div>
+            <div>
+              <p><strong>What do you return?</strong></p>
+              <ul>
+                <li>An object shaped like the usual <code>metadata</code></li>
+                <li>At minimum: <code>{ title: "..." }</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <p><strong>Example (typical file):</strong> <code>app/cabins/[cabinId]/page.js</code></p>
+          <pre><code>import Image from "next/image";
+import { getCabin } from "@/app/_lib/data-service";
+
+// ✅ Dynamic metadata
+export async function generateMetadata({ params }) {
+  const cabin = await getCabin(params.cabinId);
+  return {
+    title: `Cabin ${cabin.name}`,
+  };
+}
+
+export default async function Page({ params }) {
+  const cabin = await getCabin(params.cabinId);
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Cabin {cabin.name}&lt;/h1&gt;
+      {/* Example image usage */}
+      &lt;div className="relative aspect-video"&gt;
+        &lt;Image
+          src={cabin.image}
+          alt={`Cabin ${cabin.name}`}
+          fill
+          className="object-cover"
+        /&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+          <div class="callout ok">
+            <p class="t">🧠 Beginner-friendly explanation</p>
+            <ul>
+              <li><code>params.cabinId</code> comes from the URL (e.g., <code>/cabins/91</code> → <code>cabinId = "91"</code>).</li>
+              <li><code>getCabin()</code> fetches the cabin record from Supabase (or your backend).</li>
+              <li>The returned metadata object sets the browser tab title to something meaningful.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="hd">
+          <h2>4) Why Next.js waits for this</h2>
+          <span class="tag">🚀 Streaming + correctness</span>
+        </div>
+        <div class="bd">
+          <p>When using streaming, Next.js aims to send HTML in chunks as soon as possible. However, the <code>&lt;head&gt;</code> metadata must be correct before the first chunk is streamed.</p>
+
+          <div class="callout ok">
+            <p class="t">✅ Practical effect</p>
+            <p>Next.js will wait for <code>generateMetadata()</code> to finish fetching data so the first streamed response already includes the correct title and other head metadata.</p>
+          </div>
+
+          <div class="callout warn">
+            <p class="t">⚠️ About that “title flicker”</p>
+            <p>During navigation (especially in development), you may briefly see an “ugly” temporary title while the next page is loading. This is a known behavior you might notice, and there may not be a perfect fix in your code for it.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="hd">
+          <h2>5) Common Pitfalls</h2>
+          <span class="tag">🧩 Troubleshooting</span>
+        </div>
+        <div class="bd">
+          <ul>
+            <li>❌ <strong>Wrong function name:</strong> It must be exactly <code>generateMetadata</code>.</li>
+            <li>❌ <strong>Forgetting params shape:</strong> The property must match your folder name (e.g., <code>[cabinId]</code> → <code>params.cabinId</code>).</li>
+            <li>❌ <strong>Not async when needed:</strong> If you fetch cabin data, the function must be <code>async</code>.</li>
+            <li>⚠️ <strong>Duplicate fetching:</strong> If you fetch in both <code>generateMetadata</code> and the page, that can be two requests. (Sometimes acceptable; later you can optimize with caching strategies.)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <div class="hd">
+          <h2>6) Quick Checklist</h2>
+          <span class="tag">🧾 Review</span>
+        </div>
+        <div class="bd">
+          <ul>
+            <li>✅ Dynamic route exists: <code>app/cabins/[cabinId]/page.js</code></li>
+            <li>✅ Export <code>generateMetadata({ params })</code></li>
+            <li>✅ Fetch cabin using <code>params.cabinId</code></li>
+            <li>✅ Return <code>{ title: `Cabin ${name}` }</code></li>
+            <li>✅ Verify: tab title changes per cabin (e.g., Cabin 004, Cabin 001, …)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <div class="hd">
+          <h2>7) Mini Practice (Optional)</h2>
+          <span class="tag">🧪 Hands-on</span>
+        </div>
+        <div class="bd">
+          <p>Try extending metadata beyond title (still using <code>generateMetadata</code>):</p>
+          <pre><code>export async function generateMetadata({ params }) {
+  const cabin = await getCabin(params.cabinId);
+
+  return {
+    title: `Cabin ${cabin.name}`,
+    description: `Details, photos, and availability for Cabin ${cabin.name} at The Wild Oasis.`,
+  };
+}</code></pre>
+
+          <div class="callout ok">
+            <p class="t">✅ Tip</p>
+            <p>Keep metadata short, human-readable, and specific. Think: “If I see this title in a browser tab or search result, will it clearly tell me what page I’m on?”</p>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <p>End of lecture notes: <strong>Generating Dynamic Metadata</strong>. Next topic mentioned: simple error handling.</p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

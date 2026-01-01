@@ -1,0 +1,398 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WorldWise — Fake Auth (Protecting Routes) — Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #1a73e8;
+      --danger: #b42318;
+      --ok: #067647;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: linear-gradient(0deg, var(--soft), #fff);
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      margin: 14px 0;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 14px 10px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 16.5px;
+    }
+
+    h3 {
+      margin: 12px 0 8px;
+      font-size: 14.5px;
+    }
+
+    p { margin: 0 0 10px; }
+
+    ul, ol {
+      margin: 0 0 10px 20px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin: 10px 0 12px;
+    }
+
+    .callout.danger {
+      border-left-color: var(--danger);
+    }
+
+    .callout.ok {
+      border-left-color: var(--ok);
+    }
+
+    .callout p { margin: 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0 12px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: #0b1020;
+      color: #e8eefc;
+      border-radius: 12px;
+      overflow: auto;
+      line-height: 1.45;
+      font-size: 12.5px;
+      tab-size: 2;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      padding: 2px 6px;
+      white-space: nowrap;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 10px 0;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Print setup (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { padding: 0; }
+      header, section { box-shadow: none !important; }
+      a { color: inherit; text-decoration: none; }
+      a[href]::after { content: ""; } /* do NOT print URLs */
+      pre { border-radius: 10px; }
+
+      /* Avoid awkward page breaks */
+      header, section, pre, .callout { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🔐 WorldWise — Fake Authentication: Protecting Routes</h1>
+      <p class="subtitle">
+        Reviewer / Study Guide (React Context API + React Router) — Single-column, print-ready (A4)
+      </p>
+      <div class="meta">
+        <span class="chip">🧩 Pattern: ProtectedRoute wrapper</span>
+        <span class="chip">🧭 Tooling: React Router <code>&lt;Routes&gt;</code> + <code>useNavigate</code></span>
+        <span class="chip">🧠 Key idea: Effects run after render</span>
+        <span class="chip">🛡️ Goal: Block unauthenticated users</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 What we’re building</h2>
+        <p>
+          The third part of a typical authentication flow is <strong>route protection</strong>: preventing users who are
+          <strong>not logged in</strong> from accessing the app’s protected pages.
+        </p>
+
+        <div class="callout">
+          <p>
+            ✅ Desired behavior: If a user tries to visit <code>/app</code>, <code>/app/cities</code>, <code>/app/cities/:id</code>,
+            <code>/app/countries</code>, <code>/app/form</code> while not authenticated, we redirect them back to the homepage.
+          </p>
+        </div>
+
+        <p>
+          Instead of copy-pasting the same redirect logic into every page, we create a reusable component:
+          <strong>ProtectedRoute</strong>.
+        </p>
+      </section>
+
+      <section>
+        <h2>🧩 The ProtectedRoute pattern</h2>
+        <p>
+          The common approach is to create a component that:
+        </p>
+        <ul>
+          <li>Receives <code>children</code> (the UI we want to protect)</li>
+          <li>Checks auth state via a context hook (here: <code>useAuth()</code>)</li>
+          <li>If not authenticated, <strong>navigates away</strong> (redirect) and renders nothing</li>
+        </ul>
+
+        <h3>1) Create <code>ProtectedRoute.jsx</code></h3>
+        <pre><code>// ProtectedRoute.jsx
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/FakeAuthContext";
+
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() =&gt; {
+    if (!isAuthenticated) navigate("/");
+  }, [isAuthenticated, navigate]);
+
+  // IMPORTANT: prevent rendering protected UI before redirect happens
+  if (!isAuthenticated) return null;
+
+  return children;
+}
+
+export default ProtectedRoute;</code></pre>
+
+        <div class="callout danger">
+          <p>
+            ⚠️ Why do we return <code>null</code> when not authenticated?
+            Because <code>useEffect</code> runs <strong>after</strong> the render.
+            Without the conditional <code>return null</code>, the protected UI renders for a split second,
+            which can crash your app (e.g., trying to read <code>user.avatar</code> when <code>user</code> is <code>null</code>).
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧭 Where to apply ProtectedRoute</h2>
+        <p>
+          You can wrap UI in two places:
+        </p>
+        <ol>
+          <li><strong>Inside</strong> <code>AppLayout</code> (works, but less explicit)</li>
+          <li><strong>In your route config</strong> (recommended; very explicit)</li>
+        </ol>
+
+        <p>
+          In WorldWise, most protected pages live under the route that renders <code>&lt;AppLayout /&gt;</code>.
+          So we wrap that element.
+        </p>
+
+        <h3>2) Wrap the layout route in <code>App.jsx</code></h3>
+        <pre><code>// App.jsx (routes)
+import ProtectedRoute from "./pages/ProtectedRoute";
+import AppLayout from "./pages/AppLayout";
+
+// ...
+{
+  path: "app",
+  element: (
+    &lt;ProtectedRoute&gt;
+      &lt;AppLayout /&gt;
+    &lt;/ProtectedRoute&gt;
+  ),
+  children: [
+    // /app/cities, /app/cities/:id, /app/countries, /app/form, ...
+  ],
+}</code></pre>
+
+        <div class="callout ok">
+          <p>
+            ✅ Benefit: One wrapper protects the entire nested route tree. No duplicate redirect code.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Debugging the “redirect but still crashes” issue</h2>
+        <p>
+          If you tried the redirect and still saw errors (example: user component trying to read <code>avatar</code>),
+          the reason is almost always the same:
+        </p>
+        <ul>
+          <li><code>useEffect</code> triggers navigation <strong>after</strong> React renders the current UI once.</li>
+          <li>That first render can crash if protected components assume an authenticated user.</li>
+        </ul>
+        <div class="callout">
+          <p>
+            ✅ Fix: In <code>ProtectedRoute</code>, render <code>null</code> while unauthenticated.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧹 Small UI polish mentioned in the lecture</h2>
+
+        <h3>1) Background image path bug</h3>
+        <p>
+          Sometimes the background image doesn’t show because the path is being resolved relative to <code>/app</code>
+          instead of the site root.
+        </p>
+        <pre><code>/* Example fix in a CSS module */
+.hero {
+  background-image: url("/bg.jpg"); /* leading slash ensures root-based path */
+}</code></pre>
+
+        <h3>2) Update the browser tab title + favicon</h3>
+        <p>
+          Update <code>index.html</code> to look more professional.
+        </p>
+        <pre><code>&lt;!-- index.html --&gt;
+&lt;title&gt;WorldWise | Keep track of your adventures&lt;/title&gt;
+
+&lt;!-- favicon --&gt;
+&lt;link rel="icon" type="image/png" href="/icon.png" /&gt;</code></pre>
+      </section>
+
+      <section>
+        <h2>📌 Quick checklist (memorize this recipe)</h2>
+        <ul>
+          <li>🧩 Create <code>ProtectedRoute</code> that reads <code>isAuthenticated</code> from <code>useAuth()</code></li>
+          <li>🧭 If not authenticated, <code>navigate("/")</code> inside <code>useEffect</code></li>
+          <li>🛑 Prevent “flash of protected UI” by returning <code>null</code> when not authenticated</li>
+          <li>🧱 Wrap your protected route element (e.g., <code>&lt;AppLayout /&gt;</code>) inside <code>&lt;ProtectedRoute&gt;</code></li>
+          <li>✅ Test by directly typing protected URLs while logged out</li>
+        </ul>
+
+        <div class="callout danger">
+          <p>
+            ⚠️ This project uses fake auth (hard-coded user) only for learning. In real apps, auth happens via an API,
+            tokens/sessions, and secure storage—not in front-end source code.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>📝 Mini practice (5 minutes)</h2>
+        <ol>
+          <li>
+            Add a new protected route <code>/app/settings</code> and confirm it redirects to <code>/</code> when logged out.
+          </li>
+          <li>
+            Temporarily remove <code>if (!isAuthenticated) return null;</code> in <code>ProtectedRoute</code> and observe
+            what errors appear. Put it back.
+          </li>
+          <li>
+            Add a <code>Message</code> component (optional) that shows “Please log in first 🔐” instead of returning null.
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>✅ Key takeaways</h2>
+        <ul>
+          <li>Protected routes are best implemented via a <strong>wrapper component</strong>, not duplicated logic.</li>
+          <li><code>useEffect</code> runs after render, so you must avoid rendering protected UI during redirect.</li>
+          <li>Wrapping <code>&lt;AppLayout /&gt;</code> protects all nested routes in one place.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

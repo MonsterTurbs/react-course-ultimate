@@ -1,0 +1,372 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>How React Works — Commit Phase (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --accent:#1a73e8;
+      --good:#137333;
+      --warn:#b06000;
+      --bad:#b00020;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, sans-serif;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    .page{
+      max-width:900px;
+      margin:0 auto;
+      padding:28px 18px 40px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:linear-gradient(180deg, #ffffff 0%, #fbfbfc 100%);
+      border-radius:14px;
+      padding:18px 16px;
+      margin-bottom:14px;
+    }
+    h1{
+      margin:0 0 6px;
+      font-size:22px;
+      letter-spacing:.2px;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      display:inline-block;
+      padding:5px 10px;
+      border:1px solid var(--border);
+      background:var(--soft);
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    main{display:block;}
+
+    h2{
+      margin:18px 0 8px;
+      font-size:16px;
+      padding-bottom:6px;
+      border-bottom:1px solid var(--border);
+    }
+
+    h3{
+      margin:14px 0 6px;
+      font-size:14px;
+    }
+
+    p{margin:8px 0;}
+    ul{margin:8px 0 8px 18px; padding:0;}
+    li{margin:6px 0;}
+
+    .callout{
+      border:1px solid var(--border);
+      border-left-width:5px;
+      border-radius:12px;
+      padding:12px 12px;
+      background:#ffffff;
+      margin:10px 0;
+    }
+    .callout.good{border-left-color:var(--good);}
+    .callout.warn{border-left-color:var(--warn);}
+    .callout.bad{border-left-color:var(--bad);}
+    .callout .title{
+      font-weight:700;
+      margin:0 0 6px;
+      font-size:13px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:#fff;
+    }
+    .card h3{margin-top:0;}
+
+    .kbd{
+      font-family:var(--mono);
+      font-size:12px;
+      padding:1px 6px;
+      border:1px solid var(--border);
+      border-bottom-width:2px;
+      border-radius:6px;
+      background:var(--soft);
+      display:inline-block;
+    }
+
+    pre{
+      margin:10px 0;
+      padding:10px 12px;
+      background:var(--soft);
+      border:1px solid var(--border);
+      border-radius:10px;
+      overflow:auto;
+      font-family:var(--mono);
+      font-size:12px;
+      line-height:1.55;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+    code{font-family:var(--mono);}
+
+    .divider{height:1px; background:var(--border); margin:14px 0;}
+
+    .qa{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:#fff;
+    }
+    .qa details{margin:6px 0;}
+    .qa summary{cursor:pointer; font-weight:700;}
+
+    /* Print */
+    @page{ size:A4; margin:14mm; }
+    @media print{
+      body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .page{ max-width:none; padding:0; }
+      header{ break-inside:avoid; }
+      .card, .callout, pre, .qa{ break-inside:avoid; page-break-inside:avoid; }
+      a[href]:after{ content:""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>How React Works — The Commit Phase (Behind the Scenes)</h1>
+      <p class="subtitle">Reviewer / Study Guide — beginner-friendly notes + practical takeaways</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Rendering pipeline (Commit Phase)</span>
+        <span class="chip">✅ Print-ready (A4, single column)</span>
+        <span class="chip">⚙️ Focus: DOM mutations, ReactDOM, renderers/hosts</span>
+      </div>
+    </header>
+
+    <main>
+      <div class="callout good">
+        <p class="title">Big idea ✅</p>
+        <p><strong>Render phase</strong> figures out <em>what should change</em>. <strong>Commit phase</strong> is where changes are <em>actually applied</em> (e.g., insert/update/delete in the DOM).</p>
+      </div>
+
+      <h2>1) Where we are in the pipeline</h2>
+      <p>The full journey looks like this:</p>
+      <ul>
+        <li>🟦 <strong>Trigger</strong> → initial render or state update</li>
+        <li>🟨 <strong>Render phase</strong> → React calls components, builds a new React element tree (“virtual DOM”), reconciles with Fiber, and produces an <strong>effects list</strong></li>
+        <li>🟩 <strong>Commit phase</strong> → a renderer (e.g., <strong>ReactDOM</strong>) applies those effects to the host (usually the DOM)</li>
+        <li>🎨 <strong>Browser paint</strong> → the browser repaints the screen based on updated DOM</li>
+      </ul>
+
+      <div class="callout warn">
+        <p class="title">Important terminology ⚠️</p>
+        <p>In React’s terms, <strong>“rendering”</strong> does <em>not</em> mean “updating the screen.” It mostly means “calling component functions and calculating changes.” The <strong>visual change</strong> happens after commit + browser paint.</p>
+      </div>
+
+      <h2>2) What exactly happens in the commit phase</h2>
+      <div class="grid">
+        <section class="card">
+          <h3>2.1 Commit phase = apply DOM mutations</h3>
+          <p>React (through a renderer) takes the <strong>effects list</strong> created during the render phase and applies each effect to the already-existing host tree.</p>
+          <ul>
+            <li>➕ Insert DOM nodes</li>
+            <li>✏️ Update DOM nodes (text, attributes, etc.)</li>
+            <li>➖ Delete DOM nodes</li>
+          </ul>
+          <p>You’ll also see the phrase: <strong>“flush updates to the DOM”</strong>.</p>
+        </section>
+
+        <section class="card">
+          <h3>2.2 Why commit is synchronous</h3>
+          <p>Commit happens <strong>all at once</strong> (synchronous). It cannot be paused mid-way.</p>
+          <p><strong>Reason:</strong> The DOM must never show partial results. If commit were interruptible, users could briefly see an inconsistent UI.</p>
+        </section>
+      </div>
+
+      <div class="callout good">
+        <p class="title">Mental model ✅</p>
+        <p><strong>Render phase</strong> = planning. <strong>Commit phase</strong> = executing the plan in one go. <strong>Paint</strong> = browser displays the result.</p>
+      </div>
+
+      <h2>3) Fiber tree update after commit</h2>
+      <p>After commit finishes:</p>
+      <ul>
+        <li>The “work-in-progress” Fiber tree becomes the <strong>current</strong> Fiber tree for the next cycle.</li>
+        <li>Fiber trees are not discarded and rebuilt from scratch; they are reused and mutated over time to save work.</li>
+      </ul>
+
+      <h2>4) Who actually writes to the DOM</h2>
+      <div class="callout bad">
+        <p class="title">Common misconception ❌</p>
+        <p><strong>React (core)</strong> does <em>not</em> touch the DOM. It has no DOM-specific knowledge.</p>
+      </div>
+
+      <p>So who commits changes?</p>
+      <ul>
+        <li>✅ The commit work is performed by a <strong>renderer</strong> package.</li>
+        <li>For the web, that renderer is <strong>ReactDOM</strong>.</li>
+      </ul>
+
+      <div class="card">
+        <h3>4.1 Why React is split from ReactDOM</h3>
+        <p>React was designed to be <strong>platform-agnostic</strong> (host-independent). That’s why React can target multiple hosts:</p>
+        <ul>
+          <li>🌐 Web DOM → <strong>react-dom</strong></li>
+          <li>📱 Native iOS/Android → <strong>react-native</strong></li>
+          <li>🎬 Video generation → e.g., Remotion</li>
+          <li>📄 Documents/design outputs → various renderers (PDF, etc.)</li>
+        </ul>
+        <p>In each case, the render phase produces updates for that host, and the renderer commits them.</p>
+      </div>
+
+      <div class="callout warn">
+        <p class="title">Naming note ⚠️</p>
+        <p>“Renderer” is a historical name. In React’s modern terminology, renderers mostly <em>commit</em> results rather than “render” in the visual sense.</p>
+      </div>
+
+      <h2>5) Quick recap (the whole story)</h2>
+      <section class="card">
+        <h3>Step-by-step summary 🧾</h3>
+        <ol>
+          <li><strong>Trigger</strong>: initial load or a state update in any component instance.</li>
+          <li><strong>Render phase</strong>: React calls component functions → creates updated React elements → reconciles with Fiber → computes an effects list (planned host updates).</li>
+          <li><strong>Commit phase</strong>: renderer (ReactDOM on web) applies effects to the DOM in one synchronous pass.</li>
+          <li><strong>Paint</strong>: browser repaints UI after DOM changed.</li>
+        </ol>
+      </section>
+
+      <h2>6) Practical implications (what you should actually remember)</h2>
+      <div class="grid">
+        <section class="card">
+          <h3>6.1 Performance intuition ⚡</h3>
+          <ul>
+            <li>Creating React element trees is relatively cheap (JavaScript objects).</li>
+            <li>Writing to the DOM is expensive, so React minimizes DOM operations.</li>
+            <li>Commit must be fast because it blocks until done.</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <h3>6.2 Interview-friendly answer 🎯</h3>
+          <p><strong>Q:</strong> “What happens when state updates?”</p>
+          <p><strong>A:</strong> React schedules a render → recalculates UI (render phase) → computes minimal host updates → ReactDOM commits them to the DOM (commit phase) → browser repaints.</p>
+        </section>
+      </div>
+
+      <h2>7) Tiny code anchors (just to connect concepts)</h2>
+      <p>On web projects you typically see imports like this:</p>
+      <pre><code>// index.js (web)
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(&lt;App /&gt;);
+</code></pre>
+      <p><strong>Meaning:</strong> React builds the element/fiber work; ReactDOM commits to the DOM host.</p>
+
+      <div class="divider"></div>
+
+      <h2>8) Mini quiz (self-check) ✅</h2>
+      <section class="qa">
+        <details>
+          <summary>1) True or False: React “rendering” means updating the DOM.</summary>
+          <p><strong>Answer:</strong> False. Render phase is calculation/planning. DOM changes happen in commit (via renderer) and become visible after browser paint.</p>
+        </details>
+        <details>
+          <summary>2) Why must commit be synchronous?</summary>
+          <p><strong>Answer:</strong> To avoid partial DOM updates that would create a visually inconsistent UI. Commit applies changes in one go.</p>
+        </details>
+        <details>
+          <summary>3) What library writes to the DOM on web apps?</summary>
+          <p><strong>Answer:</strong> ReactDOM.</p>
+        </details>
+        <details>
+          <summary>4) Why do we import both React and ReactDOM?</summary>
+          <p><strong>Answer:</strong> React is host-agnostic and performs render-phase logic; ReactDOM is the renderer for the DOM host and commits updates.</p>
+        </details>
+      </section>
+
+      <h2>9) Quick memory cards (fast review) 🗂️</h2>
+      <div class="grid">
+        <section class="card">
+          <h3>Render phase</h3>
+          <ul>
+            <li>Calls component functions</li>
+            <li>Builds updated React element tree</li>
+            <li>Reconciles with Fiber</li>
+            <li>Produces effects list</li>
+            <li>Can be paused (async)</li>
+          </ul>
+        </section>
+        <section class="card">
+          <h3>Commit phase</h3>
+          <ul>
+            <li>Applies effects to the host (DOM)</li>
+            <li>Insert/update/delete nodes</li>
+            <li>Synchronous (no interruptions)</li>
+            <li>After commit: Fiber current tree updates</li>
+          </ul>
+        </section>
+        <section class="card">
+          <h3>Browser paint</h3>
+          <ul>
+            <li>Browser responsibility (not React)</li>
+            <li>Makes DOM changes visible</li>
+          </ul>
+        </section>
+      </div>
+
+      <div class="callout good">
+        <p class="title">Checklist before you move on ✅</p>
+        <ul>
+          <li>I can explain render vs commit in one sentence.</li>
+          <li>I know why commit is synchronous.</li>
+          <li>I know React is host-agnostic, and ReactDOM commits to the DOM.</li>
+        </ul>
+      </div>
+
+      <p class="subtitle" style="margin-top:16px;">End of notes — ready for A4 printing.</p>
+    </main>
+  </div>
+</body>
+</html>

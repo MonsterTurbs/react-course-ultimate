@@ -1,0 +1,343 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Components as Building Blocks</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --code:#0b1020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 1.55rem;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      color: var(--muted);
+      margin: 0;
+      font-size: .98rem;
+    }
+
+    .meta{
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    h2{
+      font-size: 1.18rem;
+      margin: 18px 0 8px;
+    }
+
+    h3{
+      font-size: 1.05rem;
+      margin: 14px 0 8px;
+    }
+
+    p{ margin: 8px 0; }
+
+    .card{
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid #111;
+      background: var(--soft);
+    }
+
+    ul{ margin: 8px 0 8px 18px; padding: 0; }
+    li{ margin: 6px 0; }
+
+    .k{ font-weight: 700; }
+    .muted{ color: var(--muted); }
+
+    .pillrow{
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill{
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: .92rem;
+      white-space: nowrap;
+    }
+
+    .code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #f2f3f5;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      overflow: hidden;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 10px 0;
+      color: #111;
+    }
+
+    .hr{
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .checklist li{
+      list-style: none;
+      margin-left: -18px;
+      padding-left: 18px;
+      position: relative;
+    }
+    .checklist li::before{
+      content: "✅";
+      position: absolute;
+      left: 0;
+    }
+
+    .qa li{ list-style: none; margin-left: -18px; padding-left: 18px; position: relative; }
+    .qa li::before{ content: "❓"; position: absolute; left: 0; }
+
+    /* Make links print as plain text (no URL suffix) */
+    a{ color: inherit; text-decoration: underline; }
+    @media print{
+      a[href]:after{ content: "" !important; }
+    }
+
+    /* Print settings */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header{ break-after: avoid; }
+      .card{ break-inside: avoid; }
+      .code{ break-inside: avoid; }
+      h2, h3{ break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🍕 React Study Guide — Components as Building Blocks</h1>
+      <p class="subtitle">Beginner-friendly reviewer based on the lecture transcript (single-column, A4 print-ready)</p>
+      <div class="meta">
+        <div><span class="k">Goal:</span> Understand what React components are, why they matter, and how to think in a <span class="k">component tree</span>.</div>
+        <div class="muted">Tip: When printing, this page is designed to avoid text cutoffs and keep sections readable.</div>
+      </div>
+      <div class="pillrow" aria-label="Key topics">
+        <span class="pill">🧱 Components</span>
+        <span class="pill">🪆 Nesting</span>
+        <span class="pill">♻️ Reusability</span>
+        <span class="pill">🌳 Component Tree</span>
+        <span class="pill">👨‍👩‍👧 Parent/Child</span>
+        <span class="pill">📦 Props (preview)</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Core idea: React is “components all the way down” 🧩</h2>
+      <div class="card callout">
+        <p><span class="k">Definition (simple):</span> A <span class="k">component</span> is a reusable piece of UI that includes its own <span class="k">data</span>, <span class="k">logic</span>, and <span class="k">appearance</span>.</p>
+        <p><span class="k">What React mainly does:</span> It takes components and <span class="k">renders</span> them to the screen (draws them as a UI).</p>
+      </div>
+
+      <p>When you look at a React application, nearly everything you see on the page belongs to a component (or is inside one). That is why components are considered the <span class="k">building blocks</span> of React user interfaces.</p>
+
+      <div class="card">
+        <h3>🧠 Mental model</h3>
+        <ul>
+          <li><span class="k">Component</span> = a “piece of UI” (button, input, card, list, page section)</li>
+          <li><span class="k">UI</span> = many component “views” combined together</li>
+          <li><span class="k">Build bigger UIs</span> by combining smaller components like LEGO</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) What makes components powerful 💪</h2>
+      <div class="card">
+        <h3>🔑 Key properties</h3>
+        <ul class="checklist">
+          <li><span class="k">Encapsulation:</span> each component contains its own logic and UI</li>
+          <li><span class="k">Composition:</span> combine components to create complex screens</li>
+          <li><span class="k">Nesting:</span> place components inside other components</li>
+          <li><span class="k">Reusability:</span> build once, reuse many times</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>🪆 Nesting (components inside components)</h3>
+        <p>In real apps, you constantly nest components:</p>
+        <ul>
+          <li><span class="k">Page</span> component contains a <span class="k">Navbar</span>, <span class="k">Sidebar</span>, <span class="k">MainContent</span></li>
+          <li><span class="k">MainContent</span> contains a <span class="k">List</span></li>
+          <li><span class="k">List</span> contains many <span class="k">ListItem</span> components</li>
+        </ul>
+        <p class="muted">This nesting is one of the main ways React UIs are structured.</p>
+      </div>
+
+      <div class="card">
+        <h3>♻️ Reusability (avoid duplication)</h3>
+        <p>If your UI repeats the same pattern (like multiple similar “question cards”), you should usually create a component for it and reuse it.</p>
+        <p><span class="k">Important preview:</span> Even if the layout is the same, the data can be different. React handles that by passing data into components using <span class="k">props</span> (covered later).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Component tree: the “map” of your UI 🌳</h2>
+      <div class="card callout">
+        <p><span class="k">Component Tree</span> = the hierarchy of components that make up your screen.</p>
+        <p>It helps you see <span class="k">who contains whom</span>, and how parts of the UI relate.</p>
+      </div>
+
+      <div class="card">
+        <h3>👨‍👩‍👧 Parent and child components</h3>
+        <ul>
+          <li><span class="k">Parent</span> = the component that <span class="k">renders/includes</span> another component</li>
+          <li><span class="k">Child</span> = the component that is <span class="k">rendered/inside</span> another component</li>
+        </ul>
+        <p class="muted">These terms are extremely common in React discussions and documentation.</p>
+      </div>
+
+      <div class="card">
+        <h3>🧾 Example component tree (generic)</h3>
+        <div class="code" role="group" aria-label="Example component tree">
+App
+├─ Header
+│  ├─ Logo
+│  └─ Nav
+├─ Main
+│  ├─ RefinedQuestions
+│  │  ├─ Filters
+│  │  └─ SortControls
+│  └─ QuestionsList
+│     ├─ QuestionItem
+│     ├─ QuestionItem
+│     └─ QuestionItem
+└─ Footer
+        </div>
+        <p><span class="k">What this shows:</span> Components can be large (pages/sections) or small (filters/items). Both are components.</p>
+      </div>
+
+      <div class="card">
+        <h3>🧩 Practical skill: breaking a UI into components</h3>
+        <ul class="checklist">
+          <li>Identify repeated UI patterns (cards/items/buttons) → make reusable components</li>
+          <li>Identify “sections” (header, sidebar, panel) → make layout components</li>
+          <li>Start broad, then split into smaller pieces as needed</li>
+          <li>Keep components focused: one clear responsibility</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Beginner examples (conceptual) 🧪</h2>
+      <div class="card">
+        <h3>Example A: Reusing a component</h3>
+        <p>Imagine you have a list of similar “question” rows.</p>
+        <ul>
+          <li>Create <span class="k">&lt;QuestionItem /&gt;</span> once</li>
+          <li>Render it multiple times inside <span class="k">&lt;QuestionsList /&gt;</span></li>
+          <li>Pass different data into each item via <span class="k">props</span> later</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Example B: Nesting (composition)</h3>
+        <p>Complex screens are usually composed like this:</p>
+        <div class="code" role="group" aria-label="Composition pseudo-code">
+Page
+  → SearchBar
+  → ResultsPanel
+     → ResultItem (reused)
+  → Map
+        </div>
+        <p class="muted">You are not writing the exact code yet—this is the structure you learn to see.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Quick reviewer (high-yield) 📝</h2>
+      <div class="card">
+        <h3>✅ Remember these</h3>
+        <ul class="checklist">
+          <li>React apps are made of <span class="k">components</span></li>
+          <li>Each component includes <span class="k">data + logic + UI</span></li>
+          <li>Build complex UIs by <span class="k">combining</span> components</li>
+          <li>Nesting is normal: components live inside other components</li>
+          <li>Reuse components to avoid duplication; data differences come from <span class="k">props</span></li>
+          <li>Use a <span class="k">component tree</span> to understand relationships and structure</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>❓ Self-check questions</h3>
+        <ul class="qa">
+          <li>What does React primarily do with components?</li>
+          <li>What makes a component “self-contained”?</li>
+          <li>Why is reusability important?</li>
+          <li>In a component tree, what is a parent vs a child?</li>
+          <li>How would you split a UI into components?</li>
+        </ul>
+      </div>
+
+      <div class="card callout">
+        <p>➡️ Next steps: You will apply these ideas immediately by building the project and practicing how to identify components in a design.</p>
+      </div>
+    </section>
+
+    <div class="hr" aria-hidden="true"></div>
+
+    <footer class="muted" style="font-size:.92rem;">
+      <p><span class="k">Print note:</span> This page is optimized for A4 printing with safe margins, readable font sizing, and word wrapping to reduce cut-offs.</p>
+    </footer>
+  </main>
+</body>
+</html>

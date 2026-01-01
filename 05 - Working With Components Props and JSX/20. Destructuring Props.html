@@ -1,0 +1,390 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Destructuring Props (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --hint: #eef6ff;
+      --warn: #fff3cd;
+      --ok: #eaffea;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.hint { border-left-color: #90caf9; background: var(--hint); }
+    .callout.warn { border-left-color: #ffe08a; background: var(--warn); }
+    .callout.ok { border-left-color: #7ad27a; background: var(--ok); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .term {
+      display: inline-block;
+      padding: 1px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>📦 Destructuring Props — Reviewer</h1>
+      <p class="subtitle">Stop writing <code>props.something</code> repeatedly. Destructure props in the component parameter for cleaner code and clearer “what props does this component need?” visibility. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print dialog, set Paper size = A4, Margins = Default.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#props-object">Props object recap (it always exists)</a></li>
+          <li><a href="#problem">Problem: too much <code>props.</code> everywhere</a></li>
+          <li><a href="#destructure">Solution: destructure in the function parameter</a></li>
+          <li><a href="#advantages">Two big advantages of destructuring</a></li>
+          <li><a href="#multiple">Multiple props + missing props (undefined)</a></li>
+          <li><a href="#mistakes">Common beginner mistakes + quick checklist</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="props-object">
+      <h2>🧠 Props object recap (it always exists)</h2>
+      <p>
+        Whenever a component is rendered, React calls it like a normal function and provides one argument:
+        a <strong>props object</strong>. That object contains all props passed from the parent.
+      </p>
+
+      <div class="callout hint">
+        <p><strong>Important note 📝</strong></p>
+        <p class="muted">Even if you don’t pass any props, the props object still exists—it's just empty.</p>
+      </div>
+
+      <pre><code>function Footer(props) {
+  console.log(props); // {} (empty object) if nothing was passed
+  return &lt;footer&gt;...&lt;/footer&gt;;
+}</code></pre>
+    </section>
+
+    <section id="problem">
+      <h2>😵 Problem: too much <code>props.</code> everywhere</h2>
+      <p>
+        When you pass a lot of data, your JSX can become noisy:
+        <code>props.pizzaObj.name</code>, <code>props.pizzaObj.ingredients</code>, <code>props.closeHour</code>, etc.
+      </p>
+
+      <pre><code>function Pizza(props) {
+  return (
+    &lt;li className="pizza"&gt;
+      &lt;img src={props.pizzaObj.photoName} alt={props.pizzaObj.name} /&gt;
+      &lt;h3&gt;{props.pizzaObj.name}&lt;/h3&gt;
+      &lt;p&gt;{props.pizzaObj.ingredients}&lt;/p&gt;
+      &lt;span&gt;{props.pizzaObj.price}&lt;/span&gt;
+    &lt;/li&gt;
+  );
+}</code></pre>
+
+      <div class="callout warn">
+        <p><strong>Downside ⚠️</strong></p>
+        <p class="muted">Harder to read, and you can’t quickly see which props the component expects without scanning the whole file.</p>
+      </div>
+    </section>
+
+    <section id="destructure">
+      <h2>✅ Solution: destructure in the function parameter</h2>
+      <p>
+        Instead of receiving <code>props</code>, you can destructure the specific props you need directly in the parameter list.
+        The destructured names must match the prop names you pass from the parent.
+      </p>
+
+      <h3>Before → After 🧩</h3>
+      <pre><code>// BEFORE
+function Pizza(props) {
+  console.log(props);
+  return &lt;div&gt;{props.pizzaObj.name}&lt;/div&gt;;
+}
+
+// AFTER (destructured)
+function Pizza({ pizzaObj }) {
+  console.log(pizzaObj);
+  return &lt;div&gt;{pizzaObj.name}&lt;/div&gt;;
+}</code></pre>
+
+      <div class="callout ok">
+        <p><strong>Cleaner JSX ✅</strong></p>
+        <p class="muted">Now you can use <code>pizzaObj.name</code> instead of <code>props.pizzaObj.name</code>.</p>
+      </div>
+    </section>
+
+    <section id="advantages">
+      <h2>🏆 Two big advantages of destructuring</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>1) Less repetition, easier reading 👀</h3>
+          <p class="muted">Your JSX becomes shorter and more readable because you stop repeating <code>props.</code> everywhere.</p>
+        </div>
+
+        <div class="card">
+          <h3>2) Props are visible immediately 🔎</h3>
+          <p class="muted">
+            When you destructure, the function signature becomes a “mini documentation”:
+            you instantly see what the component needs.
+          </p>
+          <pre><code>function Order({ closeHour }) {
+  // You instantly know: Order needs closeHour
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="callout hint">
+        <p><strong>Why this matters 🧠</strong></p>
+        <p class="muted">Before destructuring, you might need to search the parent component to know what props are passed. With destructuring, it’s obvious at the definition line.</p>
+      </div>
+    </section>
+
+    <section id="multiple">
+      <h2>➕ Multiple props + missing props (undefined)</h2>
+      <p>
+        You can destructure multiple values at once:
+      </p>
+
+      <pre><code>function Order({ openHour, closeHour }) {
+  return (
+    &lt;div className="order"&gt;
+      &lt;p&gt;We&apos;re open from {openHour}:00 to {closeHour}:00. 🕒&lt;/p&gt;
+      &lt;button className="btn"&gt;Order&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout warn">
+        <p><strong>Missing props ⚠️</strong></p>
+        <p class="muted">If you destructure a prop that wasn’t passed, it becomes <code>undefined</code> (no crash by default, but your UI might look wrong).</p>
+      </div>
+
+      <pre><code>function Order({ test }) {
+  console.log(test); // undefined (if test was not passed)
+  return null;
+}</code></pre>
+    </section>
+
+    <section id="mistakes">
+      <h2>🚫 Common beginner mistakes + checklist</h2>
+
+      <div class="callout warn">
+        <p><strong>Top mistake: forgetting the curly braces ⚠️</strong></p>
+        <p class="muted">Without <code>{ }</code>, you are NOT destructuring.</p>
+        <pre><code>// ❌ Not destructuring
+function Order(closeHour) { ... }
+
+// ✅ Destructuring
+function Order({ closeHour }) { ... }</code></pre>
+      </div>
+
+      <div class="callout hint">
+        <p><strong>Quick checklist ✅</strong></p>
+        <ul>
+          <li>Do destructured names match the prop names passed from the parent?</li>
+          <li>Did you include curly braces: <code>function Comp({ ... })</code>?</li>
+          <li>If a prop might be missing, do you handle <code>undefined</code> gracefully?</li>
+        </ul>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Course standard ✅</strong></p>
+        <p class="muted">From this point onward, you will usually see props received like: <code>function Comp({ propA, propB })</code>.</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

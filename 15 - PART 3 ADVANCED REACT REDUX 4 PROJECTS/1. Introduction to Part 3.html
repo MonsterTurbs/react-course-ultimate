@@ -1,0 +1,339 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Part 3: Advanced React (Introduction)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --accent:#1a73e8;
+      --accent2:#0b57d0;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--accent);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .note{
+      border-left: 4px solid var(--border);
+      background: #fff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:#fff;
+    }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    th, td{
+      border:1px solid var(--border);
+      padding:8px 10px;
+      vertical-align: top;
+    }
+    th{ background: var(--panel); text-align:left; }
+
+    .checklist li{ list-style: "✅  "; }
+    .learn li{ list-style: "🧠  "; }
+    .proj li{ list-style: "🧩  "; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🚀 React Study Guide: Part 3 — Advanced React (Introduction)</h1>
+      <p class="subtitle">Part 3 ramps up your React skills: deeper state management, advanced hooks, routing, and real-world SPA architecture.</p>
+      <div class="meta">
+        <span class="chip">🧠 Advanced State</span>
+        <span class="chip">🧰 useReducer</span>
+        <span class="chip">🌐 Context API</span>
+        <span class="chip">🧱 Redux</span>
+        <span class="chip">🛣️ React Router</span>
+        <span class="chip">⚡ Vite</span>
+        <span class="chip">🏎️ Performance Hooks</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🧭 What Part 3 is about</h2>
+      <p>This part of the course shifts from “Intermediate React” to <strong>Advanced React</strong>. The key focus is learning patterns and tools that help you build larger, more maintainable applications.</p>
+      <ul class="learn">
+        <li>Deeper state management using <strong>Advanced <code>useReducer</code></strong></li>
+        <li>Sharing state across components via <strong>Context API</strong></li>
+        <li>Industry-standard global state with <strong>Redux</strong> (concepts + practice)</li>
+        <li>Building a real-world <strong>Single-Page Application (SPA)</strong> using <strong>Vite</strong> + <strong>React Router</strong></li>
+        <li>Performance optimization using <strong><code>useMemo</code></strong> and <strong><code>useCallback</code></strong></li>
+      </ul>
+
+      <div class="callout">
+        <strong>Big picture:</strong> You’re moving from “components + basic state” to “applications + architecture”.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 State management: why it gets deeper now</h2>
+      <p>As apps grow, state becomes harder to manage because it needs to be:</p>
+      <ul class="checklist">
+        <li><strong>Predictable</strong> (clear updates, fewer bugs)</li>
+        <li><strong>Shared</strong> across many components (avoid prop drilling)</li>
+        <li><strong>Maintainable</strong> (easy to refactor as features expand)</li>
+      </ul>
+
+      <h3>🔁 The tools you’ll use</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Tool</th>
+            <th>What it’s good at</th>
+            <th>Simple mental model</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>useReducer</strong></td>
+            <td>Complex state transitions, grouped logic, predictable updates</td>
+            <td>“State machine lite” — dispatch actions → reducer returns next state</td>
+          </tr>
+          <tr>
+            <td><strong>Context API</strong></td>
+            <td>Share state globally without prop drilling</td>
+            <td>Provider gives values → consumers read anywhere in the tree</td>
+          </tr>
+          <tr>
+            <td><strong>Redux</strong></td>
+            <td>Scalable global state with strong conventions and tooling</td>
+            <td>Single store + actions + reducers (+ devtools)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        <strong>Beginner-friendly tip:</strong> Don’t treat Redux as “mandatory.” Learn it as one strong option for complex apps, especially team projects.
+      </div>
+    </section>
+
+    <section>
+      <h2>🏗️ Real-world SPA project: Vite + React Router</h2>
+      <p>One of the four projects in Part 3 is described as a real-world, single-page application (SPA). The focus is not only UI, but also structure.</p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>⚡ Why Vite?</h3>
+          <ul>
+            <li>Fast dev server and instant updates</li>
+            <li>Modern build tooling (optimized for today’s React)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🛣️ Why React Router?</h3>
+          <ul>
+            <li>SPA navigation without full page reloads</li>
+            <li>Route-based UI composition (pages, layouts, nested routes)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Translation to practice:</strong> You will start thinking in “pages + routes + shared state + data flow,” not just isolated components.
+      </div>
+    </section>
+
+    <section>
+      <h2>🏎️ Performance optimization: useMemo and useCallback</h2>
+      <p>In advanced React, performance matters more because apps have more components, more state, and more re-renders.</p>
+
+      <h3>🧠 useMemo (memoize values)</h3>
+      <p class="muted">Use it when a calculation is expensive and you don’t want to redo it on every render.</p>
+      <pre><code>// Example idea (not from your app):
+const sortedItems = useMemo(() =&gt; {
+  return items.slice().sort(compareFn);
+}, [items]);</code></pre>
+
+      <h3>🧠 useCallback (memoize functions)</h3>
+      <p class="muted">Use it when you pass callbacks down and want stable function references (often for memoized child components).</p>
+      <pre><code>// Example idea (not from your app):
+const handleSelect = useCallback((id) =&gt; {
+  setSelectedId(id);
+}, []);</code></pre>
+
+      <div class="note">
+        <strong>Practical reminder:</strong> Don’t optimize too early. Use these hooks when you have a clear reason (measurable re-render cost or expensive computations).
+      </div>
+    </section>
+
+    <section>
+      <h2>🗺️ What to expect (high-level roadmap)</h2>
+      <ul class="proj">
+        <li><strong>4 projects</strong> that gradually increase complexity</li>
+        <li>More emphasis on <strong>data flow</strong>, <strong>architecture</strong>, and <strong>state design</strong></li>
+        <li>More tools that mirror what you’ll see in real codebases</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Mindset shift:</strong> You are entering the “React application engineering” phase — where choices, patterns, and tradeoffs matter.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Quick self-check</h2>
+      <ul class="checklist">
+        <li>Can I explain when <code>useReducer</code> is better than multiple <code>useState</code> calls?</li>
+        <li>Do I understand what problem Context solves (prop drilling)?</li>
+        <li>Do I know what an SPA is and why routing matters?</li>
+        <li>Can I describe, in plain terms, why <code>useMemo</code>/<code>useCallback</code> exist?</li>
+      </ul>
+      <p class="muted">If some answers are “not yet,” that’s expected—Part 3 is where you’ll build that mastery.</p>
+    </section>
+
+  </main>
+</body>
+</html>

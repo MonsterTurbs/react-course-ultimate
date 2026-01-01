@@ -1,0 +1,366 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WorldWise — Displaying City Markers on a Leaflet Map (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --ink:#111111;
+      --muted:#5a5a5a;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --accent:#0b57d0;
+      --good:#0f7b3a;
+      --warn:#8a5a00;
+      --codebg:#0b0f19;
+      --codeink:#e8eefc;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header{
+      border-bottom:1px solid var(--border);
+      padding-bottom:14px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      margin: 0 0 6px;
+      font-size: 1.65rem;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:.98rem;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-block;
+      padding:6px 10px;
+      border:1px solid var(--border);
+      background:var(--soft);
+      border-radius:999px;
+      font-size:.88rem;
+      color:#222;
+    }
+
+    main{display:block;}
+
+    h2{
+      margin: 18px 0 8px;
+      font-size: 1.25rem;
+    }
+
+    h3{
+      margin: 14px 0 6px;
+      font-size: 1.05rem;
+    }
+
+    p{margin: 8px 0;}
+
+    ul,ol{margin: 8px 0 8px 20px; padding:0;}
+    li{margin: 6px 0;}
+
+    .callout{
+      border:1px solid var(--border);
+      border-left:5px solid var(--accent);
+      background:#ffffff;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.good{border-left-color: var(--good);}
+    .callout.warn{border-left-color: var(--warn);}
+
+    .callout .title{
+      font-weight:700;
+      margin:0 0 6px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      color: var(--codeink);
+      border-radius: 12px;
+      overflow:auto;
+      border: 1px solid rgba(255,255,255,.12);
+      font-size: .92rem;
+      line-height: 1.55;
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: .9em;
+    }
+
+    .divider{border-top:1px dashed var(--border); margin: 16px 0;}
+
+    .checklist li{list-style: "✅  ";}
+    .notes li{list-style: "📝  ";}
+
+    /* Print */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width:none; padding:0; }
+      .chip{ background:#fff; }
+      pre{ page-break-inside: avoid; }
+      .callout{ page-break-inside: avoid; }
+      h2,h3{ page-break-after: avoid; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]:after{ content: ""; } /* do not print URLs */
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🗺️ WorldWise — Displaying City Markers on a Leaflet Map</h1>
+      <p class="subtitle">Reviewer / study guide (beginner-friendly) — React Router + Context API + React Leaflet markers & popups</p>
+      <div class="meta">
+        <span class="chip">Single-column</span>
+        <span class="chip">A4 print-ready</span>
+        <span class="chip">Topic: Markers + Popups</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goal of this lecture</h2>
+        <p>
+          Display <strong>one map marker + popup per city</strong> using <strong>React Leaflet</strong>, powered by the
+          <strong>cities array</strong> coming from your <strong>Cities Context</strong> (global state).
+        </p>
+        <ul class="checklist">
+          <li>Read <code>cities</code> from context using <code>useCities()</code></li>
+          <li>Loop through <code>cities</code> and render a <code>&lt;Marker /&gt;</code> for each city</li>
+          <li>Convert the city’s <code>{lat, lng}</code> into Leaflet’s required <code>[lat, lng]</code> array</li>
+          <li>Show a popup that displays the city emoji + city name</li>
+        </ul>
+      </section>
+
+      <div class="divider"></div>
+
+      <section>
+        <h2>🧠 Key idea: Why Context makes this easy</h2>
+        <div class="callout good">
+          <p class="title">🌍 Global state = no prop drilling</p>
+          <p>
+            Instead of passing <code>cities</code> down through multiple components, the Map component can directly read it:
+            <strong>“Whenever you need a piece of state, you just grab it.”</strong>
+          </p>
+        </div>
+
+        <h3>What you need to remember</h3>
+        <ul class="notes">
+          <li><code>useCities()</code> is your custom hook that returns context values (like <code>cities</code>).</li>
+          <li>React Leaflet components (Marker/Popup) are just React components — you can render them inside a <code>map()</code>.</li>
+          <li>Leaflet expects positions in <code>[latitude, longitude]</code> format.</li>
+        </ul>
+      </section>
+
+      <div class="divider"></div>
+
+      <section>
+        <h2>🧩 Step-by-step implementation</h2>
+
+        <h3>1) Read cities from Cities Context</h3>
+        <p>
+          In your <code>Map.jsx</code>, import and call the hook:
+        </p>
+        <pre><code>// Map.jsx
+import { useCities } from "../context/CitiesContext";
+
+function Map() {
+  const { cities } = useCities();
+
+  // ...render map
+}
+</code></pre>
+
+        <div class="callout warn">
+          <p class="title">⚠️ Data sanity</p>
+          <p>
+            If you duplicated city objects in your JSON, make sure you remove duplicates or fix coordinates.
+            Duplicate IDs cause React warnings, and duplicate coordinates can stack markers on top of each other.
+          </p>
+        </div>
+
+        <h3>2) Render one marker per city</h3>
+        <p>
+          Replace the single hard-coded marker with a <code>cities.map(...)</code>.
+        </p>
+        <pre><code>// inside &lt;MapContainer&gt; ...
+{cities.map((city) =&gt; (
+  &lt;Marker
+    key={city.id}
+    position={[city.position.lat, city.position.lng]}
+  &gt;
+    &lt;Popup&gt;
+      ...
+    &lt;/Popup&gt;
+  &lt;/Marker&gt;
+))}
+</code></pre>
+
+        <h3>Why <code>position</code> must be an array</h3>
+        <div class="callout">
+          <p class="title">📌 Leaflet convention</p>
+          <p>
+            Both <code>MapContainer center</code> and <code>Marker position</code> use <code>[lat, lng]</code>, not an object.
+            That’s why you convert:
+            <code>city.position.lat</code> and <code>city.position.lng</code> into an array.
+          </p>
+        </div>
+
+        <h3>3) Customize the popup content</h3>
+        <p>Popups can contain any JSX. A simple version:</p>
+        <pre><code>&lt;Popup&gt;
+  &lt;span&gt;{city.emoji}&lt;/span&gt; &lt;span&gt;{city.cityName}&lt;/span&gt;
+&lt;/Popup&gt;
+</code></pre>
+
+        <div class="callout good">
+          <p class="title">✨ Result</p>
+          <p>
+            Clicking a marker shows a popup with the city emoji and name (e.g., 🇪🇸 Madrid).
+          </p>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section>
+        <h2>🎨 Styling Leaflet popups when using CSS Modules</h2>
+        <p>
+          Leaflet injects its own class names (e.g., <code>.leaflet-popup</code>). When you use CSS Modules,
+          your class names get scoped/hashed — so you must use <code>:global(...)</code> to target Leaflet’s classes.
+        </p>
+
+        <pre><code>/* Map.module.css */
+
+/* IMPORTANT: Leaflet class names must be global */
+:global(.leaflet-popup .leaflet-popup-content-wrapper) {
+  border-radius: 12px;
+}
+
+:global(.leaflet-popup .leaflet-popup-content) {
+  margin: 10px 12px;
+  font-size: 14px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+:global(.leaflet-popup .leaflet-popup-tip) {
+  background: white;
+}
+</code></pre>
+
+        <div class="callout">
+          <p class="title">🔎 Why <code>:global</code> is needed</p>
+          <p>
+            Without <code>:global</code>, CSS Modules rewrites selectors into something like
+            <code>.leaflet-popup___3x9a1</code>, which will <em>not</em> match Leaflet’s real DOM classes.
+          </p>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section>
+        <h2>🛠️ Common issues & fixes</h2>
+        <ul>
+          <li>
+            <strong>Markers not showing:</strong> confirm the city data has <code>position.lat</code> and <code>position.lng</code>,
+            and that you’re passing <code>[lat, lng]</code> (not <code>{lat, lng}</code>).
+          </li>
+          <li>
+            <strong>All markers stacked together:</strong> duplicate coordinates in your JSON — clean them up.
+          </li>
+          <li>
+            <strong>React warning about keys:</strong> use a stable unique key like <code>city.id</code>.
+          </li>
+          <li>
+            <strong>Popup styles not applying:</strong> use <code>:global</code> in your CSS module selectors.
+          </li>
+        </ul>
+      </section>
+
+      <div class="divider"></div>
+
+      <section>
+        <h2>➡️ What’s next (next lecture preview)</h2>
+        <p>
+          Next, you will make the map react to UI state:
+        </p>
+        <ul class="notes">
+          <li>When a user clicks a city in the list, the app navigates to the city route.</li>
+          <li>You’ll also move/center the map to that city’s coordinates.</li>
+          <li>This typically means updating <code>mapPosition</code> state based on URL (query string) or current city.</li>
+        </ul>
+      </section>
+
+      <div class="divider"></div>
+
+      <section>
+        <h2>🧪 Quick self-check</h2>
+        <ol>
+          <li>What does <code>useCities()</code> give you, and why is it better than passing props here?</li>
+          <li>Why does Leaflet require <code>[lat, lng]</code> instead of <code>{ lat, lng }</code>?</li>
+          <li>What problem does <code>:global</code> solve when styling Leaflet popups with CSS Modules?</li>
+        </ol>
+      </section>
+
+      <p class="subtitle" style="margin-top:18px;">
+        End of notes — print this page as A4 for your reviewer.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

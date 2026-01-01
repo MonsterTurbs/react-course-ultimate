@@ -1,0 +1,325 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — State Update Batching</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #1a73e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+    }
+
+    main { display: block; }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 8px 20px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      overflow: auto;
+      page-break-inside: avoid;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    .two-col-note {
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+      margin: 10px 0;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px dashed var(--border);
+      margin: 18px 0;
+    }
+
+    .mini-quiz {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    .answer {
+      margin-top: 8px;
+      padding: 10px;
+      background: var(--soft);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+    }
+
+    .footer {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* Print */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      a { color: inherit; text-decoration: none; }
+      pre, .callout, .mini-quiz { break-inside: avoid; }
+      header { break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>⚛️ React Study Guide: State Update Batching</h1>
+      <p class="subtitle">Beginner-friendly notes on why multiple <code>setState</code>/<code>setX</code> calls often cause only <strong>one</strong> re-render — and what “stale state” means.</p>
+      <div class="meta">
+        <span class="chip">📄 Print-ready (A4)</span>
+        <span class="chip">🧠 Key topic: batching</span>
+        <span class="chip">🧩 React 18 behavior</span>
+        <span class="chip">⚠️ Common gotcha: stale state</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>✅ Big Idea (In One Sentence)</h2>
+      <div class="callout">
+        <strong>🧺 Batching:</strong>
+        <p>When you update multiple state variables inside the <strong>same event handler</strong>, React usually groups them together and performs <strong>one render + one commit</strong> instead of rendering after every single state update.</p>
+      </div>
+
+      <h2>1) Why React Batches State Updates</h2>
+      <ul>
+        <li>🚀 <strong>Performance:</strong> fewer renders = less work for React + DOM.</li>
+        <li>🧩 <strong>Consistency:</strong> multiple updates often represent <em>one</em> “new UI snapshot.”</li>
+        <li>🧼 <strong>Avoid wasted renders:</strong> the first intermediate renders would be thrown away mentally anyway, since the final UI is what matters.</li>
+      </ul>
+
+      <h2>2) The Classic Example: Resetting Multiple Pieces of State</h2>
+      <p>Imagine you have 3 state variables and a reset button. Intuition says: “3 updates → 3 renders.” But React typically batches them.</p>
+
+      <pre><code>function Quiz() {
+  const [answer, setAnswer] = useState("...");
+  const [best, setBest] = useState(false);
+  const [solved, setSolved] = useState(true);
+
+  function reset() {
+    setAnswer("");
+    setBest(false);
+    setSolved(false);
+    // ✅ Usually results in ONE render (batched)
+  }
+
+  return &lt;button onClick={reset}&gt;Reset&lt;/button&gt;;
+}</code></pre>
+
+      <div class="two-col-note">
+        <p><strong>📝 Mental model:</strong> React reads the handler, collects updates, then applies them together (one UI update).</p>
+      </div>
+
+      <h2>3) Important Gotcha: “Stale” State</h2>
+      <p>Inside the same event handler, right after calling <code>setAnswer("" )</code>, the variable <code>answer</code> is usually <strong>not</strong> updated yet.</p>
+
+      <div class="callout">
+        <strong>⏳ Why?</strong>
+        <p>State values are reflected in your component variables only after React re-renders. Until then, the current render’s variables are the “old snapshot.”</p>
+      </div>
+
+      <pre><code>function reset() {
+  setAnswer("");
+
+  console.log(answer);
+  // ❗ Logs the OLD value (stale) because re-render hasn't happened yet
+}</code></pre>
+
+      <p>That’s why people say: <strong>state updates are asynchronous</strong> (in the sense that you don’t get the new state value immediately on the next line).</p>
+
+      <h2>4) When You Must Use a Functional Update</h2>
+      <p>If you update the <strong>same state multiple times</strong> in one handler, and each update depends on the previous update, use the callback form:</p>
+
+      <pre><code>// ✅ Correct when next state depends on previous state
+setLikes((likes) =&gt; likes + 1);
+setLikes((likes) =&gt; likes + 1);
+setLikes((likes) =&gt; likes + 1);
+// Result: +3</code></pre>
+
+      <div class="callout">
+        <strong>💡 Rule of thumb:</strong>
+        <p>If your new state is computed from old state, prefer the functional updater.</p>
+      </div>
+
+      <h2>5) React 18: Batching “Everywhere”</h2>
+      <p>Before React 18, automatic batching was mainly guaranteed in <strong>React event handlers</strong> (like <code>onClick</code>).</p>
+      <p>In React 18, batching was expanded so that updates are batched in more scenarios, such as:</p>
+      <ul>
+        <li>⏲️ <strong>Timeouts</strong> (<code>setTimeout</code>)</li>
+        <li>🤝 <strong>Promises</strong> (e.g., after fetching data)</li>
+        <li>🧷 <strong>Native event listeners</strong> (e.g., <code>addEventListener</code>)</li>
+      </ul>
+
+      <div class="callout">
+        <strong>📌 Practical takeaway:</strong>
+        <p>If you’re using modern React (18+), expect batching in more places, which usually improves performance.</p>
+      </div>
+
+      <h2>6) Escape Hatch: <code>ReactDOM.flushSync</code></h2>
+      <p>In very rare cases, batching can be inconvenient. React provides an escape hatch to force a sync DOM flush:</p>
+
+      <pre><code>import ReactDOM from "react-dom";
+
+ReactDOM.flushSync(() =&gt; {
+  setOpen(true);
+});
+// React will flush this update immediately (excluded from batching)</code></pre>
+
+      <div class="callout">
+        <strong>⚠️ Note:</strong>
+        <p>This is uncommon. Prefer normal batching unless you have a concrete UI correctness reason.</p>
+      </div>
+
+      <hr class="divider" />
+
+      <h2>🧪 Mini Quiz (Self-check)</h2>
+      <div class="mini-quiz">
+        <p><strong>Q1:</strong> If you call <code>setA()</code>, <code>setB()</code>, <code>setC()</code> inside one <code>onClick</code>, how many renders usually happen?</p>
+        <div class="answer">
+          <p><strong>Answer:</strong> Usually <strong>1 render</strong> (React batches the updates).</p>
+        </div>
+
+        <p style="margin-top: 12px;"><strong>Q2:</strong> Right after <code>setAnswer("")</code>, what does <code>console.log(answer)</code> show?</p>
+        <div class="answer">
+          <p><strong>Answer:</strong> The <strong>old</strong> value (stale), because the re-render hasn’t happened yet.</p>
+        </div>
+
+        <p style="margin-top: 12px;"><strong>Q3:</strong> When should you use <code>setX(prev =&gt; ...)</code>?</p>
+        <div class="answer">
+          <p><strong>Answer:</strong> When the next state depends on the previous state (especially multiple updates in one handler).</p>
+        </div>
+      </div>
+
+      <h2>✅ Quick Checklist</h2>
+      <ul>
+        <li>🧺 Multiple state updates in one handler → usually <strong>batched</strong> into one render.</li>
+        <li>⏳ State variables update after re-render → avoid relying on “new state” immediately on the next line.</li>
+        <li>🔁 Use functional updates when computing next state from previous state.</li>
+        <li>⚛️ React 18 batches more situations (timeouts, promises, native events).</li>
+        <li>🧯 <code>flushSync</code> exists, but it’s for rare edge cases.</li>
+      </ul>
+
+      <div class="footer">
+        <p>Print tip: Use your browser’s Print dialog and select “Save as PDF”. Output is optimized for A4 with clean margins and single-column layout.</p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

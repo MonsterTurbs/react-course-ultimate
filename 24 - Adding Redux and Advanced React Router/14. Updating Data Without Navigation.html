@@ -1,0 +1,449 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Updating Data Without Navigation — React Router useFetcher.Form (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f7f7f9;
+      --warn: #8a4b00;
+      --ok: #0b7a2a;
+      --info: #0b57d0;
+      --danger: #b00020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 18px 36px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout strong { color: var(--text); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.info { border-left-color: var(--info); }
+    .callout.danger { border-left-color: var(--danger); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 860px) {
+      .two-col { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 18mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      pre { overflow: visible; white-space: pre-wrap; word-break: break-word; }
+      .chip { border-color: #dcdcdc; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🛠️ Updating Data Without Navigation — <code>fetcher.Form</code> + Revalidation</h1>
+      <p class="subtitle">
+        Study guide from the lecture transcript: use React Router’s <code>useFetcher</code> to submit a <strong>PATCH</strong>
+        request from the Order page without navigating away, enabling “Make Priority” after an order is placed.
+      </p>
+      <div class="meta">
+        <span class="chip">🧩 Hook: <code>useFetcher()</code></span>
+        <span class="chip">📝 Component: <code>&lt;fetcher.Form /&gt;</code></span>
+        <span class="chip">🔁 Feature: revalidation</span>
+        <span class="chip">🧾 HTTP: PATCH vs PUT</span>
+        <span class="chip">🍕 Use case: mark existing order as priority</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goal of this lesson</h2>
+        <p>
+          You already know how to <strong>fetch data without navigation</strong> using <code>fetcher.load</code>.
+          Now you’ll do the same idea for <strong>writing/updating data</strong> — without triggering a new navigation.
+        </p>
+        <p>
+          You will implement the final missing feature of Fast React Pizza:
+          <strong>allow users to mark an order as priority even after the order was created.</strong>
+        </p>
+      </section>
+
+      <section>
+        <h2>🧩 UX requirement: show a “Make Priority” button only when needed</h2>
+        <p>
+          The order page already knows whether an order is priority via <code>order.priority</code>.
+          The button should only show when <code>priority</code> is <code>false</code>.
+        </p>
+
+        <pre><code>// Order.jsx (conceptual)
+{!order.priority &amp;&amp; &lt;UpdateOrder order={order} /&gt;}
+</code></pre>
+
+        <div class="callout info">
+          <p><strong>Why encapsulate in a new component?</strong></p>
+          <p>
+            The “Make Priority” UI plus fetcher form logic is self-contained. Extracting it keeps <code>Order</code>
+            cleaner.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧱 Step 1: Create <code>UpdateOrder.jsx</code></h2>
+        <p>
+          This component receives the entire <code>order</code> object (even though we only update the priority).
+        </p>
+
+        <pre><code>// UpdateOrder.jsx (conceptual)
+import Button from "../ui/Button"; // path may vary
+
+export default function UpdateOrder({ order }) {
+  return (
+    &lt;Button type="primary"&gt;Make priority&lt;/Button&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout warn">
+          <p><strong>Reminder</strong></p>
+          <p>
+            Test using a non-priority order. If the test order is already priority, you won’t see the button.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧲 Step 2: Use <code>useFetcher</code> for writing (no navigation)</h2>
+        <p>
+          For updating data, you don’t call <code>fetcher.load</code>. Instead, you use
+          <strong><code>&lt;fetcher.Form&gt;</code></strong>.
+        </p>
+
+        <div class="two-col">
+          <div class="callout">
+            <p><strong>Normal Form (navigation)</strong></p>
+            <p>
+              <code>&lt;Form&gt;</code> submits → action runs → navigation happens
+            </p>
+          </div>
+          <div class="callout ok">
+            <p><strong>Fetcher Form (no navigation)</strong></p>
+            <p>
+              <code>&lt;fetcher.Form&gt;</code> submits → action runs → page stays → data revalidates
+            </p>
+          </div>
+        </div>
+
+        <h3>Wrap the button with <code>fetcher.Form</code></h3>
+        <pre><code>// UpdateOrder.jsx (conceptual)
+import { useFetcher } from "react-router-dom";
+
+export default function UpdateOrder({ order }) {
+  const fetcher = useFetcher();
+
+  return (
+    &lt;fetcher.Form method="PATCH" className="text-right"&gt;
+      &lt;Button type="primary"&gt;Make priority&lt;/Button&gt;
+    &lt;/fetcher.Form&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout info">
+          <p><strong>Why PATCH?</strong></p>
+          <p>
+            You only change one field (<code>priority</code>), so PATCH is appropriate.
+            PUT typically requires sending the entire updated object.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 Step 3: Create the route action to handle the PATCH</h2>
+        <p>
+          In React Router data APIs, updates are handled by route <strong>actions</strong>.
+          Create an async <code>action</code> function and export it as a named export.
+        </p>
+
+        <pre><code>// UpdateOrder.jsx (conceptual)
+import { updateOrder } from "../../services/apiRestaurant"; // path may vary
+
+export async function action({ params }) {
+  // params.orderId comes from URL /order/:orderId
+  await updateOrder(params.orderId, { priority: true });
+  return null;
+}
+</code></pre>
+
+        <div class="callout info">
+          <p><strong>Why use params here?</strong></p>
+          <p>
+            The action receives <code>params</code>, which contains route parameters like <code>orderId</code>.
+            You don’t need to read form data because this update is always the same: set priority to true.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧷 Step 4: Wire the action to the correct route</h2>
+        <p>
+          You connect this action to the order route in your route definitions (often in <code>App.jsx</code>).
+          Even though the form is inside a child component (<code>UpdateOrder</code>), React Router will still match it to
+          the correct route action.
+        </p>
+
+        <pre><code>// App.jsx / router config (conceptual)
+import Order, { loader as orderLoader } from "./features/order/Order";
+import UpdateOrder, { action as updateOrderAction } from "./features/order/UpdateOrder";
+
+{
+  path: "/order/:orderId",
+  element: &lt;Order /&gt;,
+  loader: orderLoader,
+  action: updateOrderAction,
+}
+</code></pre>
+
+        <div class="callout warn">
+          <p><strong>Common bug from the transcript</strong></p>
+          <p>
+            Don’t accidentally import <code>loader</code> instead of <code>action</code> from <code>UpdateOrder</code>.
+            The named export must be <strong><code>action</code></strong>.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>✅ Step 5: Observe the magic — revalidation + automatic UI refresh</h2>
+        <p>
+          After you click “Make priority,” React Router:
+        </p>
+        <ol>
+          <li>📤 Submits the fetcher form (without navigation)</li>
+          <li>⚙️ Runs the route action (PATCH update)</li>
+          <li>🔁 Automatically <strong>revalidates</strong> the route data (re-runs loader in the background)</li>
+          <li>🖥️ Re-renders the page with the updated order</li>
+        </ol>
+
+        <div class="callout ok">
+          <p><strong>What you see on screen</strong></p>
+          <ul>
+            <li>The “Make priority” button disappears</li>
+            <li>Priority badge/status shows</li>
+            <li>Priority fee/price updates</li>
+          </ul>
+        </div>
+
+        <div class="callout info">
+          <p><strong>What is revalidation?</strong></p>
+          <p>
+            React Router assumes that after a successful action, the data might have changed.
+            It automatically re-fetches the loader data so the UI stays consistent.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧯 Common mistakes and quick fixes</h2>
+        <ul>
+          <li>
+            ❌ <strong>Button never appears</strong>
+            <div class="callout"><strong>Fix:</strong> create a non-priority order; ensure rendering condition is <code>{!order.priority &amp;&amp; ...}</code>.</div>
+          </li>
+          <li>
+            ❌ <strong>Click does nothing</strong>
+            <div class="callout"><strong>Fix:</strong> ensure the route has <code>action: updateOrderAction</code> and your component uses <code>&lt;fetcher.Form&gt;</code>.</div>
+          </li>
+          <li>
+            ❌ <strong>Error: importing loader instead of action</strong>
+            <div class="callout"><strong>Fix:</strong> export <code>action</code> from UpdateOrder and import it as <code>{ action as updateOrderAction }</code>.</div>
+          </li>
+          <li>
+            ❌ <strong>Priority doesn’t update</strong>
+            <div class="callout"><strong>Fix:</strong> confirm your service call is correct: <code>updateOrder(params.orderId, { priority: true })</code>.</div>
+          </li>
+          <li>
+            ❌ <strong>Wrong HTTP method</strong>
+            <div class="callout"><strong>Fix:</strong> use <code>method="PATCH"</code> (or lowercase "patch" depending on your setup) to match server expectations.</div>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Practice ideas (recommended)</h2>
+        <p>
+          The lecture suggests practicing by adding inputs to update more fields, such as:
+        </p>
+        <ul>
+          <li>📞 Phone number</li>
+          <li>🏠 Address</li>
+        </ul>
+        <p>
+          That would require reading <code>request.formData()</code> inside the action, because you would then have user-provided
+          data.
+        </p>
+
+        <pre><code>// If you add inputs later (conceptual)
+export async function action({ request, params }) {
+  const formData = await request.formData();
+  const updates = Object.fromEntries(formData);
+  await updateOrder(params.orderId, updates);
+  return null;
+}
+</code></pre>
+      </section>
+
+      <section>
+        <h2>🧾 Quick recap</h2>
+        <ul>
+          <li>🧲 Use <code>useFetcher</code> not only for reading (<code>load</code>) but also for writing (<code>fetcher.Form</code>).</li>
+          <li>📝 Wrap the button with <code>&lt;fetcher.Form method="PATCH"&gt;</code> to update without navigation.</li>
+          <li>⚙️ Implement a route <code>action</code> that calls <code>updateOrder(orderId, { priority: true })</code>.</li>
+          <li>🧷 Wire the action to the <code>/order/:orderId</code> route.</li>
+          <li>🔁 React Router revalidates loader data after the action → UI refreshes automatically.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🎉 End of project</h2>
+        <div class="callout ok">
+          <p><strong>Congratulations</strong></p>
+          <p>
+            You implemented the final missing feature and completed the Fast React Pizza application.
+            You now have practical experience with Redux + RTK async thunks and React Router’s advanced data APIs.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

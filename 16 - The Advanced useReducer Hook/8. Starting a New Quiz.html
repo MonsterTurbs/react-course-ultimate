@@ -1,0 +1,378 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Quiz — Starting a New Quiz (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --soft2:#f6f7f9;
+      --accent:#1a73e8;
+      --accent2:#0b57d0;
+      --ok:#137333;
+      --warn:#b06000;
+      --bad:#b3261e;
+      --codebg:#0b1020;
+      --codetext:#e7e7e7;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page container */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 22px 18px 42px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:linear-gradient(0deg,var(--soft),#fff);
+      padding:16px 16px 14px;
+      border-radius:12px;
+    }
+
+    h1{
+      font-size: 20px;
+      margin:0 0 6px;
+      letter-spacing:.2px;
+    }
+    .subtitle{
+      color:var(--muted);
+      font-size: 13px;
+      margin:0;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border:1px solid var(--border);
+      background:#fff;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    main{margin-top:14px;}
+
+    section{
+      margin-top:14px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+      padding:14px 14px 12px;
+    }
+
+    h2{
+      font-size: 16px;
+      margin:0 0 8px;
+    }
+
+    h3{
+      font-size: 14px;
+      margin:12px 0 8px;
+    }
+
+    p{margin:8px 0;}
+    ul{margin:8px 0 8px 18px; padding:0;}
+    li{margin:6px 0;}
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: var(--soft2);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.ok{border-left-color:var(--ok);}
+    .callout.warn{border-left-color:var(--warn);}
+    .callout.bad{border-left-color:var(--bad);}
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding:2px 6px;
+      border:1px solid var(--border);
+      border-bottom-width:2px;
+      border-radius:6px;
+      background:#fff;
+      white-space:nowrap;
+    }
+
+    pre{
+      margin:10px 0;
+      padding:12px 12px;
+      border-radius:12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow:auto;
+      border:1px solid rgba(255,255,255,.08);
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+
+    .mini{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 12px;
+      background: #fff;
+    }
+    .mini .title{
+      font-weight:700;
+      margin:0 0 6px;
+      font-size:13px;
+    }
+    .muted{color:var(--muted);}
+
+    .hr{
+      height:1px;
+      background:var(--border);
+      margin:12px 0;
+    }
+
+    .checklist li{margin:7px 0;}
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print{
+      body{background:#fff;}
+      .page{max-width:none; padding:0;}
+      header, section{break-inside:avoid-page;}
+      pre{break-inside:avoid;}
+      a, a:visited{color:inherit; text-decoration:none;}
+      a::after{content:"" !important;}
+      .no-print{display:none !important;}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧠 React Quiz — Starting a New Quiz (useReducer Flow)</h1>
+      <p class="subtitle">Study guide for the lecture: moving from <span class="kbd">status = "ready"</span> to <span class="kbd">status = "active"</span> by dispatching a <span class="kbd">start</span> action.</p>
+      <div class="meta">
+        <span class="chip">🧩 Topic: useReducer state machine</span>
+        <span class="chip">🎯 Goal: render <b>Question</b> when quiz starts</span>
+        <span class="chip">🧼 Pattern: “dispatch as props”</span>
+        <span class="chip">🖨️ Print: A4, single-column</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>✅ What this lecture is trying to achieve</h2>
+        <p>After the user clicks the <b>Start</b> button on the <b>StartScreen</b>, we want to:</p>
+        <ul>
+          <li>🔁 <b>Transition app status</b> from <span class="kbd">"ready"</span> → <span class="kbd">"active"</span></li>
+          <li>🧱 Render the <b>Question</b> UI inside the <span class="kbd">&lt;Main&gt;</span> component</li>
+        </ul>
+        <div class="callout ok">
+          <b>Key idea:</b> Since UI is driven by <b>status</b>, we don’t “navigate” manually. We simply change <b>status</b> in the reducer and let React render the correct screen.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧭 The “status flow” (mental model)</h2>
+        <p>Think of <span class="kbd">status</span> like a simple state machine:</p>
+        <div class="grid">
+          <div class="mini">
+            <p class="title">1) Loading ⏳</p>
+            <p class="muted">Fetch questions → show Loader</p>
+          </div>
+          <div class="mini">
+            <p class="title">2) Ready ✅</p>
+            <p class="muted">Questions arrived → show StartScreen</p>
+          </div>
+          <div class="mini">
+            <p class="title">3) Active 🎮</p>
+            <p class="muted">User started quiz → show Question UI</p>
+          </div>
+          <div class="mini">
+            <p class="title">4) Error ❌</p>
+            <p class="muted">Fetch failed → show Error screen</p>
+          </div>
+          <div class="mini">
+            <p class="title">5) Finished 🏁</p>
+            <p class="muted">Quiz ended → show results</p>
+          </div>
+        </div>
+        <div class="callout">
+          🧠 <b>Shortcut:</b> “Status decides what Main renders.” So when you want a new screen, you usually add a new <b>status</b> value and render conditionally.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Step-by-step implementation</h2>
+
+        <h3>1) Add UI handling for <span class="kbd">status === "active"</span></h3>
+        <p>In <b>App</b>, conditionally render the <b>Question</b> component inside <b>Main</b>:</p>
+        <pre><code>// App.jsx (inside &lt;Main&gt;)
+{status === "active" &amp;&amp; &lt;Question /&gt;}</code></pre>
+        <div class="callout warn">
+          ⚠️ At this point <b>Question</b> is just a placeholder component. Rendering the actual question content happens in the next lecture.
+        </div>
+
+        <h3>2) Create the <span class="kbd">Question</span> component (placeholder)</h3>
+        <p>Create a new file (e.g. <span class="kbd">Question.js</span>) with a minimal component:</p>
+        <pre><code>export default function Question() {
+  return (
+    &lt;div className="question"&gt;
+      ❓ Question (placeholder)
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+        <h3>3) Create a new reducer action: <span class="kbd">start</span></h3>
+        <p>In the reducer’s <span class="kbd">switch(action.type)</span>, add a case that moves the app to the active state:</p>
+        <pre><code>case "start":
+  return {
+    ...state,
+    status: "active",
+  };</code></pre>
+
+        <h3>4) Dispatch the <span class="kbd">start</span> action from the Start button</h3>
+        <p>Instead of creating a new “startGame()” handler in App, we simply pass the <b>dispatch</b> function down as a prop.</p>
+
+        <div class="callout ok">
+          ✅ This is the “child → parent communication” pattern, reducer-style: <b>pass dispatch down</b>, then the child triggers state transitions.
+        </div>
+
+        <pre><code>// App.jsx
+{status === "ready" &amp;&amp; (
+  &lt;StartScreen
+    numQuestions={numQuestions}
+    dispatch={dispatch}
+  /&gt;
+)}</code></pre>
+
+        <p>Then in <b>StartScreen</b>:</p>
+        <pre><code>// StartScreen.jsx
+export default function StartScreen({ numQuestions, dispatch }) {
+  function handleStart() {
+    dispatch({ type: "start" });
+  }
+
+  return (
+    &lt;div className="start"&gt;
+      &lt;h2&gt;Welcome to the React Quiz! 🎯&lt;/h2&gt;
+      &lt;p&gt;{numQuestions} questions to test your React mastery.&lt;/p&gt;
+
+      &lt;button
+        className="btn btn-ui"
+        onClick={handleStart}
+      &gt;
+        Let’s start 🚀
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>🔍 Why passing <span class="kbd">dispatch</span> is a big deal</h2>
+        <ul>
+          <li>🧠 <b>No extra handlers needed:</b> the reducer already defines the rules for state transitions.</li>
+          <li>📌 <b>Centralized logic:</b> “How state changes” is only in the reducer, not scattered across components.</li>
+          <li>🧼 <b>Cleaner components:</b> components mostly “describe UI” and “dispatch events”.</li>
+        </ul>
+        <div class="callout">
+          🧩 Think of components as “event senders” and the reducer as the “state transition engine.”
+        </div>
+      </section>
+
+      <section>
+        <h2>🛠️ Common mistakes (and fixes)</h2>
+        <div class="grid">
+          <div class="mini">
+            <p class="title">❌ Start button does nothing</p>
+            <ul>
+              <li>Make sure <span class="kbd">dispatch</span> is passed to <span class="kbd">StartScreen</span>.</li>
+              <li>Verify reducer has <span class="kbd">case "start"</span>.</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <p class="title">❌ Active screen never appears</p>
+            <ul>
+              <li>Confirm you render <span class="kbd">&lt;Question /&gt;</span> when <span class="kbd">status === "active"</span>.</li>
+              <li>Confirm the reducer sets <span class="kbd">status: "active"</span>.</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <p class="title">❌ “Unknown action” error</p>
+            <ul>
+              <li>Your reducer <span class="kbd">default</span> throws an error—good!</li>
+              <li>Fix the action type string mismatch (e.g., <span class="kbd">"Start"</span> vs <span class="kbd">"start"</span>).</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 Quick recap (memorize this)</h2>
+        <ul class="checklist">
+          <li>✅ UI is driven by <b>status</b> (like a mini state machine).</li>
+          <li>✅ Clicking Start dispatches <span class="kbd">{ type: "start" }</span>.</li>
+          <li>✅ Reducer handles <span class="kbd">"start"</span> → sets <span class="kbd">status: "active"</span>.</li>
+          <li>✅ When status becomes active, Main renders <span class="kbd">&lt;Question /&gt;</span>.</li>
+          <li>✅ Real question rendering is next lecture; for now, placeholder is enough.</li>
+        </ul>
+        <div class="callout ok">
+          🎯 If you understand this flow, you’re ready for the next step: showing the current question, options, and handling answers.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Mini self-check</h2>
+        <ol>
+          <li>Why do we change <span class="kbd">status</span> instead of “manually rendering” Question?</li>
+          <li>Where should the “rules” of state transitions live?</li>
+          <li>What’s the advantage of passing <span class="kbd">dispatch</span> vs passing many handler props?</li>
+        </ol>
+        <div class="callout">
+          ✅ If your answers mention “single source of truth (reducer)”, “centralized transitions”, and “cleaner components”, you got it.
+        </div>
+      </section>
+
+      <p class="no-print muted" style="margin-top:14px; text-align:center;">
+        Tip: Print using your browser’s Print dialog → set paper size to A4 and margins to default.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,342 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Fixing State Reset in Eat-N-Split with the key Prop</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f8;
+      --soft2: #fbfbfc;
+      --accent: #0b57d0;
+      --accent2: #1a73e8;
+      --good: #0f7b3a;
+      --warn: #8a5b00;
+      --bad: #8a1f17;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+    .kicker {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 0 0 6px;
+    }
+    h1 {
+      font-size: 22px;
+      line-height: 1.25;
+      margin: 0 0 8px;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    main { margin-top: 16px; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+    ul { margin: 10px 0 0 18px; padding: 0; }
+    li { margin: 8px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout strong { color: var(--text); }
+
+    .callout.info { border-left: 6px solid var(--accent); }
+    .callout.good { border-left: 6px solid var(--good); }
+    .callout.warn { border-left: 6px solid var(--warn); }
+    .callout.bad  { border-left: 6px solid var(--bad); }
+
+    .pillrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill {
+      font-size: 12px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0b1020;
+      color: #e9eefc;
+      overflow: auto;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .qa {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .qa .q {
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .qa .a {
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .tiny { font-size: 12px; color: var(--muted); }
+
+    /* Print styles: A4, clean margins, no cut-off */
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm 14mm;
+    }
+
+    @media print {
+      :root { --bg: #ffffff; }
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, .card, .callout, .qa, pre {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      a, a:visited { color: inherit; text-decoration: none; }
+      /* Avoid printing any accidental URLs */
+      a[href]:after { content: ""; }
+      .pill { border-color: #d8d8d8; }
+      pre { border-color: #d8d8d8; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <p class="kicker">The Ultimate React Course — Study Guide</p>
+      <h1>Using the <code>key</code> Prop to Fix State Reset Issues in the Eat‑N‑Split App</h1>
+      <p class="subtitle">Topic focus: Why a form kept old input when switching friends, and how a changing <code>key</code> forces React to create a fresh component instance.</p>
+      <div class="pillrow">
+        <span class="pill">🧠 Diffing + Reconciliation</span>
+        <span class="pill">🔑 key prop</span>
+        <span class="pill">♻️ Reset component state</span>
+        <span class="pill">🧩 Same component, same position</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>🎯 What problem are we fixing?</h2>
+        <p>
+          In the <strong>Eat‑N‑Split</strong> app, you type values into the “Split Bill” form (bill amount, who paid, etc.).
+          When you click a <em>different friend</em>, the selected friend changes, but the form inputs may <strong>stay filled</strong> with the previous friend’s values.
+        </p>
+
+        <div class="callout.warn">
+          <p><strong>⚠️ Why this feels wrong:</strong> When you switch from Friend A to Friend B, you usually expect the form to start clean (reset inputs).</p>
+        </div>
+
+        <p>
+          This happens because React sees the <strong>same component type</strong> (<code>FormSplitBill</code>)
+          rendered in the <strong>same position in the component tree</strong>. Only the props changed.
+          By default, React will <strong>preserve component state</strong> in that situation.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>🧠 The core React rule behind the bug</h2>
+        <div class="callout.info">
+          <p>
+            <strong>Rule:</strong> If React renders the <em>same element</em> (same component type) in the <em>same position</em>, it keeps the existing instance and its state.
+          </p>
+          <p class="tiny">Think: “same slot in the tree” → React reuses the old instance.</p>
+        </div>
+
+        <h3>✅ What changes when you select another friend?</h3>
+        <ul>
+          <li>Props like <code>selectedFriend</code> change (new object)</li>
+          <li>The component instance of <code>FormSplitBill</code> is still the same instance (same slot)</li>
+          <li>Therefore, the form’s internal state doesn’t reset automatically</li>
+        </ul>
+
+        <div class="callout.good">
+          <p><strong>✨ Goal:</strong> Make React treat it like a <em>new</em> form component when the selected friend changes.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🔑 The fix: Add a changing <code>key</code></h2>
+        <p>
+          We want React to understand: “This is not the same instance anymore.”
+          The simplest way is to give <code>FormSplitBill</code> a <strong>key</strong> that depends on the selected friend.
+        </p>
+
+        <div class="callout.info">
+          <p>
+            <strong>Key behavior:</strong> If the <code>key</code> changes between renders, React will <strong>destroy</strong> the old instance and <strong>create a new one</strong>.
+            That resets state automatically. 🎉
+          </p>
+        </div>
+
+        <h3>Before (state preserved)</h3>
+        <pre><code>{selectedFriend &amp;&amp; (
+  &lt;FormSplitBill
+    selectedFriend={selectedFriend}
+    onSplitBill={handleSplitBill}
+  /&gt;
+)}</code></pre>
+
+        <h3>After (state resets per friend)</h3>
+        <pre><code>{selectedFriend &amp;&amp; (
+  &lt;FormSplitBill
+    key={selectedFriend.id}
+    selectedFriend={selectedFriend}
+    onSplitBill={handleSplitBill}
+  /&gt;
+)}</code></pre>
+
+        <div class="callout.good">
+          <p>
+            <strong>✅ Why <code>selectedFriend.id</code>:</strong> It is stable, unique, and changes when you switch friends.
+            You <em>could</em> use name, but IDs are safer when names can repeat.
+          </p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🧩 Beginner-friendly mental model</h2>
+        <ul>
+          <li>React “slots” components into positions in the tree.</li>
+          <li>Same component type in the same slot → reuse old instance → keep state.</li>
+          <li>Changing <code>key</code> tells React: “This is a different instance.”</li>
+          <li>Different instance → fresh state → inputs reset.</li>
+        </ul>
+
+        <div class="callout.warn">
+          <p><strong>⚠️ Use this intentionally:</strong> Changing keys forces remounts. Great for resetting state, but don’t do it everywhere.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🛠 Practical workflow from the lecture</h2>
+        <ol>
+          <li>Open the Eat‑N‑Split project in VS Code.</li>
+          <li>Run <code>npm start</code>. If port 3000 is busy, accept running on another port (Y).</li>
+          <li>Reproduce the bug: type values → click another friend → inputs stay.</li>
+          <li>Find where <code>FormSplitBill</code> is rendered (usually in <code>App</code>).</li>
+          <li>Add <code>key={selectedFriend.id}</code> to <code>FormSplitBill</code>.</li>
+          <li>Test again: switching friends now resets the form state.</li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <h2>🧪 Quick checks (self-review)</h2>
+        <div class="grid">
+          <div class="qa">
+            <p class="q">Q1: Why didn’t the form reset when selecting another friend?</p>
+            <p class="a">Because React reused the same <code>FormSplitBill</code> instance (same type + same tree position), so internal state was preserved.</p>
+          </div>
+          <div class="qa">
+            <p class="q">Q2: What does changing the <code>key</code> do?</p>
+            <p class="a">It forces React to unmount the old instance and mount a new one, which resets state.</p>
+          </div>
+          <div class="qa">
+            <p class="q">Q3: What is the best value to use as a key here?</p>
+            <p class="a">A stable unique identifier like <code>selectedFriend.id</code> (preferred over name when possible).</p>
+          </div>
+          <div class="qa">
+            <p class="q">Q4: When should you avoid forcing remounts?</p>
+            <p class="a">When you don’t actually need a reset—unnecessary remounts can discard useful state and add extra work.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>📌 Key takeaway</h2>
+        <div class="callout.good">
+          <p>
+            <strong>✅ If you need to reset component state when a certain prop changes,</strong>
+            give the component a <code>key</code> derived from a unique value for that prop (e.g., <code>id</code>).
+          </p>
+        </div>
+        <p class="tiny">End of lecture: “Using the key prop to fix our Eat‑N‑Split app.”</p>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

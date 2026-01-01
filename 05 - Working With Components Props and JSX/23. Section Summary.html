@@ -1,0 +1,423 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Section Summary (Components, Props, JSX)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --hint: #eef6ff;
+      --warn: #fff3cd;
+      --ok: #eaffea;
+      --codebg: #fcfcfc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.hint { border-left-color: #90caf9; background: var(--hint); }
+    .callout.warn { border-left-color: #ffe08a; background: var(--warn); }
+    .callout.ok { border-left-color: #7ad27a; background: var(--ok); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--codebg);
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .term {
+      display: inline-block;
+      padding: 1px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.9em;
+      white-space: nowrap;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 Section Summary — Components, JSX, Props, Lists, Conditional Rendering</h1>
+      <p class="subtitle">A beginner-friendly recap of the practical concepts used in the Pizza app. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: Use A4 paper size for clean printing.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#components">Components (building blocks)</a></li>
+          <li><a href="#jsx">JSX (appearance + JavaScript mode)</a></li>
+          <li><a href="#tree">Component tree (parent/child)</a></li>
+          <li><a href="#props">Props (passing data down)</a></li>
+          <li><a href="#lists">Rendering lists (map)</a></li>
+          <li><a href="#conditional">Conditional rendering (&&, ternary, early return)</a></li>
+          <li><a href="#theory">Theory recap (imperative vs declarative, separation of concerns, immutability)</a></li>
+          <li><a href="#next">What’s next (challenge)</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="components">
+      <h2>🧩 1) Components = building blocks of the UI</h2>
+      <p>
+        A React component is a <strong>self-contained piece of the user interface</strong>.
+        Think of it as a “LEGO block” for the screen.
+      </p>
+      <ul>
+        <li>📦 Has its own <strong>data</strong></li>
+        <li>🧠 Has its own <strong>JavaScript logic</strong></li>
+        <li>🎨 Has its own <strong>appearance</strong> (what you see)</li>
+      </ul>
+
+      <div class="callout hint">
+        <p><strong>Practical meaning 🧠</strong></p>
+        <p class="muted">In this section, we created small components (e.g., <code>Pizza</code>) and combined them into bigger components (e.g., <code>Menu</code>, <code>App</code>).</p>
+      </div>
+    </section>
+
+    <section id="jsx">
+      <h2>🧾 2) JSX = how we describe the UI</h2>
+      <p>
+        JSX is a <strong>declarative syntax</strong> used to describe what a component should look like.
+        Each component typically <strong>returns one block of JSX</strong>, and React turns it into real DOM elements.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>JSX can contain ✅</h3>
+          <ul>
+            <li>🏷️ Markup (HTML-like tags)</li>
+            <li>🎨 CSS (e.g., <code>style</code> prop with an object)</li>
+            <li>🧠 JavaScript expressions inside <code>{...}</code> ("JavaScript mode")</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Mini example ✨</h3>
+          <pre><code>function Header() {
+  const title = "Fast React Pizza Co.";
+  return &lt;h1&gt;🍕 {title}&lt;/h1&gt;;
+}</code></pre>
+          <p class="muted">Curly braces let you embed JavaScript values into JSX.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="tree">
+      <h2>🌳 3) Component tree = parent/child relationships</h2>
+      <p>
+        Real apps are composed of many components arranged in a <strong>component tree</strong>.
+        A component higher in the tree uses components below it.
+      </p>
+
+      <div class="callout ok">
+        <p><strong>Example from the Pizza app ✅</strong></p>
+        <ul>
+          <li><code>App</code> is the parent of <code>Header</code>, <code>Menu</code>, <code>Footer</code></li>
+          <li><code>Menu</code> is the parent of multiple <code>Pizza</code> components</li>
+          <li><code>Footer</code> is the parent of <code>Order</code> (after extracting JSX)</li>
+        </ul>
+      </div>
+
+      <p class="muted">A component can be both a parent and a child at the same time.</p>
+    </section>
+
+    <section id="props">
+      <h2>📦 4) Props = passing data from parent to child</h2>
+      <p>
+        <strong>Props</strong> (short for <strong>properties</strong>) are how parent components pass data down to children.
+        Think of props as <strong>function arguments</strong> for components.
+      </p>
+
+      <pre><code>// Parent passes props
+&lt;Pizza pizzaObj={pizza} /&gt;
+
+// Child receives props (commonly via destructuring)
+function Pizza({ pizzaObj }) {
+  return &lt;h3&gt;{pizzaObj.name}&lt;/h3&gt;;
+}</code></pre>
+
+      <div class="callout warn">
+        <p><strong>Important rule: Props are immutable ⚠️</strong></p>
+        <p class="muted">Child components should never change (mutate) props. If data must change over time, that’s what <strong>state</strong> is for (coming next).</p>
+      </div>
+
+      <div class="callout hint">
+        <p><strong>One-way data flow 🧠</strong></p>
+        <p class="muted">Props flow <strong>down</strong> the tree (parent → child). Not the other way around.</p>
+      </div>
+    </section>
+
+    <section id="lists">
+      <h2>🧱 5) Rendering lists = using <code>map</code></h2>
+      <p>
+        Rendering a list means: you have an <strong>array</strong>, and you create <strong>one component per item</strong>.
+        In React, there’s no special “list API” — you just use JavaScript’s <code>map</code>.
+      </p>
+
+      <pre><code>&lt;ul className="pizzas"&gt;
+  {pizzaData.map((pizza) =&gt; (
+    &lt;Pizza key={pizza.name} pizzaObj={pizza} /&gt;
+  ))}
+&lt;/ul&gt;</code></pre>
+
+      <div class="callout hint">
+        <p><strong>Why <code>key</code> matters 🧠</strong></p>
+        <p class="muted">React needs a unique <code>key</code> per list item to efficiently update the UI when lists change.</p>
+      </div>
+    </section>
+
+    <section id="conditional">
+      <h2>🔀 6) Conditional rendering = show UI only when needed</h2>
+      <p>
+        Conditional rendering means rendering some JSX (or an entire component) only when certain conditions are met.
+        You can do this using regular JavaScript tools.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Option A: <code>&&</code> operator ⚡</h3>
+          <pre><code>{isOpen && &lt;Order /&gt;}</code></pre>
+          <p class="muted">Fast for “render this only if true”. Avoid cases where the left side is a number (e.g., 0).</p>
+        </div>
+
+        <div class="card">
+          <h3>Option B: Ternary operator ❓</h3>
+          <pre><code>{numPizzas &gt; 0
+  ? &lt;PizzaList /&gt;
+  : &lt;p&gt;Come back later!&lt;/p&gt;}</code></pre>
+          <p class="muted">Best when you need an “else” UI.</p>
+        </div>
+
+        <div class="card">
+          <h3>Option C: Early return (multiple returns) 🚪</h3>
+          <pre><code>if (!isOpen) return &lt;p&gt;Closed&lt;/p&gt;;
+return &lt;Footer /&gt;;</code></pre>
+          <p class="muted">Useful when an entire component output depends on a condition.</p>
+        </div>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Takeaway ✅</strong></p>
+        <p class="muted">Lists + conditional rendering are used constantly in React. You’ll repeat these patterns many times until they become natural.</p>
+      </div>
+    </section>
+
+    <section id="theory">
+      <h2>📘 Theory recap (what it explains in practice)</h2>
+      <ul>
+        <li>🧭 <strong>Imperative vs declarative</strong> — React: “describe the UI”, don’t manually manipulate the DOM.</li>
+        <li>🧩 <strong>Separation of concerns</strong> — not “one tech per file” anymore, but “one component per concern”.</li>
+        <li>🔒 <strong>Immutability</strong> — avoid mutating props/external data to prevent bugs and keep components predictable.</li>
+      </ul>
+
+      <div class="callout hint">
+        <p><strong>Why this matters 🧠</strong></p>
+        <p class="muted">These ideas explain why React apps feel easier to reason about as they grow: predictable flow, fewer side effects, and UI tied to data.</p>
+      </div>
+    </section>
+
+    <section id="next">
+      <h2>🏁 What’s next</h2>
+      <p>
+        To finish the section, you’ll do one more coding challenge: completing the <strong>Developer Profile Card</strong>.
+        That challenge is designed to reinforce:
+      </p>
+      <ul>
+        <li>🧩 Creating multiple components</li>
+        <li>📦 Passing props to customize UI</li>
+        <li>🎨 Applying styles/classes correctly in JSX</li>
+      </ul>
+
+      <div class="callout ok">
+        <p><strong>Suggested practice ✅</strong></p>
+        <p class="muted">Before moving on, scan your Pizza app code and identify: (1) the component tree, (2) where props are passed, (3) where lists are mapped, (4) where UI is conditional.</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

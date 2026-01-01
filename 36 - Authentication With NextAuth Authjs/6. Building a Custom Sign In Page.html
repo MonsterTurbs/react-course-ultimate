@@ -1,0 +1,402 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Auth.js — Custom Sign-In Page (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f7f7f9;
+      --callout: #f3f8ff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 16px 16px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    main {
+      margin-top: 14px;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 18px 0 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 6px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 10px 20px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--callout);
+      padding: 12px 12px 10px;
+      border-radius: 12px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin: 10px 0;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .card .title {
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #f2f2f2;
+      border: 1px solid #eaeaea;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      border-top: 1px dashed var(--border);
+      padding-top: 10px;
+    }
+
+    /* Print */
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header { border-radius: 0; }
+      .chip { background: #fff; }
+      a { color: inherit; text-decoration: none; }
+      a[href]:after { content: ""; } /* do NOT print URLs */
+      pre { page-break-inside: avoid; }
+      .card, .callout { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 Next.js Auth.js — Building a Custom Sign‑In Page (Reviewer / Study Guide)</h1>
+      <p class="subtitle">
+        Topic: Replace Auth.js default sign-in page with your own <code>/login</code> route, and trigger sign-in via a <strong>server action</strong> (no client-side auth flow).
+      </p>
+      <div class="meta">
+        <span class="chip">✅ Print-ready (A4)</span>
+        <span class="chip">📄 Single-column</span>
+        <span class="chip">🧠 Beginner-friendly</span>
+        <span class="chip">🛠️ Includes code recipes</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>🎯 Learning Goals</h2>
+      <ul>
+        <li>Understand how to set a <strong>custom sign-in page</strong> in Auth.js (NextAuth v5 / Auth.js).</li>
+        <li>Implement a <strong>Sign In button</strong> that runs fully on the <strong>server</strong> using <strong>server actions</strong>.</li>
+        <li>Know which pieces belong to <strong>server</strong> vs <strong>client</strong> in Next.js App Router.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>🧠 Big Idea</strong>
+        <div>
+          Instead of sending users to Auth.js’ default UI, you tell Auth.js: “When a protected route needs sign-in, redirect to <code>/login</code>.”
+          Then, you make your login button submit a <code>&lt;form&gt;</code> that calls a <strong>server action</strong>, which calls <code>signIn()</code>.
+        </div>
+      </div>
+
+      <h2>🧱 Key Concepts (Simple Definitions)</h2>
+      <div class="grid">
+        <div class="card">
+          <p class="title">🔐 Custom Sign-In Page</p>
+          <p>
+            A route (e.g., <code>/login</code>) that you build yourself. Auth.js can be configured to redirect users there instead of its built-in page.
+          </p>
+        </div>
+        <div class="card">
+          <p class="title">🧾 Server Action</p>
+          <p>
+            A special server-only function (usually in an <code>actions.js</code> file) that can be triggered from a form submission.
+            It lets you add interactivity without turning your component into a client component.
+          </p>
+        </div>
+        <div class="card">
+          <p class="title">🧩 Why a &lt;form&gt;?</p>
+          <p>
+            Server components cannot use <code>onClick</code>. But forms can submit and call the <code>action</code> prop, which can be a server action.
+          </p>
+        </div>
+      </div>
+
+      <h2>🧭 Step-by-Step Recipe</h2>
+
+      <h3>1) Create the custom route: <code>/login</code></h3>
+      <ul>
+        <li>Create folder: <code>app/login</code></li>
+        <li>Create page file: <code>app/login/page.js</code></li>
+        <li>Render your custom UI + your SignInButton component</li>
+      </ul>
+
+      <h3>2) Tell Auth.js to use <code>/login</code> instead of the default sign-in page</h3>
+      <p>In your auth config, add a <code>pages</code> object with <code>signIn</code>.</p>
+
+      <h3>3) Export <code>signIn</code> and <code>signOut</code> from your auth module</h3>
+      <p>So you can call them from server actions (and later, sign-out buttons).</p>
+
+      <h3>4) Create a server action that calls <code>signIn()</code></h3>
+      <ul>
+        <li>Create <code>app/_lib/actions.js</code> (or your preferred location)</li>
+        <li>Add <code>"use server"</code> at the top</li>
+        <li>Export <code>signInAction</code> that calls <code>signIn(provider, options)</code></li>
+      </ul>
+
+      <h3>5) Use the server action in your SignInButton (server component)</h3>
+      <p>
+        Wrap the button in a <code>&lt;form&gt;</code> and pass the server action into the <code>action</code> prop.
+      </p>
+
+      <div class="divider"></div>
+
+      <h2>🧪 Practical Code Templates</h2>
+      <p class="subtitle">These are “copy-first, understand-next” snippets — perfect for quick implementation.</p>
+
+      <div class="card">
+        <p class="title">🛠️ auth.js (Auth.js / NextAuth config)</p>
+        <pre><code>// app/_lib/auth.js
+import NextAuth from "next-auth";
+import Google from "next-auth/providers/google";
+
+const authConfig = {
+  providers: [
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+    }),
+  ],
+
+  // ✅ IMPORTANT: use your custom login page
+  pages: {
+    signIn: "/login",
+  },
+
+  // (You likely already added this earlier for middleware authorization)
+  callbacks: {
+    authorized({ auth }) {
+      return !!auth?.user;
+    },
+  },
+};
+
+export const {
+  auth,
+  handlers: { GET, POST },
+  signIn,
+  signOut,
+} = NextAuth(authConfig);
+</code></pre>
+      </div>
+
+      <div class="card">
+        <p class="title">🛣️ Route Handler for Auth.js</p>
+        <pre><code>// app/api/auth/[...nextauth]/route.js
+export { GET, POST } from "@/app/_lib/auth";
+</code></pre>
+      </div>
+
+      <div class="card">
+        <p class="title">⚡ actions.js (Server Actions)</p>
+        <pre><code>// app/_lib/actions.js
+"use server";
+
+import { signIn } from "@/app/_lib/auth";
+
+export async function signInAction() {
+  // ✅ Provider name must match your providers.
+  // Usually it's "google" (lowercase), but verify at /api/auth/providers.
+  await signIn("google", {
+    redirectTo: "/account",
+  });
+}
+</code></pre>
+        <p class="subtitle">💡 Tip: If your provider ID is different, check <code>/api/auth/providers</code> and copy the exact key.</p>
+      </div>
+
+      <div class="card">
+        <p class="title">🔘 SignInButton (Server Component)</p>
+        <pre><code>// app/_components/SignInButton.js (example path)
+import { signInAction } from "@/app/_lib/actions";
+
+export default function SignInButton() {
+  return (
+    &lt;form action={signInAction}&gt;
+      &lt;button type="submit"&gt;Continue with Google&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+</code></pre>
+        <p class="subtitle">✅ No <code>onClick</code> needed. The form submit triggers the server action.</p>
+      </div>
+
+      <div class="card">
+        <p class="title">📄 /login page (Custom Login UI)</p>
+        <pre><code>// app/login/page.js
+import SignInButton from "@/app/_components/SignInButton";
+import { auth } from "@/app/_lib/auth";
+
+export const metadata = {
+  title: "Login",
+};
+
+export default async function Page() {
+  // Optional: show user name if already signed in
+  const session = await auth();
+  const firstName = session?.user?.name?.split(" ")?.[0];
+
+  return (
+    &lt;main&gt;
+      &lt;h2&gt;Sign in&lt;/h2&gt;
+      {firstName ? (
+        &lt;p&gt;Hi, {firstName}! You are already signed in.&lt;/p&gt;
+      ) : (
+        &lt;p&gt;Please sign in to continue.&lt;/p&gt;
+      )}
+      &lt;SignInButton /&gt;
+    &lt;/main&gt;
+  );
+}
+</code></pre>
+      </div>
+
+      <h2>⚠️ Common Pitfalls (and Fixes)</h2>
+      <ul>
+        <li><strong>“Nothing happens when I click.”</strong> → Ensure the button is inside a <code>&lt;form&gt;</code> with <code>action={signInAction}</code>.</li>
+        <li><strong>Provider name mismatch</strong> → Check <code>/api/auth/providers</code> and use the exact provider key (often <code>google</code>).</li>
+        <li><strong>Server action not running</strong> → Make sure <code>actions.js</code> has <code>"use server"</code> at the top.</li>
+        <li><strong>Imports breaking</strong> → Verify your alias (<code>@/</code>) or adjust paths to match your project.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>✅ Quick Self-Check</strong>
+        <ul>
+          <li>Going to a protected route redirects to <code>/login</code></li>
+          <li>Clicking the button starts Google sign-in</li>
+          <li>After sign-in, user is redirected to <code>/account</code></li>
+        </ul>
+      </div>
+
+      <footer>
+        <div><strong>Notes:</strong> This reviewer focuses on the “server-first” sign-in flow (server actions + Auth.js). Next lecture typically adds a custom sign-out button using <code>signOut()</code>.</div>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

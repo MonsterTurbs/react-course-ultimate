@@ -1,0 +1,442 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Performance — Understanding memo (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --panel2: #f6f7fb;
+      --accent: #0b57d0;
+      --good: #0f7b38;
+      --warn: #b25e00;
+      --bad: #b00020;
+      --codebg: #0b1020;
+      --codefg: #e9eefc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 20px 64px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff 0%, var(--panel2) 100%);
+      border-radius: 14px;
+      padding: 18px 16px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    nav {
+      margin-top: 14px;
+      border-top: 1px dashed var(--border);
+      padding-top: 12px;
+    }
+
+    nav a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    nav a:hover { text-decoration: underline; }
+
+    .actions {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      border-color: rgba(11, 87, 208, 0.25);
+      background: rgba(11, 87, 208, 0.06);
+      color: #0b57d0;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 16.5px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14.5px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 10px 20px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      margin: 10px 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .callout.good { border-color: rgba(15, 123, 56, 0.25); background: rgba(15, 123, 56, 0.06); }
+    .callout.warn { border-color: rgba(178, 94, 0, 0.25); background: rgba(178, 94, 0, 0.06); }
+    .callout.bad  { border-color: rgba(176, 0, 32, 0.20); background: rgba(176, 0, 32, 0.06); }
+
+    .callout .title {
+      margin: 0 0 4px;
+      font-weight: 800;
+      font-size: 13.5px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 840px) {
+      .two { grid-template-columns: 1fr 1fr; }
+    }
+
+    .mini {
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: var(--codebg);
+      color: var(--codefg);
+      overflow: auto;
+      line-height: 1.45;
+      font-size: 12.5px;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .kbd {
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 8px;
+      background: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    /* Print */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-radius: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      nav, .actions { display: none !important; }
+      a { color: inherit; text-decoration: none; }
+      /* Avoid printing any href after links */
+      a[href]:after { content: ""; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 Understanding <code>memo</code> in React</h1>
+      <p class="subtitle">Study guide / reviewer — Memoization basics + how <code>React.memo</code> prevents wasted re-renders (when used correctly).</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Performance Optimization</span>
+        <span class="chip">⚛️ Tool: <code>React.memo</code></span>
+        <span class="chip">🧩 Related: <code>useMemo</code>, <code>useCallback</code></span>
+        <span class="chip">🖨️ A4 print-ready</span>
+      </div>
+
+      <nav class="mini">
+        Jump to: <a href="#memoization">Memoization</a> · <a href="#memo">React.memo</a> · <a href="#what-it-does">What it does/doesn’t</a> · <a href="#when">When to use</a> · <a href="#examples">Examples</a> · <a href="#checklist">Checklist</a>
+      </nav>
+
+      <div class="actions">
+        <button class="btn primary" onclick="window.print()">Print / Save as PDF</button>
+        <button class="btn" onclick="document.getElementById('notes').scrollIntoView({behavior:'smooth'})">Go to Quick Notes</button>
+      </div>
+    </header>
+
+    <section id="memoization">
+      <h2>1) 🧩 What is memoization? (Not “memorization”)</h2>
+      <p><strong>Memoization</strong> is an optimization technique for <strong>pure functions</strong>:</p>
+      <ul>
+        <li>Run the function once for a given input ✅</li>
+        <li>Store the result in a cache (memory) 🗃️</li>
+        <li>If the same input is used again, return the cached result instead of re-running the function ⚡</li>
+      </ul>
+
+      <div class="callout good">
+        <p class="title">🙂 Why it makes sense</p>
+        <p>If inputs are identical and the function is pure, outputs are identical. Recomputing is wasted work.</p>
+      </div>
+
+      <div class="two">
+        <div class="callout">
+          <p class="title">🧼 Pure function = predictable</p>
+          <p class="mini">Same inputs → same output. No side effects (no network calls, no random values, no mutations outside the function).</p>
+        </div>
+        <div class="callout warn">
+          <p class="title">⚠️ If inputs differ</p>
+          <p class="mini">The cache can’t be used, so the function must run again. Memoization helps only when identical inputs repeat.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="memo">
+      <h2>2) ⚛️ How memoization applies to React</h2>
+      <p>React can apply the memoization idea to:</p>
+      <ul>
+        <li><strong>Components</strong> → via <code>React.memo</code> (a.k.a. <code>memo</code>)</li>
+        <li><strong>Objects / computed values</strong> → via <code>useMemo</code></li>
+        <li><strong>Functions</strong> → via <code>useCallback</code></li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">🔁 React analogy</p>
+        <ul>
+          <li><strong>Function inputs</strong> = props</li>
+          <li><strong>Calling function again</strong> = re-render</li>
+          <li><strong>Cached result</strong> = reuse previous render output (skip re-render)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="what-it-does">
+      <h2>3) 🧠 What <code>React.memo</code> actually does</h2>
+      <p><code>React.memo</code> creates a <strong>memoized component</strong> that will <strong>NOT re-render</strong> when its parent re-renders <em>as long as its props are the same</em>.</p>
+
+      <div class="two">
+        <div class="callout good">
+          <p class="title">✅ Prevents re-render when…</p>
+          <ul>
+            <li>Parent re-renders</li>
+            <li>Props are <strong>equal</strong> to previous render</li>
+          </ul>
+        </div>
+        <div class="callout warn">
+          <p class="title">🔄 Will still re-render when…</p>
+          <ul>
+            <li>Its <strong>own state</strong> changes</li>
+            <li>A subscribed <strong>context value</strong> changes</li>
+            <li>Props actually change</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout bad">
+        <p class="title">🚫 Key limitation</p>
+        <p><strong>Memo only helps with prop stability.</strong> It does not freeze state updates or context updates inside the component.</p>
+      </div>
+    </section>
+
+    <section id="examples">
+      <h2>4) 🧪 Practical examples</h2>
+
+      <h3>Example A — Basic usage</h3>
+      <p class="mini">Wrap a component with <code>memo</code>. If props stay the same, React can skip re-rendering it.</p>
+      <pre><code>import { memo } from "react";
+
+function CityMarker({ name, emoji }) {
+  console.log("CityMarker render:", name);
+  return (
+    &lt;div&gt;
+      &lt;span&gt;{emoji}&lt;/span&gt; &lt;span&gt;{name}&lt;/span&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default memo(CityMarker);
+</code></pre>
+
+      <h3>Example B — Why memo can “fail” (unstable props)</h3>
+      <p>If you pass a <strong>new object/function every render</strong>, props are “different” even if they look the same, so <code>memo</code> won’t help.</p>
+      <pre><code>// ❌ Unstable prop: object literal created on every render
+&lt;CityMarker name="Lisbon" emoji="🇵🇹" style={{ marginTop: 8 }} /&gt;
+
+// ❌ Unstable prop: function created on every render
+&lt;CityMarker name="Lisbon" emoji="🇵🇹" onClick={() =&gt; doSomething()} /&gt;
+</code></pre>
+
+      <div class="callout">
+        <p class="title">💡 Fix: stabilize props (preview)</p>
+        <p class="mini">Later lectures will show how <code>useMemo</code> and <code>useCallback</code> help keep objects/functions stable so <code>memo</code> becomes effective.</p>
+      </div>
+
+      <h3>Example C — Confirm with Profiler 🧰</h3>
+      <ul>
+        <li>Open React DevTools → <strong>Profiler</strong></li>
+        <li>Enable: “Record why each component rendered”</li>
+        <li>Click <strong>Record</strong>, trigger an update, then <strong>Stop</strong></li>
+        <li>Look for the memoized child component: it should stay gray / not re-render when props are unchanged</li>
+      </ul>
+    </section>
+
+    <section id="when">
+      <h2>5) 🎯 When should you use <code>memo</code>?</h2>
+
+      <div class="callout warn">
+        <p class="title">❓ Should you memo everything?</p>
+        <p><strong>No.</strong> Using <code>memo</code> everywhere is not automatically better.</p>
+      </div>
+
+      <p><code>memo</code> is typically useful when <strong>all</strong> (or most) of these are true:</p>
+      <ul>
+        <li>🐢 The component is <strong>slow/heavy</strong> to render (noticeable lag).</li>
+        <li>🔁 It re-renders <strong>frequently</strong> (many state changes in parent, typing, scrolling, etc.).</li>
+        <li>🧊 It often re-renders with the <strong>same props</strong> (stable inputs).</li>
+      </ul>
+
+      <div class="two">
+        <div class="callout good">
+          <p class="title">✅ Good use case</p>
+          <p class="mini">A big list item (expensive UI) where parent updates often (search, animation), but each item’s props rarely change.</p>
+        </div>
+        <div class="callout bad">
+          <p class="title">🚫 Not worth it</p>
+          <p class="mini">The component is tiny/fast, or props change almost every time. Then memo brings little-to-no benefit.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p class="title">🧠 Why it matters</p>
+        <p class="mini">Wasted renders are only a real problem when they are <strong>too frequent</strong> or the component is <strong>slow</strong>. Otherwise React handles it fine.</p>
+      </div>
+    </section>
+
+    <section id="notes">
+      <h2>6) 📝 Quick Notes (easy to memorize)</h2>
+      <ul>
+        <li>🧠 <strong>Memoization</strong> = cache results of a pure function for identical inputs.</li>
+        <li>⚛️ <code>React.memo</code> = memoize a component based on <strong>props equality</strong>.</li>
+        <li>🔄 Memoized components still re-render on <strong>state changes</strong> and <strong>context changes</strong>.</li>
+        <li>🧪 Use React DevTools <strong>Profiler</strong> to confirm whether memo reduced re-renders.</li>
+        <li>🎯 Use <code>memo</code> mainly for <strong>heavy + frequently re-rendered</strong> components with <strong>stable props</strong>.</li>
+      </ul>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Remember this common pitfall</p>
+        <p class="mini">If you pass new object/function props on every render, <code>memo</code> will think props changed and won’t skip re-rendering.</p>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <h2>7) ✅ Decision checklist: Should I use <code>memo</code> here?</h2>
+      <ul>
+        <li>Is the component <strong>noticeably slow</strong> to render? 🐢</li>
+        <li>Does it re-render <strong>often</strong>? 🔁</li>
+        <li>Do props stay the <strong>same</strong> across many renders? 🧊</li>
+        <li>Can I <strong>stabilize</strong> object/function props if needed? 🧷</li>
+        <li>Did I <strong>verify in Profiler</strong> that memo helped? 🧰</li>
+      </ul>
+
+      <div class="callout good">
+        <p class="title">🎉 If most answers are “yes”</p>
+        <p class="mini">Try <code>memo</code> and confirm with Profiler. If results are minimal, remove it (keep code simple).</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>End of study guide — React Performance Optimization: <strong>Understanding <code>memo</code></strong>.</p>
+    </footer>
+  </main>
+</body>
+</html>

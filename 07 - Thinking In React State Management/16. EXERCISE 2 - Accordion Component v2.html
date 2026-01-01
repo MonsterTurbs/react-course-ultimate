@@ -1,0 +1,409 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Accordion v2 (One Open Item) + children Prop</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --codeBg: #f5f5f5;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      hyphens: auto;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 20px 18px 40px;
+    }
+
+    header {
+      padding: 14px 14px 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+      line-height: 1.25;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .toolbar {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      cursor: pointer;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    main { margin-top: 14px; }
+
+    section {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 0 0 10px;
+      line-height: 1.3;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 12px 0 8px;
+      line-height: 1.3;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid #111;
+      padding: 10px 12px;
+      background: var(--soft);
+      border-radius: 10px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-right: 6px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      background: var(--codeBg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+      white-space: pre-wrap; /* wrap for print */
+      word-break: break-word;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .mini {
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .avoid-break {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    /* Print settings (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-radius: 0; border: none; padding: 0; }
+      header { padding-bottom: 6px; }
+      section { padding-top: 10px; }
+      .toolbar { display: none !important; }
+      a { color: inherit; text-decoration: none; }
+      pre { border: 1px solid #ddd; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="avoid-break">
+      <h1>🧠 React Reviewer: Accordion v2 (Only One Open) + 👶 <code>children</code> Prop</h1>
+      <p class="sub">Single-column • White background • A4 print-ready • Focus: state management (lift state up) + children prop reusability</p>
+      <div class="toolbar">
+        <button class="btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="pill">Topic: Thinking in React</span>
+        <span class="pill">Skill: State management</span>
+        <span class="pill">Pattern: Lift state up</span>
+        <span class="pill">Pattern: children prop</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="avoid-break">
+        <h2>🎯 What you’re building</h2>
+        <p>You are upgrading the accordion exercise to behave more like a real app:</p>
+        <ul>
+          <li>✅ When you open one item, <strong>all other items close</strong>.</li>
+          <li>✅ The <strong>Accordion</strong> (parent) decides which item is open (not each item).</li>
+          <li>✅ Each item’s content becomes flexible using the <strong><code>children</code> prop</strong> (can be text OR JSX like lists, paragraphs, etc.).</li>
+          <li>✅ Clicking the <em>already-open</em> item should <strong>close it</strong>.</li>
+        </ul>
+
+        <div class="callout">
+          <p><strong>Key idea 💡</strong>: If multiple sibling components need to “agree” on something (like “which one is open”), you usually <strong>lift state up</strong> to their closest common parent.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Why state must move to the Accordion</h2>
+        <p>In v1, each <code>AccordionItem</code> had its own <code>isOpen</code> state. That allows multiple items to be open at the same time.</p>
+        <p>In v2, the UI rule changes:</p>
+        <ul>
+          <li>Only <strong>one</strong> item can be open.</li>
+          <li>So each item must know: “Am I the open one?”</li>
+        </ul>
+        <p class="mini">That means the “truth” (which item is open) can’t live inside each item anymore. It must live in a shared place: the parent.</p>
+
+        <div class="divider"></div>
+
+        <h3>📌 The new single source of truth</h3>
+        <p>Create state in <code>Accordion</code>:</p>
+        <ul>
+          <li><code>curOpen</code> = the <strong>id/index</strong> of the open item</li>
+          <li>default: <code>null</code> (none open)</li>
+        </ul>
+        <p><span class="pill">✅ Result</span> Items become “dumb” about openness: they just compare their <code>num</code> with <code>curOpen</code>.</p>
+      </section>
+
+      <section>
+        <h2>🔁 Data flow (the mental model)</h2>
+        <div class="callout">
+          <p><strong>One-way data flow ⬇️</strong></p>
+          <ul>
+            <li>Parent passes data down: <code>curOpen</code> goes from Accordion → AccordionItem</li>
+            <li>Child triggers updates “up” via a function: Accordion passes <code>onOpen</code> down, child calls it on click</li>
+          </ul>
+        </div>
+
+        <h3>🗺️ Quick diagram</h3>
+        <pre><code>Accordion (state: curOpen)
+  ├─ AccordionItem #0  (isOpen = curOpen === 0)
+  ├─ AccordionItem #1  (isOpen = curOpen === 1)
+  └─ AccordionItem #2  (isOpen = curOpen === 2)
+
+Click Item #1:
+  Item calls onOpen(1)
+  Accordion sets curOpen = 1
+  Re-render happens
+  Only Item #1 now has isOpen = true
+</code></pre>
+      </section>
+
+      <section>
+        <h2>🧠 Implementation recipe (Accordion v2)</h2>
+        <div class="grid">
+          <div class="avoid-break">
+            <h3>✅ Step 1: Parent owns the state</h3>
+            <p>Create <code>curOpen</code> in <code>Accordion</code>:</p>
+            <pre><code>function Accordion({ data }) {
+  const [curOpen, setCurOpen] = useState(null);
+
+  return (
+    &lt;div className="accordion"&gt;
+      {data.map((el, i) =&gt; (
+        &lt;AccordionItem
+          key={el.title}
+          num={i}
+          title={el.title}
+          curOpen={curOpen}
+          onOpen={setCurOpen}
+        &gt;
+          {el.text}
+        &lt;/AccordionItem&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</code></pre>
+            <p class="mini">📝 Note: <code>onOpen</code> is just <code>setCurOpen</code> (a setter function passed down).</p>
+          </div>
+
+          <div class="avoid-break">
+            <h3>✅ Step 2: Item derives <code>isOpen</code></h3>
+            <p>The item computes if it’s open:</p>
+            <pre><code>function AccordionItem({ num, title, curOpen, onOpen, children }) {
+  const isOpen = num === curOpen;
+
+  return (
+    &lt;div
+      className={`item ${isOpen ? "open" : ""}`}
+      onClick={() =&gt; onOpen(num)}
+    &gt;
+      &lt;p className="number"&gt;{String(num + 1).padStart(2, "0")}&lt;/p&gt;
+      &lt;p className="title"&gt;{title}&lt;/p&gt;
+      &lt;p className="icon"&gt;{isOpen ? "−" : "+"}&lt;/p&gt;
+
+      {isOpen &amp;&amp; (
+        &lt;div className="content-box"&gt;
+          {children}
+        &lt;/div&gt;
+      )}
+    &lt;/div&gt;
+  );
+}</code></pre>
+            <p class="mini">✅ This is “derived state”: <code>isOpen</code> is computed, not stored.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧷 Add the missing feature: click-open item to close it</h2>
+        <p>Right now, clicking an already-open item sets the same number again, so it stays open.</p>
+        <p>Fix it by toggling to <code>null</code> when clicking the open item:</p>
+
+        <pre class="avoid-break"><code>// inside AccordionItem
+onClick={() =&gt; onOpen(isOpen ? null : num)}</code></pre>
+
+        <div class="callout">
+          <p><strong>Interpretation 🧠</strong>:</p>
+          <ul>
+            <li>If this item is already open → close everything (<code>null</code>)</li>
+            <li>If it’s not open → make this the open one (<code>num</code>)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧒 The <code>children</code> prop upgrade (more flexible content)</h2>
+        <p>Instead of passing <code>text={el.text}</code>, you can pass content between tags:</p>
+        <pre class="avoid-break"><code>&lt;AccordionItem ...&gt;
+  {el.text}
+&lt;/AccordionItem&gt;</code></pre>
+
+        <p>Then inside <code>AccordionItem</code> you render:</p>
+        <pre class="avoid-break"><code>{isOpen &amp;&amp; (
+  &lt;div className="content-box"&gt;
+    {children}
+  &lt;/div&gt;
+)}</code></pre>
+
+        <h3>✅ Why this is powerful</h3>
+        <ul>
+          <li>🧩 You can pass <strong>plain text</strong>, or a full JSX structure.</li>
+          <li>🧱 The item doesn’t need to “know” what content is inside.</li>
+          <li>♻️ Makes <code>AccordionItem</code> more reusable in real apps.</li>
+        </ul>
+
+        <h3>Example: custom JSX content</h3>
+        <pre class="avoid-break"><code>&lt;AccordionItem num={22} title="Test item" curOpen={curOpen} onOpen={setCurOpen}&gt;
+  &lt;p&gt;This item uses JSX instead of plain text.&lt;/p&gt;
+  &lt;ul&gt;
+    &lt;li&gt;Can include lists&lt;/li&gt;
+    &lt;li&gt;Multiple paragraphs&lt;/li&gt;
+    &lt;li&gt;Any markup you want&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/AccordionItem&gt;</code></pre>
+      </section>
+
+      <section>
+        <h2>⚠️ Common beginner mistakes (and fixes)</h2>
+        <ul>
+          <li><strong>Off-by-one confusion 🔢</strong>: if you use <code>num={i}</code>, remember display might need <code>i + 1</code>.</li>
+          <li><strong>Wrong key 🗝️</strong>: using index as key can cause UI bugs when list order changes. Prefer a stable unique id (title is okay if unique).</li>
+          <li><strong>Forgetting functions as props</strong>: you must pass a function, not call it.
+            <ul>
+              <li>✅ <code>onClick={() =&gt; onOpen(num)}</code></li>
+              <li>❌ <code>onClick={onOpen(num)}</code> (runs immediately)</li>
+            </ul>
+          </li>
+          <li><strong>Storing derived state</strong>: don’t store <code>isOpen</code> in state when it’s just <code>num === curOpen</code>.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Mini-check (quick quiz)</h2>
+        <ol>
+          <li>Why do we move state from <code>AccordionItem</code> to <code>Accordion</code>? 🤔</li>
+          <li>What does <code>curOpen</code> store? (boolean or id/index?)</li>
+          <li>What is the value of <code>children</code> inside a component?</li>
+          <li>How do you close an already-open item?</li>
+        </ol>
+
+        <div class="divider"></div>
+
+        <h3>✅ Answer key</h3>
+        <ul>
+          <li>Because multiple sibling items must coordinate: only one can be open → shared state in the common parent.</li>
+          <li><code>curOpen</code> stores the id/index (or unique identifier) of the currently open item, or <code>null</code>.</li>
+          <li><code>children</code> is the JSX/content placed between the component’s opening and closing tags.</li>
+          <li>Use: <code>onOpen(isOpen ? null : num)</code></li>
+        </ul>
+      </section>
+
+      <section class="avoid-break">
+        <h2>✅ Practical checklist (copy this mindset)</h2>
+        <ul>
+          <li>🧭 If siblings need the same state → lift it up to the closest common parent.</li>
+          <li>🔁 Prefer <strong>derived values</strong> (compute) over extra state when possible.</li>
+          <li>⬇️ Data goes down via props, ⬆️ updates happen by passing down functions.</li>
+          <li>🧩 Use <code>children</code> when the component’s content should be flexible.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

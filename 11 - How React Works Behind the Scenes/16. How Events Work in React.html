@@ -1,0 +1,468 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Events — Reviewer / Study Guide (Print‑Friendly)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --code-bg: #0b1020;
+      --code-text: #e8eefc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px 40px;
+    }
+
+    header {
+      padding: 18px 16px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+    }
+
+    main { margin-top: 18px; }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol {
+      margin: 8px 0 10px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 5px solid #c7c7c7;
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .callout.info { border-left-color: #6aa6ff; }
+    .callout.tip { border-left-color: #63c16d; }
+    .callout.warn { border-left-color: #ffb020; }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0 14px;
+      padding: 12px 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--soft);
+      text-align: left;
+    }
+
+    /* Print settings */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { font-size: 12pt; }
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+      header, .callout { border-radius: 0; }
+      pre { page-break-inside: avoid; }
+      h1, h2, h3 { page-break-after: avoid; }
+      a[href]:after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>⚡ How Events Work in React — Reviewer / Study Guide</h1>
+      <p class="subtitle">Beginner-friendly notes on DOM event propagation, event delegation, React’s event system, and Synthetic Events.</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: React Internals</span>
+        <span class="chip">🖱️ Focus: Events</span>
+        <span class="chip">🧾 Format: Print‑Friendly (A4)</span>
+        <span class="chip">📄 Layout: Single Column</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>✅ Learning Goals</h2>
+      <ul>
+        <li>Understand how events travel in the <strong>DOM tree</strong> (capturing → target → bubbling).</li>
+        <li>Explain <strong>event delegation</strong> and why it matters for performance.</li>
+        <li>Know what React does behind the scenes: <strong>delegates events to the root container</strong>.</li>
+        <li>Understand <strong>Synthetic Events</strong> and how they differ from native DOM events.</li>
+        <li>Apply practical patterns: <span class="inline-code">stopPropagation</span>, <span class="inline-code">preventDefault</span>, and <span class="inline-code">onClickCapture</span>.</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>1) DOM Event Propagation Refresher</h2>
+      <p>
+        In the browser, events don’t just “happen” on one element. They <strong>travel</strong> through the DOM tree.
+        Think: the event moves like an elevator through the building. 🛗
+      </p>
+
+      <h3>Phases of an Event</h3>
+      <ol>
+        <li><strong>Capturing phase</strong> (⬇️ down the tree): from <em>document root</em> toward the target element.</li>
+        <li><strong>Target phase</strong> (🎯): the event reaches the element that was actually clicked.</li>
+        <li><strong>Bubbling phase</strong> (⬆️ up the tree): the event bubbles back up toward the root.</li>
+      </ol>
+
+      <div class="callout info">
+        <strong>🧩 Key idea</strong><br />
+        During capturing + bubbling, the event effectively passes through many nodes “as if” it happened there too.
+        That’s why parent handlers can run when a child is clicked.
+      </div>
+
+      <h3>Why Parent Handlers Run (Bubbling)</h3>
+      <p>
+        By default, many event listeners run during <strong>bubbling</strong>. So if both a child and its parent have
+        a click handler, clicking the child can trigger both handlers.
+      </p>
+
+      <h3>Stopping Bubbling</h3>
+      <p>
+        Sometimes you want a parent handler <em>not</em> to run. You can stop bubbling using
+        <span class="inline-code">event.stopPropagation()</span>.
+      </p>
+      <div class="callout warn">
+        <strong>⚠️ Use rarely</strong><br />
+        <span class="inline-code">stopPropagation</span> is occasionally necessary, but overusing it can make your UI harder to reason about.
+        Prefer better component structure when possible.
+      </div>
+
+      <pre><code>// Vanilla JS example
+button.addEventListener("click", (e) =&gt; {
+  e.stopPropagation();
+  // Only this handler runs; parent click handlers won't run
+});</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>2) Event Delegation (Why It’s Useful)</h2>
+      <p>
+        <strong>Event delegation</strong> means: instead of attaching a handler to <em>every child</em>, attach a single handler
+        to a common <em>parent</em>, then detect which child triggered the event.
+      </p>
+
+      <div class="callout tip">
+        <strong>🚀 Why it helps</strong><br />
+        If you have 1,000 buttons, 1 parent handler uses less memory and can be faster than 1,000 separate handlers.
+      </div>
+
+      <pre><code>// Vanilla JS: one handler for many buttons
+const options = document.querySelector(".options");
+
+options.addEventListener("click", (e) =&gt; {
+  // e.target is the element that initiated the event
+  if (e.target.matches("button")) {
+    console.log("Clicked button:", e.target.textContent);
+  }
+});</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>3) How React Handles Events Behind the Scenes</h2>
+      <p>
+        In React, you write event handlers on elements using props like <span class="inline-code">onClick</span>.
+        It looks like the handler is “attached” to that exact element… but internally React does something different.
+      </p>
+
+      <h3>What You Write</h3>
+      <pre><code>function SaveButton() {
+  function handleClick() {
+    console.log("Saved!");
+  }
+
+  return &lt;button onClick={handleClick}&gt;Save&lt;/button&gt;;
+}</code></pre>
+
+      <h3>What React Effectively Does</h3>
+      <ul>
+        <li>React registers event handling at the <strong>root DOM container</strong> (where your app is mounted).</li>
+        <li>In CRA, that’s commonly <span class="inline-code">&lt;div id="root"&gt;</span> (sometimes described as “route/root”).</li>
+        <li>React uses <strong>event delegation</strong> for your entire app: events bubble up to the root container, and React dispatches them to the correct component handlers.</li>
+      </ul>
+
+      <div class="callout info">
+        <strong>🧠 Important detail</strong><br />
+        React “bundles” handlers by <em>event type</em> (e.g., click). You can have many <span class="inline-code">onClick</span> in JSX,
+        but React coordinates them through root-level handling.
+      </div>
+
+      <h3>DOM Tree vs Component Tree</h3>
+      <p>
+        Event propagation cares about the <strong>DOM tree</strong>, not the React component hierarchy.
+        A component being a “child” of another component does not guarantee the DOM nesting is the same.
+      </p>
+
+      <div class="callout warn">
+        <strong>⚠️ Debugging tip</strong><br />
+        If bubbling behavior feels “weird,” inspect the actual DOM in DevTools. The DOM structure decides bubbling.
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>4) Synthetic Events in React</h2>
+      <p>
+        In vanilla JS, handlers receive the browser’s native event objects (MouseEvent, KeyboardEvent, PointerEvent, etc.).
+        In React, you usually receive a <strong>Synthetic Event</strong> instead.
+      </p>
+
+      <h3>What is a Synthetic Event?</h3>
+      <ul>
+        <li>It’s a thin wrapper around the native event object.</li>
+        <li>It provides a consistent interface across browsers (helps with browser inconsistencies).</li>
+        <li>It supports familiar methods like <span class="inline-code">stopPropagation</span> and <span class="inline-code">preventDefault</span>.</li>
+      </ul>
+
+      <div class="callout tip">
+        <strong>🧯 React behavior</strong><br />
+        React makes many important events bubble consistently (including <em>focus</em>, <em>blur</em>, and <em>change</em>),
+        even though some of these don’t bubble by default in the native DOM.
+        <br /><br />
+        One notable exception mentioned: <strong>scroll</strong> does not bubble in React.
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>5) React vs Vanilla JavaScript — Practical Differences</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Vanilla JS / HTML</th>
+            <th>React</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Naming</strong></td>
+            <td>
+              HTML attribute: <span class="inline-code">onclick</span><br />
+              addEventListener: <span class="inline-code">"click"</span>
+            </td>
+            <td>
+              JSX prop uses camelCase: <span class="inline-code">onClick</span>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Prevent default action</strong></td>
+            <td>
+              Sometimes people return <span class="inline-code">false</span> in older patterns (e.g., inline handlers)
+            </td>
+            <td>
+              Returning <span class="inline-code">false</span> does not stop default behavior.<br />
+              Use <span class="inline-code">e.preventDefault()</span>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Capturing phase</strong></td>
+            <td>
+              Use capture option in <span class="inline-code">addEventListener</span>
+            </td>
+            <td>
+              Use <span class="inline-code">onClickCapture</span> (rare)
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Example: Prevent form reload</h3>
+      <pre><code>function LoginForm() {
+  function handleSubmit(e) {
+    e.preventDefault(); // ✅ stop page reload
+    // ...do login
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input placeholder="Email" /&gt;
+      &lt;button&gt;Login&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+      <h3>Example: Capturing (rare)</h3>
+      <pre><code>function Card() {
+  function onCapture() {
+    console.log("Capture phase handler");
+  }
+
+  function onBubble() {
+    console.log("Bubble phase handler");
+  }
+
+  return (
+    &lt;div onClickCapture={onCapture} onClick={onBubble}&gt;
+      &lt;button onClick={() =&gt; console.log("Button clicked")} &gt;
+        Click
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>6) Common Pitfalls (And Fixes)</h2>
+      <ul>
+        <li>
+          <strong>“Why did my parent click handler run?”</strong> 🤔<br />
+          Because of bubbling. Fix by changing structure, or in rare cases use <span class="inline-code">e.stopPropagation()</span>.
+        </li>
+        <li>
+          <strong>“Why didn’t returning false work?”</strong> ❌<br />
+          In React, return values don’t cancel browser behavior. Use <span class="inline-code">e.preventDefault()</span>.
+        </li>
+        <li>
+          <strong>“My React component hierarchy says X, but bubbling says Y.”</strong> 🧭<br />
+          Bubbling follows the DOM tree. Inspect the rendered DOM in DevTools.
+        </li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>7) Quick Recap (Must Remember)</h2>
+      <ul>
+        <li>🧱 Events travel through the <strong>DOM tree</strong>: capture ⬇️ → target 🎯 → bubble ⬆️</li>
+        <li>🧠 Bubbling means parent handlers can run when a child is clicked.</li>
+        <li>🧯 Stop bubbling with <span class="inline-code">stopPropagation()</span> (rare use).</li>
+        <li>🧩 Event delegation: one parent handler can handle many child events.</li>
+        <li>⚛️ React uses delegation internally by handling events at the <strong>root DOM container</strong>.</li>
+        <li>🧪 React passes a <strong>Synthetic Event</strong> (wrapper) that normalizes behavior across browsers.</li>
+        <li>🛑 Use <span class="inline-code">e.preventDefault()</span> in React (not <span class="inline-code">return false</span>).</li>
+        <li>🧷 Capturing in React is available via <span class="inline-code">onClickCapture</span> (rare).</li>
+      </ul>
+
+      <div class="callout info">
+        <strong>📝 Mini self-check</strong><br />
+        If you click a button inside a div that also has an onClick, why can both run? What are your two main options to control it?
+      </div>
+
+    </main>
+  </div>
+</body>
+</html>

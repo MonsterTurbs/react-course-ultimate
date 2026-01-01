@@ -1,0 +1,536 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Building the Single Booking Page (Booking Details)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #1a73e8;
+      --codebg: #0b1020;
+      --codefg: #e8eefc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px 56px;
+    }
+
+    header {
+      padding: 18px 18px 14px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .chiprow { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #1f2937;
+    }
+
+    section {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    section > .hd {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    section > .hd h2 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    section > .hd .hint {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    section > .bd { padding: 14px 16px 16px; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout strong { color: #111; }
+
+    ul, ol { margin: 10px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .kvs {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kv {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    .kv .k {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .kv .v {
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    pre {
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow: auto;
+      border: 1px solid #0f1a3a;
+      margin: 10px 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.8px;
+    }
+
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.8px;
+      background: #f6f8ff;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    .mini {
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .q {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 10px 0;
+      background: #fff;
+    }
+
+    .answer {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .footer {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12.5px;
+      text-align: center;
+    }
+
+    /* Print (A4) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      :root { --bg: #ffffff; }
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-color: #dcdcdc; box-shadow: none; }
+
+      /* Avoid awkward cuts */
+      header, section, .callout, pre, .kv, .q {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      /* Don’t print link URLs */
+      a[href]:after { content: "" !important; }
+
+      /* Keep colors printer-friendly */
+      pre { border-color: #dcdcdc; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 React Study Guide — Building the Single Booking Page (Booking Details)</h1>
+      <p class="subtitle">From context-menu navigation → route with URL params → data fetching with React Query → presentational booking details UI.</p>
+      <div class="meta">
+        <div>📌 Topic focus: <strong>React Router</strong> (routes, params, navigation) + <strong>React Query</strong> (fetch single resource) + <strong>compound components</strong> (Menus)</div>
+        <div>🖨️ Print notes: A4-ready, single column, word-wrapped code blocks, clean spacing for white bond paper.</div>
+      </div>
+      <div class="chiprow">
+        <span class="chip">🧠 Pattern: Compound Components (Menus)</span>
+        <span class="chip">🧭 Routing: <span class="inline-code">/bookings/:bookingId</span></span>
+        <span class="chip">📦 Data: Supabase service + React Query hook</span>
+        <span class="chip">🧼 Architecture: Pages stay “thin”</span>
+      </div>
+    </header>
+
+    <section>
+      <div class="hd">
+        <h2>🎯 What you’re building</h2>
+        <div class="hint">Goal: open a booking detail page from each booking row</div>
+      </div>
+      <div class="bd">
+        <ol>
+          <li>In each booking row, add a <strong>context menu</strong> (three-dot button) with <strong>“See details”</strong>.</li>
+          <li>On click, navigate to a dynamic route: <span class="inline-code">/bookings/:bookingId</span>.</li>
+          <li>Create a new page component for the route (e.g., <span class="inline-code">Booking.jsx</span>).</li>
+          <li>Render a <strong>BookingDetail</strong> feature component that fetches and displays the booking data.</li>
+          <li>Implement <strong>getBooking</strong> (service) + <strong>useBooking</strong> (React Query hook) using the URL param.</li>
+        </ol>
+
+        <div class="callout">
+          ✅ <strong>Key UX expectation:</strong> Each row has a menu. Only one menu is open at a time (Menus compound component). Clicking “See details” goes to the correct booking.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="hd">
+        <h2>🧠 Core concepts (quick reviewer)</h2>
+        <div class="hint">Remember these terms</div>
+      </div>
+      <div class="bd">
+        <div class="kvs">
+          <div class="kv">
+            <div class="k">🧩 Compound Components (Menus)</div>
+            <div class="v">A parent component (<span class="inline-code">&lt;Menus&gt;</span>) manages shared state (open menu id, position). Child components (<span class="inline-code">Menus.Toggle</span>, <span class="inline-code">Menus.List</span>, <span class="inline-code">Menus.Button</span>) “plug in” to that state.</div>
+          </div>
+          <div class="kv">
+            <div class="k">🧭 React Router — navigate + params</div>
+            <div class="v"><span class="inline-code">useNavigate()</span> programmatically changes the route. <span class="inline-code">useParams()</span> reads dynamic URL segments (like bookingId).</div>
+          </div>
+          <div class="kv">
+            <div class="k">📦 “Thin pages” rule</div>
+            <div class="v">Pages should avoid fetching data and heavy logic. They mainly compose feature components. Data fetching and business logic live in <strong>features</strong> and <strong>services</strong>.</div>
+          </div>
+          <div class="kv">
+            <div class="k">⚡ React Query — fetching a single resource</div>
+            <div class="v">Create a hook (e.g., <span class="inline-code">useBooking</span>) that calls the service (e.g., <span class="inline-code">getBooking(bookingId)</span>), caches by a queryKey, and returns <span class="inline-code">data</span> + <span class="inline-code">isLoading</span>.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="hd">
+        <h2>🧭 Step-by-step flow (mental model)</h2>
+        <div class="hint">How click → page → data works</div>
+      </div>
+      <div class="bd">
+        <ol>
+          <li>👆 User clicks <strong>menu toggle</strong> (⋮) on a booking row.</li>
+          <li>📃 The menu list appears with <strong>“See details”</strong>.</li>
+          <li>➡️ Clicking “See details” calls <span class="inline-code">navigate(`/bookings/${bookingId}`)</span>.</li>
+          <li>🛣️ Router matches route <span class="inline-code">/bookings/:bookingId</span> and renders <span class="inline-code">&lt;Booking /&gt;</span> page.</li>
+          <li>🧩 The page renders <span class="inline-code">&lt;BookingDetail /&gt;</span> (feature component).</li>
+          <li>🔎 <span class="inline-code">useBooking()</span> reads <span class="inline-code">bookingId</span> via <span class="inline-code">useParams()</span>.</li>
+          <li>🌐 React Query calls <span class="inline-code">getBooking(bookingId)</span> → Supabase returns the booking + related cabin + guest.</li>
+          <li>🖼️ BookingDetail displays the data (presentational UI) and offers navigation buttons (e.g., “Back”).</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <div class="hd">
+        <h2>🧱 Implementation blueprint (with code templates)</h2>
+        <div class="hint">Copy patterns into your project</div>
+      </div>
+      <div class="bd">
+        <div class="two">
+          <div class="callout">
+            <strong>✅ 1) BookingRow: add menu + navigate</strong><br />
+            Use Menus compound components and React Router navigation.
+          </div>
+          <pre><code>// BookingRow.jsx (snippet)
+import { useNavigate } from "react-router-dom";
+import Menus from "../ui/Menus";
+import { HiEye } from "react-icons/hi2";
+
+function BookingRow({ booking }) {
+  const navigate = useNavigate();
+  const { id: bookingId } = booking;
+
+  return (
+    // ...row cells...
+    &lt;Menus.Menu&gt;
+      &lt;Menus.Toggle id={bookingId} /&gt;
+
+      &lt;Menus.List id={bookingId}&gt;
+        &lt;Menus.Button
+          icon={&lt;HiEye /&gt;}
+          onClick={() =&gt; navigate(`/bookings/${bookingId}`)}
+        &gt;
+          See details
+        &lt;/Menus.Button&gt;
+      &lt;/Menus.List&gt;
+    &lt;/Menus.Menu&gt;
+  );
+}
+</code></pre>
+
+        <div class="divider"></div>
+
+        <div class="callout">
+          <strong>✅ 2) Route: create /bookings/:bookingId</strong><br />
+          Define a new page and wire it in your router.
+        </div>
+        <pre><code>// App.jsx (snippet)
+import Booking from "./pages/Booking";
+
+// ...
+&lt;Route path="bookings/:bookingId" element={&lt;Booking /&gt;} /&gt;
+</code></pre>
+
+        <div class="divider"></div>
+
+        <div class="callout">
+          <strong>✅ 3) Page: stay thin</strong><br />
+          The page just renders the feature component.
+        </div>
+        <pre><code>// pages/Booking.jsx (snippet)
+import BookingDetail from "../features/bookings/BookingDetail";
+
+export default function Booking() {
+  return &lt;BookingDetail /&gt;;
+}
+</code></pre>
+
+        <div class="divider"></div>
+
+        <div class="callout">
+          <strong>✅ 4) Service: getBooking(bookingId)</strong><br />
+          Fetch one booking plus related cabin + guest data.
+        </div>
+        <pre><code>// services/apiBookings.js (snippet)
+import supabase from "./supabase";
+
+export async function getBooking(id) {
+  const { data, error } = await supabase
+    .from("bookings")
+    .select(
+      `
+      id, created_at, startDate, endDate, numNights, numGuests,
+      status, totalPrice,
+      cabins(name),
+      guests(fullName, email)
+      `
+    )
+    .eq("id", id)
+    .single();
+
+  if (error) throw new Error("Booking could not be loaded");
+  return data;
+}
+</code></pre>
+
+        <div class="divider"></div>
+
+        <div class="callout">
+          <strong>✅ 5) Hook: useBooking()</strong><br />
+          Read bookingId from URL params and fetch via React Query.
+        </div>
+        <pre><code>// features/bookings/useBooking.js (snippet)
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "react-router-dom";
+import { getBooking } from "../../services/apiBookings";
+
+export function useBooking() {
+  const { bookingId } = useParams();
+
+  const {
+    data: booking,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["booking", bookingId],
+    queryFn: () =&gt; getBooking(bookingId),
+    retry: false,
+  });
+
+  return { booking, isLoading, error };
+}
+</code></pre>
+
+        <div class="divider"></div>
+
+        <div class="callout">
+          <strong>✅ 6) BookingDetail: show spinner then UI</strong><br />
+          Keep fetch + loading state handling here (feature level).
+        </div>
+        <pre><code>// features/bookings/BookingDetail.jsx (snippet)
+import Spinner from "../../ui/Spinner";
+import { useBooking } from "./useBooking";
+
+export default function BookingDetail() {
+  const { booking, isLoading } = useBooking();
+
+  if (isLoading) return &lt;Spinner /&gt;;
+
+  // Example: booking.status, booking.cabins.name, booking.guests.fullName
+  return (
+    &lt;div&gt;
+      {/* Presentational component can be extracted */}
+      {/* BookingDataBox booking={booking} */}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+        <p class="mini">📝 Note: The lecture mentions temporarily commenting out parts of the UI when a presentational component errors due to undefined data during initial renders.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="hd">
+        <h2>⚠️ Common pitfalls and fixes</h2>
+        <div class="hint">What usually breaks</div>
+      </div>
+      <div class="bd">
+        <ul>
+          <li>😵 <strong>Menu opens but list won’t match toggle</strong> → Make sure <span class="inline-code">Menus.Toggle</span> and <span class="inline-code">Menus.List</span> use the <strong>same id</strong>.</li>
+          <li>🚫 <strong>Route not found</strong> → Ensure your route matches exactly <span class="inline-code">bookings/:bookingId</span> and you imported the page component correctly.</li>
+          <li>🧩 <strong>Wrong param name</strong> → If your route is <span class="inline-code">:bookingId</span>, then <span class="inline-code">useParams()</span> gives <span class="inline-code">{ bookingId }</span>.</li>
+          <li>🧯 <strong>“Cannot read properties of undefined”</strong> → Happens when UI reads <span class="inline-code">booking.something</span> before data exists. Guard with loading checks (Spinner) or optional chaining, or temporarily comment UI while wiring data.</li>
+          <li>🔁 <strong>Unhelpful retries on 404-like situations</strong> → Setting <span class="inline-code">retry: false</span> is appropriate when “missing booking” won’t succeed on retry.</li>
+          <li>🗃️ <strong>Cache collisions</strong> → Use queryKey like <span class="inline-code">["booking", bookingId]</span> so each booking caches independently.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="hd">
+        <h2>✅ Checklist (quick self-test)</h2>
+        <div class="hint">Before you move on</div>
+      </div>
+      <div class="bd">
+        <ul>
+          <li>☑️ Booking row shows a context menu (⋮) with “See details”.</li>
+          <li>☑️ Clicking “See details” navigates to <span class="inline-code">/bookings/&lt;id&gt;</span>.</li>
+          <li>☑️ App router has <span class="inline-code">bookings/:bookingId</span> route.</li>
+          <li>☑️ Booking page renders <span class="inline-code">&lt;BookingDetail /&gt;</span> only (thin page).</li>
+          <li>☑️ <span class="inline-code">useBooking()</span> reads <span class="inline-code">bookingId</span> from params.</li>
+          <li>☑️ React Query fetches booking via <span class="inline-code">getBooking(bookingId)</span>.</li>
+          <li>☑️ Booking detail UI renders correctly (cabin name, guest info, status, prices, dates).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="hd">
+        <h2>🧪 Mini quiz (with answers)</h2>
+        <div class="hint">Practice recall</div>
+      </div>
+      <div class="bd">
+        <div class="q">
+          <div><strong>Q1:</strong> Why is the route written as <span class="inline-code">/bookings/:bookingId</span> instead of <span class="inline-code">/bookings/23</span>?</div>
+          <div class="answer"><strong>A:</strong> <span class="inline-code">:bookingId</span> is a dynamic segment. It matches any booking id and exposes it via <span class="inline-code">useParams()</span>, so one page component works for all bookings.</div>
+        </div>
+
+        <div class="q">
+          <div><strong>Q2:</strong> Why use queryKey <span class="inline-code">["booking", bookingId]</span>?</div>
+          <div class="answer"><strong>A:</strong> It uniquely identifies cached data per booking. Without <span class="inline-code">bookingId</span>, different bookings could overwrite each other in the cache.</div>
+        </div>
+
+        <div class="q">
+          <div><strong>Q3:</strong> Why does the “thin pages” approach put data fetching in <span class="inline-code">features/bookings</span> instead of <span class="inline-code">pages</span>?</div>
+          <div class="answer"><strong>A:</strong> It keeps routing pages clean and predictable. Feature folders become the single place for domain logic, hooks, and UI, which improves maintainability and reuse.</div>
+        </div>
+
+        <div class="q">
+          <div><strong>Q4:</strong> What does <span class="inline-code">retry: false</span> change?</div>
+          <div class="answer"><strong>A:</strong> It disables React Query’s default retry behavior (commonly 3 retries). Useful when failure is not transient (e.g., booking doesn’t exist).</div>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer">End of notes — Next lectures will add booking actions (delete, check-in, check-out) and extend the detail page behavior.</p>
+  </main>
+</body>
+</html>

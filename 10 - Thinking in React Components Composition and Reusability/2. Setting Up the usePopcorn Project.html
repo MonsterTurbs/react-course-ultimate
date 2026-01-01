@@ -1,0 +1,300 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Setting Up the usePopcorn Project</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --soft2: #fbfbfb;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      hyphens: auto;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      padding: 18px 18px 14px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #ffffff;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 14px; }
+
+    section {
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 14px 16px;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 16.5px;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin: 12px 0 6px;
+      font-size: 14.5px;
+      line-height: 1.25;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 0; padding-left: 18px; }
+    li { margin: 6px 0; }
+
+    .note {
+      background: var(--soft);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-top: 10px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      background: #0b0b0b;
+      color: #f2f2f2;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .small { color: var(--muted); font-size: 12.5px; }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      /* Avoid printing URL tails in some browsers */
+      a[href]:after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🍿 Setting Up the <span style="white-space:nowrap;">usePopcorn</span> Project — Reviewer / Study Guide</h1>
+      <p class="subtitle">Focus: project setup + understanding what you will build (and why). Beginner-friendly notes with examples.</p>
+      <div class="meta">
+        <span class="chip">📄 Single-column</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+        <span class="chip">🧠 React fundamentals → composition</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goal of This Lesson</h2>
+        <p>
+          You will set up the next course project named <strong>usePopcorn</strong>. This lesson is not yet about “advanced code” —
+          it’s about creating the project correctly and understanding what the finished app will do.
+        </p>
+        <div class="note">
+          <strong>Key idea:</strong> building many small projects is one of the fastest ways to become confident in React. ✅
+        </div>
+      </section>
+
+      <section>
+        <h2>🧰 Setup Checklist</h2>
+        <div class="grid">
+          <div class="callout">
+            <h3>1) Open your terminal (Mac/Linux) or Command Prompt (Windows) 🖥️</h3>
+            <ul>
+              <li>Navigate to the folder where you want the project to live (example: Desktop).</li>
+              <li>Make sure you’re in the correct directory before running commands.</li>
+            </ul>
+          </div>
+
+          <div class="callout">
+            <h3>2) Create the React app using Create React App v5 ⚙️</h3>
+            <p class="small">Command pattern:</p>
+            <pre>npx create-react-app@5 usepopcorn</pre>
+            <p class="small">Then start it:</p>
+            <pre>cd usepopcorn
+npm start</pre>
+            <p class="small">✅ Result: a running local dev server + project folder <code>usepopcorn</code>.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🍿 What is “usePopcorn” and why that name?</h2>
+        <ul>
+          <li><strong>It’s a movie-focused app</strong>: you search movies, view details, rate them, and build a watchlist. 🎬</li>
+          <li>
+            The prefix <strong>use</strong> is a hint: this project will heavily use <strong>React hooks</strong> (like <code>useState</code>, etc.).
+            So the name is intentionally “hook-like.” 🪝
+          </li>
+        </ul>
+        <div class="note">
+          <strong>Memory tip 🧠:</strong> In React, most hooks start with <code>use...</code>. When you see “usePopcorn,” think:
+          <em>“This project is about hooks.”</em>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 App Tour: What the finished app can do</h2>
+        <p>Here’s the feature list you saw in the demo (this is what you are building):</p>
+        <ul>
+          <li>🔎 <strong>Search movies</strong> (example query: <em>Inception</em>).</li>
+          <li>🌐 <strong>Fetch real movie data from an API</strong> (real data fetching, not just local arrays).</li>
+          <li>📄 <strong>Open a movie</strong> to view details/overview.</li>
+          <li>⭐ <strong>Rate a movie</strong> (ex: give it a 10/10), then add it to a watchlist.</li>
+          <li>📚 <strong>Watchlist management</strong>: see added movies + stats (summary numbers at the top).</li>
+          <li>🗑️ <strong>Delete</strong> movies from the watchlist.</li>
+          <li>↩️ <strong>Back navigation</strong>: go back via a back button or the <kbd>Escape</kbd> key.</li>
+          <li>🧠 <strong>Smart UI behavior</strong>: if a movie was rated before, it shows your stored rating instead of the rating input.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧱 Scope for THIS Section (Important!)</h2>
+        <p>
+          The full usePopcorn project spans <strong>three sections</strong>. In this <strong>first</strong> section, you are mainly focused on:
+        </p>
+        <ul>
+          <li>🧩 <strong>Components</strong>: how to split UI into components properly.</li>
+          <li>🧱 <strong>Component composition</strong>: building layouts by combining components.</li>
+          <li>♻️ <strong>Component reusability</strong>: designing components you can reuse in multiple places.</li>
+          <li>📦 <strong>Static data first</strong>: movies list is still a simple array of objects (like earlier projects).</li>
+          <li>✅ Some interactions already work: collapsing lists + typing in the search bar.</li>
+        </ul>
+        <div class="note">
+          <strong>Expectations ✅:</strong> Don’t worry if you don’t fetch from an API yet. That comes later. For now, you are building the UI structure and the component system.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Beginner-Friendly Concepts (Explained Simply)</h2>
+
+        <h3>1) “We don’t need new state for everything” 🧠</h3>
+        <p>
+          If something can be calculated from existing state/props, don’t store it separately.
+          For example, “watchlist stats” can be derived from the watchlist array.
+        </p>
+
+        <h3>2) “Real-world feeling” comes from data fetching 🌐</h3>
+        <p>
+          When your app loads data from an API, you learn real app patterns: loading states, errors, effects, and custom hooks.
+          That’s why this project matters.
+        </p>
+
+        <h3>3) Composition mindset 🧱</h3>
+        <p>
+          Instead of building one giant component, you’ll build small focused pieces and assemble them like LEGO blocks.
+          That makes the code easier to maintain and reuse.
+        </p>
+      </section>
+
+      <section>
+        <h2>✅ Quick Self-Check (Mini Quiz)</h2>
+        <ul>
+          <li>❓ What command creates the project using CRA v5? <span class="small">(Answer: <code>npx create-react-app@5 usepopcorn</code>)</span></li>
+          <li>❓ Why is the project named “usePopcorn”? <span class="small">(Hint: hooks & the “use” prefix)</span></li>
+          <li>❓ In this first section, are we fetching real API data yet? <span class="small">(Answer: no — static array first)</span></li>
+          <li>❓ What are the focus topics right now? <span class="small">(components, reusability, composition)</span></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>➡️ Next Lesson Preview</h2>
+        <p>
+          Next, you’ll learn more about <strong>how to think about components</strong>: how to split UI into components and design reusable building blocks.
+        </p>
+        <p class="small">Tip: keep your code clean as you go. Big projects become easy when components are well-structured. ✅</p>
+      </section>
+
+      <p class="small" style="margin: 14px 4px 0;">
+        Print tip 🖨️: Use <strong>Print → Paper size: A4</strong> and enable <strong>Background graphics</strong> if your browser has it (optional).
+      </p>
+    </main>
+  </div>
+</body>
+</html>

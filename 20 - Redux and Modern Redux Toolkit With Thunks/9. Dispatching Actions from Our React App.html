@@ -1,0 +1,474 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React + Redux — Dispatching Actions from Our React App (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --codebg:#0b1020;
+      --codefg:#e8eaf2;
+      --accent:#0b57d0;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:normal;
+      word-wrap:break-word;
+    }
+
+    /* Single-column page container */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    header{
+      padding-bottom:14px;
+      border-bottom:1px solid var(--border);
+      margin-bottom:18px;
+    }
+    h1{
+      font-size: 22px;
+      line-height: 1.2;
+      margin:0 0 8px;
+      letter-spacing: -0.2px;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin: 18px 0 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    h3{
+      font-size: 14.5px;
+      margin: 14px 0 8px;
+    }
+
+    .callout{
+      border:1px solid var(--border);
+      background:var(--soft);
+      border-radius:10px;
+      padding:12px 12px;
+      margin: 10px 0;
+    }
+    .callout p{margin:8px 0;}
+    .callout .kicker{font-weight:700; margin:0 0 6px;}
+
+    ul{margin: 8px 0 8px 20px; padding:0;}
+    li{margin: 6px 0;}
+
+    .grid{
+      display:block;
+      margin: 10px 0;
+    }
+
+    .tag{
+      display:inline-block;
+      padding: 2px 8px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      font-size: 12px;
+      color: var(--muted);
+      background: #fff;
+      margin-right:6px;
+      white-space: nowrap;
+    }
+
+    .rule{
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+      margin: 10px 0;
+    }
+
+    /* Code blocks */
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 10px;
+      padding: 12px;
+      overflow:auto;
+      margin: 10px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+    .inline-code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      background: #f2f4f8;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    .table th,
+    .table td{
+      border:1px solid var(--border);
+      text-align:left;
+      padding: 8px 8px;
+      vertical-align: top;
+    }
+    .table th{background: var(--soft);}
+
+    .footer{
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    /* Print settings */
+    @page{
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print{
+      body{background:#fff;}
+      .page{max-width:none; padding:0; margin:0;}
+      header{border-bottom:1px solid #00000022;}
+      h2{break-after:avoid; page-break-after:avoid;}
+      pre{break-inside:avoid; page-break-inside:avoid;}
+      .callout{break-inside:avoid; page-break-inside:avoid;}
+      a{color:inherit; text-decoration:none;}
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 React + Redux — Dispatching Actions from Our React App</h1>
+      <p class="subtitle">
+        Reviewer / Study Guide (Beginner-Friendly) • Topics: <span class="tag">useDispatch</span><span class="tag">useSelector</span><span class="tag">Action Creators</span><span class="tag">Conditional Rendering</span><span class="tag">Account Operations</span>
+      </p>
+    </header>
+
+    <section>
+      <h2>🎯 Big Goal of the Lecture</h2>
+      <p>
+        Learn how to <strong>dispatch actions</strong> to the Redux store <strong>from inside React components</strong>.
+        In short: instead of calling <span class="inline-code">store.dispatch(...)</span> directly, we use React-Redux hooks.
+      </p>
+
+      <div class="callout">
+        <p class="kicker">✅ Mental Model (Simple)</p>
+        <ul>
+          <li>UI event happens (click / submit) 🖱️</li>
+          <li>Component calls <span class="inline-code">dispatch(actionCreator(payload))</span> 📦</li>
+          <li>Reducer updates store state 🧮</li>
+          <li>Components using <span class="inline-code">useSelector</span> re-render automatically 🔁</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Key Hooks You Use</h2>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Hook</th>
+            <th>Purpose</th>
+            <th>How to think about it</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="inline-code">useDispatch()</span></td>
+            <td>Gives you the <strong>dispatch function</strong></td>
+            <td>“Get the remote control to send actions to the store.” 📡</td>
+          </tr>
+          <tr>
+            <td><span class="inline-code">useSelector(selectorFn)</span></td>
+            <td>Reads state from the store</td>
+            <td>“Subscribe this component to a slice of state.” 👀</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="rule">
+        <p>
+          🔎 <strong>Rule of thumb:</strong> Use <span class="inline-code">useSelector</span> to read data.
+          Use <span class="inline-code">useDispatch</span> inside event handlers to update data.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>👤 Part 1 — Creating a Customer (CreateCustomer Component)</h2>
+
+      <h3>What the component already has</h3>
+      <ul>
+        <li>Two controlled inputs: <strong>fullName</strong> and <strong>nationalId</strong> ✍️</li>
+        <li>A button that triggers <span class="inline-code">handleClick()</span> 🧷</li>
+      </ul>
+
+      <h3>What you implement</h3>
+      <ul>
+        <li>Get <span class="inline-code">dispatch</span> via <span class="inline-code">useDispatch()</span></li>
+        <li>Import the action creator <span class="inline-code">createCustomer</span> from <span class="inline-code">customerSlice</span></li>
+        <li>Guard clause: if inputs are empty, do nothing</li>
+        <li>Dispatch action: <span class="inline-code">dispatch(createCustomer(fullName, nationalId))</span></li>
+      </ul>
+
+      <pre><code>// CreateCustomer.jsx (core idea)
+import { useDispatch } from "react-redux";
+import { createCustomer } from "./customerSlice";
+
+function CreateCustomer() {
+  const dispatch = useDispatch();
+
+  function handleClick() {
+    if (!fullName || !nationalId) return; // ✅ guard clause
+
+    dispatch(createCustomer(fullName, nationalId));
+  }
+
+  // ...render inputs + button
+}
+</code></pre>
+
+      <div class="callout">
+        <p class="kicker">Why action creators matter 🧠</p>
+        <p>
+          Action creators reduce typos and keep action structure consistent.
+          Instead of manually writing <span class="inline-code">{ type: "customer/createCustomer", payload: ... }</span>,
+          you just call a function.
+        </p>
+      </div>
+
+      <h3>What happens after dispatch</h3>
+      <ul>
+        <li>The Redux store updates the <span class="inline-code">customer</span> slice ✅</li>
+        <li>Any component that selects <span class="inline-code">customer.fullName</span> will re-render automatically 🔁</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧭 Part 2 — Hide/Show UI Based on Store State (App.js)</h2>
+
+      <p>
+        After creating a customer, the “Create Customer” form is no longer needed.
+        So we conditionally render based on <span class="inline-code">customer.fullName</span>.
+      </p>
+
+      <pre><code>// App.js (core idea)
+import { useSelector } from "react-redux";
+
+function App() {
+  const fullName = useSelector((state) =&gt; state.customer.fullName);
+
+  return (
+    &lt;div&gt;
+      {fullName === "" ? (
+        &lt;CreateCustomer /&gt;
+      ) : (
+        &lt;&gt;
+          &lt;Customer /&gt;
+          &lt;BalanceDisplay /&gt;
+          &lt;AccountOperations /&gt;
+        &lt;/&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+      <div class="rule">
+        <p>
+          ✅ <strong>Beginner tip:</strong> Keep selectors small.
+          If you only need <span class="inline-code">fullName</span>, select only that.
+          Smaller selections often mean simpler re-render behavior.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🏦 Part 3 — Dispatching Account Actions (AccountOperations Component)</h2>
+
+      <h3>What this UI represents</h3>
+      <ul>
+        <li>Deposit</li>
+        <li>Withdraw</li>
+        <li>Request loan (amount + purpose)</li>
+        <li>Pay loan</li>
+      </ul>
+
+      <h3>Step-by-step pattern (repeat for each button)</h3>
+      <ol>
+        <li>Get <span class="inline-code">dispatch</span> using <span class="inline-code">useDispatch()</span></li>
+        <li>Import the correct action creator from <span class="inline-code">accountSlice</span></li>
+        <li>Guard clause: if required fields are missing, return</li>
+        <li><span class="inline-code">dispatch(actionCreator(payload))</span></li>
+        <li>Reset local input state (optional but recommended)</li>
+      </ol>
+
+      <pre><code>// AccountOperations.jsx (dispatch + guard clauses)
+import { useDispatch, useSelector } from "react-redux";
+import { deposit, withdraw, requestLoan, payLoan } from "./accountSlice";
+
+function AccountOperations() {
+  const dispatch = useDispatch();
+
+  // ✅ Read account data once, then destructure
+  const account = useSelector((state) =&gt; state.account);
+  const {
+    loan: currentLoan,
+    loanPurpose: currentLoanPurpose,
+    balance,
+  } = account;
+
+  function handleDeposit() {
+    if (!depositAmount) return;
+    dispatch(deposit(depositAmount));
+    setDepositAmount("");
+  }
+
+  function handleWithdraw() {
+    if (!withdrawalAmount) return;
+    dispatch(withdraw(withdrawalAmount));
+    setWithdrawalAmount("");
+  }
+
+  function handleRequestLoan() {
+    if (!loanAmount || !loanPurpose) return;
+    dispatch(requestLoan(loanAmount, loanPurpose));
+    setLoanAmount("");
+    setLoanPurpose("");
+  }
+
+  function handlePayLoan() {
+    dispatch(payLoan());
+  }
+
+  // ...render buttons + current loan UI
+}
+</code></pre>
+
+      <div class="callout">
+        <p class="kicker">🧠 Why useSelector here too?</p>
+        <p>
+          You need account data to display things like <strong>current loan</strong> and <strong>balance</strong>.
+          Once you dispatch, Redux updates state and this component will re-render with the new values.
+        </p>
+      </div>
+
+      <h3>Display loan only when it exists</h3>
+      <pre><code>{currentLoan &gt; 0 &amp;&amp; (
+  &lt;p&gt;
+    Current loan: {currentLoan} ({currentLoanPurpose})
+  &lt;/p&gt;
+)}
+</code></pre>
+
+      <div class="rule">
+        <p>
+          🧾 <strong>Practical note:</strong> Loan UI is conditional because paying the loan resets loan values
+          (loan goes back to 0 and purpose becomes empty).
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>⚠️ Common Beginner Issues (and Fixes)</h2>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Problem</th>
+            <th>Why it happens</th>
+            <th>Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Nothing happens when clicking</td>
+            <td>Guard clause returns early, or action not dispatched</td>
+            <td>Check inputs have values; confirm <span class="inline-code">dispatch(...)</span> is called</td>
+          </tr>
+          <tr>
+            <td>Cannot import action creator</td>
+            <td>Wrong path or wrong export type</td>
+            <td>Use curly braces for named exports: <span class="inline-code">import { deposit } ...</span></td>
+          </tr>
+          <tr>
+            <td>State doesn’t update</td>
+            <td>Reducer case missing or action.type mismatch</td>
+            <td>Verify reducer switch cases and action types match action creators</td>
+          </tr>
+          <tr>
+            <td>UI doesn’t reflect changes</td>
+            <td>Component not subscribed to the right data</td>
+            <td>Use <span class="inline-code">useSelector</span> to select the correct slice/property</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>🧪 Mini Practice Checklist</h2>
+      <div class="callout">
+        <p class="kicker">Try to do these without looking 👇</p>
+        <ul>
+          <li>✅ In a component, get dispatch using <span class="inline-code">useDispatch()</span>.</li>
+          <li>✅ Import an action creator from a slice (named import).</li>
+          <li>✅ Dispatch action with payload: <span class="inline-code">dispatch(deposit(500))</span>.</li>
+          <li>✅ Read store state with <span class="inline-code">useSelector</span> and conditionally render UI.</li>
+          <li>✅ Show loan UI only when <span class="inline-code">loan &gt; 0</span>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧷 Quick Summary (One Screen)</h2>
+      <ul>
+        <li>🧰 <strong>useDispatch</strong> gives you <span class="inline-code">dispatch</span> inside React.</li>
+        <li>📦 Dispatch actions using <strong>action creators</strong> from slices.</li>
+        <li>👀 <strong>useSelector</strong> subscribes components to store state.</li>
+        <li>🔁 Store updates trigger re-renders for subscribed components.</li>
+        <li>🧾 Use conditional rendering to show different UI based on store values.</li>
+      </ul>
+    </section>
+
+    <div class="footer">
+      <p>
+        End of lecture notes: <strong>Dispatching Actions from Our React App</strong>.
+        Next: implementing the <em>Balance</em> UI and continuing Redux + React integration.
+      </p>
+    </div>
+  </main>
+</body>
+</html>

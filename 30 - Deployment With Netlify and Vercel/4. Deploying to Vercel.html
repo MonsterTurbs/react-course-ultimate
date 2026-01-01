@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Deploying to Vercel — Study Guide (Wild Oasis)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #0b57d0;
+      --ok: #137333;
+      --warn: #b45309;
+      --bad: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      hyphens: auto;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+
+    header {
+      padding: 18px 18px 14px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.7rem;
+      letter-spacing: -0.01em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 0.92rem;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.25rem;
+      letter-spacing: -0.01em;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 22px;
+    }
+
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .callout {
+      border-left: 5px solid var(--accent);
+      background: var(--soft);
+      padding: 12px 14px;
+      border-radius: 10px;
+    }
+
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.bad { border-left-color: var(--bad); }
+
+    .kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92em;
+      white-space: nowrap;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    details {
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .small { color: var(--muted); font-size: 0.95rem; }
+
+    /* Print: A4, clean margins, no accidental cut-offs */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; margin: 0; padding: 0; }
+      header, section, details {
+        border-color: #ddd;
+        background: #fff !important;
+      }
+      a, a:visited {
+        color: inherit;
+        text-decoration: none;
+      }
+      /* Do NOT print URLs after links */
+      a[href]:after { content: "" !important; }
+      /* Avoid awkward page breaks */
+      h1, h2, h3 { break-after: avoid; break-inside: avoid; page-break-after: avoid; page-break-inside: avoid; }
+      section, .callout { break-inside: avoid; page-break-inside: avoid; }
+      details { break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>Deploying to Vercel — Study Guide</h1>
+      <p class="subtitle">Wild Oasis (Vite + React) — Continuous Deployment via GitHub</p>
+      <div class="meta">
+        <span class="chip">🚀 Topic: Vercel CI/CD</span>
+        <span class="chip">🧠 Focus: Beginner-friendly steps + gotchas</span>
+        <span class="chip">🖨️ Print: A4, single-column</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 What you will achieve</h2>
+        <ul>
+          <li>Deploy your React app on <strong>Vercel</strong> using your <strong>GitHub repository</strong>.</li>
+          <li>Set up <strong>continuous deployment</strong>: every time you <code>git push</code>, Vercel rebuilds and redeploys automatically.</li>
+          <li>Get a shareable <strong>public URL</strong> (e.g., <span class="kbd">your-project.vercel.app</span>).</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <div class="callout">
+          <strong>🧩 Key idea:</strong> Instead of manually uploading a <code>dist</code> folder (like Netlify drag & drop), Vercel watches your GitHub repo and runs the build for you.
+        </div>
+      </section>
+
+      <section>
+        <h2>📌 Terms (quick definitions)</h2>
+        <ul>
+          <li><strong>Repository (repo)</strong> — a project folder tracked by Git and hosted on GitHub.</li>
+          <li><strong>Build command</strong> — the command that creates a production bundle (for Vite: <code>npm run build</code>).</li>
+          <li><strong>Output directory</strong> — where the production files are created (Vite: <code>dist</code>).</li>
+          <li><strong>Continuous Integration (CI)</strong> — automatically building/testing when code changes.</li>
+          <li><strong>Continuous Deployment (CD)</strong> — automatically deploying when CI succeeds.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🛠️ Prerequisites</h2>
+        <ol>
+          <li>✅ Your code is pushed to <strong>GitHub</strong> (repo exists and contains your project).</li>
+          <li>✅ Your project builds locally with:
+            <ul>
+              <li><code>npm install</code></li>
+              <li><code>npm run build</code> (Vite generates <code>dist</code>)</li>
+            </ul>
+          </li>
+          <li>✅ You have (or will create) a <strong>Vercel account</strong> using GitHub sign-in.</li>
+        </ol>
+
+        <div class="callout ok">
+          <strong>✅ Tip:</strong> Using “Continue with GitHub” on Vercel makes importing repos painless.
+        </div>
+      </section>
+
+      <section>
+        <h2>🚀 Step-by-step: Deploy to Vercel (CI/CD)</h2>
+
+        <h3>1) Create / sign in to Vercel</h3>
+        <ul>
+          <li>Go to Vercel and sign up.</li>
+          <li>Choose the <strong>Hobby</strong> plan (free for small projects).</li>
+          <li>Prefer signing in with <strong>GitHub</strong> so Vercel can access your repositories.</li>
+        </ul>
+
+        <h3>2) Import your GitHub repository</h3>
+        <ul>
+          <li>In the Vercel dashboard, click <strong>Add New → Project</strong>.</li>
+          <li>Select your project repo from the list.</li>
+        </ul>
+
+        <h3>3) Verify build settings (Vite defaults)</h3>
+        <ul>
+          <li><strong>Framework preset:</strong> should detect <strong>Vite</strong> automatically.</li>
+          <li><strong>Build command:</strong> <code>npm run build</code></li>
+          <li><strong>Output directory:</strong> <code>dist</code></li>
+        </ul>
+
+        <div class="callout warn">
+          <strong>⚠️ If Vercel doesn’t auto-detect:</strong> set the framework to Vite and confirm output is <code>dist</code>.
+        </div>
+
+        <h3>4) Deploy</h3>
+        <ul>
+          <li>Click <strong>Deploy</strong>.</li>
+          <li>Vercel will:
+            <ol>
+              <li>Install dependencies</li>
+              <li>Run the build command</li>
+              <li>Deploy the output</li>
+            </ol>
+          </li>
+        </ul>
+
+        <div class="callout ok">
+          <strong>🎉 Result:</strong> You get a live URL like <span class="kbd">your-repo-name.vercel.app</span>.
+        </div>
+      </section>
+
+      <section>
+        <h2>🔁 How “automatic redeploy” works</h2>
+        <p>After the first deployment:</p>
+        <ol>
+          <li>You change code locally.</li>
+          <li>You commit and push:</li>
+        </ol>
+        <pre><code>git add -A
+git commit -m "Describe your change"
+git push</code></pre>
+        <ol start="3">
+          <li>Vercel detects the repo change.</li>
+          <li>Vercel runs <code>npm run build</code> automatically.</li>
+          <li>If build succeeds, Vercel deploys the new version.</li>
+        </ol>
+
+        <div class="callout">
+          <strong>🧠 Mental model:</strong> GitHub is the “source of truth”, Vercel is the “auto builder + host”.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Netlify vs Vercel (quick comparison)</h2>
+        <ul>
+          <li>🟦 <strong>Netlify manual deploy</strong>: drag & drop <code>dist</code> (fast and simple).</li>
+          <li>🟩 <strong>Netlify/Vercel CI/CD</strong>: connect Git repo → auto-deploy on every push (more “real-world”).</li>
+          <li>🟣 <strong>Vercel</strong>: made by the Next.js team; excellent for Next.js, also great for Vite apps.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧯 Common issues + fixes (beginner checklist)</h2>
+
+        <h3>❌ Build fails on Vercel</h3>
+        <ul>
+          <li>Run locally: <code>npm run build</code> to reproduce the error.</li>
+          <li>Check missing environment variables (if your app depends on them).</li>
+          <li>Make sure the correct Node version is used (usually Vercel default is fine).</li>
+        </ul>
+
+        <h3>❌ App loads but routes break (SPA refresh shows 404)</h3>
+        <div class="callout warn">
+          <strong>⚠️ Single Page App routing:</strong> Refreshing a deep route can fail if the host isn’t configured to rewrite to <code>index.html</code>.
+        </div>
+        <ul>
+          <li>Vercel usually handles this well for SPA, but if you see issues, confirm you’re deploying as a static SPA and not a server app.</li>
+        </ul>
+
+        <h3>❌ You can’t see your repo in Vercel</h3>
+        <ul>
+          <li>Ensure you signed up with GitHub.</li>
+          <li>Grant Vercel permission to access your repositories.</li>
+          <li>Try reloading the “Import Project” list.</li>
+        </ul>
+
+        <h3>✅ Best practice reminders</h3>
+        <ul>
+          <li>Never commit secrets (API keys) to GitHub.</li>
+          <li>Use environment variables in Vercel settings when needed.</li>
+          <li>Keep your build warning-free when possible (clean ESLint warnings).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧾 Quick “do-this-next” checklist</h2>
+        <ol>
+          <li>✅ Deploy to Vercel and open the live URL.</li>
+          <li>✅ Push one small change and confirm Vercel auto-redeploys.</li>
+          <li>✅ Share the URL in your portfolio / with friends.</li>
+        </ol>
+
+        <div class="callout ok">
+          <strong>🏁 Milestone unlocked:</strong> You now have a large, real-world React app deployed on a production server.
+        </div>
+      </section>
+
+      <section>
+        <h2>📚 Transcript (reference)</h2>
+        <p class="small">Tip: Use this as reference. Your reviewer sections above are the “study version.”</p>
+        <details>
+          <summary>Show transcript</summary>
+          <div class="small">
+            <p>So, now, let's use our GitHub repo that we just created to set up a very simple continuous integration on Vercel, which is another very popular free, at least for small projects, and also very easy-to-use hosting provider for React applications.</p>
+            <p>We could also set up continuous integration on Netlify by importing an existing project from a Git repo, but this lecture focuses on Vercel.</p>
+            <p>Vercel is the company behind Next.js and specializes in hosting Next.js apps, but it also hosts vanilla React apps easily.</p>
+            <p>In the Vercel dashboard, click “Add New” → “Project”, pick your repo, and review Build/Output settings: build command <code>npm run build</code> and output <code>dist</code>.</p>
+            <p>Vercel will build and deploy automatically whenever it detects changes in the GitHub repo (continuous integration/deployment).</p>
+            <p>After deploy, you get a domain based on the repo name (ending in <code>.vercel.app</code>) and can change it in settings.</p>
+            <p>This approach makes it simple to push updates: commit + push to GitHub, and Vercel redeploys.</p>
+            <p>Congratulations: you deployed a large real-world application to production. Share it with friends/family and mention where you learned it.</p>
+          </div>
+        </details>
+      </section>
+
+      <section>
+        <h2>🧠 Mini flashcards (self-test)</h2>
+        <ul>
+          <li>❓ What does Vercel run after every GitHub push? ✅ <strong><code>npm run build</code></strong></li>
+          <li>❓ Where does Vite output production files? ✅ <strong><code>dist</code></strong></li>
+          <li>❓ Why is CI/CD helpful? ✅ <strong>No manual redeploy; updates ship automatically.</strong></li>
+          <li>❓ What is the “source of truth” in CI/CD? ✅ <strong>Your GitHub repo.</strong></li>
+        </ul>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Converting the Modal to a Compound Component</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --soft:#f6f7f9;
+      --border:#e6e6e6;
+      --accent:#0b57d0;
+      --ok:#0a7a2f;
+      --warn:#9a6700;
+      --danger:#b42318;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break: normal;
+      hyphens:auto;
+    }
+
+    /* Single-column, print-friendly wrapper */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 18px;
+      border-radius: 10px;
+    }
+
+    h1{
+      margin: 0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .chip{
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 4px 10px;
+    }
+
+    main{ margin-top: 18px; }
+
+    h2{
+      font-size: 16.5px;
+      margin: 22px 0 8px 0;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 16px 0 6px 0;
+    }
+
+    p{ margin: 8px 0; }
+
+    ul{ margin: 8px 0 8px 18px; padding: 0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      border-left: 6px solid var(--accent);
+      background: #fff;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.ok{ border-left-color: var(--ok); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.danger{ border-left-color: var(--danger); }
+
+    .label{
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    code, pre{
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    pre{
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 12px;
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre-wrap;       /* critical: wrap so it won't be cut off when printing */
+      word-break: break-word;
+    }
+
+    .two-col{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .table{
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+
+    .table th, .table td{
+      border: 1px solid var(--border);
+      padding: 8px;
+      vertical-align: top;
+    }
+
+    .table th{
+      background: var(--soft);
+      text-align: left;
+    }
+
+    .hr{
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .kbd{
+      font-family: var(--mono);
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-size: 12px;
+    }
+
+    .muted{ color: var(--muted); }
+
+    /* Print styles */
+    @media print{
+      @page{ size: A4; margin: 14mm; }
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header{ border-radius: 0; }
+      .chip{ border-color:#dcdcdc; }
+      pre{ overflow: visible; }
+
+      /* Hide link URLs if any */
+      a[href]:after{ content: "" !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧠 React Study Guide: Converting the Modal to a Compound Component</h1>
+      <p class="subtitle">Topic: Compound Component Pattern + Context + Portals + cloneElement — applied to a reusable Modal API.</p>
+      <div class="meta">
+        <span class="chip">📌 Single-column</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+        <span class="chip">✅ Beginner-friendly reviewer</span>
+        <span class="chip">⚙️ Practical code pattern</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>1) Big Idea (What problem are we solving?)</h2>
+      <p>
+        In the first modal version, <strong>the parent component</strong> (e.g., <code>AddCabin</code>) owns the state like <code>isOpenModal</code>.
+        That works, but it’s not ideal for a reusable UI component.
+      </p>
+
+      <div class="callout warn">
+        <div class="label">⚠️ Why the first version is “not ideal”</div>
+        <ul>
+          <li>The parent must create and manage <code>isOpen</code> state (boilerplate everywhere).</li>
+          <li>The modal component is “dumb” — it cannot open/close itself.</li>
+          <li>Harder to scale to multiple modal windows (form modal, table modal, etc.).</li>
+        </ul>
+      </div>
+
+      <p>
+        The goal: <strong>the Modal component manages its own open/close state internally</strong>, while the parent only declares:
+        “Here is a button that opens a window named X, and here is the window content for name X.”
+      </p>
+
+      <h2>2) Target API (What we want to write in the page)</h2>
+      <p class="muted">We want to remove local modal state from the page and use an expressive Modal API.</p>
+
+      <pre><code>&lt;Modal&gt;
+  &lt;Modal.Open opens="cabin-form"&gt;
+    &lt;Button&gt;Add new cabin&lt;/Button&gt;
+  &lt;/Modal.Open&gt;
+
+  &lt;Modal.Window name="cabin-form"&gt;
+    &lt;CreateCabinForm /&gt;
+  &lt;/Modal.Window&gt;
+
+  &lt;!-- optional: multiple windows --&gt;
+  &lt;Modal.Open opens="table"&gt;
+    &lt;Button&gt;Open table&lt;/Button&gt;
+  &lt;/Modal.Open&gt;
+
+  &lt;Modal.Window name="table"&gt;
+    &lt;CabinTable /&gt;
+  &lt;/Modal.Window&gt;
+&lt;/Modal&gt;</code></pre>
+
+      <div class="callout ok">
+        <div class="label">✅ Result</div>
+        <ul>
+          <li>No <code>isOpenModal</code> state needed in <code>AddCabin</code>.</li>
+          <li>Modal encapsulates state: it knows which window is open.</li>
+          <li>Multiple windows supported, but only one open at a time.</li>
+        </ul>
+      </div>
+
+      <h2>3) Recipe: Compound Component Pattern (Modal version)</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>What you do</th>
+            <th>Why it matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Create a Context (e.g., <code>ModalContext</code>)</td>
+            <td>Share state + actions to child components without prop drilling</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Create Parent: <code>&lt;Modal&gt;</code> stores state (<code>openName</code>)</td>
+            <td>Encapsulates modal behavior and controls which window is open</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Create Children: <code>&lt;Modal.Open&gt;</code> and <code>&lt;Modal.Window&gt;</code></td>
+            <td>Declarative API for opening and rendering named windows</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Attach children as static properties: <code>Modal.Open = Open</code>, etc.</td>
+            <td>Clean imports and expressive usage: <code>&lt;Modal.Open&gt;</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>4) Implementation Walkthrough (Beginner-friendly)</h2>
+
+      <h3>4.1 Modal state: “Which window is open?”</h3>
+      <p>
+        Instead of <code>isOpen</code> boolean, we store a string:
+        <code>openName</code> — it contains the name of the currently open window.
+      </p>
+
+      <pre><code>const [openName, setOpenName] = useState("");
+
+const open = (name) =&gt; setOpenName(name);
+const close = () =&gt; setOpenName("");</code></pre>
+
+      <p>
+        This makes multiple windows easy:
+        if <code>openName === "cabin-form"</code> show the form window.
+        if <code>openName === "table"</code> show the table window.
+      </p>
+
+      <h3>4.2 ModalContext.Provider (the part people forget)</h3>
+      <div class="callout danger">
+        <div class="label">🚨 Common bug</div>
+        <p>If you don’t return a provider that renders <code>{children}</code>, your buttons/windows won’t appear at all.</p>
+      </div>
+
+      <pre><code>return (
+  &lt;ModalContext.Provider value={{ openName, open, close }}&gt;
+    {children}
+  &lt;/ModalContext.Provider&gt;
+);</code></pre>
+
+      <h3>4.3 Modal.Open: “How do we attach onClick to a child button?”</h3>
+      <p>
+        We want the user to pass any button they want.
+        But we still need to inject an <code>onClick</code> that calls <code>open(opens)</code>.
+      </p>
+
+      <div class="callout">
+        <div class="label">🧩 Tool: <code>cloneElement</code></div>
+        <p>
+          <code>cloneElement(child, newProps)</code> creates a new React element based on <code>child</code>,
+          but merges/overrides props.
+        </p>
+        <p class="muted">Tip: Use sparingly. It’s powerful but can be overused.</p>
+      </div>
+
+      <pre><code>function Open({ children, opens: opensWindowName }) {
+  const { open } = useContext(ModalContext);
+
+  return cloneElement(children, {
+    onClick: () =&gt; open(opensWindowName),
+  });
+}</code></pre>
+
+      <h3>4.4 Modal.Window: “Render only if this window is the open one”</h3>
+      <p>
+        Each <code>Modal.Window</code> gets a <code>name</code>. If it’s not the active one, return <code>null</code>.
+      </p>
+
+      <pre><code>function Window({ name, children }) {
+  const { openName, close } = useContext(ModalContext);
+
+  if (name !== openName) return null;
+
+  return createPortal(
+    &lt;Overlay&gt;
+      &lt;StyledModal&gt;
+        &lt;ButtonIcon onClick={close}&gt;×&lt;/ButtonIcon&gt;
+        &lt;div&gt;{cloneElement(children, { onCloseModal: close })}&lt;/div&gt;
+      &lt;/StyledModal&gt;
+    &lt;/Overlay&gt;,
+    document.body
+  );
+}</code></pre>
+
+      <div class="callout ok">
+        <div class="label">✅ Key detail</div>
+        <p>
+          The window clones its child to inject <code>onCloseModal</code>, allowing forms to close the modal
+          after submit/cancel.
+        </p>
+      </div>
+
+      <h2>5) Why Portals are still important here (Quick refresher)</h2>
+      <p>
+        A modal should appear “on top” of everything.
+        Portals let us render the modal outside the normal DOM hierarchy (e.g., directly under <code>&lt;body&gt;</code>),
+        which helps avoid being cut off by a parent with <code>overflow: hidden</code>.
+      </p>
+
+      <pre><code>import { createPortal } from "react-dom";
+
+return createPortal(modalJSX, document.body);</code></pre>
+
+      <h2>6) Practical checklist (What to verify in your code)</h2>
+      <div class="two-col">
+        <div class="callout">
+          <div class="label">🧪 Functional checks</div>
+          <ul>
+            <li>Click open button → correct window appears</li>
+            <li>Close icon works</li>
+            <li>Cancel button inside form closes modal</li>
+            <li>After successful submit, modal closes</li>
+            <li>Multiple windows: only one open at a time</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <div class="label">🛠️ Developer checks</div>
+          <ul>
+            <li>Provider returns <code>{children}</code></li>
+            <li><code>openName</code> is shared in context</li>
+            <li><code>Modal.Open</code> uses <code>cloneElement</code> to inject <code>onClick</code></li>
+            <li><code>Modal.Window</code> returns <code>null</code> when inactive</li>
+            <li>Portal target exists (<code>document.body</code> is fine)</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>7) Common mistakes and fixes</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Symptom</th>
+            <th>Likely cause</th>
+            <th>Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Open button doesn’t appear</td>
+            <td>Modal parent doesn’t render children / missing Provider return</td>
+            <td>Return <code>&lt;ModalContext.Provider&gt;{children}&lt;/ModalContext.Provider&gt;</code></td>
+          </tr>
+          <tr>
+            <td>Click does nothing</td>
+            <td><code>cloneElement</code> missing or wrong prop name</td>
+            <td>Inject <code>onClick: () =&gt; open(opens)</code></td>
+          </tr>
+          <tr>
+            <td>Wrong window opens</td>
+            <td>Mismatched <code>opens</code> and <code>name</code> strings</td>
+            <td>Ensure <code>opens="x"</code> matches <code>name="x"</code> exactly</td>
+          </tr>
+          <tr>
+            <td>Form styling looks “regular” not modal</td>
+            <td>Form expects <code>onCloseModal</code> to detect modal mode</td>
+            <td>Clone child and pass <code>onCloseModal: close</code></td>
+          </tr>
+          <tr>
+            <td>Modal is cut off / hidden behind layout</td>
+            <td>No portal or parent has overflow constraints</td>
+            <td>Use <code>createPortal(..., document.body)</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>8) Mini self-test (Quick questions)</h2>
+      <div class="callout">
+        <div class="label">📝 Answer these from memory</div>
+        <ol>
+          <li>Why store <code>openName</code> (string) instead of <code>isOpen</code> (boolean)?</li>
+          <li>What does <code>cloneElement</code> solve for <code>Modal.Open</code>?</li>
+          <li>Why does <code>Modal.Window</code> return <code>null</code> when inactive?</li>
+          <li>What problem do portals help prevent?</li>
+        </ol>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>9) Fast summary (1 minute reviewer)</h2>
+      <ul>
+        <li>✅ Compound component modal = <code>&lt;Modal&gt;</code> + <code>&lt;Modal.Open&gt;</code> + <code>&lt;Modal.Window&gt;</code></li>
+        <li>✅ Parent stores <code>openName</code> and exposes <code>open(name)</code> + <code>close()</code> via Context</li>
+        <li>✅ <code>Modal.Open</code> uses <code>cloneElement</code> to inject <code>onClick</code> into any button</li>
+        <li>✅ <code>Modal.Window</code> renders only when <code>name === openName</code>, usually via a Portal</li>
+        <li>✅ Optional: inject <code>onCloseModal</code> into window content to close from inside forms</li>
+      </ul>
+
+      <p class="muted">End of study guide.</p>
+    </main>
+  </div>
+</body>
+</html>

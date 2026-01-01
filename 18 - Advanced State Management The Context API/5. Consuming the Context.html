@@ -1,0 +1,445 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Context API — Consuming the Context (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --chip:#f1f3f5;
+      --codebg:#0b0f14;
+      --codefg:#e6edf3;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column print-friendly layout */
+    .page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px 42px;
+    }
+
+    header{
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 24px;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-block;
+      padding:6px 10px;
+      border:1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    h2{
+      font-size: 18px;
+      margin: 18px 0 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3{
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p{margin: 8px 0;}
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .callout strong{display:inline-block; margin-bottom: 4px;}
+
+    ul,ol{margin: 8px 0 8px 22px; padding:0;}
+    li{margin: 6px 0;}
+
+    .hr{
+      height:1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .kvs{
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin: 12px 0;
+    }
+
+    .kvs .row{
+      display:grid;
+      grid-template-columns: 210px 1fr;
+      gap: 10px;
+      padding: 8px 0;
+      border-top: 1px dashed var(--border);
+    }
+    .kvs .row:first-child{border-top:none;}
+    .kvs .k{color:var(--muted); font-weight:700;}
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px 14px;
+      border-radius: 12px;
+      overflow:auto;
+      margin: 10px 0;
+    }
+    code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+
+    .small{font-size: 12.5px; color: var(--muted);}
+
+    .checklist li{list-style: none; margin-left: -12px;}
+    .checklist li::before{content:"✅ ";}
+
+    .warn li{list-style: none; margin-left: -12px;}
+    .warn li::before{content:"⚠️ ";}
+
+    .tip li{list-style: none; margin-left: -12px;}
+    .tip li::before{content:"💡 ";}
+
+    /* Print settings */
+    @page{
+      size: A4;
+      margin: 14mm 14mm 16mm;
+    }
+
+    @media print{
+      body{background:#fff;}
+      .page{max-width:none; padding:0;}
+      header{border-bottom:1px solid #000;}
+
+      /* Keep blocks clean on page breaks */
+      h1,h2,h3{page-break-after:avoid;}
+      pre,.callout,.kvs{page-break-inside:avoid;}
+      ul,ol{page-break-inside:avoid;}
+
+      /* Don’t print URL expansions */
+      a[href]::after{content:"" !important;}
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 React Context API — Consuming the Context</h1>
+      <p class="subtitle">How to remove prop drilling by reading shared values with <code>useContext</code> (Atomic Blog refactor)</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Context API</span>
+        <span class="chip">🧩 Focus: Consuming context</span>
+        <span class="chip">🧹 Goal: Remove props / prop drilling</span>
+        <span class="chip">⚙️ Hook: <code>useContext</code></span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Learning goals</h2>
+      <ul class="checklist">
+        <li>Consume context values in multiple components using <code>useContext</code>.</li>
+        <li>Remove “annoying props” step-by-step (component-by-component refactor).</li>
+        <li>Understand what <code>useContext(PostContext)</code> returns (the full <code>value</code> object).</li>
+        <li>Make components more reusable by removing prop requirements.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>🧩 Big idea</strong>
+        <p>
+          Instead of passing <em>posts</em>, <em>searchQuery</em>, and event handlers through multiple components,
+          we “broadcast” them from a Provider and “read” them anywhere with <code>useContext</code>.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧱 What you already have (from the previous lecture)</h2>
+      <div class="kvs">
+        <div class="row"><div class="k">Provider</div><div>✅ <code>&lt;PostContext.Provider value={...}&gt;</code> wraps the app</div></div>
+        <div class="row"><div class="k">Value object</div><div>✅ Contains data + functions (e.g., <code>posts</code>, <code>onAddPost</code>, <code>onClearPosts</code>, <code>searchQuery</code>, <code>setSearchQuery</code>)</div></div>
+        <div class="row"><div class="k">Next step</div><div>➡️ Replace props in components with <code>useContext(PostContext)</code></div></div>
+      </div>
+
+      <p class="small">Reminder: Context is most useful when multiple deeply-nested components need the same data/functions.</p>
+    </section>
+
+    <section>
+      <h2>🛠️ The core tool: <code>useContext</code></h2>
+      <p>
+        To consume a context value, import <code>useContext</code> from React and pass the <strong>context object</strong> (not Provider).
+      </p>
+
+      <pre><code>// ✅ Correct
+import { useContext } from "react";
+import { PostContext } from "./PostContext"; // or wherever you exported it
+
+const value = useContext(PostContext); // returns the entire `value` object</code></pre>
+
+      <div class="callout">
+        <strong>✅ What does <code>useContext(PostContext)</code> return?</strong>
+        <p>
+          It returns exactly the object you passed into the Provider’s <code>value</code> prop.
+          That means you can destructure only what you need.
+        </p>
+      </div>
+
+      <pre><code>// Example destructuring
+const { posts, onAddPost, onClearPosts, searchQuery, setSearchQuery } = useContext(PostContext);</code></pre>
+
+      <ul class="warn">
+        <li>Do NOT call <code>useContext(PostContext.Provider)</code> or <code>.Consumer</code>.</li>
+        <li>Only pass the context object: <code>useContext(PostContext)</code>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧩 Refactor strategy (one component at a time)</h2>
+      <p>
+        The lecture’s approach is practical: remove props from a parent, fix errors by updating children,
+        then continue until prop drilling is gone.
+      </p>
+
+      <ol>
+        <li>Remove props from a parent component (start with <code>&lt;Header /&gt;</code>).</li>
+        <li>Open the component and check: does it actually need any of those props?</li>
+        <li>If yes, consume only the needed value(s) from context.</li>
+        <li>Repeat for the next component until all props are removed.</li>
+      </ol>
+
+      <div class="callout">
+        <strong>💡 Quick rule</strong>
+        <p>
+          If a component only passes props down and doesn’t use them, it’s a classic prop-drilling middleman.
+          Context lets you delete those props entirely.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Step-by-step examples (Header, Results, Search)</h2>
+
+      <h3>1) Header: remove props, keep only what it truly needs</h3>
+      <p>
+        The Header might still need <code>onClearPosts</code> (because it triggers the “Clear posts” action).
+      </p>
+
+      <pre><code>// Header.jsx
+import { useContext } from "react";
+import { PostContext } from "../context/PostContext";
+
+function Header() {
+  const { onClearPosts, searchQuery, setSearchQuery, posts } = useContext(PostContext);
+
+  return (
+    &lt;header&gt;
+      &lt;button onClick={onClearPosts}&gt;Clear posts&lt;/button&gt;
+
+      &lt;input
+        value={searchQuery}
+        onChange={(e) =&gt; setSearchQuery(e.target.value)}
+        placeholder="Search posts..."
+      /&gt;
+
+      {/* Results can also read posts from context */}
+      &lt;Results /&gt;
+    &lt;/header&gt;
+  );
+}
+
+export default Header;</code></pre>
+
+      <div class="callout">
+        <strong>🧠 Why this works</strong>
+        <p>
+          Even if <code>Header</code> used to receive these values as props, it can now read them directly from the Provider.
+        </p>
+      </div>
+
+      <h3>2) Results: read posts directly (no more prop drilling)</h3>
+      <pre><code>// Results.jsx
+import { useContext } from "react";
+import { PostContext } from "../context/PostContext";
+
+function Results() {
+  const { posts } = useContext(PostContext);
+  return &lt;p&gt;🚀 {posts.length} posts found&lt;/p&gt;;
+}
+
+export default Results;</code></pre>
+
+      <h3>3) Search component: read + update search state</h3>
+      <pre><code>// Search.jsx
+import { useContext } from "react";
+import { PostContext } from "../context/PostContext";
+
+function Search() {
+  const { searchQuery, setSearchQuery } = useContext(PostContext);
+
+  return (
+    &lt;input
+      value={searchQuery}
+      onChange={(e) =&gt; setSearchQuery(e.target.value)}
+      placeholder="Search posts..."
+    /&gt;
+  );
+}
+
+export default Search;</code></pre>
+
+      <p class="small">In the lecture, the instructor temporarily logs the context value to verify it returns the full value object.</p>
+    </section>
+
+    <section>
+      <h2>🧹 Removing the remaining props (the “challenge” solution)</h2>
+      <p>
+        After fixing Header + its children, you continue removing props from other components:
+      </p>
+
+      <ul>
+        <li><strong>Main</strong> often doesn’t need data (it just passes it down) → remove props.</li>
+        <li><strong>Posts</strong> can also be a pass-through component → remove props.</li>
+        <li><strong>List</strong> is the real consumer that needs <code>posts</code>.</li>
+        <li><strong>AddPostForm</strong> (or similar) needs <code>onAddPost</code>.</li>
+      </ul>
+
+      <h3>List: consume <code>posts</code></h3>
+      <pre><code>// List.jsx
+import { useContext } from "react";
+import { PostContext } from "../context/PostContext";
+
+function List() {
+  const { posts } = useContext(PostContext);
+
+  return (
+    &lt;ul&gt;
+      {posts.map((p) =&gt; (
+        &lt;li key={p.id}&gt;
+          &lt;strong&gt;{p.title}&lt;/strong&gt; — {p.body}
+        &lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+
+export default List;</code></pre>
+
+      <h3>AddPostForm: consume <code>onAddPost</code></h3>
+      <pre><code>// AddPostForm.jsx
+import { useContext, useState } from "react";
+import { PostContext } from "../context/PostContext";
+
+function AddPostForm() {
+  const { onAddPost } = useContext(PostContext);
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    onAddPost({ title, body });
+    setTitle("");
+    setBody("");
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input value={title} onChange={(e) =&gt; setTitle(e.target.value)} placeholder="Title" /&gt;
+      &lt;textarea value={body} onChange={(e) =&gt; setBody(e.target.value)} placeholder="Write..." /&gt;
+      &lt;button type="submit"&gt;Add&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+
+export default AddPostForm;</code></pre>
+
+      <div class="callout">
+        <strong>✅ Result</strong>
+        <p>
+          Your App JSX becomes dramatically cleaner, because you no longer pass long prop chains.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>♻️ Why context improves reusability</h2>
+      <p>
+        Once components rely on context instead of props, you can render them anywhere under the Provider.
+        Example: rendering <code>&lt;List /&gt;</code> inside a Footer becomes trivial.
+      </p>
+
+      <pre><code>// Before: Footer would need posts prop, then pass to List
+// After: Footer can just render List
+
+function Footer() {
+  return (
+    &lt;footer&gt;
+      &lt;p&gt;Atomic Blog&lt;/p&gt;
+      &lt;List /&gt;
+    &lt;/footer&gt;
+  );
+}</code></pre>
+
+      <ul class="tip">
+        <li>This reduces “wiring” code in parents that don’t truly care about the data.</li>
+        <li>Components become more standalone inside the Provider boundary.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧠 Key takeaways</h2>
+      <ul class="checklist">
+        <li><code>useContext(PostContext)</code> returns the full Provider <code>value</code> object.</li>
+        <li>Destructure only what the component needs.</li>
+        <li>Remove props gradually; fix errors by converting each consumer to context.</li>
+        <li>Cleaner JSX, less prop drilling, more reusable components.</li>
+      </ul>
+
+      <div class="hr"></div>
+      <p class="small">Next lecture direction: improve how context is used in practice (common patterns, cleaner APIs, and optimizations).</p>
+    </section>
+  </main>
+</body>
+</html>

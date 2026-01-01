@@ -1,0 +1,315 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Challenge 1 — Fetch the Number of Cabins (Next.js) — Study Guide</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+      --warnbg:#fff7ed;
+      --warnborder:#fed7aa;
+      --goodbg:#f0fdf4;
+      --goodborder:#bbf7d0;
+      --tipbg:#eff6ff;
+      --tipborder:#bfdbfe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 26px 18px 64px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, var(--panel));
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+      margin-bottom: 14px;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color:#222;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    h2{ margin:0 0 10px 0; font-size: 16px; }
+    h3{ margin:14px 0 8px 0; font-size: 14px; }
+
+    p{ margin: 8px 0; }
+    ul, ol{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .key{ font-weight:700; }
+
+    .callout{
+      border-left: 4px solid #111;
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .good{
+      border: 1px solid var(--goodborder);
+      background: var(--goodbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .warn{
+      border: 1px solid var(--warnborder);
+      background: var(--warnbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .tip{
+      border: 1px solid var(--tipborder);
+      background: var(--tipbg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px;
+      border-radius: 12px;
+      overflow:auto;
+      border:1px solid #1b2547;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .table{
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .table th, .table td{
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+
+    .table th{ text-align:left; background: var(--panel); }
+
+    .mini{ font-size: 13px; color: var(--muted); }
+
+    /* Print CSS */
+    @media print{
+      @page{ size: A4; margin: 14mm; }
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width:none; padding:0; }
+      header, section{ break-inside: avoid; page-break-inside: avoid; }
+      pre, table{ break-inside: avoid; page-break-inside: avoid; border: 1px solid #000; }
+      .chip, .table th, .table td{ border-color:#000; }
+      .callout{ border-left-color:#000; }
+      .good, .warn, .tip{ border-color:#000; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>✅ Challenge 1: Fetch the Number of Cabins (Dynamic Count + Daily Revalidation)</h1>
+      <p class="sub">
+        Study guide: replace a hardcoded cabin count on the About page with a database-backed value, and configure the route to refetch once per day using ISR.
+      </p>
+      <div class="meta">
+        <span class="chip">🧩 Skill: Server Components</span>
+        <span class="chip">⏳ ISR: <code>revalidate</code></span>
+        <span class="chip">🗃️ Data: <code>getCabins()</code></span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Challenge Goal</h2>
+      <p>
+        On the <span class="key">About</span> page, the number of cabins is currently hardcoded (example: <span class="key">8</span>).
+        That’s risky because when cabins are added/removed, the value becomes outdated.
+      </p>
+      <p>
+        Your task:
+      </p>
+      <ol>
+        <li>🔄 Fetch the cabin list from the database.</li>
+        <li>🧮 Display <code>cabins.length</code> instead of the hardcoded number.</li>
+        <li>🕒 Configure the route to refetch the data <span class="key">once per day</span> (ISR).</li>
+      </ol>
+
+      <div class="tip">
+        <p>🧠 Why not fully static? The count changes rarely, but it can still change later, so we want periodic refresh.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Key Concepts You Practice Here</h2>
+      <ul>
+        <li>✅ Fetching data inside a Server Component using <code>async/await</code></li>
+        <li>✅ Using the result to compute a UI value (<code>cabins.length</code>)</li>
+        <li>✅ Using ISR with <code>export const revalidate</code> to keep data fresh over time</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🛠️ Implementation (Step-by-step)</h2>
+
+      <h3>1) Remove the hardcoded number</h3>
+      <p class="mini">Find the hardcoded <code>8</code> in your About page and replace it with a dynamic expression.</p>
+
+      <h3>2) Fetch cabins and compute the count</h3>
+      <pre><code>// About page (conceptual)
+import { getCabins } from '@/lib/data-service';
+
+export default async function AboutPage() {
+  const cabins = await getCabins();
+
+  return (
+    &lt;section&gt;
+      &lt;p&gt;We currently have {cabins.length} cabins available.&lt;/p&gt;
+    &lt;/section&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout">
+        <p>🧩 Pattern: <span class="key">fetch data → compute → render</span></p>
+      </div>
+
+      <h3>3) Revalidate once per day (ISR)</h3>
+      <p>
+        One day = <span class="key">86,400 seconds</span>.
+      </p>
+      <pre><code>// About page route-level ISR (conceptual)
+export const revalidate = 86400;
+</code></pre>
+
+      <div class="good">
+        <p>✅ Result: the About page will stay mostly static, but will refresh its cached data once per day.</p>
+      </div>
+
+      <div class="warn">
+        <p>⚠️ Reminder from the course: in development mode, caching behavior is different. You won’t “see” ISR timing properly unless you test in production mode (build + start).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>📌 Why ISR fits perfectly here</h2>
+      <table class="table" aria-label="Why ISR fits">
+        <thead>
+          <tr>
+            <th>Option</th>
+            <th>What happens</th>
+            <th>Good / Bad here?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🟢 Fully Static</td>
+            <td>Count never changes after build</td>
+            <td>❌ Bad if cabins change later</td>
+          </tr>
+          <tr>
+            <td>🟣 Fully Dynamic</td>
+            <td>Always fetches on every request</td>
+            <td>⚠️ Wasteful (count rarely changes)</td>
+          </tr>
+          <tr>
+            <td>⚖️ ISR (Daily)</td>
+            <td>Mostly static, refreshes periodically</td>
+            <td>✅ Best fit</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>🧾 Final Answer (What you should end up with)</h2>
+      <ul>
+        <li>About page is an <span class="key">async server component</span></li>
+        <li>It fetches cabins via <code>getCabins()</code></li>
+        <li>Displays <code>cabins.length</code> instead of hardcoded 8</li>
+        <li>Exports <code>revalidate = 86400</code> to refresh once per day</li>
+      </ul>
+
+      <div class="callout">
+        <p>✅ This challenge is small, but it reinforces the most important workflow: <span class="key">dynamic data + controlled freshness</span>.</p>
+      </div>
+    </section>
+
+    <p class="mini" style="margin-top:12px;">
+      Print tip: Use browser Print → A4. Margins and word-wrapping are configured to prevent text cut-off.
+    </p>
+  </div>
+</body>
+</html>

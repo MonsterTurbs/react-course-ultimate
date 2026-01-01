@@ -1,0 +1,449 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Pages Router — API Routes (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #0b1020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 16px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    h2 {
+      margin: 18px 0 8px;
+      font-size: 16px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      margin: 14px 0 6px;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 8px 18px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-right: 6px;
+      white-space: nowrap;
+    }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-left: 5px solid #111;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout .title {
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 12px 12px;
+      border-radius: 10px;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      color: #ffffff;
+      border-radius: 10px;
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,0.14);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    /* Print (A4) */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; max-width: none; }
+      header, .card, .callout { break-inside: avoid; }
+      pre { break-inside: avoid; }
+
+      /* Keep prints clean (no URL after links) */
+      a[href]:after { content: "" !important; }
+      a { color: #000; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>📌 Next.js Pages Router — API Routes</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) • Topic: Server-side mutations in the Pages Router</p>
+      <div style="margin-top:10px;">
+        <span class="pill">Single-column</span>
+        <span class="pill">A4 print-ready</span>
+        <span class="pill">Examples included</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) What are API Routes?</h2>
+      <p>
+        In the <strong>Pages Router</strong>, an <strong>API Route</strong> is a file-based backend endpoint (server code) that lives under
+        <span class="kbd">pages/api</span>.
+      </p>
+      <div class="callout">
+        <p class="title">⭐ Why they matter</p>
+        <ul>
+          <li>They run on the <strong>server</strong> (not in the browser).</li>
+          <li>They are the most common way to do <strong>data mutations</strong> (create/update/delete) in the Pages Router ✅</li>
+          <li>They are similar to <strong>Route Handlers</strong> in the App Router, but used more heavily here because the Pages Router has <strong>no Server Actions</strong>.</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <p class="title">🧠 Mental model</p>
+        <p class="muted">
+          Think of an API Route as a tiny “backend function” inside your Next.js project—like a mini Express route.
+          Your React components will call it using <span class="kbd">fetch()</span>.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Creating an API Route</h2>
+      <p>
+        API Routes must be placed in the <strong>special folder</strong>:
+        <span class="kbd">pages/api</span>.
+      </p>
+      <p>
+        Each file in that folder becomes an endpoint:
+      </p>
+      <div class="card">
+        <ul>
+          <li><span class="kbd">pages/api/contact.js</span> → <span class="kbd">/api/contact</span></li>
+          <li><span class="kbd">pages/api/users.js</span> → <span class="kbd">/api/users</span></li>
+        </ul>
+      </div>
+
+      <h3>Basic skeleton</h3>
+      <pre><code>// pages/api/contact.js
+export default async function handler(req, res) {
+  // server-side code here
+  return res.status(200).json({ ok: true, message: "Hello from API Route" });
+}
+</code></pre>
+
+      <div class="callout">
+        <p class="title">✅ Key difference vs App Router Route Handlers</p>
+        <ul>
+          <li>In Pages Router: you export <strong>one default handler</strong>.</li>
+          <li>In App Router: you export named functions like <strong>GET</strong>, <strong>POST</strong>, etc.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Request and Response (req, res)</h2>
+      <p>
+        The handler receives:
+      </p>
+      <div class="grid">
+        <div class="card">
+          <p><strong>📥 req</strong> — incoming request</p>
+          <ul>
+            <li><span class="kbd">req.method</span> (GET, POST, etc.)</li>
+            <li><span class="kbd">req.body</span> (data sent by the client, usually in POST)</li>
+            <li><span class="kbd">req.query</span> (URL query params)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <p><strong>📤 res</strong> — response you send back</p>
+          <ul>
+            <li><span class="kbd">res.status(200)</span> sets HTTP status code</li>
+            <li><span class="kbd">res.json({...})</span> sends JSON</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p class="title">🔎 Common HTTP status codes</p>
+        <ul>
+          <li><strong>200</strong> OK — request succeeded ✅</li>
+          <li><strong>405</strong> Method Not Allowed — wrong HTTP method used 🚫</li>
+          <li><strong>500</strong> Internal Server Error — unexpected server failure 💥</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Example goal: Submit a Contact Form</h2>
+      <p>
+        The lecture’s goal: when the user submits the contact form, send these fields to the backend:
+      </p>
+      <div class="card">
+        <ul>
+          <li>Full name</li>
+          <li>Email</li>
+          <li>Subject</li>
+          <li>Message</li>
+        </ul>
+      </div>
+
+      <h3>Supabase table (concept)</h3>
+      <div class="callout">
+        <p class="title">🗄️ Create a Supabase table</p>
+        <p class="muted">
+          Create a table (e.g., <span class="kbd">contact</span>) with text columns:
+          <span class="kbd">full_name</span>, <span class="kbd">email</span>, <span class="kbd">subject</span>, <span class="kbd">message</span>.
+          Supabase will also add default columns like <span class="kbd">id</span> and <span class="kbd">created_at</span>.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Handling POST-only requests (Guard Clause)</h2>
+      <p>
+        You usually want this endpoint to accept <strong>POST</strong> only (because POST can include a request body).
+      </p>
+      <pre><code>export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({
+      success: false,
+      message: "Please make a POST request."
+    });
+  }
+
+  // ...handle POST logic below
+}
+</code></pre>
+
+      <div class="callout">
+        <p class="title">⚠️ Important detail</p>
+        <p class="muted">
+          Use <strong>return</strong> when sending the response early—otherwise the function might continue and still run the mutation.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Inserting data into Supabase + Error Handling</h2>
+      <p>
+        On success, return a friendly JSON response. On failure, return an error response.
+      </p>
+
+      <h3>Example API Route (contact submission)</h3>
+      <pre><code>// pages/api/contact.js
+// Assumes you already created and exported a Supabase client (e.g., from lib/supabase)
+
+import supabase from "../../lib/supabase";
+
+export default async function handler(req, res) {
+  // 1) Only allow POST
+  if (req.method !== "POST") {
+    return res.status(405).json({
+      success: false,
+      message: "Please make a POST request."
+    });
+  }
+
+  // 2) Read data from the request body
+  // (Client must send JSON body. Example shown later.)
+  const { fullName, email, subject, message } = req.body || {};
+
+  // 3) Minimal validation (optional but recommended)
+  if (!fullName || !email || !subject || !message) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing required fields."
+    });
+  }
+
+  // 4) Insert into DB
+  const { error } = await supabase
+    .from("contact")
+    .insert([
+      {
+        full_name: String(fullName).slice(0, 200),
+        email: String(email).slice(0, 200),
+        subject: String(subject).slice(0, 200),
+        message: String(message).slice(0, 2000)
+      }
+    ]);
+
+  // 5) Respond
+  if (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Could not send your message. Please try again."
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Thanks for your message. We will be in touch soon."
+  });
+}
+</code></pre>
+
+      <div class="callout">
+        <p class="title">🧩 Why <span class="kbd">insert([ ... ])</span> uses an array</p>
+        <p class="muted">
+          Supabase’s <span class="kbd">insert</span> expects an array so you can insert <em>multiple rows</em> at once.
+          Even if you insert a single row, you still wrap it in an array.
+        </p>
+      </div>
+
+      <div class="callout">
+        <p class="title">🔐 Security note (important)</p>
+        <p class="muted">
+          Client-side validation is not enough. A malicious user can bypass UI restrictions.
+          Always validate and authorize on the server for real production apps.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) How the client calls the API Route</h2>
+      <p>
+        In the Pages Router, your React components must call API Routes <strong>manually</strong> (unlike Server Actions).
+      </p>
+
+      <h3>Example: calling <span class="kbd">/api/contact</span> with fetch</h3>
+      <pre><code>async function submitContact(formValues) {
+  const res = await fetch("/api/contact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(formValues)
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data?.message || "Request failed");
+  return data; // { success: true, message: "..." }
+}
+</code></pre>
+
+      <div class="callout">
+        <p class="title">✅ Practical UX tip</p>
+        <ul>
+          <li>Show a loading state while the request runs ⏳</li>
+          <li>On success, show <span class="kbd">data.message</span> ✅</li>
+          <li>On error, show a friendly error message 🚫</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>8) Quick recap</h2>
+      <div class="card">
+        <ul>
+          <li>📁 API Routes live in <span class="kbd">pages/api</span>.</li>
+          <li>🔗 File name = endpoint path (e.g., <span class="kbd">contact.js</span> → <span class="kbd">/api/contact</span>).</li>
+          <li>🧠 You export one <strong>default</strong> handler: <span class="kbd">(req, res)</span>.</li>
+          <li>🛠️ Use them for server-side mutations (create/update/delete) in the Pages Router.</li>
+          <li>🚦 Add a method guard (POST-only) and <strong>return</strong> early on invalid methods.</li>
+          <li>📨 React components call them manually using <span class="kbd">fetch()</span>.</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <p class="title">➡️ What’s next</p>
+        <p class="muted">
+          The next step is wiring the contact form inputs to the API call so the data is not hard-coded.
+        </p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

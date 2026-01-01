@@ -1,0 +1,551 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Quiz — Challenge 2: Refactor to Context API + useReducer (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #0b1020;
+      --codetext: #e8eeff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 48px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 16px 16px 14px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      font-size: 12px;
+      color: #222;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: -0.1px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol { margin: 8px 0 8px 20px; }
+    li { margin: 6px 0; }
+
+    .note {
+      border-left: 4px solid #c7c7c7;
+      padding: 10px 12px;
+      background: #fcfcfc;
+      margin: 10px 0;
+      color: #222;
+    }
+
+    .note strong { font-weight: 700; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .callout {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #ffffff;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow-x: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .kbd {
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      font-size: 12px;
+      font-family: inherit;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 860px) {
+      .two { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Print styles (A4, clean, no links/urls) */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+
+      header, section {
+        border-color: #d9d9d9;
+        background: #fff;
+      }
+
+      .chip { background: #fff; }
+
+      a, a:visited { color: inherit; text-decoration: none; }
+      a[href]::after { content: "" !important; } /* hide printed URLs */
+
+      pre {
+        background: #fff;
+        color: #000;
+        border: 1px solid #d9d9d9;
+      }
+
+      .note { background: #fff; }
+
+      /* Avoid awkward breaks */
+      header, section, pre, ul, ol { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧠 React Quiz — Challenge 2: Refactor to Context API + <code>useReducer</code></h1>
+      <p class="subtitle">Reviewer / study guide for building an “advanced state management system” by combining a reducer with Context API (React Quiz refactor).</p>
+      <div class="meta">
+        <span class="chip">🎯 Goal: remove prop drilling</span>
+        <span class="chip">🧩 Pattern: Provider + custom hook</span>
+        <span class="chip">⚙️ Reducer stays the source of truth</span>
+        <span class="chip">✅ Works best for synchronous UI state</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>📌 What you are building</h2>
+        <p>
+          You will refactor the <strong>React Quiz</strong> app so that the app’s state is no longer passed down through many props.
+          Instead, state is stored in a <strong>QuizContext</strong>, updated by <strong><code>useReducer</code></strong>, and consumed anywhere via a <strong>custom hook</strong>.
+        </p>
+        <div class="note">
+          <strong>Key idea:</strong> you already have a reducer in the Quiz app. The challenge is to “lift” its state into Context, then delete the unnecessary props.
+          🧹
+        </div>
+      </section>
+
+      <section>
+        <h2>🧭 The task list (from the lecture)</h2>
+        <ol>
+          <li>📁 Duplicate <code>src</code> → <code>src-no-context</code> (so you don’t overwrite your previous working version).</li>
+          <li>🔎 Review current data flow: identify where props are passed down (small prop drilling).</li>
+          <li>🧱 Create <code>QuizContext.js</code> containing:
+            <ul>
+              <li>the Context object</li>
+              <li>the <code>initialState</code></li>
+              <li>the existing reducer</li>
+              <li>a <code>QuizProvider</code> component</li>
+              <li>a custom hook (e.g., <code>useQuiz()</code>)</li>
+            </ul>
+          </li>
+          <li>🔌 Provide the context to the <strong>entire app</strong> (important: put the Provider in <code>index.js</code> so <code>App</code> can consume context).</li>
+          <li>🧼 Replace props with <code>useQuiz()</code> in components; keep only the props that are truly still necessary.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🧠 Core concepts you must understand</h2>
+        <div class="two">
+          <div class="callout">
+            <h3>1) Why Context?</h3>
+            <p>
+              Context is useful when <strong>many components</strong> need access to the same state and you want to avoid passing props through “middle” components.
+              That problem is called <strong>prop drilling</strong>.
+            </p>
+            <p class="note">
+              ✅ In this quiz app, prop drilling is “small”, but it’s perfect for practicing the pattern.
+              🙂
+            </p>
+          </div>
+
+          <div class="callout">
+            <h3>2) Why <code>useReducer</code> + Context?</h3>
+            <p>
+              A reducer centralizes <strong>state transitions</strong> (actions → new state). Context makes the reducer’s state available across the tree.
+            </p>
+            <p>
+              This combo is common because it gives you:
+            </p>
+            <ul>
+              <li>🧾 One “source of truth” for state updates</li>
+              <li>🧼 Cleaner components (less wiring via props)</li>
+              <li>🧩 A repeatable “recipe” you can reuse in other apps</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="two">
+          <div class="callout">
+            <h3>3) Dispatch-in-context vs handler-functions</h3>
+            <p>
+              In the WorldWise app, the provider exposed handler functions (e.g., <code>createCity</code>) because the logic involved <strong>async API calls</strong>.
+            </p>
+            <p>
+              In the Quiz app, state updates are mostly <strong>synchronous</strong>. Therefore, you can simply expose:
+              <strong>state + dispatch</strong>.
+              ✅
+            </p>
+          </div>
+
+          <div class="callout">
+            <h3>4) The “tricky part”: Provider must wrap <code>App</code></h3>
+            <p>
+              If <code>App</code> needs context state, then <code>App</code> itself must be a child of the Provider.
+            </p>
+            <p class="note">
+              ⚠️ This is why you wrap <code>&lt;App /&gt;</code> inside the Provider in <code>index.js</code>.
+              Otherwise, <code>useQuiz()</code> inside <code>App</code> will be <code>undefined</code>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Implementation blueprint (copy-ready)</h2>
+        <p>
+          Below is a clean reference implementation pattern. Adjust file paths and action names to match your quiz project.
+        </p>
+
+        <h3>✅ <code>QuizContext.js</code> (Context + Provider + Hook + Reducer)</h3>
+        <pre>
+import { createContext, useContext, useReducer } from "react";
+
+// 1) Create context
+const QuizContext = createContext();
+
+// 2) Initial state (example — match your existing quiz reducer)
+const initialState = {
+  questions: [],
+  status: "loading", // e.g. "ready" | "active" | "finished" | "error"
+  index: 0,
+  answer: null,
+  points: 0,
+  highscore: 0,
+  secondsRemaining: null,
+};
+
+// 3) Reducer (reuse the one you already had)
+function reducer(state, action) {
+  switch (action.type) {
+    case "dataReceived":
+      return { ...state, questions: action.payload, status: "ready" };
+    case "dataFailed":
+      return { ...state, status: "error" };
+    case "start":
+      return { ...state, status: "active", secondsRemaining: state.questions.length * 30 };
+    case "newAnswer":
+      return { ...state, answer: action.payload };
+    case "nextQuestion":
+      return { ...state, index: state.index + 1, answer: null };
+    case "finish":
+      return {
+        ...state,
+        status: "finished",
+        highscore: Math.max(state.highscore, state.points),
+      };
+    case "restart":
+      return { ...initialState, questions: state.questions, status: "ready" };
+    case "tick":
+      return {
+        ...state,
+        secondsRemaining: state.secondsRemaining - 1,
+        status: state.secondsRemaining === 0 ? "finished" : state.status,
+      };
+    default:
+      throw new Error("Unknown action: " + action.type);
+  }
+}
+
+// 4) Provider
+function QuizProvider({ children }) {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  // If you want: derive helpers here
+  const numQuestions = state.questions.length;
+  const currentQuestion = state.questions[state.index];
+
+  const value = {
+    ...state,
+    numQuestions,
+    currentQuestion,
+    dispatch,
+  };
+
+  return <QuizContext.Provider value={value}>{children}</QuizContext.Provider>;
+}
+
+// 5) Custom hook
+function useQuiz() {
+  const context = useContext(QuizContext);
+  if (context === undefined) throw new Error("useQuiz was used outside of QuizProvider");
+  return context;
+}
+
+export { QuizProvider, useQuiz };
+        </pre>
+
+        <div class="note">
+          💡 <strong>Beginner-friendly rule:</strong> Put values that many components need inside <code>value</code> (state + useful derived values + <code>dispatch</code>).
+        </div>
+
+        <h3>✅ <code>index.js</code> (wrap the whole app)</h3>
+        <pre>
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import { QuizProvider } from "./QuizContext";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <QuizProvider>
+      <App />
+    </QuizProvider>
+  </React.StrictMode>
+);
+        </pre>
+
+        <div class="note">
+          ✅ This is the “tricky part” mentioned in the lecture: <strong><code>App</code> needs context</strong>, so the Provider must be above it.
+          🧠
+        </div>
+
+        <h3>✅ Example: using context in components</h3>
+        <pre>
+import { useQuiz } from "./QuizContext";
+
+function Progress() {
+  const { index, numQuestions, points, answer } = useQuiz();
+  // ...render
+}
+        </pre>
+      </section>
+
+      <section>
+        <h2>🧪 Component refactor notes (what usually trips people up)</h2>
+
+        <h3>1) “Question” used to receive a computed prop</h3>
+        <p>
+          Before refactor, you likely did something like:
+          <strong><code>const question = questions[index]</code></strong> in <code>App</code>, then passed <code>question</code> down.
+        </p>
+        <p>
+          After refactor (no props), the <code>Question</code> component must compute it itself by reading
+          <code>questions</code> and <code>index</code> from context.
+          ✅
+        </p>
+        <pre>
+function Question() {
+  const { questions, index } = useQuiz();
+  const question = questions[index];
+  // render question...
+}
+        </pre>
+
+        <h3>2) “Options” might still need a prop</h3>
+        <p>
+          The lecture notes that <code>Options</code> may still need the <strong>current question</strong> as a prop,
+          while the <strong>current answer</strong> comes from context.
+          This is fine — Context is not an excuse to remove <em>every</em> prop.
+          🙂
+        </p>
+        <pre>
+function Question() {
+  const { questions, index } = useQuiz();
+  const question = questions[index];
+
+  return (
+    <div>
+      <h4>{question.question}</h4>
+      <Options question={question} />
+    </div>
+  );
+}
+
+function Options({ question }) {
+  const { answer, dispatch } = useQuiz();
+  // uses question.options + answer from context
+}
+        </pre>
+
+        <h3>3) Cleaner <code>App</code>: almost no props</h3>
+        <p>
+          Your <code>App</code> becomes a “composition” component: it renders the UI based on <code>status</code> and other context values.
+          Fewer props = easier to read.
+          🧼
+        </p>
+      </section>
+
+      <section>
+        <h2>✅ Refactor checklist (use this while coding)</h2>
+        <div class="grid">
+          <div class="callout">
+            <h3>Context setup</h3>
+            <ul>
+              <li>☑️ <code>QuizContext.js</code> created</li>
+              <li>☑️ reducer + initialState moved there</li>
+              <li>☑️ <code>QuizProvider</code> returns <code>&lt;QuizContext.Provider value={...}&gt;{children}&lt;/...&gt;</code></li>
+              <li>☑️ <code>useQuiz()</code> throws an error if used outside Provider</li>
+            </ul>
+          </div>
+
+          <div class="callout">
+            <h3>Provider placement</h3>
+            <ul>
+              <li>☑️ Provider wraps <code>&lt;App /&gt;</code> in <code>index.js</code></li>
+              <li>☑️ <code>App</code> can safely call <code>useQuiz()</code></li>
+            </ul>
+          </div>
+
+          <div class="callout">
+            <h3>Component refactor</h3>
+            <ul>
+              <li>☑️ Replace props with <code>useQuiz()</code></li>
+              <li>☑️ Compute <code>question = questions[index]</code> where needed</li>
+              <li>☑️ Keep only the few props that still make sense (e.g., pass <code>question</code> into <code>Options</code>)</li>
+            </ul>
+          </div>
+
+          <div class="callout">
+            <h3>Sanity checks</h3>
+            <ul>
+              <li>☑️ App still works end-to-end (start → answer → next → finish → restart)</li>
+              <li>☑️ No “undefined context” errors</li>
+              <li>☑️ Reducer remains pure (no side effects inside reducer)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 Quick memory prompts (for review)</h2>
+        <ul>
+          <li>🤔 Why must the Provider be in <code>index.js</code> (not inside <code>App</code>) for this challenge?</li>
+          <li>🧠 When is it better to expose <code>dispatch</code> directly in Context value?</li>
+          <li>⚠️ Why must reducers be pure, and what does “pure” mean in practice?</li>
+          <li>🧩 Which components should compute <code>questions[index]</code> after removing props?</li>
+          <li>✅ Name two signs your refactor was successful (readability, fewer props, easier navigation, etc.).</li>
+        </ul>
+        <div class="note">
+          🎓 If this feels “complicated,” that’s normal: you are practicing real-world refactoring — changing structure without breaking behavior.
+        </div>
+      </section>
+
+      <section class="no-print">
+        <h2>🖨️ Printing notes</h2>
+        <ul>
+          <li>Use your browser’s <strong>Print</strong> → <strong>Save as PDF</strong>.</li>
+          <li>Paper size: <strong>A4</strong>; margins are already handled by CSS.</li>
+          <li>Links/URLs are automatically hidden in print output.</li>
+        </ul>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

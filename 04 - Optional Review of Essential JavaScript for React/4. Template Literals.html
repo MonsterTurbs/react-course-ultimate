@@ -1,0 +1,446 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Template Literals (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 20px 44px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .muted { color: var(--muted); }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-right: 6px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th { background: var(--soft); }
+
+    /* Screen links are fine, but never print URLs */
+    a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      .toolbar { display: none !important; }
+
+      /* Don’t print any URL after links */
+      a[href]:after { content: "" !important; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧾 Template Literals — Reviewer / Study Guide</h1>
+      <p class="subtitle">ES6 backticks ( ` ) let you build strings with variables and expressions using ${...}. Used constantly in React. A4 print-ready.</p>
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Single-column, word-wrapped, designed for clean A4 printing (no URLs printed).</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Table of Contents</strong>
+        <ol>
+          <li><a href="#what">What are template literals?</a></li>
+          <li><a href="#syntax">Syntax: backticks + ${...}</a></li>
+          <li><a href="#examples">Examples (book summary like the lecture)</a></li>
+          <li><a href="#expressions">Any JavaScript expression works</a></li>
+          <li><a href="#year">Extracting a year (split example)</a></li>
+          <li><a href="#why-react">Why React devs use this all the time</a></li>
+          <li><a href="#mistakes">Common mistakes & fixes</a></li>
+          <li><a href="#practice">Practice drills</a></li>
+          <li><a href="#self-check">Quick self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="what">
+      <h2>🧠 What are template literals?</h2>
+      <p>
+        <strong>Template literals</strong> are an ES6 JavaScript feature that make it easy to build strings that include:
+      </p>
+      <ul>
+        <li>✅ Variables (like <code>title</code>, <code>author</code>)</li>
+        <li>✅ Any JavaScript expression (math, function calls, conditionals, etc.)</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Why this matters</strong> ✅</p>
+        <p class="muted">
+          Instead of stitching strings together with <code>+</code>, you can write one clean string that reads naturally.
+        </p>
+      </div>
+    </section>
+
+    <section id="syntax">
+      <h2>⌨️ Syntax: backticks + ${...}</h2>
+      <p>
+        Template literals use <strong>backticks</strong>: <code>`</code> (usually above the Tab key on English keyboards).
+      </p>
+
+      <h3>Normal strings (quotes) 🧩</h3>
+      <pre><code>const msg1 = "Hello";
+const msg2 = 'Hello';</code></pre>
+
+      <h3>Template literal (backticks) ✅</h3>
+      <pre><code>const msg = `Hello`;</code></pre>
+
+      <h3>Injecting values using ${...} 💡</h3>
+      <pre><code>const title = "The Lord of the Rings";
+const msg = `"${title}" is a book.`;
+// → "The Lord of the Rings" is a book.</code></pre>
+
+      <div class="callout">
+        <p><strong>Key rule</strong> 🧠</p>
+        <p class="muted">Anything inside <code>${...}</code> must be an <strong>expression</strong> (something that produces a value).</p>
+      </div>
+    </section>
+
+    <section id="examples">
+      <h2>📚 Examples (book summary like the lecture)</h2>
+      <p class="muted">
+        In the lecture, we use destructured values from a <code>book</code> object to build a summary string.
+      </p>
+
+      <h3>Assume you already have these variables (from destructuring) 🧩</h3>
+      <pre><code>const { title, author, pages, publicationDate } = book;</code></pre>
+
+      <h3>Create a readable summary string ✅</h3>
+      <pre><code>const summary = `"${title}" is a ${pages}-page long book written by ${author} and published in ${publicationDate}.`;
+
+summary;</code></pre>
+
+      <div class="callout">
+        <p><strong>Why destructuring helps here</strong> ✅</p>
+        <p class="muted">
+          Without destructuring, you’d repeatedly type <code>book.title</code>, <code>book.pages</code>, <code>book.author</code>, etc.
+        </p>
+      </div>
+    </section>
+
+    <section id="expressions">
+      <h2>🧮 Any JavaScript expression works</h2>
+      <p>
+        Template literals can embed more than variables. Any expression that returns a value can be used.
+      </p>
+
+      <h3>Math example ➗</h3>
+      <pre><code>const msg = `2 + 4 = ${2 + 4}`;
+// → 2 + 4 = 6</code></pre>
+
+      <h3>Function call example 🧪</h3>
+      <pre><code>function shout(text) {
+  return text.toUpperCase();
+}
+
+const msg = `Result: ${shout("hello")}`;
+// → Result: HELLO</code></pre>
+
+      <div class="callout">
+        <p><strong>Expression checklist</strong> ✅</p>
+        <p class="muted">
+          If it can go on the right side of <code>=</code> and produce a value, it can usually go inside <code>${...}</code>.
+        </p>
+      </div>
+    </section>
+
+    <section id="year">
+      <h2>🗓️ Extracting a year (split example from the lecture)</h2>
+      <p>
+        If <code>publicationDate</code> is a string like <code>"1954-07-29"</code>, you can extract the year inside the template literal.
+      </p>
+
+      <pre><code>const year = publicationDate.split("-")[0];
+const summary = `Published in ${year}.`;</code></pre>
+
+      <h3>Inline version (same idea, shorter) ⚡</h3>
+      <pre><code>const summary = `Published in ${publicationDate.split("-")[0]}.`;</code></pre>
+
+      <div class="callout">
+        <p><strong>Note</strong> 👀</p>
+        <p class="muted">
+          Inline expressions are convenient, but if they get long, store them in a variable first for readability.
+        </p>
+      </div>
+    </section>
+
+    <section id="why-react">
+      <h2>⚛️ Why React devs use this all the time</h2>
+      <ul>
+        <li>🧾 Building dynamic messages (status text, UI labels)</li>
+        <li>🔎 Debugging logs: <code>console.log(`User: ${name}`)</code></li>
+        <li>🧩 Generating keys/ids or file names</li>
+        <li>📦 Formatting values for rendering (while keeping code readable)</li>
+      </ul>
+
+      <h3>Example in a component ✅</h3>
+      <pre><code>function BookInfo({ title, pages }) {
+  return (
+    &lt;p&gt;{`"${title}" has ${pages} pages.`}&lt;/p&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>React tip</strong> 💡</p>
+        <p class="muted">
+          In JSX, you can render template literal results inside <code>{ }</code>.
+        </p>
+      </div>
+    </section>
+
+    <section id="mistakes">
+      <h2>🛠️ Common mistakes & fixes</h2>
+
+      <table aria-label="Common mistakes with template literals">
+        <thead>
+          <tr>
+            <th>Mistake</th>
+            <th>What happens</th>
+            <th>Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Using quotes instead of backticks</td>
+            <td><code>${...}</code> is treated as plain text</td>
+            <td>Use backticks <code>`</code></td>
+          </tr>
+          <tr>
+            <td>Forgetting <code>${ }</code></td>
+            <td>Variables don’t get injected</td>
+            <td>Wrap expressions: <code>${value}</code></td>
+          </tr>
+          <tr>
+            <td>Putting statements inside <code>${ }</code></td>
+            <td>Syntax error (statements don’t return values)</td>
+            <td>Use expressions (or compute first, then inject)</td>
+          </tr>
+          <tr>
+            <td>Overly long inline expressions</td>
+            <td>Hard to read/maintain</td>
+            <td>Assign to variables first</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="practice">
+      <h2>🏋️ Practice drills</h2>
+      <ol>
+        <li>
+          Create a string: <span class="pill">"Title" is a book.</span> using <code>title</code>.
+        </li>
+        <li>
+          Create a summary: title + pages + author + year only.
+        </li>
+        <li>
+          Make a template literal that includes a math expression like <code>${10 / 2}</code>.
+        </li>
+        <li>
+          Extract year from <code>publicationDate</code> and print: <span class="pill">Published in YEAR</span>.
+        </li>
+        <li>
+          React-style: Render a sentence inside JSX using a template literal.
+        </li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>Tip</strong> 💡</p>
+        <p class="muted">Use Quokka to see the output instantly while practicing.</p>
+      </div>
+    </section>
+
+    <section id="self-check">
+      <h2>📝 Quick self-check</h2>
+      <ol>
+        <li>What symbol starts a template literal?</li>
+        <li>What does <code>${...}</code> do?</li>
+        <li>Can you put a function call inside <code>${...}</code>?</li>
+        <li>Why might you prefer variables over long inline expressions?</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>✅ If you can answer these, template literals are done.</strong> 😄</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>
+        Reviewer generated from the provided transcript. Designed for clean A4 printing (single column, word-wrapped).
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

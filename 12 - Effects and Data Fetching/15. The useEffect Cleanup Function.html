@@ -1,0 +1,413 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React useEffect Cleanup Function — Study Guide (usePopcorn)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --soft2:#fbfbfc;
+      --codebg:#0b1020;
+      --codefg:#eef2ff;
+      --accent:#1a73e8;
+      --ok:#137333;
+      --warn:#b05a00;
+      --danger:#b3261e;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px 44px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(0deg, var(--soft2), var(--soft));
+      padding: 18px 18px 14px;
+      border-radius: 12px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .chips{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border:1px solid var(--border);
+      background:#fff;
+      padding:6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    section{
+      margin-top: 16px;
+      border:1px solid var(--border);
+      border-radius: 12px;
+      background:#fff;
+      padding: 16px 16px 14px;
+    }
+
+    h2{
+      margin:0 0 10px;
+      font-size: 16.5px;
+    }
+
+    h3{
+      margin: 14px 0 8px;
+      font-size: 14.5px;
+    }
+
+    p{ margin: 8px 0; }
+
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-left: 4px solid var(--accent);
+      border-radius: 10px;
+      padding: 12px 12px 10px;
+      margin: 10px 0;
+    }
+
+    .callout.ok{ border-left-color: var(--ok); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.danger{ border-left-color: var(--danger); }
+
+    .label{
+      display:inline-block;
+      font-weight:700;
+      font-size: 12.5px;
+      margin-bottom: 6px;
+    }
+
+    .muted{ color: var(--muted); }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini{
+      border:1px dashed var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 10px;
+      overflow:auto;
+      font-size: 12.8px;
+      line-height: 1.55;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .kbd{ 
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 12.5px;
+      padding: 2px 6px;
+      border:1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background:#fff;
+    }
+
+    .divider{ height:1px; background: var(--border); margin: 12px 0; }
+
+    /* Print */
+    @page{ size: A4; margin: 14mm 14mm 16mm; }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding:0; }
+      header, section{ break-inside: avoid; page-break-inside: avoid; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]::after{ content: ""; }
+      pre{ break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧹 React <code>useEffect</code> Cleanup Function — Reviewer / Study Guide</h1>
+      <p class="subtitle">
+        Topic: the 3rd part of an Effect (cleanup) • Project context: <span class="muted">usePopcorn</span>
+      </p>
+      <div class="chips">
+        <span class="chip">🧠 Beginner-friendly</span>
+        <span class="chip">🕒 Lifecycle + Sync thinking</span>
+        <span class="chip">⚠️ Prevent leaks & race conditions</span>
+        <span class="chip">🧪 Practical examples</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 The Big Idea</h2>
+      <p>
+        A <strong>cleanup function</strong> is an optional function you <strong>return</strong> from an effect.
+        It lets you <strong>undo / stop / reset</strong> whatever the previous effect run started.
+      </p>
+
+      <div class="callout ok">
+        <div class="label">✅ When you need cleanup</div>
+        <p class="muted">
+          When the side effect would keep happening (or still “be active”) after a re-render or unmount.
+          Examples: subscriptions, timers, event listeners, and in-flight fetch requests.
+        </p>
+      </div>
+
+      <div class="callout">
+        <div class="label">🧩 Mental model</div>
+        <p>
+          Think of <code>useEffect</code> as: “Start or sync something.”
+          Cleanup is: “Stop or reset the old one before syncing again.”
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧭 When does cleanup run?</h2>
+      <p>Cleanup runs in <strong>two</strong> situations:</p>
+      <ul>
+        <li>
+          <strong>Before the effect runs again</strong> (before the next re-execution) 🧼
+          <br /><span class="muted">This cleans up the previous side effect run.</span>
+        </li>
+        <li>
+          <strong>When the component unmounts</strong> 💀
+          <br /><span class="muted">This resets/finishes anything that should not continue after the component disappears.</span>
+        </li>
+      </ul>
+
+      <div class="callout warn">
+        <div class="label">⚠️ Common confusion</div>
+        <p class="muted">
+          Cleanup is not “only on unmount.” It also runs on re-renders <em>right before</em> the next effect execution.
+        </p>
+      </div>
+
+      <h3>⏱️ Simple timeline (dependency changes)</h3>
+      <div class="mini">
+        <p>
+          <strong>Render → Commit → Browser Paint → Effect Runs</strong>
+        </p>
+        <p>
+          If a dependency changes later:
+        </p>
+        <ul>
+          <li><strong>Cleanup runs</strong> (for the previous effect)</li>
+          <li><strong>New effect runs</strong> (with new dependency values)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🍿 Practical Example: Fixing <code>document.title</code> (usePopcorn)</h2>
+      <p>
+        In the previous lecture, you set the browser tab title to the selected movie.
+        The missing piece: when the MovieDetails component closes (unmounts), the title should go back to
+        <strong>usePopcorn</strong>.
+      </p>
+
+      <h3>✅ Correct pattern: effect + cleanup</h3>
+      <pre><code>// Inside MovieDetails
+useEffect(function () {
+  if (!title) return;           // ✅ avoid "undefined" in the tab
+
+  document.title = `Movie: ${title}`; // 🎬 side effect
+
+  // 🧹 cleanup: runs on unmount AND before next effect run
+  return function () {
+    document.title = "usePopcorn";
+  };
+}, [title]);</code></pre>
+
+      <div class="callout">
+        <div class="label">📝 What this guarantees</div>
+        <ul>
+          <li>When <code>title</code> changes (select another movie), React runs cleanup first, then sets the new title.</li>
+          <li>When MovieDetails unmounts (back button), cleanup sets the title back to <code>usePopcorn</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🛡️ Why cleanup matters: avoiding bugs</h2>
+      <div class="grid">
+        <div class="callout danger">
+          <div class="label">🧨 Race conditions</div>
+          <p class="muted">
+            If an async operation (like a fetch) is still running and the component re-renders,
+            you may start a second request. The earlier request might finish later and overwrite newer data.
+          </p>
+        </div>
+
+        <div class="callout warn">
+          <div class="label">🕳️ Memory leaks / stale updates</div>
+          <p class="muted">
+            Timers, subscriptions, and event listeners can keep running even after unmount.
+            That can waste CPU/memory or try to update state on an unmounted component.
+          </p>
+        </div>
+      </div>
+
+      <h3>📌 Typical things you clean up</h3>
+      <ul>
+        <li>📡 Subscriptions (WebSocket, external stores) → <strong>unsubscribe</strong></li>
+        <li>⏲️ Timers (<code>setTimeout</code>, <code>setInterval</code>) → <strong>clearTimeout / clearInterval</strong></li>
+        <li>🖱️ DOM event listeners → <strong>removeEventListener</strong></li>
+        <li>🌐 Fetch requests → <strong>abort / ignore stale results</strong></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🌐 Fetch cleanup example (beginner-friendly)</h2>
+      <p>
+        You often want to cancel an in-flight request when the query changes or the component unmounts.
+        One clean approach is using <code>AbortController</code>.
+      </p>
+
+      <pre><code>useEffect(() =&gt; {
+  const controller = new AbortController();
+
+  async function fetchMovies() {
+    try {
+      setIsLoading(true);
+      setError("");
+
+      const res = await fetch(
+        `https://www.omdbapi.com/?apikey=${KEY}&amp;s=${query}`,
+        { signal: controller.signal }
+      );
+
+      if (!res.ok) throw new Error("Something went wrong");
+      const data = await res.json();
+      if (data.Response === "False") throw new Error("Movie not found");
+
+      setMovies(data.Search);
+    } catch (err) {
+      // Ignore abort errors (they happen on purpose)
+      if (err.name !== "AbortError") setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  if (query.length &lt; 3) {
+    setMovies([]);
+    setError("");
+    return;
+  }
+
+  fetchMovies();
+
+  // 🧹 cleanup: cancels request when query changes or component unmounts
+  return () =&gt; controller.abort();
+}, [query]);</code></pre>
+
+      <div class="callout">
+        <div class="label">💡 Key takeaway</div>
+        <p class="muted">
+          Cleanup prevents older requests from continuing and causing stale UI updates.
+          This is one of the most common real-world reasons to use cleanup.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧱 Rule of thumb: 1 effect = 1 job</h2>
+      <p>
+        Each effect should do <strong>one</strong> thing. If you need multiple side effects,
+        write multiple <code>useEffect</code> hooks.
+      </p>
+
+      <div class="callout ok">
+        <div class="label">✅ Why this is better</div>
+        <ul>
+          <li>Easier to read (you know what each effect is responsible for)</li>
+          <li>Easier to debug (less hidden coupling)</li>
+          <li>Easier to clean up correctly (cleanup logic stays focused)</li>
+        </ul>
+      </div>
+
+      <h3>Example: separate effects</h3>
+      <pre><code>// Effect 1: fetch data
+useEffect(() =&gt; {
+  // ...fetch logic...
+}, [query]);
+
+// Effect 2: sync document title
+useEffect(() =&gt; {
+  if (!title) return;
+  document.title = `Movie: ${title}`;
+  return () =&gt; (document.title = "usePopcorn");
+}, [title]);</code></pre>
+    </section>
+
+    <section>
+      <h2>🧾 Quick recap (what to remember)</h2>
+      <ul>
+        <li>🧩 An effect has up to 3 parts: <strong>effect code</strong>, <strong>dependency array</strong>, <strong>cleanup function</strong>.</li>
+        <li>🧹 Cleanup runs <strong>before re-running</strong> the effect and <strong>on unmount</strong>.</li>
+        <li>🛡️ Use cleanup to prevent race conditions, leaks, stale updates.</li>
+        <li>🧰 Keep effects focused: <strong>one effect = one purpose</strong>.</li>
+      </ul>
+
+      <div class="divider"></div>
+      <p class="muted">
+        Print tip: Use your browser’s <span class="kbd">Ctrl</span> + <span class="kbd">P</span> (Windows) or
+        <span class="kbd">⌘</span> + <span class="kbd">P</span> (Mac) → choose “Save as PDF”.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

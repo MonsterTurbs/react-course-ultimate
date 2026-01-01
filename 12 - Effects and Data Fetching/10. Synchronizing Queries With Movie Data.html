@@ -1,0 +1,478 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React useEffect — Synchronizing Query with Movie Data (Study Guide)</title>
+  <style>
+    /* ========== Base (Screen + Print) ========== */
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+
+      --ok: #0b7a28;
+      --warn: #8a5200;
+      --bad: #b00020;
+
+      --font: Arial, Helvetica, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      --page-w: 210mm; /* A4 */
+      --pad: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      hyphens: auto;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: linear-gradient(#ffffff, #fbfbfb);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    h1 {
+      margin: 0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 14px; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px 16px 14px;
+      margin: 12px 0;
+    }
+
+    h2 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+    }
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+    ul, ol { margin: 8px 0 8px 18px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .note {
+      border-left: 4px solid var(--warn);
+      background: #fff8ee;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    .good {
+      border-left: 4px solid var(--ok);
+      background: #f2fff5;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    .bad {
+      border-left: 4px solid var(--bad);
+      background: #fff3f5;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .kbd {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: #f6f6f6;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap; /* prevents cut-off in print */
+      word-break: break-word;
+    }
+    code {
+      font-family: var(--mono);
+      font-size: 0.95em;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 13px;
+    }
+    .table th, .table td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+    .table th {
+      background: var(--soft);
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 10px 0;
+    }
+
+    .toc {
+      margin-top: 10px;
+      padding: 12px;
+      background: #ffffff;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+    }
+    .toc strong { display: block; margin-bottom: 6px; }
+
+    .callout {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    /* ========== Print ========== */
+    @page {
+      size: A4;
+      margin: 18mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+      header, .card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      pre {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🎬 useEffect: Synchronizing Query with Movie Data</h1>
+      <p class="subtitle">How to make your search input “reactive” so movie results update automatically, using <code>useEffect</code> dependencies.</p>
+      <div class="meta">
+        <span class="chip">📚 Section: Effects & Data Fetching</span>
+        <span class="chip">🧠 Focus: Dependency Array + Reactive Fetching</span>
+        <span class="chip">🛠️ Skill: Error reset + Guard clauses</span>
+        <span class="chip">🧪 Bonus: Effect execution order experiments</span>
+      </div>
+
+      <div class="toc" aria-label="Table of Contents">
+        <strong>Table of Contents (Print)</strong>
+        <ol>
+          <li>Big idea: “Synchronize query → results”</li>
+          <li>Experiment: order of logs (render vs effects)</li>
+          <li>Lifting state up (tempQuery → query in App)</li>
+          <li>Making the fetch effect reactive to query</li>
+          <li>Fixing UX: clearing errors + ignoring short queries</li>
+          <li>Debugging with DevTools</li>
+          <li>Common pitfalls: Strict Mode & race conditions</li>
+          <li>Quick checklist + mini quiz</li>
+        </ol>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>1) 🎯 The Big Goal</h2>
+        <p>
+          You want this behavior: when the user types into the search input, the app automatically fetches a new movie list.
+          That means the movie list is <strong>synchronized</strong> with the <strong>query state</strong>.
+        </p>
+        <div class="good">
+          <p><strong>✅ Mental model:</strong> <code>useEffect</code> behaves like a listener that “watches” a dependency (like <code>query</code>). When it changes, the effect reruns.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2) 🧪 Experiment: Which Runs First? (Render vs Effect)</h2>
+        <p>
+          In the lecture, you log three things: one <strong>during render</strong> and two inside <strong>effects</strong>.
+          The result is always:
+        </p>
+        <ul>
+          <li><strong>C</strong> (render logic) happens first</li>
+          <li><strong>A</strong> (effect with <code>[]</code>) happens after paint, on mount only</li>
+          <li><strong>B</strong> (effect with no deps) happens after paint, on every render</li>
+        </ul>
+
+        <pre><code>// Inside component function (render logic)
+console.log("C - during render");
+
+useEffect(() =&gt; {
+  console.log("A - after initial render only");
+}, []);
+
+useEffect(() =&gt; {
+  console.log("B - after every render");
+});</code></pre>
+
+        <div class="note">
+          <p><strong>🧠 Why does C come first?</strong> Because render logic runs while React is rendering.
+          Effects run <strong>after</strong> the browser paints, so the UI stays responsive.</p>
+        </div>
+
+        <div class="callout">
+          <p><strong>Extra test (D):</strong> Add an effect that depends on <code>query</code>. It runs on mount and whenever <code>query</code> changes.</p>
+          <pre><code>useEffect(() =&gt; {
+  console.log("D - runs when query changes");
+}, [query]);</code></pre>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>3) 🧩 Lifting State Up (tempQuery → query in App)</h2>
+        <p>
+          The search input originally owns the <code>query</code> state. But you need it in <code>App</code> because <code>App</code> fetches movies.
+          So you <strong>lift state up</strong>:
+        </p>
+        <ul>
+          <li>Move <code>const [query, setQuery] = useState("...")</code> to <code>App</code></li>
+          <li>Pass <code>query</code> and <code>setQuery</code> down as props to <code>Search</code></li>
+          <li>Optionally rename the old variable (like <code>tempQuery</code>) while refactoring</li>
+        </ul>
+
+        <div class="good">
+          <p><strong>✅ Rule of thumb:</strong> Put state in the closest common parent of components that need it.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>4) 🔁 Making Fetch Reactive: Put <code>query</code> in the Dependency Array</h2>
+        <p>
+          If the effect uses <code>query</code>, then <code>query</code> must be in the dependency array — otherwise the effect will not rerun when the query changes.
+        </p>
+
+        <pre><code>useEffect(() =&gt; {
+  async function fetchMovies() {
+    try {
+      setIsLoading(true);
+      setError(""); // ✅ reset old errors before fetching
+
+      const res = await fetch(`https://www.omdbapi.com/?apikey=${KEY}&amp;s=${query}`);
+      if (!res.ok) throw new Error("Something went wrong with fetching movies");
+
+      const data = await res.json();
+      if (data.Response === "False") throw new Error("Movie not found");
+
+      setMovies(data.Search);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  fetchMovies();
+}, [query]);</code></pre>
+
+        <div class="note">
+          <p><strong>🧠 What changed?</strong> Before: effect ran once (or on every render). Now: it runs on mount and whenever <code>query</code> changes.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>5) 🧯 UX Fixes: Don’t Fetch on Empty/Short Queries</h2>
+        <p>
+          Without guards, an empty query triggers a fetch and shows “Movie not found,” which is confusing.
+          Instead, add an early return:
+        </p>
+
+        <pre><code>useEffect(() =&gt; {
+  if (!query.length) {
+    setMovies([]);
+    setError("");
+    return; // ✅ do not fetch
+  }
+
+  if (query.length &lt; 3) {
+    setMovies([]);
+    setError("");
+    return; // ✅ optional: ignore super-short queries
+  }
+
+  // ...fetchMovies()
+}, [query]);</code></pre>
+
+        <div class="good">
+          <p><strong>✅ Result:</strong> No unnecessary requests, and the UI feels more natural.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>6) 🕵️ Debugging With DevTools (Network Tab)</h2>
+        <p>
+          When “nothing happens,” verify whether the request is actually being sent:
+        </p>
+        <ul>
+          <li>Open DevTools → <strong>Network</strong></li>
+          <li>Type a query and watch for new requests</li>
+          <li>Click a request and check the response payload</li>
+        </ul>
+        <div class="note">
+          <p><strong>Tip:</strong> If results don’t show but the response looks correct, suspect UI state (e.g., a stale <code>error</code> not being cleared).</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>7) ⚠️ Common Pitfalls</h2>
+
+        <h3>7.1 React Strict Mode runs effects twice (dev only)</h3>
+        <p>
+          In React 18 development mode (with Strict Mode), effects may execute twice to help detect unsafe side effects.
+          This can look like “double requests.” Production builds do not do this.
+        </p>
+        <div class="note">
+          <p><strong>🧪 Symptom:</strong> Two identical Network calls on initial load.</p>
+        </div>
+
+        <h3>7.2 Race condition when typing fast</h3>
+        <p>
+          If the user types quickly, multiple fetches can be “in flight” at the same time.
+          A slower earlier response might arrive after a faster later response, showing older results.
+        </p>
+        <div class="bad">
+          <p><strong>⚠️ Symptom:</strong> Results don’t match the latest query unless you type slowly.</p>
+        </div>
+        <p>
+          You’ll typically solve this later using one of these approaches:
+        </p>
+        <ul>
+          <li>AbortController (cancel old requests)</li>
+          <li>Debouncing the query (wait for user to pause typing)</li>
+          <li>Data fetching libraries (React Query, SWR)</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>8) ✅ Practical Checklist</h2>
+        <ul>
+          <li>🧠 If an effect uses a state/prop, include it in the dependency array.</li>
+          <li>🧹 Clear error state before a new request: <code>setError("")</code>.</li>
+          <li>⛔ Add guards for empty/short query to avoid useless requests.</li>
+          <li>🔎 Use DevTools Network tab to confirm requests and inspect responses.</li>
+          <li>🧪 Remember: Strict Mode can run effects twice in development.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>9) 📝 Mini Quiz (for retention)</h2>
+        <ol>
+          <li>
+            Why does <code>console.log("C")</code> run before effect logs?
+            <div class="callout"><strong>Answer:</strong> C is render logic. Effects run after the browser paints.</div>
+          </li>
+          <li>
+            What does an empty dependency array <code>[]</code> mean?
+            <div class="callout"><strong>Answer:</strong> Run effect on mount only (initial render).</div>
+          </li>
+          <li>
+            Why must <code>query</code> be added to <code>[query]</code>?
+            <div class="callout"><strong>Answer:</strong> So the effect reruns when query changes; otherwise it uses outdated values and won’t sync.</div>
+          </li>
+          <li>
+            Why clear <code>error</code> before fetching?
+            <div class="callout"><strong>Answer:</strong> Old error would keep showing even when the new fetch succeeds.</div>
+          </li>
+          <li>
+            Why can results look wrong when typing fast?
+            <div class="callout"><strong>Answer:</strong> Race condition: older requests can finish after newer ones.</div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <h2>📌 Key Takeaway</h2>
+        <p>
+          <strong>Effects are for synchronization.</strong> By listing <code>query</code> in the dependency array, you make the effect reactive: it reruns whenever query changes, fetching the right data.
+        </p>
+        <div class="good">
+          <p><strong>✅ If you remember one line:</strong> “If you use it inside the effect, it belongs in the dependency array.”</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

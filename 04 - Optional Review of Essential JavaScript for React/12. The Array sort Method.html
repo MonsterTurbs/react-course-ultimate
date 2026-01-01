@@ -1,0 +1,288 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JavaScript Review — Array sort() Method (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f6f7f9;
+      --codebg: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.7rem;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 0;
+      font-size: 0.98rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin: 18px 0 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul { margin: 8px 0 10px 18px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 6px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      overflow: auto;
+      margin: 10px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 0.85rem;
+      margin: 0 6px 6px 0;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .muted { color: var(--muted); }
+
+    /* Print settings */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+
+      /* Keep headings with content */
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+      pre, .callout { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Do not print URL after links */
+      a[href]:after { content: "" !important; }
+
+      /* Make text slightly smaller for print */
+      body { font-size: 11.5pt; line-height: 1.55; }
+      h1 { font-size: 18pt; }
+      h2 { font-size: 13.5pt; }
+      h3 { font-size: 12pt; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>📚 JavaScript Review: <code>Array.prototype.sort()</code></h1>
+      <p class="subtitle">Beginner-friendly reviewer on how <code>sort()</code> works, how to sort numbers/objects, and how to avoid mutating arrays (important in React).</p>
+    </header>
+
+    <section class="callout">
+      <strong>🎯 Goal of this lesson</strong>
+      <div class="grid">
+        <div>
+          <span class="chip">✅ Sort numbers</span>
+          <span class="chip">✅ Sort objects (e.g., books by pages)</span>
+          <span class="chip">⚠️ Understand mutation</span>
+          <span class="chip">🧠 React-friendly (immutable) approach</span>
+        </div>
+      </div>
+    </section>
+
+    <h2>1) What does <code>sort()</code> do?</h2>
+    <p>
+      The <code>sort()</code> method sorts an array. In real projects (and especially in React), we commonly sort arrays of objects
+      (e.g., books, users, transactions) based on a numeric field.
+    </p>
+
+    <div class="callout">
+      <strong>⚠️ Super important</strong>
+      <p>
+        Unlike <code>map</code>, <code>filter</code>, and <code>reduce</code>, <code>sort()</code> is <em>not</em> a functional method.
+        It <strong>mutates</strong> (changes) the original array in-place.
+      </p>
+      <p class="muted">
+        In React, mutating data directly can cause bugs or unpredictable UI updates. So we usually sort a copy of the array.
+      </p>
+    </div>
+
+    <h2>2) The “recipe” for numeric sorting</h2>
+    <p>
+      When you pass a compare function <code>(a, b) =&gt; ...</code> to <code>sort()</code>, you control the ordering.
+      A simple, practical rule you can memorize:
+    </p>
+    <ul>
+      <li>📈 <strong>Ascending</strong>: <code>(a, b) =&gt; a - b</code> (small ➜ big)</li>
+      <li>📉 <strong>Descending</strong>: <code>(a, b) =&gt; b - a</code> (big ➜ small)</li>
+    </ul>
+
+    <h3>Example: Sorting an array of numbers</h3>
+    <pre><code>// Demo array
+const arr = [3, 7, 1, 9];
+
+// ✅ Ascending (1, 3, 7, 9)
+const sortedAsc = arr.slice().sort((a, b) =&gt; a - b);
+
+// ✅ Descending (9, 7, 3, 1)
+const sortedDesc = arr.slice().sort((a, b) =&gt; b - a);
+
+console.log({ arr, sortedAsc, sortedDesc });</code></pre>
+
+    <div class="callout">
+      <strong>🧠 Why do we use <code>slice()</code> here?</strong>
+      <p>
+        <code>arr.slice()</code> creates a <strong>copy</strong> of the array. Then we sort the copy, keeping the original <code>arr</code> unchanged.
+      </p>
+      <p class="muted">This “copy first, then sort” pattern is the safer approach in React.</p>
+    </div>
+
+    <h2>3) The surprising part: <code>sort()</code> mutates the original array</h2>
+    <p>
+      If you do this:
+    </p>
+    <pre><code>const arr = [3, 7, 1, 9];
+const sorted = arr.sort((a, b) =&gt; b - a);
+
+console.log(sorted); // [9, 7, 3, 1]
+console.log(arr);    // [9, 7, 3, 1]  ← same array, mutated!</code></pre>
+
+    <p>
+      Both <code>sorted</code> and <code>arr</code> point to the same array after sorting.
+      That’s why it can cause problems if your UI is relying on the original order.
+    </p>
+
+    <h2>4) React-friendly solution: sort a copy</h2>
+    <p>
+      Use <code>slice()</code> (or spread <code>[...arr]</code>) to copy first.
+    </p>
+
+    <pre><code>// Option A: slice()
+const sortedCopyA = arr.slice().sort((a, b) =&gt; a - b);
+
+// Option B: spread
+const sortedCopyB = [...arr].sort((a, b) =&gt; a - b);</code></pre>
+
+    <h2>5) Practical example: Sorting an array of objects</h2>
+    <p>
+      In real apps, you will sort objects by a numeric property (like <code>pages</code>, <code>price</code>, <code>createdAt</code>, etc.).
+      The pattern stays the same—just subtract the numeric properties.
+    </p>
+
+    <h3>Example: Sort books by number of pages</h3>
+    <pre><code>// books is an array of objects like:
+// { title: "The Lord of the Rings", pages: 1216, ... }
+
+// 📉 Descending: highest pages first
+const sortedByPagesDesc = books
+  .slice()
+  .sort((a, b) =&gt; b.pages - a.pages);
+
+// 📈 Ascending: lowest pages first
+const sortedByPagesAsc = books
+  .slice()
+  .sort((a, b) =&gt; a.pages - b.pages);
+
+console.log(sortedByPagesDesc.map(b =&gt; `${b.title} (${b.pages})`));</code></pre>
+
+    <div class="callout">
+      <strong>✅ Quick checklist (works great in React)</strong>
+      <ul>
+        <li>🧩 Do you need sorting? Use <code>sort()</code>.</li>
+        <li>🛑 Don’t mutate state/props arrays directly.</li>
+        <li>📌 Copy first: <code>slice()</code> or <code>[...arr]</code>.</li>
+        <li>📉 Desc: <code>b.value - a.value</code> | 📈 Asc: <code>a.value - b.value</code>.</li>
+      </ul>
+    </div>
+
+    <div class="hr"></div>
+
+    <h2>Mini Reviewer Questions</h2>
+    <ol>
+      <li>🧠 What is the biggest difference between <code>sort()</code> and <code>map/filter/reduce</code>?</li>
+      <li>📈 Write the compare function for ascending numeric sort.</li>
+      <li>📉 Write the compare function for sorting objects by <code>pages</code> descending.</li>
+      <li>⚠️ Why is mutating arrays risky in React?</li>
+      <li>✅ How do you sort without mutating the original array?</li>
+    </ol>
+
+    <p class="muted">
+      End of study guide. Print tip: Use your browser print dialog → Paper size A4 → Margins “Default” or “Custom” (already handled by CSS).
+    </p>
+  </main>
+</body>
+</html>

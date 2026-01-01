@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Error Boundaries — Reviewer / Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --soft2:#fbfbfc;
+      --chip:#f2f3f5;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --bad:#b91c1c;
+      --accent:#0b57d0;
+      --codebg:#0b1020;
+      --codetext:#e7e9ee;
+
+      --font: Arial, Helvetica, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      --radius: 12px;
+      --shadow: 0 1px 0 rgba(0,0,0,.04);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--font);
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+      hyphens:auto;
+    }
+
+    /* Single-column page container */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+
+    header{
+      padding: 18px 18px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, var(--soft2), var(--bg));
+      box-shadow: var(--shadow);
+    }
+
+    h1{
+      margin:0 0 8px;
+      font-size: 1.7rem;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: .98rem;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border:1px solid var(--border);
+      font-size: .88rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main{
+      margin-top: 16px;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+    }
+
+    section{
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+      box-shadow: var(--shadow);
+      padding: 16px 18px;
+    }
+
+    h2{
+      margin: 0 0 10px;
+      font-size: 1.25rem;
+    }
+
+    h3{
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p{ margin: 8px 0; }
+
+    .muted{ color: var(--muted); }
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 10px 0;
+    }
+
+    .callout.ok{ border-left: 6px solid var(--ok); }
+    .callout.warn{ border-left: 6px solid var(--warn); }
+    .callout.bad{ border-left: 6px solid var(--bad); }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .kbd{
+      font-family: var(--mono);
+      font-size: .9em;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 8px;
+      background: var(--soft2);
+      white-space: nowrap;
+    }
+
+    pre{
+      margin: 10px 0;
+      background: var(--codebg);
+      color: var(--codetext);
+      padding: 12px 12px;
+      border-radius: 12px;
+      overflow:auto;
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    code{ font-family: var(--mono); font-size: .92em; }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 840px){
+      .grid2{ grid-template-columns: 1fr 1fr; }
+    }
+
+    .mini-title{
+      margin:0 0 6px;
+      font-weight: 700;
+    }
+
+    .hr{
+      height:1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print styles: A4, clean margins, no URL noise */
+    @page{
+      size: A4;
+      margin: 14mm 14mm 16mm 14mm;
+    }
+
+    @media print{
+      :root{ --shadow:none; }
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width:none; padding:0; }
+      header, section{ box-shadow:none; }
+      a{ color:inherit; text-decoration:none; }
+      a[href]::after{ content: "" !important; }
+      pre{ page-break-inside: avoid; }
+      section{ break-inside: avoid-page; }
+      .chip{ border:1px solid #d9d9d9; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧯 React Error Boundaries — Reviewer / Study Guide</h1>
+      <p class="subtitle">How to prevent the “white screen of death” when a render error happens — with <span class="kbd">react-error-boundary</span>.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Render-time error handling</span>
+        <span class="chip">🧠 Key idea: Fallback UI + reset action</span>
+        <span class="chip">🧩 Tool: Error boundary wrapper</span>
+        <span class="chip">🛡️ Goal: Better UX in production</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) Why Error Boundaries Matter</h2>
+        <p>
+          In development, when React hits a render error, you often see a big error overlay.
+          In production, users can get a <strong>blank white screen</strong> (app crashes) — which is unacceptable UX.
+        </p>
+
+        <div class="callout warn">
+          <p class="mini-title">⚠️ Reality check</p>
+          <p>
+            Bugs making it to production is normal. Error boundaries don’t “fix” bugs — they
+            <strong>prevent the whole app from becoming unusable</strong> when a render-time crash happens.
+          </p>
+        </div>
+
+        <p><strong>Example bug scenario:</strong></p>
+        <ul>
+          <li>Component tries to read <code>bookings.length</code> when <code>bookings</code> is still <code>undefined</code> or <code>null</code>.</li>
+          <li>React throws during render.</li>
+          <li>Without an error boundary: you get a blank screen.</li>
+          <li>With an error boundary: you show a friendly fallback UI.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>2) What an Error Boundary Is (Beginner-Friendly)</h2>
+        <div class="grid2">
+          <div class="callout ok">
+            <p class="mini-title">✅ Think of it like…</p>
+            <p>
+              <strong>try/catch, but for React rendering.</strong><br />
+              It catches JavaScript errors that happen while React is rendering components.
+            </p>
+          </div>
+          <div class="callout bad">
+            <p class="mini-title">🚫 It does NOT catch</p>
+            <ul>
+              <li>Errors in <strong>event handlers</strong> (e.g., button clicks)</li>
+              <li>Errors inside <strong>useEffect</strong></li>
+              <li>Errors in <strong>async code</strong> (promises, fetch calls)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout">
+          <p class="mini-title">🧠 Quick mental model</p>
+          <ul>
+            <li><strong>Render errors</strong> → error boundary catches → show fallback UI</li>
+            <li><strong>Data/network errors</strong> → handle via React Query error states, toast messages, etc.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) Why We Use <code>react-error-boundary</code></h2>
+        <p>
+          React’s built-in error boundaries are historically tied to <strong>class components</strong>, making them awkward in modern apps.
+          The package <code>react-error-boundary</code> makes it simple and ergonomic.
+        </p>
+
+        <div class="callout">
+          <p class="mini-title">📦 Install</p>
+          <pre><code>npm install react-error-boundary</code></pre>
+          <p class="muted">(Use your usual package manager if you prefer.)</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Implementation Recipe (Step-by-Step)</h2>
+        <ol>
+          <li>Wrap your app tree with <code>&lt;ErrorBoundary /&gt;</code>.</li>
+          <li>Provide a <strong>fallback component</strong> to render when a crash happens.</li>
+          <li>Provide an <strong>onReset</strong> handler so users can recover (ex: go back to home).</li>
+          <li>Inside the fallback component, render:
+            <ul>
+              <li>A friendly message</li>
+              <li>Optional developer info (like <code>error.message</code>)</li>
+              <li>A “Try again” button that calls <code>resetErrorBoundary</code></li>
+            </ul>
+          </li>
+        </ol>
+
+        <div class="hr"></div>
+
+        <h3>4.1 Wrap the app</h3>
+        <pre><code>// main.jsx (or index.jsx)
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { ErrorBoundary } from "react-error-boundary";
+
+import App from "./App";
+import GlobalStyles from "./styles/GlobalStyles";
+import ErrorFallback from "./ui/ErrorFallback";
+
+function handleReset() {
+  // Simple recovery strategy: go to home
+  window.location.replace("/");
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  &lt;React.StrictMode&gt;
+    &lt;GlobalStyles /&gt;
+    &lt;ErrorBoundary
+      FallbackComponent={ErrorFallback}
+      onReset={handleReset}
+    &gt;
+      &lt;App /&gt;
+    &lt;/ErrorBoundary&gt;
+  &lt;/React.StrictMode&gt;
+);
+</code></pre>
+
+        <div class="callout warn">
+          <p class="mini-title">⚠️ Common gotcha</p>
+          <p>
+            If your fallback renders outside your styling system, it can look unstyled.
+            Ensure <code>GlobalStyles</code> is still applied where the fallback is rendered.
+          </p>
+        </div>
+
+        <h3>4.2 Build the fallback component</h3>
+        <pre><code>// ui/ErrorFallback.jsx
+export default function ErrorFallback({ error, resetErrorBoundary }) {
+  return (
+    &lt;main style={{ padding: 24 }}&gt;
+      &lt;h1&gt;Something went wrong 🤯&lt;/h1&gt;
+      &lt;p&gt;You can try again or go back to the home screen.&lt;/p&gt;
+
+      {/* Helpful for devs; optional for users */}
+      &lt;pre style={{ whiteSpace: "pre-wrap" }}&gt;{error.message}&lt;/pre&gt;
+
+      &lt;button onClick={resetErrorBoundary}&gt;Try again&lt;/button&gt;
+    &lt;/main&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout ok">
+          <p class="mini-title">✅ Why the “Try again” button helps</p>
+          <p>
+            Even if one screen is broken, users can still use other parts of the app.
+            The reset lets them recover without being stuck.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Practical Tips and Best Practices</h2>
+        <ul>
+          <li>🧩 <strong>Wrap high-level UI</strong> (often around <code>&lt;App /&gt;</code>) to protect the whole app.</li>
+          <li>🧯 Consider <strong>additional boundaries</strong> around risky areas (charts, complex tables) so only that section falls back.</li>
+          <li>🧾 Log errors to monitoring tools (Sentry, etc.) in production when possible.</li>
+          <li>🧠 Keep the fallback UI simple, readable, and actionable.</li>
+        </ul>
+
+        <div class="callout warn">
+          <p class="mini-title">⚠️ Don’t confuse these</p>
+          <ul>
+            <li><strong>Error boundary</strong> = catches render crashes</li>
+            <li><strong>React Query error state</strong> = handles request failures and server errors</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>6) Quick Recap (Memorize This)</h2>
+        <ul>
+          <li>🧯 Error boundaries prevent blank screens from render errors.</li>
+          <li>🧠 Use <code>react-error-boundary</code> for an easy, modern approach.</li>
+          <li>🧩 Wrap the app, provide a fallback UI, and add a reset action.</li>
+          <li>🚫 They don’t catch event handler/effect/async errors.</li>
+        </ul>
+
+        <div class="callout ok">
+          <p class="mini-title">✅ One-liner takeaway</p>
+          <p><strong>Always add an error boundary in production-grade React apps.</strong></p>
+        </div>
+      </section>
+
+      <section>
+        <h2>7) Mini Self-Check Quiz</h2>
+        <ol>
+          <li>What kind of errors do error boundaries catch?</li>
+          <li>Do they catch errors from <code>onClick</code> handlers?</li>
+          <li>What are the two key props you typically pass to the boundary component?</li>
+          <li>Why is a “Try again” button useful?</li>
+        </ol>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

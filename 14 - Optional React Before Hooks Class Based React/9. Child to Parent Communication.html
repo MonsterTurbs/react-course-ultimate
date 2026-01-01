@@ -1,0 +1,321 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Child → Parent Communication (Class Components)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+    .danger{ color: var(--danger); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>👨‍👩‍👧 React Study Guide: Child → Parent Communication (Class Components)</h1>
+      <p class="subtitle">We extract the location input into a child component, keep state in <code>App</code>, and let the child update the parent by passing a callback function as a prop.</p>
+      <div class="meta">
+        <span class="chip">🏛️ Class Components</span>
+        <span class="chip">🧠 Controlled Inputs</span>
+        <span class="chip">🔁 Lifting State Up</span>
+        <span class="chip">📞 Callback Props</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What we want to achieve</h2>
+      <p>We want to move this input into its own component:</p>
+      <ul>
+        <li>📦 The child component renders the input UI</li>
+        <li>🏠 The parent (<code>App</code>) still owns the state (<code>location</code>)</li>
+        <li>📣 The child can still update the parent state (child → parent communication)</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Key idea:</strong> In React, children don’t directly change parent state. Instead, they call a function the parent gives them.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Why state stays in the parent</h2>
+      <p>The <code>location</code> state must remain in <code>App</code> because the parent needs it to fetch data:</p>
+      <ul>
+        <li>Parent method <code>fetchWeather</code> uses <code>this.state.location</code></li>
+        <li>So <code>App</code> must remain the “source of truth”</li>
+      </ul>
+
+      <div class="callout">
+        <strong>React term:</strong> This is “lifting state up” — keeping shared/needed state higher in the tree.
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Step 1: Create a child component for the input</h2>
+      <p>Create a new class component named <code>Input</code> and paste the input JSX into it:</p>
+
+      <pre><code>class Input extends React.Component {
+  render() {
+    return (
+      &lt;input
+        type="text"
+        placeholder="Search for location..."
+        value={this.props.location}
+        onChange={this.props.onChangeLocation}
+      /&gt;
+    );
+  }
+}</code></pre>
+
+      <div class="callout">
+        <strong>Notice:</strong> The child uses <code>this.props</code>, not <code>this.state</code>.
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Step 2: Render the child component inside <code>App</code></h2>
+      <p>Replace the inline input with <code>&lt;Input /&gt;</code> and pass the needed props:</p>
+
+      <pre><code>render() {
+  return (
+    &lt;div className="app"&gt;
+      &lt;h1&gt;Classy Weather&lt;/h1&gt;
+
+      &lt;div&gt;
+        &lt;Input
+          location={this.state.location}
+          onChangeLocation={this.setLocation}
+        /&gt;
+        &lt;button onClick={this.fetchWeather}&gt;Get Weather&lt;/button&gt;
+      &lt;/div&gt;
+
+      {/* other UI... */}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <strong>What you passed down:</strong>
+        <ul>
+          <li><code>location</code> → the current value to display in the input</li>
+          <li><code>onChangeLocation</code> → a function the child calls on change</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Step 3: Implement the parent handler (class field)</h2>
+      <p>Create a handler in <code>App</code> that updates parent state. The lecture does it as a class field so there is no manual binding.</p>
+
+      <pre><code>class App extends React.Component {
+  state = {
+    location: "Lisbon",
+    // ...other state
+  };
+
+  setLocation = (e) =&gt; {
+    this.setState({ location: e.target.value });
+  };
+
+  // fetchWeather = async () =&gt; { ... }
+
+  render() {
+    // ...
+  }
+}</code></pre>
+
+      <div class="callout">
+        <strong>Why class fields help:</strong> Using an arrow function preserves <code>this</code> automatically, so we don’t need <code>bind</code>.
+      </div>
+    </section>
+
+    <section>
+      <h2>🔁 What “child → parent communication” really means</h2>
+      <p>It does <strong>not</strong> mean the child can directly access or mutate parent state. It means:</p>
+      <ul>
+        <li>Parent passes a callback prop down to child</li>
+        <li>Child calls the callback when something happens (typing)</li>
+        <li>Parent receives the event/data and updates its own state</li>
+        <li>Parent re-renders and passes the updated state back to child</li>
+      </ul>
+
+      <div class="rule">
+        <h3>Flow (simple mental model)</h3>
+        <p><strong>Parent state</strong> → (props) → <strong>Child UI</strong> → (callback) → <strong>Parent updates state</strong> → re-render</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>⚠️ Common mistakes</h2>
+      <ul>
+        <li class="warn"><strong>Using <code>this.state</code> in the child:</strong> the child doesn’t own the state — use <code>this.props</code>.</li>
+        <li class="warn"><strong>Forgetting to pass the handler:</strong> if <code>onChange</code> doesn’t call the parent function, the input won’t update.</li>
+        <li class="warn"><strong>Naming confusion:</strong> be consistent: <code>onChangeLocation</code> in parent becomes <code>this.props.onChangeLocation</code> in child.</li>
+        <li class="warn"><strong>Binding issues in older code:</strong> if not using class fields, you must bind in the constructor.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📌 Recap</h2>
+      <ul>
+        <li>✅ Extracted the input into a child component (<code>Input</code>).</li>
+        <li>✅ Kept <code>location</code> state in <code>App</code> because it’s needed for fetching.</li>
+        <li>✅ Passed data down as props: <code>location</code>.</li>
+        <li>✅ Passed a function down as a prop: <code>onChangeLocation</code> → <code>setLocation</code>.</li>
+        <li>✅ Child calls the function; parent updates state; React re-renders.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Bottom line:</strong> Child → parent communication works the same in class components and function components.
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

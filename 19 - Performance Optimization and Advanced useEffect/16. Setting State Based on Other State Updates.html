@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Setting State Based on Other State Updates (useEffect)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --chip:#f3f4f6;
+      --codebg:#0b1020;
+      --codefg:#e8eefc;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 44px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: var(--soft);
+      padding: 16px 16px 14px;
+      border-radius: 12px;
+    }
+
+    h1{
+      font-size: 1.55rem;
+      margin: 0 0 6px;
+      letter-spacing: .1px;
+    }
+    .subtitle{margin:0;color:var(--muted);font-size:.98rem;}
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      display:inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: .9rem;
+    }
+
+    main{margin-top: 14px;}
+
+    section{
+      margin-top: 14px;
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px 10px;
+      background:#fff;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 1.15rem;
+      margin: 0 0 10px;
+    }
+
+    h3{
+      font-size: 1.02rem;
+      margin: 12px 0 8px;
+    }
+
+    p{margin: 8px 0;}
+
+    ul{margin: 8px 0 10px 22px; padding:0;}
+    li{margin: 6px 0;}
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    pre{
+      margin: 10px 0;
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px;
+      border-radius: 10px;
+      overflow:auto;
+      border: 1px solid rgba(255,255,255,.08);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+
+    .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background: var(--chip); border:1px solid var(--border); border-bottom-width:2px; padding: 0 6px; border-radius: 6px;}
+
+    .hr{
+      height:1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .small{color:var(--muted); font-size: .94rem;}
+
+    /* Print (A4, clean margins, no URL clutter) */
+    @media print{
+      @page{ size: A4; margin: 14mm; }
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; padding: 0; }
+      section, header{ border-color:#cfcfcf; }
+      a, a:visited{ color: inherit; text-decoration: none; }
+      a[href]::after{ content: ""; } /* don’t print URLs */
+      pre{ overflow: visible; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧠 React Study Guide: Setting State Based on Other State Updates (useEffect)</h1>
+      <p class="subtitle">Workout Timer mini‑project — making <strong>+ / −</strong> buttons adjust <em>duration</em> while keeping everything in sync.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Derived State vs State</span>
+        <span class="chip">⚙️ Tool: useEffect dependency rules</span>
+        <span class="chip">🧪 Debug: Profiler + render counting</span>
+        <span class="chip">✅ Goal: Buttons work + no stale values</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 What you’re implementing</h2>
+        <div class="grid">
+          <div>
+            <p><strong>Problem:</strong> The app shows a <em>duration</em>, but the <strong>+ / −</strong> buttons don’t work yet.</p>
+            <p><strong>Goal:</strong> Make the buttons adjust the duration manually <em>and</em> keep duration aligned when the user changes any inputs (sets, reps, speed, break length, etc.).</p>
+            <div class="callout">
+              <p>✅ Key change: <strong>duration must become its own state</strong>, not only derived state.</p>
+              <p class="small">🙂 Reason: if duration is only derived from other states, clicking +/− has nowhere to “store” the manual change.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Before: “Duration” as derived state</h2>
+        <p>Originally, the component calculates duration on every render:</p>
+        <pre><code>// Derived state (computed every render)
+const duration =
+  (numExercises * sets * speed) / 60 +
+  (numExercises - 1) * breakLength;
+</code></pre>
+        <ul>
+          <li>✅ Very common pattern in React: <strong>derived state</strong> = computed from other state/props.</li>
+          <li>✅ Updates automatically when inputs change.</li>
+          <li>❌ But you cannot directly “edit” derived state via buttons (no setter).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🔁 After: “Duration” becomes state</h2>
+        <p>We convert duration into a real piece of state:</p>
+        <pre><code>// New state
+const [duration, setDuration] = useState(0);
+</code></pre>
+        <div class="callout">
+          <p>⚠️ Important: you <strong>cannot</strong> do this and expect it to update automatically:</p>
+          <pre><code>// ❌ Not what you want:
+// useState(formula)
+// because that formula runs only on the initial render
+const [duration, setDuration] = useState(computeDuration());
+</code></pre>
+          <p class="small">😅 This is the classic beginner trap: the initializer runs once, not on every render.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🛠️ The sync problem (and two solutions)</h2>
+        <p>Once duration is state, you must decide: <strong>how does it update</strong> when inputs change?</p>
+
+        <h3>Option A — Update duration inside every event handler (works, but messy)</h3>
+        <p>If you update <code>numExercises</code>, you could also update <code>duration</code> there:</p>
+        <pre><code>function handleNumExercises(e) {
+  const next = Number(e.target.value);
+  setNumExercises(next);
+
+  // ✅ Works, but you'd repeat this everywhere 😵‍💫
+  setDuration((next * sets * speed) / 60 + (next - 1) * breakLength);
+}
+</code></pre>
+        <ul>
+          <li>✅ Works.</li>
+          <li>❌ Duplicates the same formula in multiple handlers.</li>
+          <li>❌ Easy to create bugs (one handler forgets to update duration, or uses stale values).</li>
+        </ul>
+
+        <div class="hr"></div>
+
+        <h3>Option B — Sync with <code>useEffect</code> (chosen here)</h3>
+        <p>Use an effect to “listen” for changes in the inputs and recompute duration:</p>
+        <pre><code>useEffect(() =&gt; {
+  setDuration(
+    (numExercises * sets * speed) / 60 +
+      (numExercises - 1) * breakLength
+  );
+}, [numExercises, sets, speed, breakLength]);
+</code></pre>
+        <div class="callout">
+          <p>✅ Why this is acceptable here:</p>
+          <ul>
+            <li>There are <strong>many inputs</strong> that influence duration.</li>
+            <li>Keeping logic in one place is more readable and less error‑prone.</li>
+          </ul>
+          <p class="small">🧠 This is “synchronizing state based on other state” — often discouraged in general, but fine when it reduces duplication and confusion.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>➕➖ Wiring the buttons</h2>
+        <p>Now that duration is state, the buttons can update it directly.</p>
+
+        <h3>Increment (+): round down then add 1</h3>
+        <p>Why rounding? Because duration might include <em>half minutes</em> (e.g., 82.5). Clicking <strong>+</strong> should jump to the next whole minute.</p>
+        <pre><code>function handleInc() {
+  setDuration((d) =&gt; Math.floor(d) + 1);
+}
+</code></pre>
+
+        <h3>Decrement (−): round up then subtract 1 (and prevent negatives)</h3>
+        <pre><code>function handleDec() {
+  setDuration((d) =&gt; (d &gt; 1 ? Math.ceil(d) - 1 : 0));
+}
+</code></pre>
+
+        <div class="callout">
+          <p>✅ Using the functional updater <code>setDuration(d =&gt; ...)</code> avoids stale values.</p>
+          <p class="small">🙂 Because React may batch updates, always prefer the functional form when the new value depends on the previous value.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Profiler insight: the downside of syncing with useEffect</h2>
+        <p>When you update an input like <code>sets</code>:</p>
+        <ol>
+          <li>React renders once for the input state update (e.g., sets changes).</li>
+          <li><code>useEffect</code> runs <em>after</em> that render and calls <code>setDuration</code>.</li>
+          <li>That triggers a <strong>second render</strong>.</li>
+        </ol>
+        <div class="callout">
+          <p>⚠️ Result: you often get <strong>two renders</strong> for a single user change.</p>
+          <p class="small">😬 React can’t batch them into one because the effect runs after render, not during it.</p>
+        </div>
+        <p>💡 Practical takeaway: avoid this pattern if you can, but accept it when it greatly simplifies your code and the app is still fast.</p>
+      </section>
+
+      <section>
+        <h2>✅ Dependency array checklist (quick rules)</h2>
+        <ul>
+          <li>📌 Put <strong>every reactive value</strong> used inside the effect in the dependency array.</li>
+          <li>🧠 “Reactive values” = state, props, context values, and values derived from them.</li>
+          <li>🚫 Don’t “lie” to React by omitting dependencies to silence ESLint.</li>
+          <li>🧯 If dependencies cause problems, fix the cause (e.g., memoize functions/objects), don’t delete dependencies.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>📝 Mini reviewer (memorize this)</h2>
+        <ul>
+          <li>🙂 <strong>Derived state</strong> is great when output is fully determined by inputs.</li>
+          <li>🧩 If the user must manually adjust a value, it usually needs to become <strong>real state</strong>.</li>
+          <li>🔁 If many states must update one state, a <strong>useEffect sync</strong> can be acceptable.
+            <ul>
+              <li>✅ Centralized logic</li>
+              <li>⚠️ Usually causes extra render(s)</li>
+            </ul>
+          </li>
+          <li>🧠 Use functional updates (e.g., <code>setDuration(d =&gt; ...)</code>) for correctness.</li>
+          <li>🧪 Use the React Profiler to confirm render behavior (don’t guess).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🏋️ Quick practice tasks</h2>
+        <ol>
+          <li>🔧 Add a rule: duration cannot exceed a max (e.g., 180 minutes). Where would you enforce it?</li>
+          <li>🧠 Change rounding behavior: + should add 5 minutes at a time; − should subtract 5 minutes. Keep it clamped to 0.</li>
+          <li>🧪 Use the Profiler: confirm how many renders happen when changing <em>speed</em> once.</li>
+        </ol>
+        <p class="small">Tip: implement clamping with <code>Math.min</code> / <code>Math.max</code> inside the setter.</p>
+      </section>
+
+      <section>
+        <h2>📌 One‑sentence summary</h2>
+        <p><strong>We turned duration from derived state into state, synchronized it with multiple inputs using <code>useEffect</code>, and wired +/− buttons using functional updates with rounding and clamping.</strong> ✅</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Supabase Crash Course — Section Overview (Study Guide)</title>
+  <style>
+    /* ==============================
+       Print-friendly, A4, single-column
+       ============================== */
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #1f4bd8;
+      --accent-2: #0b57d0;
+      --good: #0f7b45;
+      --warn: #8a5a00;
+      --bad: #b42318;
+
+      --font: Arial, Helvetica, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      --a4-w: 210mm;
+      --a4-h: 297mm;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.55;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Page container */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 16px;
+      background: #fff;
+    }
+
+    .kicker {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      margin: 0 0 6px 0;
+    }
+
+    h1 {
+      font-size: 24px;
+      line-height: 1.25;
+      margin: 0 0 8px 0;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+    }
+
+    main {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol { margin: 8px 0 0 22px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .callout.good { border-left-color: var(--good); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.bad { border-left-color: var(--bad); }
+
+    .label {
+      font-weight: 700;
+    }
+
+    code, pre {
+      font-family: var(--mono);
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: #0b1020;
+      color: #e9eefc;
+      border: 1px solid #0b1020;
+      overflow: hidden;            /* IMPORTANT: no horizontal cut-off on print */
+      white-space: pre-wrap;       /* wrap long lines */
+      word-break: break-word;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a[href]::after { content: ""; } /* don't print URLs */
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <p class="kicker">React — The Wild Oasis • Supabase Crash Course</p>
+      <h1>Section Overview: Building a Free Backend with Supabase</h1>
+      <p class="subtitle">A beginner-friendly reviewer/study guide (single-column, A4 print-ready) based on the provided lecture transcript.</p>
+      <div class="meta">
+        <span class="chip">🧠 Focus: Data + Backend Basics</span>
+        <span class="chip">🗄️ Supabase DB tables</span>
+        <span class="chip">🌐 API data loading</span>
+        <span class="chip">🔗 Table relationships (intro)</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 What this section is about</h2>
+        <p>In the next part of the course, you will set up a <strong>free backend</strong> using <strong>Supabase</strong>. This backend will store the data for the Wild Oasis app (cabins, bookings, guests, etc.) and provide an API your React app can use to <strong>load</strong> and <strong>update</strong> that data.</p>
+        <div class="callout good">
+          <span class="label">Key takeaway:</span> By learning Supabase, you can build <strong>complete full‑stack apps</strong> (frontend + backend) even if you are not a backend specialist yet. 😄
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Big ideas (simple explanation)</h2>
+        <ul>
+          <li><strong>Backend</strong> = where your app’s data lives (database) + rules for how to access it (API).</li>
+          <li><strong>Database tables</strong> = organized containers of data (like Excel sheets) with rows and columns.</li>
+          <li><strong>API</strong> = a way for your frontend (React) to ask the backend for data (GET) and send changes (POST/PATCH/DELETE).</li>
+          <li><strong>Relationships</strong> = how tables connect (example: a booking belongs to one guest; a guest can have many bookings).</li>
+        </ul>
+        <div class="callout">
+          <span class="label">Why this matters:</span> A real app needs real data. Hardcoding “fake data” works for demos, but production apps need a backend.
+        </div>
+      </section>
+
+      <section>
+        <h2>🗺️ What you will do step-by-step</h2>
+        <ol>
+          <li>🧱 <strong>Discuss the data needed</strong> for the app (what entities exist, what fields each entity needs).</li>
+          <li>🗄️ <strong>Create database tables</strong> inside Supabase (e.g., cabins, bookings, guests, users/settings).</li>
+          <li>🧪 <strong>Load data into the database</strong> (seed/import initial records so the UI has something to show).</li>
+          <li>🌐 <strong>Fetch data using an API</strong> from your React app (connect frontend to backend).</li>
+          <li>🔗 <strong>Model relationships</strong> between tables (intro: foreign keys, one-to-many, etc.).</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🏨 Wild Oasis data: what to expect</h2>
+        <p>Based on the project’s requirements (hotel back-office app), the backend typically needs data for:</p>
+        <ul>
+          <li>🏠 <strong>Cabins</strong>: name, max capacity, regular price, discount, description, image, etc.</li>
+          <li>📅 <strong>Bookings</strong>: cabinId, guestId, start/end dates, status (unconfirmed/checked-in/checked-out), total price, extras, etc.</li>
+          <li>🧑‍💼 <strong>Guests</strong>: full name, email, country, national ID/passport, etc.</li>
+          <li>🔐 <strong>Authentication / Users</strong>: hotel employees who can log in and manage operations.</li>
+        </ul>
+        <div class="callout warn">
+          <span class="label">Note:</span> Exact column names can differ per implementation. What matters is that the data model supports the UI features.
+        </div>
+      </section>
+
+      <section>
+        <h2>🔗 Relationships (quick beginner primer)</h2>
+        <p>When multiple tables exist, you usually connect them using IDs. This avoids repeating the same data everywhere.</p>
+        <div class="two">
+          <div class="callout">
+            <p class="label">Example: One booking belongs to one cabin</p>
+            <p class="mini">A <code>bookings</code> table can store <code>cabinId</code> instead of copying cabin details into every booking row.</p>
+          </div>
+          <div class="callout">
+            <p class="label">Example: One guest can have many bookings</p>
+            <p class="mini">A <code>bookings</code> row can store <code>guestId</code>. Many bookings can point to the same guest.</p>
+          </div>
+        </div>
+        <pre><code>// Mental model (not exact code)
+Cabins (id, name, maxCapacity, price, ...)
+Guests (id, fullName, email, ...)
+Bookings (id, cabinId, guestId, startDate, endDate, status, ...)
+
+// Relationships:
+Bookings.cabinId  -> Cabins.id
+Bookings.guestId  -> Guests.id</code></pre>
+      </section>
+
+      <section>
+        <h2>🧠 Quick recap (memorize this)</h2>
+        <ul>
+          <li>✅ Supabase gives you: <strong>database + API + tools</strong> so you can build a backend fast.</li>
+          <li>✅ You will define: <strong>tables</strong> and <strong>relationships</strong> that match app requirements.</li>
+          <li>✅ Your React app will: <strong>fetch</strong> data from the backend and <strong>mutate</strong> it when users make changes.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>📝 Mini quiz (self-check)</h2>
+        <ol>
+          <li>What’s the difference between a <strong>table</strong> and an <strong>API</strong>?</li>
+          <li>Why do we store <code>guestId</code> in <code>bookings</code> instead of copying the guest name into each booking?</li>
+          <li>In one sentence: what does Supabase help you build?</li>
+        </ol>
+        <div class="divider"></div>
+        <p class="mini"><strong>Tip:</strong> If you can answer these without looking, you’re ready for the next lecture. 💪</p>
+      </section>
+
+      <section>
+        <h2>📌 The original lecture (clean transcript)</h2>
+        <p class="mini">This is the transcript content you provided, cleaned into readable paragraphs:</p>
+        <div class="callout">
+          <p>Next up, it’s time to set up our own free backend using a service and library called Supabase.</p>
+          <p>This is where we’re gonna discuss all the data that we need for our application, create tables within the Supabase database, load that data into our app using an API, and even briefly model the relationship between different tables.</p>
+          <p>And all this will empower you to build complete full-stack apps on your own, which is pretty awesome, right?</p>
+          <p>So that’s why I’m so excited to share this technology with you right now.</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

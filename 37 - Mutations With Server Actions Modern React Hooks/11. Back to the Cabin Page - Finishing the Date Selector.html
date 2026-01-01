@@ -1,0 +1,438 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Date Selector — Finishing the Reservation Date Picker (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #0b57d0;
+      --ok: #0f7b3a;
+      --warn: #a15c00;
+      --bad: #b42318;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding: 18px 18px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 3px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+    }
+
+    main { margin-top: 18px; }
+
+    h2 {
+      margin: 18px 0 8px;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 14px 0 6px;
+      font-size: 15.5px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 8px 22px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .callout.soft { background: var(--soft); }
+
+    .callout .title {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .bad { color: var(--bad); }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: #0b1020;
+      color: #e8eefc;
+      border-radius: 12px;
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 12.5px;
+      line-height: 1.55;
+      tab-size: 2;
+      white-space: pre;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .kbd {
+      font-family: inherit;
+      font-size: 12px;
+      padding: 2px 7px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 7px;
+      background: #fff;
+      color: var(--text);
+      display: inline-block;
+      vertical-align: baseline;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .hr {
+      margin: 16px 0;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Make links readable on screen; hide URL on print */
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    @page { size: A4; margin: 14mm 14mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; }
+      header { background: #fff; }
+      pre { page-break-inside: avoid; }
+      .callout { page-break-inside: avoid; }
+      a { color: #000; text-decoration: none; }
+      a[href^="http"]::after { content: ""; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>📅 Finishing the Cabin Reservation Date Selector (Next.js + RSC App)</h1>
+      <p class="subtitle">Reviewer / study guide for completing the Date Selector logic: pricing, disabling unavailable dates, and preventing overlapping ranges.</p>
+      <div class="meta">
+        <span class="chip">Next.js App Router</span>
+        <span class="chip">React Server Components (RSC)</span>
+        <span class="chip">Context (shared date range)</span>
+        <span class="chip">date-fns utilities</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="callout soft">
+        <div class="title">🎯 Goal of this lecture</div>
+        <ul>
+          <li>Compute reservation pricing dynamically from cabin data (no more hardcoded values).</li>
+          <li>Disable dates that are <strong>in the past</strong> or <strong>already booked</strong>.</li>
+          <li>Prevent a selected range from “carrying over” into another cabin when that range overlaps with booked dates.</li>
+          <li>Prepare the UI so the next lecture can finish the <strong>Reservation Form</strong>.</li>
+        </ul>
+      </section>
+
+      <h2>1) Where we are in the UI</h2>
+      <p>
+        On a single cabin page, the reservation area is typically split into two parts:
+      </p>
+      <ul>
+        <li><strong>Left:</strong> Date Selector (calendar range picker)</li>
+        <li><strong>Right:</strong> Reservation Form (will be finalized next)</li>
+      </ul>
+
+      <div class="callout">
+        <div class="title">🧠 Key idea</div>
+        <p>
+          The date range is shared via a Context (custom hook like <code>useReservation()</code>), so both the Date Selector and the Reservation Form can read the same selected dates.
+        </p>
+      </div>
+
+      <h2>2) Stop hardcoding values: compute nights + price from real data</h2>
+      <p>
+        Previously, values like nights/price were hardcoded (e.g., <code>23</code>). Now we compute them from:
+      </p>
+      <ul>
+        <li>Cabin fields: <code>regularPrice</code>, <code>discount</code></li>
+        <li>Selected range: <code>range.from</code> and <code>range.to</code> (from context)</li>
+      </ul>
+
+      <h3>✅ Compute number of nights</h3>
+      <p>
+        Use <code>differenceInDays</code> from <code>date-fns</code>:
+      </p>
+      <pre><code>import { differenceInDays } from "date-fns";
+
+const numNights =
+  range?.from &amp;&amp; range?.to
+    ? differenceInDays(range.to, range.from)
+    : 0;</code></pre>
+
+      <h3>💰 Compute cabin price</h3>
+      <p>
+        Price logic: <code>numNights * (regularPrice - discount)</code>
+      </p>
+      <pre><code>const { regularPrice, discount } = cabin;
+
+const cabinPrice = numNights * (regularPrice - discount);</code></pre>
+
+      <div class="callout soft">
+        <div class="title">✅ Result</div>
+        <p>
+          Once a range is selected, the UI can show the computed nights, discount, and total price using conditional rendering.
+        </p>
+      </div>
+
+      <hr class="hr" />
+
+      <h2>3) Disable dates that shouldn’t be selectable</h2>
+      <p>
+        The date picker supports a <code>disabled</code> prop. A common pattern is passing a callback:
+      </p>
+      <pre><code>// Pseudocode
+&lt;DayPicker
+  disabled={(currentDate) =&gt; {
+    // return true to disable the date
+  }}
+/&gt;</code></pre>
+
+      <h3>3.1) Disable past dates (including today)</h3>
+      <p>
+        Use <code>isPast</code> from <code>date-fns</code>. If a date is in the past, return <code>true</code> to disable it.
+      </p>
+      <pre><code>import { isPast } from "date-fns";
+
+disabled={(currentDate) =&gt; isPast(currentDate)}</code></pre>
+
+      <div class="callout">
+        <div class="title">📝 Note</div>
+        <p>
+          In the lecture, <strong>today</strong> becomes disabled too. That’s often acceptable for hotel reservations (no same-day booking).
+        </p>
+      </div>
+
+      <h3>3.2) Disable dates that are already booked</h3>
+      <p>
+        You’re passed <code>bookedDates</code> into the Date Selector. You can disable any day that matches one of these booked dates.
+      </p>
+      <p>
+        Do not use <code>includes()</code> directly because date objects can differ by reference/time format. Use <code>isSameDay</code>.
+      </p>
+      <pre><code>import { isPast, isSameDay } from "date-fns";
+
+&lt;DayPicker
+  disabled={(currentDate) =&gt;
+    isPast(currentDate) ||
+    bookedDates.some((date) =&gt; isSameDay(date, currentDate))
+  }
+/&gt;</code></pre>
+
+      <div class="callout soft">
+        <div class="title">✅ What this does</div>
+        <ul>
+          <li>Blocks all past dates</li>
+          <li>Blocks any date already booked (e.g., May 6–9)</li>
+        </ul>
+      </div>
+
+      <hr class="hr" />
+
+      <h2>4) Fix the “range carries over to other cabins” issue</h2>
+      <p>
+        Because the selected range is stored in Context, selecting dates in Cabin A can remain selected when you navigate to Cabin B.
+        That is intended, but it becomes a bug when Cabin B has booked dates that overlap the range.
+      </p>
+
+      <div class="callout">
+        <div class="title">⚠️ The bug scenario</div>
+        <ul>
+          <li>You select a range in another cabin (e.g., May 5–11).</li>
+          <li>You navigate back to Cabin 2.</li>
+          <li>That range still shows — even if it includes dates that Cabin 2 has booked (e.g., May 6–9).</li>
+        </ul>
+      </div>
+
+      <h3>✅ Solution: use a “displayRange” that becomes empty if overlapping</h3>
+      <p>
+        The course provides a helper (example name) <code>isAlreadyBooked(range, bookedDates)</code>. If the range overlaps, show an empty range.
+      </p>
+
+      <pre><code>// Example shape of an "empty" range for many pickers
+const emptyRange = { from: undefined, to: undefined };
+
+const displayRange = isAlreadyBooked(range, bookedDates)
+  ? emptyRange
+  : range;</code></pre>
+
+      <p>
+        Then, make sure all computations and components use <code>displayRange</code> instead of <code>range</code>:
+      </p>
+      <pre><code>const numNights =
+  displayRange?.from &amp;&amp; displayRange?.to
+    ? differenceInDays(displayRange.to, displayRange.from)
+    : 0;
+
+// And feed the date picker with displayRange
+&lt;DayPicker selected={displayRange} /* ... */ /&gt;</code></pre>
+
+      <div class="callout soft">
+        <div class="title">✅ Outcome</div>
+        <p>
+          Cabin 2 will no longer “show” an invalid selection that overlaps booked dates. The context selection remains, but the UI displays an empty range for this cabin.
+        </p>
+      </div>
+
+      <h2>5) Bonus behavior: range selection + disabled dates</h2>
+      <p>
+        When selecting a date range, if the user tries to drag/select across disabled dates in the middle, the selection usually fails and resets.
+        This is good: it prevents creating invalid ranges without extra custom logic.
+      </p>
+
+      <div class="callout">
+        <div class="title">🧩 Why some surrounding dates appear grayed out</div>
+        <p>
+          In the lecture, some dates around the selection become grayed out because of a <strong>minimum booking length</strong> rule coming from settings.
+          This is commonly enforced by the date picker constraints.
+        </p>
+      </div>
+
+      <hr class="hr" />
+
+      <h2>6) Quick checklist</h2>
+      <div class="grid">
+        <div class="callout">
+          <div class="title">✅ Pricing logic</div>
+          <ul>
+            <li>Read <code>regularPrice</code> and <code>discount</code> from cabin data</li>
+            <li>Compute <code>numNights</code> using <code>differenceInDays</code></li>
+            <li>Compute <code>cabinPrice = numNights * (regularPrice - discount)</code></li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <div class="title">✅ Date disabling</div>
+          <ul>
+            <li>Disable past dates using <code>isPast</code></li>
+            <li>Disable booked dates using <code>bookedDates.some(...isSameDay)</code></li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <div class="title">✅ Prevent overlapping selection display</div>
+          <ul>
+            <li>Create <code>displayRange</code></li>
+            <li>If <code>isAlreadyBooked(range, bookedDates)</code> is true → show empty range</li>
+            <li>Use <code>displayRange</code> for nights/price + date picker selection</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>7) Mini “spot-check” questions (self-test)</h2>
+      <ol>
+        <li>
+          Why is <code>includes()</code> unreliable for checking if a date is booked?
+          <div class="callout soft">
+            <div class="title">Answer</div>
+            <p>
+              Because dates may not be identical by reference and can vary in time components/format. Use <code>isSameDay()</code> to compare by calendar day.
+            </p>
+          </div>
+        </li>
+        <li>
+          Why do we need Context for the date range?
+          <div class="callout soft">
+            <div class="title">Answer</div>
+            <p>
+              Because multiple components (Date Selector and Reservation Form) must read the same selected range without refetching or duplicating state.
+            </p>
+          </div>
+        </li>
+        <li>
+          What is the purpose of <code>displayRange</code>?
+          <div class="callout soft">
+            <div class="title">Answer</div>
+            <p>
+              It prevents rendering an invalid selection for a cabin when the shared context range overlaps that cabin’s booked dates.
+            </p>
+          </div>
+        </li>
+      </ol>
+
+      <hr class="hr" />
+
+      <section class="callout soft">
+        <div class="title">🚀 What’s next</div>
+        <p>
+          With the Date Selector complete, the next lecture finishes the <strong>Reservation Form</strong> so users can finally reserve a cabin end-to-end.
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

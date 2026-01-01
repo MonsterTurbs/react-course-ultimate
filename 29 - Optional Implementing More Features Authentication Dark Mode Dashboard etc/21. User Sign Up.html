@@ -1,0 +1,407 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React + Supabase — User Sign Up (Study Guide)</title>
+  <style>
+    /* =========================
+       Print-friendly A4 Styling
+       ========================= */
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --soft2: #f4f6f8;
+      --codebg: #0b1020;
+      --codetext: #e9eefc;
+      --accent: #1a73e8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px 44px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    section {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 16.5px;
+    }
+
+    h3 {
+      margin: 12px 0 6px;
+      font-size: 14.5px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol { margin: 8px 0 8px 22px; }
+    li { margin: 5px 0; }
+
+    .callout {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+    }
+
+    .callout strong { color: #000; }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 860px) {
+      .grid2 { grid-template-columns: 1fr 1fr; }
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow: auto;
+      border: 1px solid #101a36;
+      font-size: 12.5px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .mini-quiz {
+      border-left: 4px solid var(--accent);
+      padding-left: 12px;
+    }
+
+    .muted { color: var(--muted); }
+
+    /* =========================
+       Print Rules
+       ========================= */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🔐 User Sign Up (React + Supabase) — Reviewer / Study Guide</h1>
+      <p class="subtitle">
+        Topic focus: signing up users via <strong>Supabase Auth</strong>, wiring it to a <strong>React Hook Form</strong> signup form,
+        and handling <strong>email verification</strong> + UX improvements.
+      </p>
+      <div class="meta">
+        <span class="chip">✅ Beginner-friendly</span>
+        <span class="chip">🧩 React Query mutations</span>
+        <span class="chip">🧪 Temp email testing</span>
+        <span class="chip">🖨️ A4 Print-ready</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What you’re building</h2>
+      <p>
+        You already built a <strong>Signup Form</strong>. Now you will connect it to Supabase so admins/employees can create
+        new users inside the app (not a public “anyone can signup” flow).
+      </p>
+      <ul>
+        <li>Users are created in <strong>Supabase Auth</strong> (not in a normal SQL table).</li>
+        <li>Signup is triggered from a <strong>Users page</strong> (employees-only workflow).</li>
+        <li>After signup, show a success toast + reset the form.</li>
+        <li>Enable <strong>Confirm email</strong> later so users must verify before they can login.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Key idea:</strong> Signup, Login, Logout are all <strong>mutations</strong> in React Query because they change
+        state on the server (authentication state/session).
+      </div>
+    </section>
+
+    <section>
+      <h2>🧱 Step-by-step implementation</h2>
+
+      <h3>1) Create the API function: <code>signUp()</code> (apiAuth.js)</h3>
+      <p class="muted">Goal: call Supabase Auth signup and attach optional user metadata.</p>
+      <pre><code>// services/apiAuth.js
+import supabase from "./supabase";
+
+export async function signUp({ fullName, email, password }) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        fullName,
+        avatar: "", // placeholder; you’ll upload avatar later
+      },
+    },
+  });
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+</code></pre>
+
+      <div class="callout">
+        <strong>Why add <code>options.data</code>?</strong> So you can store extra profile fields (like <code>fullName</code>, <code>avatar</code>)
+        together with the auth user.
+      </div>
+
+      <h3>2) Create React Query hook: <code>useSignup()</code></h3>
+      <p class="muted">Goal: wrap signup in a mutation and handle success UI.</p>
+      <pre><code>// features/authentication/useSignup.js
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { signUp as signUpApi } from "../../services/apiAuth";
+
+export function useSignup() {
+  const { mutate: signUp, isLoading } = useMutation({
+    mutationFn: ({ fullName, email, password }) =>
+      signUpApi({ fullName, email, password }),
+
+    onSuccess: () => {
+      toast.success("Account successfully created. Please verify the account from the user's email address.");
+    },
+
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+
+  return { signUp, isLoading };
+}
+</code></pre>
+
+      <h3>3) Wire it to the form submit handler</h3>
+      <p class="muted">Goal: take validated form values and call <code>signUp</code>, then reset.</p>
+      <pre><code>// features/authentication/SignupForm.jsx (inside your component)
+import { useForm } from "react-hook-form";
+import { useSignup } from "./useSignup";
+
+const { register, handleSubmit, reset, formState: { errors } } = useForm();
+const { signUp, isLoading } = useSignup();
+
+function onSubmit({ fullName, email, password }) {
+  signUp(
+    { fullName, email, password },
+    {
+      onSettled: () => reset(),
+    }
+  );
+}
+</code></pre>
+
+      <div class="callout">
+        <strong>Why <code>onSettled</code>?</strong> It runs on success or error, so you can reset the form consistently.
+        If you prefer resetting only on success, use <code>onSuccess</code>.
+      </div>
+
+      <h3>4) Add UX: disable inputs/buttons while creating user</h3>
+      <pre><code>// Example usage in inputs/buttons
+&lt;input disabled={isLoading} ... /&gt;
+&lt;button disabled={isLoading}&gt;Create user&lt;/button&gt;
+&lt;button type="reset" disabled={isLoading}&gt;Reset&lt;/button&gt;
+</code></pre>
+
+      <div class="callout">
+        <strong>Tip:</strong> A <em>loading indicator</em> is optional but recommended so users know the request is in progress.
+      </div>
+    </section>
+
+    <section>
+      <h2>📧 Email confirmation (Supabase settings)</h2>
+      <p>
+        For development, you can temporarily turn <strong>Confirm email</strong> off so users can immediately login.
+        Later, re-enable it for realistic production behavior.
+      </p>
+
+      <div class="grid2">
+        <div class="callout">
+          <strong>When Confirm Email is ON:</strong>
+          <ul>
+            <li>User appears in Supabase Auth but is <em>waiting for verification</em>.</li>
+            <li>Login won’t work until the user clicks the email confirmation link.</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <strong>Critical config:</strong>
+          <ul>
+            <li>Set the correct <em>Site URL</em> (your app URL).</li>
+            <li>Add a <em>Redirect URL</em> so verification link returns to your app.</li>
+            <li>Update these after deployment (production domain).</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>🧪 Testing verification with temp email</h3>
+      <ul>
+        <li>Use a temporary mailbox service (e.g., “temp mail”) to receive the confirmation email.</li>
+        <li>Open the email → click verify → you should land back on your app URL.</li>
+        <li>After verification, user can login normally.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Security mindset:</strong> Email verification prevents fake/invalid accounts in real deployments.
+      </div>
+    </section>
+
+    <section>
+      <h2>🐛 Common issues & fixes</h2>
+
+      <h3>1) “Cannot read properties of null …” after signup</h3>
+      <ul>
+        <li>Usually caused by trying to read a property before data exists.</li>
+        <li>Double-check where you call <code>reset()</code> and that your code does not assume non-null values prematurely.</li>
+        <li>If you render something from mutation data, make it conditional.</li>
+      </ul>
+
+      <h3>2) Supabase “Confirm email” keeps turning back on</h3>
+      <ul>
+        <li>In Supabase dashboard, changes often need an explicit <strong>Save</strong>.</li>
+      </ul>
+
+      <h3>3) Form reset strategy</h3>
+      <div class="grid2">
+        <div class="callout">
+          <strong>Option A: React Hook Form reset</strong>
+          <p class="muted">Best when you want full control via code.</p>
+          <pre><code>signUp(data, { onSettled: () =&gt; reset() });</code></pre>
+        </div>
+        <div class="callout">
+          <strong>Option B: Native HTML reset button</strong>
+          <p class="muted">Simple: <code>&lt;button type="reset"&gt;</code> resets inputs automatically.</p>
+          <pre><code>&lt;button type="reset"&gt;Reset&lt;/button&gt;</code></pre>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3>4) UX: don’t auto-login after signup (in this app)</h3>
+      <p>
+        In a public signup app, you might auto-login and redirect to the dashboard.
+        Here, signup is employee-driven, so it’s fine to just show a success message.
+      </p>
+    </section>
+
+    <section>
+      <h2>🧠 Mini reviewer: key concepts you should remember</h2>
+      <div class="mini-quiz">
+        <h3>Quick checks ✅</h3>
+        <ol>
+          <li><strong>Why is signup a mutation?</strong> Because it changes server-side auth/session state.</li>
+          <li><strong>Where do you store extra user fields like fullName?</strong> In <code>options.data</code> during <code>signUp()</code>.</li>
+          <li><strong>Why enable confirm email in production?</strong> To require verification before login.</li>
+          <li><strong>Why disable inputs while loading?</strong> Prevent duplicate submissions and improve UX.</li>
+        </ol>
+      </div>
+
+      <div class="callout">
+        <strong>Next step in the course:</strong> Lock down Supabase tables using <strong>Row Level Security (RLS)</strong>
+        so only authenticated users can read/write resources.
+      </div>
+    </section>
+
+    <section>
+      <h2>📚 Glossary</h2>
+      <ul>
+        <li><strong>Supabase Auth</strong> — Supabase module for users, sessions, login/logout/signup.</li>
+        <li><strong>Email verification</strong> — user confirms ownership of email via a link.</li>
+        <li><strong>Mutation (React Query)</strong> — operation that changes data on the server.</li>
+        <li><strong>RLS (Row Level Security)</strong> — database rules controlling who can access rows.</li>
+      </ul>
+      <p class="muted">End of reviewer.</p>
+    </section>
+  </main>
+</body>
+</html>

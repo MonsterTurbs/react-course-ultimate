@@ -1,0 +1,493 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js + Tailwind CSS — Styling Setup (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f8f9fb;
+      --accent:#0b57d0;
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+      --ok:#0f7b2d;
+      --warn:#8a5b00;
+    }
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 56px;
+    }
+    header{
+      border:1px solid var(--border);
+      background:linear-gradient(180deg, #ffffff 0%, var(--soft) 100%);
+      padding:18px 18px 14px;
+      border-radius:14px;
+    }
+    h1{margin:0 0 6px; font-size: 22px; letter-spacing: .2px;}
+    .subtitle{margin:0; color:var(--muted); font-size: 13.5px;}
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--border);
+      background:#fff;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12.5px;
+      color:var(--muted);
+    }
+    .chip b{color:var(--text); font-weight:700;}
+
+    nav{
+      margin: 16px 0 0;
+      padding: 12px 12px;
+      background:#fff;
+      border:1px dashed var(--border);
+      border-radius:12px;
+    }
+    nav .toc-title{font-weight:700; margin:0 0 8px; font-size: 13.5px;}
+    nav ol{margin:0; padding-left: 18px;}
+    nav li{margin: 4px 0;}
+    nav a{color: var(--accent); text-decoration:none;}
+
+    h2{
+      margin: 22px 0 10px;
+      font-size: 16.5px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    h3{margin: 14px 0 8px; font-size: 14.5px;}
+    p{margin: 8px 0;}
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+    .callout .title{font-weight:700; margin:0 0 6px;}
+    .callout ul{margin: 6px 0 0; padding-left: 18px;}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background:#fff;
+    }
+    .card .kicker{font-size:12.5px; color:var(--muted); margin:0 0 6px;}
+    .card .headline{margin:0 0 8px; font-weight:700;}
+
+    .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border:1px solid var(--border);
+      background:#fff;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12.5px;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border: 1px solid rgba(255,255,255,.12);
+      overflow:auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+    .inline-code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+
+    .checklist{list-style:none; padding-left:0; margin: 8px 0;}
+    .checklist li{margin: 6px 0; padding-left: 26px; position:relative;}
+    .checklist li::before{content:"✅"; position:absolute; left:0; top:0;}
+
+    .warn{border-left: 4px solid var(--warn);}
+    .ok{border-left: 4px solid var(--ok);}
+
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    .table th, .table td{
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+    .table th{background: var(--soft); text-align:left;}
+
+    footer{
+      margin-top: 26px;
+      color: var(--muted);
+      font-size: 12.5px;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+
+    /* Print settings (A4, single-column, no cut-off) */
+    @page{
+      size: A4;
+      margin: 14mm;
+    }
+    @media print{
+      body{background:#fff;}
+      .page{max-width:none; padding:0;}
+      header, nav, .card, .callout{break-inside: avoid; page-break-inside: avoid;}
+      a{color: var(--text); text-decoration:none;}
+      pre{break-inside: avoid; page-break-inside: avoid;}
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🎨 Next.js + Tailwind CSS — Styling Setup</h1>
+      <p class="subtitle">Reviewer / study guide (beginner-friendly) based on the lecture transcript. Designed for clean A4 printing.</p>
+      <div class="meta">
+        <span class="chip">📦 <b>Topic</b>: Tailwind setup in Next.js</span>
+        <span class="chip">🧩 <b>Focus</b>: app router + global styling</span>
+        <span class="chip">🧠 <b>Goal</b>: understand “what to do” and “why”</span>
+      </div>
+
+      <nav aria-label="Table of contents">
+        <p class="toc-title">🧭 Table of Contents</p>
+        <ol>
+          <li><a href="#big-picture">Big picture: what you’re doing</a></li>
+          <li><a href="#activate">Step 1 — Activate Tailwind (import globals.css)</a></li>
+          <li><a href="#tailwind-basics">Step 2 — Quick Tailwind mental model</a></li>
+          <li><a href="#vscode">Step 3 — VS Code IntelliSense (autocomplete)</a></li>
+          <li><a href="#custom-colors">Step 4 — Customize theme colors in tailwind.config.js</a></li>
+          <li><a href="#alternatives">Alternatives: CSS Modules, styled-components</a></li>
+          <li><a href="#icons">Finish — Install Heroicons</a></li>
+          <li><a href="#mini-quiz">Mini quiz + checks</a></li>
+        </ol>
+      </nav>
+    </header>
+
+    <section id="big-picture">
+      <h2>🧩 Big picture: what you’re doing</h2>
+      <p>
+        In a Next.js project created with <span class="inline-code">create-next-app</span>, Tailwind can be installed automatically.
+        But even if Tailwind is installed, you still need to <b>import the generated CSS file</b> so Tailwind’s styles become active.
+      </p>
+
+      <div class="callout ok">
+        <p class="title">✅ Key idea</p>
+        <p>
+          Tailwind becomes “active” when your app loads the file that contains Tailwind’s directives (usually <span class="inline-code">globals.css</span>).
+        </p>
+      </div>
+
+      <div class="card">
+        <p class="kicker">What you already have (from create-next-app)</p>
+        <p class="headline">Tailwind is installed + config files exist</p>
+        <ul class="checklist">
+          <li><span class="inline-code">tailwind.config.js</span> exists</li>
+          <li><span class="inline-code">globals.css</span> contains Tailwind directives</li>
+          <li>You can style via utility classes like <span class="inline-code">bg-blue-800</span>, <span class="inline-code">min-h-screen</span>, etc.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="activate">
+      <h2>⚡ Step 1 — Activate Tailwind (import globals.css)</h2>
+      <p>
+        Tailwind typically generates a global stylesheet that contains these 3 directives:
+      </p>
+      <pre><code>@tailwind base;
+@tailwind components;
+@tailwind utilities;</code></pre>
+
+      <p>
+        To activate Tailwind, import that global CSS file somewhere that is guaranteed to load for the entire app.
+        In the App Router, the best place is the <b>root layout</b> (<span class="inline-code">app/layout.js</span>).
+      </p>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Common beginner confusion</p>
+        <ul>
+          <li>“Tailwind is installed but nothing changes” → usually you forgot to import <span class="inline-code">globals.css</span>.</li>
+          <li>Custom CSS in <span class="inline-code">globals.css</span> can break things if it has invalid rules. Comment out suspicious blocks to isolate issues.</li>
+        </ul>
+      </div>
+
+      <h3>Example import (with alias)</h3>
+      <p>
+        If your project uses an import alias where <span class="inline-code">@</span> maps to the project root (common in Next.js), the import might look like:
+      </p>
+      <pre><code>// app/layout.js
+import "@/app/_styles/globals.css";
+
+export default function RootLayout({ children }) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body&gt;
+        {children}
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+
+      <p>
+        After this, you should immediately see default Tailwind base styling (and any Tailwind classes inside your components will start working).
+      </p>
+    </section>
+
+    <section id="tailwind-basics">
+      <h2>🧠 Step 2 — Quick Tailwind mental model</h2>
+      <div class="grid">
+        <div class="card">
+          <p class="kicker">Concept</p>
+          <p class="headline">Tailwind = utility classes</p>
+          <p>
+            Instead of writing custom CSS selectors, you apply small “utility” classes directly in JSX via <span class="inline-code">className</span>.
+          </p>
+        </div>
+        <div class="card">
+          <p class="kicker">Why people like it</p>
+          <p class="headline">Fast styling + consistent scale</p>
+          <p>
+            Tailwind uses a predefined spacing and size scale. Example: <span class="inline-code">gap-4</span> corresponds to <span class="inline-code">1rem</span> (16px).
+          </p>
+        </div>
+      </div>
+
+      <h3>Example: styling the body</h3>
+      <pre><code>// app/layout.js
+export default function RootLayout({ children }) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body className="min-h-screen bg-blue-800 text-gray-50"&gt;
+        {children}
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+
+      <p>
+        Notes:
+      </p>
+      <ul>
+        <li><span class="inline-code">bg-blue-800</span> sets background color.</li>
+        <li><span class="inline-code">text-gray-50</span> sets text color.</li>
+        <li><span class="inline-code">min-h-screen</span> ensures the body covers the full viewport height.</li>
+      </ul>
+    </section>
+
+    <section id="vscode">
+      <h2>🧩 Step 3 — VS Code IntelliSense (autocomplete)</h2>
+      <p>
+        Tailwind class autocomplete is not built-in by default. It usually comes from a VS Code extension.
+      </p>
+      <div class="callout ok">
+        <p class="title">✅ Recommended</p>
+        <p>
+          Install the <b>Tailwind CSS IntelliSense</b> extension so you get:
+        </p>
+        <ul>
+          <li>Autocomplete for classes (e.g., typing <span class="inline-code">bg-</span> shows options)</li>
+          <li>Hover previews that show generated CSS</li>
+          <li>Linting for invalid class names</li>
+        </ul>
+      </div>
+
+      <p>
+        Tip: This is optional, but it reduces mistakes and speeds up styling.
+      </p>
+    </section>
+
+    <section id="custom-colors">
+      <h2>🎛️ Step 4 — Customize theme colors in tailwind.config.js</h2>
+      <p>
+        Tailwind ships with default colors (blue, gray, etc.). For a real project, you often want <b>brand colors</b>.
+        The lecture uses a <span class="inline-code">colors.json</span> from starter files, then copies those values into <span class="inline-code">tailwind.config.js</span> under <span class="inline-code">theme.extend</span>.
+      </p>
+
+      <h3>What “extend” means</h3>
+      <p>
+        <b>Extend</b> adds new tokens (like <span class="inline-code">primary</span>, <span class="inline-code">accent</span>) while keeping Tailwind defaults.
+        You avoid replacing Tailwind’s entire color palette unless you really want to.
+      </p>
+
+      <h3>Example config snippet</h3>
+      <pre><code>// tailwind.config.js
+module.exports = {
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50: "#eef2ff",
+          100: "#e0e7ff",
+          200: "#c7d2fe",
+          300: "#a5b4fc",
+          400: "#818cf8",
+          500: "#6366f1",
+          600: "#4f46e5",
+          700: "#4338ca",
+          800: "#3730a3",
+          900: "#312e81",
+          950: "#1e1b4b"
+        },
+        accent: {
+          50: "#fff7ed",
+          100: "#ffedd5",
+          200: "#fed7aa",
+          300: "#fdba74",
+          400: "#fb923c",
+          500: "#f97316",
+          600: "#ea580c",
+          700: "#c2410c",
+          800: "#9a3412",
+          900: "#7c2d12",
+          950: "#431407"
+        }
+      }
+    }
+  },
+  plugins: [],
+};</code></pre>
+
+      <h3>Using your new colors</h3>
+      <pre><code>// app/layout.js
+&lt;body className="min-h-screen bg-primary-950 text-primary-50"&gt;
+  {children}
+&lt;/body&gt;</code></pre>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Debug note (realistic dev workflow)</p>
+        <p>
+          If you paste theme config and suddenly get weird errors: don’t panic.
+          Comment out suspicious CSS blocks (e.g., in <span class="inline-code">globals.css</span>) and re-check your object braces in <span class="inline-code">tailwind.config.js</span>.
+          Small syntax mistakes can cause confusing editor errors.
+        </p>
+      </div>
+    </section>
+
+    <section id="alternatives">
+      <h2>🧪 Alternatives: CSS Modules, styled-components</h2>
+      <table class="table" aria-label="Styling alternatives">
+        <thead>
+          <tr>
+            <th>Option</th>
+            <th>What it is</th>
+            <th>When it’s a good fit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Tailwind CSS</b></td>
+            <td>Utility-first classes inside <span class="inline-code">className</span></td>
+            <td>Fast UI iteration, consistent spacing/colors, team conventions</td>
+          </tr>
+          <tr>
+            <td><b>CSS Modules</b></td>
+            <td>Scoped CSS files (e.g., <span class="inline-code">Button.module.css</span>)</td>
+            <td>Prefer “classic CSS”, want automatic scoping per component</td>
+          </tr>
+          <tr>
+            <td><b>styled-components</b></td>
+            <td>CSS-in-JS with styled primitives</td>
+            <td>You already have a mature styled-components codebase and patterns</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        In the course, Tailwind is chosen because it’s popular, integrates easily with Next.js, and the project provides most styles already.
+      </p>
+    </section>
+
+    <section id="icons">
+      <h2>🧷 Finish — Install Heroicons</h2>
+      <p>
+        The lecture installs an icon library maintained by the Tailwind team.
+      </p>
+      <pre><code>npm install @heroicons/react</code></pre>
+
+      <div class="callout ok">
+        <p class="title">✅ Why this matters</p>
+        <ul>
+          <li>Icons become simple React components</li>
+          <li>Easy to style with Tailwind classes</li>
+          <li>Good default set for UI elements (buttons, nav, status, etc.)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="mini-quiz">
+      <h2>📝 Mini quiz + checks</h2>
+      <h3>Quick questions</h3>
+      <ol>
+        <li>Why does Tailwind “not work” sometimes even if it’s installed?</li>
+        <li>Where is the best place to import <span class="inline-code">globals.css</span> in the App Router?</li>
+        <li>What does <span class="inline-code">extend</span> do inside <span class="inline-code">tailwind.config.js</span>?</li>
+        <li>What VS Code tool helps you autocomplete Tailwind classes?</li>
+      </ol>
+
+      <h3>Practical checklist</h3>
+      <ul class="checklist">
+        <li><span class="inline-code">globals.css</span> contains Tailwind directives</li>
+        <li><span class="inline-code">globals.css</span> is imported in <span class="inline-code">app/layout.js</span></li>
+        <li>Tailwind classes apply (try <span class="inline-code">bg-blue-800</span>)</li>
+        <li>Custom colors work (try <span class="inline-code">bg-primary-950</span>)</li>
+        <li><span class="inline-code">@heroicons/react</span> installed for icons</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>
+        End of reviewer: <b>Styling With Tailwind CSS</b>. Next topic mentioned in the lecture: metadata + favicon setup.
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

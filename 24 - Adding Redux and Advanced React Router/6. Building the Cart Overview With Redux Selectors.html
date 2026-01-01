@@ -1,0 +1,414 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redux Selectors — Cart Overview (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f7f7f9;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 36px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout strong { color: var(--text); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 860px) {
+      .two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 18mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      pre { overflow: visible; white-space: pre-wrap; word-break: break-word; }
+      .chip { border-color: #dcdcdc; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧠 Redux Selectors — Building the Cart Overview</h1>
+      <p class="subtitle">Beginner-friendly reviewer based on the lecture transcript: computing cart quantity + total price using Redux selector functions.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Redux Selectors</span>
+        <span class="chip">🧩 Hooks: <code>useSelector</code></span>
+        <span class="chip">🧮 Array helper: <code>reduce</code></span>
+        <span class="chip">✅ Best practice: derive data in selectors</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 Goal of this lesson</h2>
+        <p>
+          You will build a <strong>Cart Overview</strong> component that reads data from the Redux store and then
+          <strong>derives</strong> two values:
+        </p>
+        <ul>
+          <li>🍕 <strong>Total quantity</strong> of pizzas in the cart</li>
+          <li>💰 <strong>Total price</strong> of all items in the cart</li>
+        </ul>
+        <p>
+          The key idea is to compute these values <strong>inside selector functions</strong>, not directly in the component.
+        </p>
+      </section>
+
+      <section>
+        <h2>🧩 Key concepts (in simple terms)</h2>
+        <div class="two-col">
+          <div class="callout">
+            <p><strong>🔎 What is a selector?</strong></p>
+            <p>
+              A <strong>selector</strong> is a function that takes the Redux <code>state</code> and returns the exact value your UI needs.
+              Sometimes that value is stored directly; other times you compute it (derived data).
+            </p>
+          </div>
+          <div class="callout">
+            <p><strong>🧠 Why compute inside selectors?</strong></p>
+            <ul>
+              <li>✅ Keeps components simpler (components focus on UI)</li>
+              <li>✅ Reusable logic (multiple components can reuse the same selector)</li>
+              <li>✅ Consistent results (one “source of truth” for derived values)</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>🪝 <code>useSelector</code> refresher</h3>
+        <p>
+          <code>useSelector</code> calls your selector function and gives your component the selected value.
+          It looks like this:
+        </p>
+        <pre><code>import { useSelector } from "react-redux";
+
+const value = useSelector((state) =&gt; state.someSlice.someValue);
+</code></pre>
+      </section>
+
+      <section>
+        <h2>🧱 Step-by-step: Derive total cart quantity</h2>
+        <p>
+          In the lecture, the cart array lives at <code>state.cart.cart</code>.
+          The double <code>cart</code> happens because:
+        </p>
+        <ul>
+          <li>the slice is named <code>cart</code> → <code>state.cart</code></li>
+          <li>inside that slice, the array is also named <code>cart</code> → <code>state.cart.cart</code></li>
+        </ul>
+
+        <h3>🍕 Computing quantity with <code>reduce</code></h3>
+        <p>
+          <code>reduce</code> loops through the array and builds one final value (here: a total).
+        </p>
+        <pre><code>// In a component (first approach, works but not ideal):
+const totalCartQuantity = useSelector((state) =&gt;
+  state.cart.cart.reduce((sum, item) =&gt; sum + item.quantity, 0)
+);
+</code></pre>
+
+        <div class="callout">
+          <p><strong>🧠 What is happening here?</strong></p>
+          <ul>
+            <li><code>sum</code> starts at <code>0</code></li>
+            <li>for each <code>item</code>, we add <code>item.quantity</code> to <code>sum</code></li>
+            <li>result = total number of pizzas in the cart</li>
+          </ul>
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>✅ Recommended approach: move selector into the slice file</h3>
+        <p>
+          Redux commonly recommends putting selectors near the slice (often in the slice file), so you can reuse them.
+          Naming convention: start with <code>get...</code>.
+        </p>
+
+        <pre><code>// cartSlice.js (or wherever your cart slice is defined)
+export const getTotalCartQuantity = (state) =&gt;
+  state.cart.cart.reduce((sum, item) =&gt; sum + item.quantity, 0);
+</code></pre>
+
+        <p>Then your component becomes cleaner:</p>
+        <pre><code>// CartOverview.jsx
+import { useSelector } from "react-redux";
+import { getTotalCartQuantity } from "./cartSlice";
+
+const totalCartQuantity = useSelector(getTotalCartQuantity);
+</code></pre>
+      </section>
+
+      <section>
+        <h2>💰 Step-by-step: Derive total cart price</h2>
+        <p>
+          You build a second selector to compute total price. In the transcript, each item has something like
+          <code>item.totalPrice</code> (the exact property name may vary in your codebase).
+        </p>
+
+        <pre><code>// cartSlice.js
+export const getTotalCartPrice = (state) =&gt;
+  state.cart.cart.reduce((sum, item) =&gt; sum + item.totalPrice, 0);
+</code></pre>
+
+        <p>Then use it in the component:</p>
+        <pre><code>// CartOverview.jsx
+import { useSelector } from "react-redux";
+import { getTotalCartQuantity, getTotalCartPrice } from "./cartSlice";
+import { formatCurrency } from "../utils/helpers";
+
+const totalCartQuantity = useSelector(getTotalCartQuantity);
+const totalCartPrice = useSelector(getTotalCartPrice);
+
+// Example render:
+return (
+  &lt;div&gt;
+    &lt;span&gt;🍕 {totalCartQuantity}&lt;/span&gt;
+    &lt;span&gt;💰 {formatCurrency(totalCartPrice)}&lt;/span&gt;
+  &lt;/div&gt;
+);
+</code></pre>
+
+        <div class="callout">
+          <p><strong>🧾 Formatting money</strong></p>
+          <p>
+            A helper like <code>formatCurrency</code> keeps the UI neat (e.g., <code>₱1,234.00</code> or <code>$12.34</code>),
+            without mixing formatting logic into your component.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🚫 Conditional rendering: hide the Cart Overview when empty</h2>
+        <p>
+          If the cart has no items, it often looks odd to show a cart overview.
+          A simple pattern is to return <code>null</code> when the derived quantity is zero.
+        </p>
+
+        <pre><code>// CartOverview.jsx
+const totalCartQuantity = useSelector(getTotalCartQuantity);
+
+if (!totalCartQuantity) return null;
+
+return (
+  &lt;div&gt;
+    {/* ...cart overview UI... */}
+  &lt;/div&gt;
+);
+</code></pre>
+
+        <div class="callout">
+          <p><strong>✅ Result</strong></p>
+          <ul>
+            <li>When cart is empty: Cart Overview is hidden</li>
+            <li>When user adds first pizza: Cart Overview appears automatically</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>⚙️ Performance note: why “Reselect” is mentioned</h2>
+        <p>
+          The lecture notes that selectors like the ones above can become a performance issue in bigger apps.
+          That’s because “derived calculations” may run more often than you expect.
+        </p>
+        <div class="callout">
+          <p><strong>🧠 What is the common solution?</strong></p>
+          <p>
+            The <strong>Reselect</strong> library helps by creating <strong>memoized selectors</strong> (cached results), so expensive computations
+            re-run only when inputs change.
+          </p>
+          <p><strong>📌 For now:</strong> This is optional. Learn the pattern first; optimize later when needed.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧯 Common mistakes and quick fixes</h2>
+        <ul>
+          <li>
+            ❌ <strong>Wrong state path</strong>: If <code>state.cart.cart</code> errors, confirm your slice name and the property name.
+            <div class="callout"><strong>Fix:</strong> Check your store setup and slice initial state shape.</div>
+          </li>
+          <li>
+            ❌ <strong>Wrong field name</strong>: You used <code>item.totalprice</code> but your code uses <code>totalPrice</code> (or vice versa).
+            <div class="callout"><strong>Fix:</strong> Inspect an item in Redux DevTools and match the exact property name.</div>
+          </li>
+          <li>
+            ❌ <strong>Doing computations in many components</strong>: duplicate reduce logic everywhere.
+            <div class="callout"><strong>Fix:</strong> move logic into exported selectors inside the slice file.</div>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Mini-quiz (for retention)</h2>
+        <ol>
+          <li>Why is it considered good practice to compute derived values inside selector functions?</li>
+          <li>What does <code>reduce</code> do in one sentence?</li>
+          <li>What does <code>if (!totalCartQuantity) return null;</code> achieve in the UI?</li>
+          <li>When would you consider using Reselect?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🛠️ Practice task (recommended)</h2>
+        <p>Try implementing these selectors in your own project:</p>
+        <ul>
+          <li>🧾 <strong>getCartItemCount</strong>: number of distinct items (array length)</li>
+          <li>🍕 <strong>getTotalCartQuantity</strong>: sum of all quantities</li>
+          <li>💰 <strong>getTotalCartPrice</strong>: sum of total price</li>
+        </ul>
+        <div class="callout">
+          <p><strong>Tip:</strong> Use Redux DevTools to verify the shape of the state and each cart item.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 Transcript summary (quick recap)</h2>
+        <ul>
+          <li>🔎 Use <code>useSelector</code> to read from the Redux store</li>
+          <li>🧮 Use <code>reduce</code> to compute quantity and price from the cart array</li>
+          <li>✅ Move selector logic into the cart slice and export it (reuse + cleaner components)</li>
+          <li>🙈 Hide the cart overview when empty by returning <code>null</code></li>
+          <li>⚙️ For large apps, consider memoized selectors with Reselect</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

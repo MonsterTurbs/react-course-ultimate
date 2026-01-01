@@ -1,0 +1,434 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Query — Mutations (Deleting a Cabin) | Study Guide</title>
+  <style>
+    /* ==============================
+       Print-friendly, single-column
+       ============================== */
+
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --soft2: #f6f7f9;
+      --accent: #1a73e8;
+      --accent2: #0b57d0;
+      --ok: #137333;
+      --warn: #b06000;
+      --bad: #b3261e;
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, sans-serif;
+
+      --fs-1: 22px;
+      --fs-2: 16px;
+      --fs-3: 14px;
+      --lh: 1.55;
+
+      --r: 12px;
+      --r-sm: 10px;
+
+      --pad: 16px;
+      --pad-sm: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      line-height: var(--lh);
+      overflow-wrap: anywhere; /* prevents cut-off in print */
+      word-break: break-word;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px;
+      background: linear-gradient(180deg, var(--soft) 0%, #fff 100%);
+    }
+
+    h1 {
+      font-size: var(--fs-1);
+      margin: 0 0 6px 0;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: var(--fs-3);
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 12.5px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px;
+      background: #fff;
+      margin: 14px 0;
+    }
+
+    h2 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+      letter-spacing: -0.15px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 15.5px;
+      letter-spacing: -0.1px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 0 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-radius: var(--r-sm);
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      margin: 10px 0;
+    }
+
+    .callout strong { color: var(--text); }
+
+    .callout.ok { border-color: rgba(19,115,51,.25); background: rgba(19,115,51,.06); }
+    .callout.warn { border-color: rgba(176,96,0,.25); background: rgba(176,96,0,.08); }
+    .callout.bad { border-color: rgba(179,38,30,.25); background: rgba(179,38,30,.07); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kpi {
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 12px;
+      background: #fff;
+    }
+
+    .kpi .label { color: var(--muted); font-size: 12.5px; }
+    .kpi .value { font-weight: 700; margin-top: 4px; }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      background: #fff;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: 12.6px;
+      line-height: 1.45;
+      white-space: pre;
+    }
+
+    code {
+      font-family: var(--mono);
+      font-size: 0.95em;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 8px;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .small { font-size: var(--fs-3); color: var(--muted); }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { box-shadow: none !important; }
+      pre, .callout, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>⚡ React Query Mutations — Deleting a Cabin (Supabase)</h1>
+      <p class="subtitle">Reviewer / Study Guide — beginner-friendly explanation + practical steps (single-column, A4 print-ready)</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: <strong>useMutation</strong> + cache invalidation</span>
+        <span class="chip">🧠 Goal: delete server data and auto-update UI</span>
+        <span class="chip">🧩 Stack: React Query + Supabase</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🗺️ What you’re building in this lesson</h2>
+        <div class="grid">
+          <div class="kpi">
+            <div class="label">Mutation (server update)</div>
+            <div class="value">Delete a cabin row in Supabase</div>
+          </div>
+          <div class="kpi">
+            <div class="label">UI behavior</div>
+            <div class="value">After delete → UI re-renders automatically</div>
+          </div>
+          <div class="kpi">
+            <div class="label">How UI updates</div>
+            <div class="value">Invalidate cached “cabins” query → refetch</div>
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>Key idea:</strong> <span>Fetching uses <code>useQuery</code>, but changing server data uses <code>useMutation</code>.</span> ✅
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Quick mental model</h2>
+        <ul>
+          <li>📥 <strong>Query</strong> = “Get data” → cached by a <strong>queryKey</strong> (example: <code>["cabins"]</code>).</li>
+          <li>✍️ <strong>Mutation</strong> = “Change data” (create/update/delete).</li>
+          <li>♻️ After a mutation, your UI might still show old cached data.</li>
+          <li>✅ Fix: <strong>invalidate</strong> the relevant query so React Query refetches fresh data.</li>
+        </ul>
+
+        <div class="callout ok">
+          <strong>Why invalidate?</strong> Because “cabins” list in cache is now outdated after deletion, so we mark it invalid and refetch. 🔄
+        </div>
+      </section>
+
+      <section>
+        <h2>1) 🧰 Create a delete API function (Supabase service)</h2>
+        <p>Create a service function (example: <code>apiCabins.js</code>) that deletes a cabin by <code>id</code>.</p>
+
+        <div class="callout warn">
+          <strong>Reminder:</strong> This will NOT work unless Supabase Row Level Security (RLS) policies allow <em>DELETE</em>. 🔐
+        </div>
+
+        <h3>✅ Example: <code>deleteCabin(id)</code></h3>
+        <pre><code>// services/apiCabins.js
+import supabase from "./supabase";
+
+export async function deleteCabin(id) {
+  const { data, error } = await supabase
+    .from("cabins")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    throw new Error("Cabin could not be deleted");
+  }
+
+  return data;
+}
+</code></pre>
+
+        <div class="callout">
+          <strong>What this does:</strong>
+          <ul>
+            <li>🧭 Targets the <code>cabins</code> table</li>
+            <li>🗑️ Performs a delete</li>
+            <li>🎯 Deletes only the row where <code>id</code> matches</li>
+            <li>🚨 Throws an error so React Query can handle it via <code>onError</code></li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) 🔐 Enable DELETE in Supabase policies (RLS)</h2>
+        <p>If RLS is enabled, your <code>anon</code> key can only do what your policies allow.</p>
+
+        <h3>✅ What to do (Supabase UI)</h3>
+        <ul>
+          <li>Go to <strong>Authentication</strong> → <strong>Policies</strong></li>
+          <li>Pick table: <strong>cabins</strong></li>
+          <li>Create a policy for <strong>DELETE</strong></li>
+          <li>For now (during learning), allow delete for everyone</li>
+          <li>Later (real app), restrict to authenticated users only</li>
+        </ul>
+
+        <div class="callout bad">
+          <strong>Security note:</strong> “Allow delete for everyone” is only for demo/dev. In production, limit it to authenticated/authorized users. 🛡️
+        </div>
+      </section>
+
+      <section>
+        <h2>3) 🧨 Use <code>useMutation</code> in the UI (CabinRow)</h2>
+        <p>The delete button lives inside each row. We’ll connect it to a mutation.</p>
+
+        <h3>✅ Basic mutation setup</h3>
+        <pre><code>import { useMutation } from "@tanstack/react-query";
+import { deleteCabin } from "../../services/apiCabins";
+
+function CabinRow({ cabin }) {
+  const { id: cabinId } = cabin;
+
+  const { mutate, isLoading } = useMutation({
+    mutationFn: deleteCabin,
+  });
+
+  return (
+    &lt;button disabled={isLoading} onClick={() =&gt; mutate(cabinId)}&gt;
+      Delete
+    &lt;/button&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout">
+          <strong>What’s happening?</strong>
+          <ul>
+            <li>🧪 <code>mutationFn</code> is the function React Query calls</li>
+            <li>🎛️ <code>mutate(value)</code> triggers the mutation</li>
+            <li>⛔ <code>isLoading</code> can disable the button while deleting</li>
+          </ul>
+        </div>
+
+        <div class="callout warn">
+          <strong>Important:</strong> At this point deletion works, but the UI might not update because cached “cabins” list is still the old data. 👀
+        </div>
+      </section>
+
+      <section>
+        <h2>4) ♻️ Auto-update the UI by invalidating the cache</h2>
+        <p>After delete succeeds, invalidate the <code>["cabins"]</code> query so React Query refetches the list.</p>
+
+        <h3>✅ Use <code>useQueryClient()</code> + <code>invalidateQueries()</code></h3>
+        <pre><code>import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteCabin } from "../../services/apiCabins";
+
+function CabinRow({ cabin }) {
+  const queryClient = useQueryClient();
+  const { id: cabinId } = cabin;
+
+  const { mutate, isLoading: isDeleting } = useMutation({
+    mutationFn: deleteCabin,
+    onSuccess: () =&gt; {
+      queryClient.invalidateQueries({ queryKey: ["cabins"] });
+    },
+  });
+
+  return (
+    &lt;button disabled={isDeleting} onClick={() =&gt; mutate(cabinId)}&gt;
+      Delete
+    &lt;/button&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout ok">
+          <strong>Result:</strong> Click “Delete” → Supabase deletes row → React Query invalidates “cabins” → list refetches → deleted cabin disappears. ✅
+        </div>
+
+        <div class="callout warn">
+          <strong>Common bug:</strong> queryKey mismatch. If your fetch query uses <code>["cabin"]</code> but you invalidate <code>["cabins"]</code>, nothing updates. Make sure keys match exactly. 🧩
+        </div>
+      </section>
+
+      <section>
+        <h2>5) 🚨 Handle success and error (basic)</h2>
+        <p>You can react to mutation results using <code>onSuccess</code> and <code>onError</code>.</p>
+
+        <h3>✅ Example: show simple alerts (temporary)</h3>
+        <pre><code>const { mutate, isLoading: isDeleting } = useMutation({
+  mutationFn: deleteCabin,
+  onSuccess: () =&gt; {
+    alert("Cabin successfully deleted");
+    queryClient.invalidateQueries({ queryKey: ["cabins"] });
+  },
+  onError: (err) =&gt; {
+    alert(err.message);
+  },
+});
+</code></pre>
+
+        <div class="callout">
+          <strong>Real-world note:</strong> Alerts are usually replaced with toast notifications (more user-friendly). 🛎️
+        </div>
+      </section>
+
+      <section>
+        <h2>6) 🧩 Why React Query may show repeated errors</h2>
+        <p>If an API call fails, React Query often retries automatically. That’s why you might see repeated error logs.</p>
+
+        <div class="callout warn">
+          <strong>Why retries are useful:</strong> Sometimes the network/API problem disappears quickly. Retrying can recover without forcing the user to refresh. 🌐
+        </div>
+      </section>
+
+      <section>
+        <h2>✅ Quick checklist (print-friendly)</h2>
+        <ul>
+          <li>🧰 Have <code>deleteCabin(id)</code> in your Supabase service</li>
+          <li>🔐 Supabase policy allows <strong>DELETE</strong> on <code>cabins</code></li>
+          <li>🧨 UI uses <code>useMutation</code> and calls <code>mutate(cabinId)</code></li>
+          <li>♻️ <code>onSuccess</code> invalidates <code>["cabins"]</code></li>
+          <li>🧩 Query key matches exactly between <code>useQuery</code> and <code>invalidateQueries</code></li>
+        </ul>
+
+        <div class="hr"></div>
+        <p class="small">Next lesson direction: replace alerts with real notifications (toast) and later extract mutation logic into a custom hook for cleaner components. 🧼</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

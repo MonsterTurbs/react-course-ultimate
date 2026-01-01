@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Query — Duplicating Cabins (Reviewer / Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #0b57d0;
+      --chip: #f3f4f6;
+      --ok: #0f766e;
+      --warn: #b45309;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      hyphens: auto;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 16px 16px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      margin: 14px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+    ul { margin: 8px 0 8px 22px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #f7fbff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      color: #0f172a;
+    }
+
+    .callout.ok { border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn { border-left-color: var(--warn); background: #fff7ed; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #e5e7eb;
+      border-radius: 12px;
+      border: 1px solid #10183a;
+      overflow: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print rules (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      section, header { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Do NOT print URLs after links */
+      a[href]::after { content: "" !important; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🏨 React Query — Duplicating Cabins</h1>
+      <p class="subtitle">Reviewer / Study Guide (print-friendly, single-column, A4-ready)</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: CRUD + Duplicate (Create via existing row)</span>
+        <span class="chip">🧠 Focus: Reuse Custom Hooks + Centralized onSuccess</span>
+        <span class="chip">🧩 Tools: React Query v4, Supabase, React Icons</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 What you’re building</h2>
+        <p>
+          A <b>Duplicate Cabin</b> feature: in each cabin row, add a new action button that creates a
+          <b>new cabin record</b> with the <b>same data</b> as the current cabin (but with a modified name like
+          <span class="kbd">Copy of …</span>).
+        </p>
+        <div class="callout ok">
+          ✅ Key idea: <b>Duplication is just “Create”</b> using the current cabin as the template.
+          Since you already extracted <b>useCreateCabin</b>, implementing duplication becomes very fast.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧱 UI changes (CabinRow actions)</h2>
+        <p>Instead of text buttons, switch to icons for cleaner action buttons:</p>
+        <ul>
+          <li>📚 Duplicate: <span class="kbd">HiSquare2Stack</span></li>
+          <li>✏️ Edit: <span class="kbd">HiPencil</span></li>
+          <li>🗑️ Delete: <span class="kbd">HiTrash</span></li>
+        </ul>
+        <div class="callout">
+          💡 Styling is temporary: later you’ll replace these with a nicer UI (e.g., context menu / “three dots” actions).
+        </div>
+      </section>
+
+      <section>
+        <h2>🔁 Implementing “Duplicate” using <code>useCreateCabin</code></h2>
+        <p>
+          You already have a custom hook that wraps <code>useMutation</code> for cabin creation.
+          So in <b>CabinRow</b>, you simply:
+        </p>
+        <ol>
+          <li>Call the hook: <code>useCreateCabin()</code></li>
+          <li>Build a new cabin payload using the current cabin’s fields</li>
+          <li>Call <code>createCabin(newCabinPayload)</code> on click</li>
+        </ol>
+
+        <h3>✅ Example: handleDuplicate</h3>
+        <pre><code>// CabinRow.jsx (conceptual)
+import { HiSquare2Stack, HiPencil, HiTrash } from "react-icons/hi2";
+import { useCreateCabin } from "./useCreateCabin";
+
+function CabinRow({ cabin }) {
+  const { name, maxCapacity, regularPrice, discount, image, description } = cabin;
+
+  // IMPORTANT: call the hook (don’t forget the parentheses)
+  const { isCreating, createCabin } = useCreateCabin();
+
+  function handleDuplicate() {
+    createCabin({
+      name: `Copy of ${name}`,
+      maxCapacity,
+      regularPrice,
+      discount,
+      image,
+      description,
+    });
+  }
+
+  return (
+    &lt;&gt;
+      {/* ...row layout... */}
+      &lt;button onClick={handleDuplicate} disabled={isCreating} aria-label="Duplicate"&gt;
+        &lt;HiSquare2Stack /&gt;
+      &lt;/button&gt;
+
+      &lt;button aria-label="Edit"&gt;
+        &lt;HiPencil /&gt;
+      &lt;/button&gt;
+
+      &lt;button aria-label="Delete"&gt;
+        &lt;HiTrash /&gt;
+      &lt;/button&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout warn">
+          ⚠️ Common bug: <b>“createCabin is not a function”</b>
+          <ul>
+            <li>Cause: you destructured from the hook <b>without calling it</b>.</li>
+            <li>Fix: make sure you do <code>useCreateCabin()</code>, not just <code>useCreateCabin</code>.</li>
+          </ul>
+        </div>
+
+        <div class="callout ok">
+          ✅ Nice benefit: the toast + query invalidation live inside <b>useCreateCabin</b>.
+          So duplication automatically gets the same “success behavior” without extra code.
+        </div>
+      </section>
+
+      <section>
+        <h2>🛠️ Service fix: don’t re-upload if the image is already a URL</h2>
+        <p>
+          When duplicating a cabin, the existing cabin may already have an <b>image URL</b> stored.
+          In that case, your create function should <b>not</b> attempt a new upload.
+        </p>
+
+        <h3>✅ Early return when <code>hasImagePath</code> is true</h3>
+        <pre><code>// apiCabins.js (conceptual)
+export async function createEditCabin(newCabin, id) {
+  // ...build query, create/update cabin row...
+  const hasImagePath = newCabin.image?.startsWith(supabaseUrl);
+
+  // If image is already a Supabase URL, keep it and STOP here.
+  if (hasImagePath) return data;
+
+  // Otherwise upload the new file to the bucket
+  const imageName = `${Math.random()}-${newCabin.image.name}`.replaceAll("/", "");
+
+  const { error: storageError } = await supabase.storage
+    .from("cabin-images")
+    .upload(imageName, newCabin.image);
+
+  if (storageError) {
+    // optional: rollback by deleting the cabin row
+    // ...
+    throw new Error("Cabin image could not be uploaded");
+  }
+
+  return data;
+}
+</code></pre>
+
+        <div class="callout">
+          🧠 Why this matters: duplication often reuses the existing image URL.
+          If you upload again unnecessarily, you risk duplicates in storage and extra network cost.
+        </div>
+      </section>
+
+      <section>
+        <h2>✅ UX improvement: disable the duplicate button while creating</h2>
+        <p>
+          Use the mutation loading state from <code>useCreateCabin</code> to avoid double-click duplicates.
+        </p>
+        <ul>
+          <li>🔒 Disable button: <code>disabled={isCreating}</code></li>
+          <li>🧾 User feedback: toast appears automatically (centralized in the hook)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧪 Quick walkthrough test</h2>
+        <ol>
+          <li>Click duplicate icon on a cabin row → expect a new row <span class="kbd">Copy of …</span></li>
+          <li>Confirm toast notification appears</li>
+          <li>Confirm the list refreshes automatically (query invalidation)</li>
+          <li>Edit the duplicated cabin to quickly create a new cabin variant (e.g., rename to <span class="kbd">007</span> and upload a new image)</li>
+        </ol>
+        <div class="callout ok">
+          ✨ This is why “custom hooks + React Query” is powerful:
+          once your mutations are centralized, new features (like duplication) become almost “plug and play.”
+        </div>
+      </section>
+
+      <section>
+        <h2>🧾 Mini-summary (what to remember)</h2>
+        <div class="two">
+          <div>
+            <h3>Core idea</h3>
+            <ul>
+              <li>🔁 Duplicate = <b>Create</b> using existing cabin data</li>
+              <li>🧩 Reuse <code>useCreateCabin()</code> for consistent behavior</li>
+              <li>🔔 Toasts + invalidation are centralized in the hook</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Common pitfalls</h3>
+            <ul>
+              <li>❌ Forgetting to call the hook: <code>useCreateCabin</code> vs <code>useCreateCabin()</code></li>
+              <li>📦 Re-uploading an image when it’s already a URL → fix with <code>hasImagePath</code> early return</li>
+              <li>🖱️ Double-click duplicates → disable while creating</li>
+            </ul>
+          </div>
+        </div>
+        <div class="hr"></div>
+        <p class="small">Next lesson direction: move from Cabins CRUD to working with <b>Settings</b> data.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

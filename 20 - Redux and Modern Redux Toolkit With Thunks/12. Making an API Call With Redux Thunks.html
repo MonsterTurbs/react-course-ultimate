@@ -1,0 +1,407 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redux Thunks — Making an API Call (Currency Conversion) | Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b1020;
+      --codeText:#e8eefc;
+      --accent:#1a73e8;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 42px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff 0%, var(--panel) 100%);
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+    }
+
+    h1{
+      font-size: 1.45rem;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: .98rem;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:#fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: .88rem;
+      color: var(--muted);
+    }
+
+    section{
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+      padding: 16px 18px;
+    }
+
+    h2{
+      font-size: 1.1rem;
+      margin: 0 0 10px;
+    }
+
+    h3{
+      font-size: 1rem;
+      margin: 14px 0 8px;
+    }
+
+    p{ margin: 0 0 10px; }
+
+    ul{ margin: 0 0 10px 18px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 10px 0;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .note{
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #f6f9ff;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .warn{
+      border-left: 4px solid #b45309;
+      padding: 10px 12px;
+      background: #fff7ed;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    code, pre{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      border-radius: 12px;
+      background: var(--code);
+      color: var(--codeText);
+      overflow:auto;
+      border: 1px solid #111827;
+      font-size: .9rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .kbd{ border:1px solid var(--border); background:#fff; border-bottom-width:2px; padding:2px 6px; border-radius:6px; font-size:.88em; }
+
+    .hr{ height:1px; background:var(--border); margin: 12px 0; }
+
+    /* Print rules */
+    @media print{
+      @page{ size: A4; margin: 16mm; }
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: unset; margin:0; padding:0; }
+      header, section{ border: 1px solid #cfcfcf; box-shadow:none; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]:after{ content: ""; } /* do not print URLs */
+      .chip{ background:#fff; }
+      pre{ overflow: visible; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🌍 Redux Thunks — Making an API Call (Foreign Currency Deposit)</h1>
+      <p class="sub">Reviewer / study guide (beginner-friendly) — how to use <strong>redux-thunk</strong> to convert foreign currency via an API <em>before</em> depositing into a Redux store.</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Redux Middleware + Thunks</span>
+        <span class="chip">⚙️ Goal: Deposit in EUR/GBP → convert to USD</span>
+        <span class="chip">⏳ UX: Loading indicator while converting</span>
+        <span class="chip">📦 Pattern: Async logic inside action creator (Thunk)</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>✅ What you are building</h2>
+      <p>
+        A feature where the user can <strong>deposit money in a foreign currency</strong> (like EUR or GBP), and your app will:
+      </p>
+      <ul>
+        <li>Detect the selected currency.</li>
+        <li>If it’s already <strong>USD</strong>, deposit immediately.</li>
+        <li>If it’s <strong>not USD</strong>, call a currency conversion API.</li>
+        <li>After the API returns the converted value, <strong>dispatch the real deposit action</strong> using the converted USD amount.</li>
+      </ul>
+
+      <div class="note">
+        💡 Key idea: With Thunks, an “action creator” can return a <strong>function</strong> (not an object). Redux Thunk intercepts that function and executes it, giving you <code>dispatch</code> (and <code>getState</code>) so you can do async work.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Mental model: Where Thunk sits in the Redux cycle</h2>
+      <div class="callout">
+        <p><strong>Normal Redux:</strong> Component → <code>dispatch(actionObject)</code> → Reducer → Store updates → UI re-renders</p>
+        <p><strong>With Thunk middleware:</strong> Component → <code>dispatch(function)</code> → <strong>Thunk runs</strong> (async API call) → <code>dispatch(actionObject)</code> → Reducer → Store → UI</p>
+      </div>
+
+      <p>
+        Think of Thunk as a “gate” 🚧 that can <strong>pause</strong> the action until you have the data needed (like converted currency).
+      </p>
+    </section>
+
+    <section>
+      <h2>🛠️ Step-by-step setup (3 steps)</h2>
+      <h3>1) Install redux-thunk</h3>
+      <pre>npm install redux-thunk</pre>
+
+      <h3>2) Apply middleware to the store</h3>
+      <p>
+        When creating the store, pass <code>applyMiddleware(thunk)</code> as an additional argument.
+      </p>
+      <pre>// store.js (classic Redux)
+import { createStore, combineReducers, applyMiddleware } from "redux";
+import thunk from "redux-thunk";
+
+import accountReducer from "./features/accounts/accountSlice";
+import customerReducer from "./features/customers/customerSlice";
+
+const rootReducer = combineReducers({
+  account: accountReducer,
+  customer: customerReducer,
+});
+
+const store = createStore(rootReducer, applyMiddleware(thunk));
+export default store;
+</pre>
+
+      <h3>3) Use the middleware in an action creator (Thunk action creator)</h3>
+      <p>
+        Instead of returning an action object immediately, return a function that performs the async work.
+      </p>
+    </section>
+
+    <section>
+      <h2>🧪 The core feature: deposit(amount, currency)</h2>
+
+      <h3>Case A — Currency is already USD ✅</h3>
+      <p>
+        No API call. The action creator returns a normal action object.
+      </p>
+      <pre>// accountSlice.js (conceptual)
+export function deposit(amount) {
+  return {
+    type: "account/deposit",
+    payload: amount,
+  };
+}
+</pre>
+
+      <h3>Case B — Currency is NOT USD 🌍 (Thunk needed)</h3>
+      <p>
+        The action creator returns a function. That function performs the API call and later dispatches the real deposit action.
+      </p>
+
+      <pre>// accountSlice.js (Thunk version — simplified to match the lecture)
+
+// 1) Optional helper action
+function convertingCurrency() {
+  return { type: "account/convertingCurrency" };
+}
+
+// 2) Main action creator
+export function deposit(amount, currency) {
+  // If already USD: sync action (no thunk)
+  if (currency === "USD") {
+    return { type: "account/deposit", payload: amount };
+  }
+
+  // Otherwise: return a thunk function
+  return async function (dispatch, getState) {
+    // Tell UI: we are doing async work
+    dispatch(convertingCurrency());
+
+    // Call external API to convert to USD
+    const res = await fetch(
+      `https://api.frankfurter.app/latest?amount=${amount}&from=${currency}&to=USD`
+    );
+    const data = await res.json();
+
+    const converted = data.rates.USD;
+
+    // Finally dispatch the real deposit
+    dispatch({ type: "account/deposit", payload: converted });
+  };
+}
+</pre>
+
+      <div class="warn">
+        ⚠️ Important: In the Thunk case, you are effectively doing “two dispatches”:
+        <ul>
+          <li>Dispatch #1: <code>account/convertingCurrency</code> → sets <code>isLoading = true</code></li>
+          <li>Dispatch #2: <code>account/deposit</code> (with converted USD) → updates balance and sets <code>isLoading = false</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>⏳ Loading state: isLoading</h2>
+      <p>
+        Add <code>isLoading</code> to the account slice so the UI can disable the button and show “Converting…”.
+      </p>
+
+      <pre>// accountSlice.js (initial state idea)
+const initialState = {
+  balance: 0,
+  loan: 0,
+  loanPurpose: "",
+  isLoading: false,
+};
+</pre>
+
+      <pre>// accountReducer.js (switch cases idea)
+export default function accountReducer(state = initialState, action) {
+  switch (action.type) {
+    case "account/convertingCurrency":
+      return { ...state, isLoading: true };
+
+    case "account/deposit":
+      return {
+        ...state,
+        balance: state.balance + action.payload,
+        isLoading: false,
+      };
+
+    // ... other cases
+
+    default:
+      return state;
+  }
+}
+</pre>
+
+      <div class="note">
+        ✅ Clean trick: You do <strong>not</strong> need a separate “finished converting” action. Just set <code>isLoading: false</code> inside the <code>account/deposit</code> reducer case.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧱 Component usage: stays clean</h2>
+      <p>
+        The component only dispatches <code>deposit(amount, currency)</code>. It does not care whether conversion happens.
+      </p>
+
+      <pre>// AccountOperations.jsx (conceptual)
+import { useDispatch, useSelector } from "react-redux";
+import { deposit } from "./accountSlice";
+
+function AccountOperations() {
+  const dispatch = useDispatch();
+  const { isLoading } = useSelector((store) => store.account);
+
+  function handleDeposit() {
+    // guard clause: if no amount, do nothing
+    // dispatch(deposit(depositAmount, currency))
+  }
+
+  return (
+    <button disabled={isLoading} onClick={handleDeposit}>
+      {isLoading ? "Converting..." : "Deposit"}
+    </button>
+  );
+}
+</pre>
+
+      <div class="callout">
+        🧼 Main benefit: The async conversion logic is <strong>encapsulated</strong> in the Redux “account slice” (central place), not scattered across UI components.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 What to remember (exam-style bullets)</h2>
+      <ul>
+        <li>🧩 Middleware runs <strong>between</strong> dispatching an action and the reducer receiving it.</li>
+        <li>🧵 Redux Thunk allows dispatching <strong>functions</strong> instead of only action objects.</li>
+        <li>🧪 A thunk function receives <code>dispatch</code> and <code>getState</code>.</li>
+        <li>⏳ Use thunks to delay dispatching until async work finishes (e.g., API call returns data).</li>
+        <li>🧼 Keep components clean: UI dispatches one high-level intent (deposit), Redux handles details (conversion + loading state).</li>
+      </ul>
+
+      <div class="hr"></div>
+
+      <h3>Common gotchas 🤯</h3>
+      <ul>
+        <li>Don’t put async code in reducers (reducers must be pure).</li>
+        <li>If you dispatch a thunk, make sure thunk middleware is applied; otherwise dispatch expects only plain objects.</li>
+        <li>Loading UI might be too fast to notice; use Network throttling to confirm behavior.</li>
+        <li>Some browsers block audio or certain actions before user interaction (different topic, but similar “side-effect rules”).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📝 Quick mini-review questions</h2>
+      <ol>
+        <li>Why can’t you fetch currency conversion inside a reducer?</li>
+        <li>What exactly does a thunk action creator return in the async case?</li>
+        <li>What two arguments does the thunk function receive?</li>
+        <li>Why is it useful to keep conversion logic inside Redux instead of the component?</li>
+      </ol>
+
+      <div class="note">
+        ✅ If you can explain these in your own words, you understand the lecture.
+      </div>
+    </section>
+  </main>
+</body>
+</html>

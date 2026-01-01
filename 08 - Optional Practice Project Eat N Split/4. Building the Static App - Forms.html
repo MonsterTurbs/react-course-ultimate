@@ -1,0 +1,346 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eat-N-Split — Building the Static App (Forms) | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      padding: 16px 0 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--chip);
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    main { padding-bottom: 28px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px 12px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 8px 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      background: var(--soft);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 6px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 10px 12px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      white-space: pre-wrap;      /* key for printing */
+      word-break: break-word;     /* prevent cut-off */
+      font-size: 12px;
+      line-height: 1.45;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 10px 0;
+    }
+
+    /* Print settings */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Don’t show URLs after links when printing */
+      a[href]::after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Eat-N-Split — Building the Static App (Forms)</h1>
+      <p class="subtitle">Reviewer / study guide: building the two forms + reusable Button component (static UI first, state later).</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Thinking in React (UI → components)</span>
+        <span class="chip">🧩 Focus: Forms + reuse</span>
+        <span class="chip">🖨️ A4 Print-ready</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) Goal of this lecture 🧭</h2>
+        <p>We already built <strong>2 out of 4 components</strong>. Next, we build the remaining <strong>two forms</strong> (still <em>static</em>—no state yet):</p>
+        <ul>
+          <li>👥 <strong>FormAddFriend</strong> — small form at the bottom (add friend name + image URL)</li>
+          <li>💸 <strong>FormSplitBill</strong> — main form (bill amount + expenses + who pays)</li>
+        </ul>
+        <div class="callout">
+          <p><strong>Key idea ✅</strong>: Build the UI first (static version). Add <code>state</code> and behavior later.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) FormAddFriend (static UI) 👥➕</h2>
+        <p>This component renders a <code>&lt;form&gt;</code> with:</p>
+        <ul>
+          <li>👤 Friend name (text input)</li>
+          <li>🖼️ Image URL (text input)</li>
+          <li>🔘 Add button</li>
+        </ul>
+
+        <h3>Structure (what you build)</h3>
+        <pre><code>function FormAddFriend() {
+  return (
+    &lt;form className="form-add-friend"&gt;
+      &lt;label&gt;👥 Friend name&lt;/label&gt;
+      &lt;input type="text" /&gt;
+
+      &lt;label&gt;🖼️ Image URL&lt;/label&gt;
+      &lt;input type="text" /&gt;
+
+      &lt;Button&gt;Add&lt;/Button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          <p><strong>Beginner note 📝</strong>: At this stage, inputs are not yet “controlled.” That means the UI can accept typing, but React state is not connected to the inputs <em>yet</em>. Later you will add <code>useState</code> and <code>value/onChange</code>.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) Reusable Button component (using <code>children</code>) 🔘🧩</h2>
+        <p>Since the UI uses the same styled button multiple times, you create a reusable <code>Button</code> component.</p>
+
+        <h3>Why use <code>children</code>? 🤔</h3>
+        <ul>
+          <li>So you can write <code>&lt;Button&gt;Select&lt;/Button&gt;</code> or <code>&lt;Button&gt;Add Friend&lt;/Button&gt;</code> easily.</li>
+          <li>The button component doesn’t need to know the exact text/JSX ahead of time.</li>
+        </ul>
+
+        <h3>Button component skeleton</h3>
+        <pre><code>function Button({ children }) {
+  return (
+    &lt;button className="button"&gt;
+      {children}
+    &lt;/button&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          <p><strong>Memory trick 🧠</strong>: <code>children</code> = “whatever is inside the opening and closing tag.”</p>
+          <p>Example: <code>&lt;Button&gt;Add&lt;/Button&gt;</code> → children is <code>"Add"</code></p>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) “Add Friend” toggle button (static placement) 👇</h2>
+        <p>Even before making the form dynamic (open/close), you still place an <strong>Add Friend</strong> button in the sidebar.</p>
+        <ul>
+          <li>Later, clicking it will toggle the visibility of <code>FormAddFriend</code>.</li>
+          <li>For now, you just render the button in the correct spot.</li>
+        </ul>
+
+        <pre><code>&lt;div className="sidebar"&gt;
+  &lt;FriendsList /&gt;
+
+  &lt;Button&gt;Add Friend&lt;/Button&gt;
+
+  &lt;FormAddFriend /&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+
+      <section>
+        <h2>5) FormSplitBill (static UI) 💸</h2>
+        <p>This is the main form on the right side. It will eventually receive the selected friend as a prop (so you can show their name).</p>
+
+        <h3>Fields and behavior (static now, logic later)</h3>
+        <ul>
+          <li>💰 Bill value</li>
+          <li>🧾 Your expense</li>
+          <li>👥 Friend’s expense (disabled input)</li>
+          <li>💳 Who is paying? (select with 2 options: you / friend)</li>
+          <li>🔘 Split bill button</li>
+        </ul>
+
+        <h3>Important UI detail: disabled friend expense 🚫</h3>
+        <p>The friend’s expense input is <strong>disabled</strong> because it should be calculated as:</p>
+        <p><code>friendExpense = bill - yourExpense</code></p>
+        <p>If users could edit both fields, the totals might not add up.</p>
+
+        <pre><code>function FormSplitBill() {
+  return (
+    &lt;form className="form-split-bill"&gt;
+      &lt;h2&gt;Split a bill with X&lt;/h2&gt;
+
+      &lt;label&gt;💰 Bill value&lt;/label&gt;
+      &lt;input type="text" /&gt;
+
+      &lt;label&gt;🧾 Your expense&lt;/label&gt;
+      &lt;input type="text" /&gt;
+
+      &lt;label&gt;👥 X's expense&lt;/label&gt;
+      &lt;input type="text" disabled /&gt;
+
+      &lt;label&gt;💳 Who is paying the bill?&lt;/label&gt;
+      &lt;select&gt;
+        &lt;option value="user"&gt;You&lt;/option&gt;
+        &lt;option value="friend"&gt;X&lt;/option&gt;
+      &lt;/select&gt;
+
+      &lt;Button&gt;Split bill&lt;/Button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+        <div class="callout">
+          <p><strong>Beginner reminder ✅</strong>: Right now, these inputs are still “static UI.” Later you will connect them to state via <code>value</code> and <code>onChange</code> to make them controlled components.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>6) What happens next? (State is coming) ⚙️</h2>
+        <p>After finishing the static UI, you will start adding dynamics using state:</p>
+        <ul>
+          <li>🧠 Select a friend from the list</li>
+          <li>🔁 Show/hide <code>FormAddFriend</code> using a toggle state</li>
+          <li>🧾 Control input fields (bill + expenses) using <code>useState</code></li>
+          <li>🧮 Derive friend expense (disabled input) from other values</li>
+        </ul>
+
+        <div class="hr"></div>
+        <p><strong>Quick self-check ✅</strong></p>
+        <ul>
+          <li>Can you explain why we build static UI first before state?</li>
+          <li>Can you explain why the friend expense input is disabled?</li>
+          <li>Can you explain what <code>children</code> means in the Button component?</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>7) Mini-cheatsheet 🧾</h2>
+        <ul>
+          <li>🧩 Reusable component → extract repeated JSX into a component.</li>
+          <li>🔘 Reusable Button → <code>{children}</code> for flexible button text/JSX.</li>
+          <li>🚫 Disable input → use <code>disabled</code> attribute for computed fields.</li>
+          <li>🧠 Static first → then add <code>useState</code> and events.</li>
+        </ul>
+        <p class="callout"><strong>Tip 💡</strong>: When you start adding state, keep asking: “What changes over time?” That usually becomes state.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,492 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Rest & Spread Operator (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 20px 44px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .muted { color: var(--muted); }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-right: 6px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th { background: var(--soft); }
+
+    /* Screen links are fine, but never print URLs */
+    a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+      section { break-inside: avoid; page-break-inside: avoid; }
+      .toolbar { display: none !important; }
+
+      /* Don’t print any URL after links */
+      a[href]:after { content: "" !important; }
+
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>➕ Rest & Spread Operator ( ... ) — Reviewer / Study Guide</h1>
+      <p class="subtitle">Same three dots, different jobs: Rest collects values; Spread expands values. Extremely important for React state updates. A4 print-ready.</p>
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Single-column, word-wrapped, designed for clean A4 printing (no URLs printed).</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Table of Contents</strong>
+        <ol>
+          <li><a href="#big-idea">The big idea: rest vs spread</a></li>
+          <li><a href="#rest">Rest operator in array destructuring</a></li>
+          <li><a href="#spread-arrays">Spread operator with arrays</a></li>
+          <li><a href="#spread-objects">Spread operator with objects</a></li>
+          <li><a href="#override">Overriding (updating) properties correctly</a></li>
+          <li><a href="#react">Why this matters in React (immutability)</a></li>
+          <li><a href="#mistakes">Common mistakes & fixes</a></li>
+          <li><a href="#practice">Practice drills</a></li>
+          <li><a href="#self-check">Quick self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="big-idea">
+      <h2>🧠 The big idea: Rest vs Spread</h2>
+      <p>
+        Both use the same syntax: <strong>three dots</strong> <code>...</code>.
+        The meaning depends on the context.
+      </p>
+
+      <table aria-label="Rest vs Spread">
+        <thead>
+          <tr>
+            <th>Operator</th>
+            <th>What it does</th>
+            <th>How to remember</th>
+            <th>Typical place</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Rest</strong> <code>...</code></td>
+            <td><strong>Collects</strong> remaining values into an array/object</td>
+            <td>"Rest" = the <em>rest</em> of the items 🧺</td>
+            <td>Destructuring (left side)</td>
+          </tr>
+          <tr>
+            <td><strong>Spread</strong> <code>...</code></td>
+            <td><strong>Expands</strong> values from an array/object</td>
+            <td>"Spread" = spread items out 🫳</td>
+            <td>Creating arrays/objects (right side)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <p><strong>One-liner</strong> ✅</p>
+        <p class="muted">Rest gathers. Spread scatters.</p>
+      </div>
+    </section>
+
+    <section id="rest">
+      <h2>🧺 Rest operator in array destructuring</h2>
+      <p>
+        In the previous lecture, we destructured the first two genres from an array:
+      </p>
+      <pre><code>const [primaryGenre, secondaryGenre] = genres;</code></pre>
+
+      <p>
+        Now if we also want <em>all remaining genres</em> in another array, we use <strong>rest</strong>:
+      </p>
+      <pre><code>const [primaryGenre, secondaryGenre, ...otherGenres] = genres;
+
+console.log(otherGenres);
+// → [third, fourth, fifth...]</code></pre>
+
+      <div class="callout">
+        <p><strong>Rule</strong> ⚠️</p>
+        <p class="muted">The rest element must be the <strong>last</strong> element in the destructuring pattern.</p>
+        <pre><code>// ❌ Not allowed
+const [...otherGenres, last] = genres; // Error</code></pre>
+      </div>
+
+      <p class="muted">
+        If you remove <code>secondaryGenre</code>, then <code>otherGenres</code> would include it too—because “rest” means everything not already taken.
+      </p>
+    </section>
+
+    <section id="spread-arrays">
+      <h2>🫳 Spread operator with arrays</h2>
+      <p>
+        Use spread when you want to create a <strong>new array</strong> that contains all elements of an existing array, plus extras.
+      </p>
+
+      <h3>❌ The wrong approach (nested array) 🙅</h3>
+      <pre><code>// This creates: [ [allGenres...], "Epic Fantasy" ]
+const newGenres = [genres, "Epic Fantasy"]; </code></pre>
+
+      <h3>✅ The correct approach (flat list) ✅</h3>
+      <pre><code>// This creates: [allGenres..., "Epic Fantasy"]
+const newGenres = [...genres, "Epic Fantasy"]; </code></pre>
+
+      <h3>Also valid: add to the beginning 🔼</h3>
+      <pre><code>const newGenres = ["Epic Fantasy", ...genres];</code></pre>
+
+      <div class="callout">
+        <p><strong>Mental model</strong> 🧠</p>
+        <p class="muted">
+          <code>...genres</code> behaves like you typed each element one-by-one into the new array.
+        </p>
+      </div>
+    </section>
+
+    <section id="spread-objects">
+      <h2>🧱 Spread operator with objects</h2>
+      <p>
+        With objects, spread is even more important because it lets you create a new object based on an existing object and:
+      </p>
+      <ul>
+        <li>➕ add new properties</li>
+        <li>♻️ update/override existing properties</li>
+      </ul>
+
+      <h3>❌ The wrong approach (object inside object) 🙅</h3>
+      <pre><code>// Produces: { book: { ... }, moviePublicationDate: "2001-12-19" }
+const updatedBook = {
+  book,
+  moviePublicationDate: "2001-12-19",
+};</code></pre>
+
+      <h3>✅ Add a new property correctly ✅</h3>
+      <pre><code>// Produces: { ...bookProps, moviePublicationDate: "2001-12-19" }
+const updatedBook = {
+  ...book,
+  moviePublicationDate: "2001-12-19",
+};</code></pre>
+
+      <div class="callout">
+        <p><strong>Reminder</strong> 👀</p>
+        <p class="muted">
+          Spread expands the existing object’s properties into the new object.
+        </p>
+      </div>
+    </section>
+
+    <section id="override">
+      <h2>♻️ Overriding (updating) properties correctly</h2>
+      <p>
+        To update a property, you typically spread first and then override after.
+        The <strong>last</strong> property wins.
+      </p>
+
+      <pre><code>// ✅ Override pages
+const updatedBook = {
+  ...book,
+  pages: 1210,
+};</code></pre>
+
+      <div class="callout">
+        <p><strong>Order matters</strong> ⚠️</p>
+        <p class="muted">
+          If you put <code>pages: 1210</code> first, then spreading <code>...book</code> after will override it back to the original value.
+        </p>
+        <pre><code>// ❌ Wrong order (original book overrides your update)
+const updatedBook = {
+  pages: 1210,
+  ...book,
+};</code></pre>
+      </div>
+
+      <p class="muted">
+        Same rule for arrays: build a new array by spreading first, then adding/removing items as needed.
+      </p>
+    </section>
+
+    <section id="react">
+      <h2>⚛️ Why this matters in React (immutability)</h2>
+      <p>
+        In React, you usually treat state as <strong>immutable</strong>.
+        That means: you don’t mutate (change) the original array/object. You create a <strong>new</strong> one.
+      </p>
+
+      <div class="callout">
+        <p><strong>Why?</strong> ✅</p>
+        <p class="muted">
+          React often relies on reference changes (new array/object) to detect updates. Spread is a standard way to produce those new values.
+        </p>
+      </div>
+
+      <h3>Typical React patterns 🧩</h3>
+      <pre><code>// Update object state
+setUser(prev =&gt; ({
+  ...prev,
+  role: "admin",
+}));
+
+// Update array state (add an item)
+setItems(prev =&gt; [...prev, newItem]);</code></pre>
+
+      <p class="muted">You’ll use these patterns constantly once you start managing state.</p>
+    </section>
+
+    <section id="mistakes">
+      <h2>🛠️ Common mistakes & fixes</h2>
+
+      <table aria-label="Common mistakes with rest and spread">
+        <thead>
+          <tr>
+            <th>Problem</th>
+            <th>What you see</th>
+            <th>Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Using <code>[genres, "x"]</code></td>
+            <td>Nested array</td>
+            <td>Use <code>[...genres, "x"]</code></td>
+          </tr>
+          <tr>
+            <td>Using <code>{ book, newProp }</code></td>
+            <td>Object contains <code>book</code> property instead of spreading fields</td>
+            <td>Use <code>{ ...book, newProp }</code></td>
+          </tr>
+          <tr>
+            <td>Putting overrides before spread</td>
+            <td>Your update “disappears”</td>
+            <td>Spread first, override last</td>
+          </tr>
+          <tr>
+            <td>Rest not last in destructuring</td>
+            <td>Syntax error</td>
+            <td>Rest must be last element</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="practice">
+      <h2>🏋️ Practice drills</h2>
+      <ol>
+        <li>
+          <strong>Rest:</strong> Given <code>const [a, b, ...rest] = [1,2,3,4,5]</code>, what are <code>a</code>, <code>b</code>, and <code>rest</code>?
+        </li>
+        <li>
+          <strong>Spread array:</strong> Create a new array from <code>genres</code> and add <code>"Epic Fantasy"</code> to the end.
+        </li>
+        <li>
+          <strong>Spread object:</strong> Create <code>updatedBook</code> from <code>book</code> and add <code>moviePublicationDate</code>.
+        </li>
+        <li>
+          <strong>Override:</strong> Create a new object based on <code>book</code>, but set <code>pages</code> to a new value.
+        </li>
+        <li>
+          <strong>React-style challenge:</strong> Given a user object, update only one field without changing the original object.
+        </li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>Tip</strong> 💡</p>
+        <p class="muted">Use Quokka to test quickly and confirm your output instantly.</p>
+      </div>
+    </section>
+
+    <section id="self-check">
+      <h2>📝 Quick self-check</h2>
+      <ol>
+        <li>Rest collects or expands?</li>
+        <li>Spread collects or expands?</li>
+        <li>Why is <code>const x = [arr, 1]</code> usually not what you want?</li>
+        <li>When updating object properties, why do we put <code>...obj</code> first?</li>
+        <li>Why are rest/spread essential for React state updates?</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>✅ If you can answer these, you’re ready to use rest/spread confidently in React.</strong> 😄</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>
+        Reviewer generated from the provided transcript. Designed for clean A4 printing (single column, word-wrapped).
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

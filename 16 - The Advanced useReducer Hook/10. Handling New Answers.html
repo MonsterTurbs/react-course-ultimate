@@ -1,0 +1,380 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Quiz — Handling New Answers (useReducer) | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --codebg: #0b0b0b;
+      --codefg: #f2f2f2;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column print-friendly layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+      letter-spacing: 0.2px;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 5px solid #cfcfcf;
+      background: #fcfcfc;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    ul { margin: 8px 0 8px 22px; }
+    li { margin: 6px 0; }
+
+    .mini {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px;
+      border-radius: 10px;
+      overflow: auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .kbd {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+
+      /* Don’t show URLs after links when printing */
+      a[href]:after { content: "" !important; }
+
+      /* Keep headings with content */
+      h2, h3 { page-break-after: avoid; }
+      pre, .callout { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 React Quiz (useReducer) — Handling New Answers</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) — Implement <code>newAnswer</code> logic: highlight options, award points, enable “Next”.</p>
+      <div class="chip-row">
+        <span class="chip">🎯 Topic: useReducer state transitions</span>
+        <span class="chip">🧩 State: answer + points</span>
+        <span class="chip">🖱️ Event: option click → dispatch</span>
+        <span class="chip">🎨 UI: correct/wrong + selected</span>
+      </div>
+    </header>
+
+    <h2>1) Goal of this lecture</h2>
+    <p>
+      When the user clicks an option (that click is a <strong>newAnswer</strong>), the app should re-render and show three visible changes:
+    </p>
+    <ul>
+      <li>✅/❌ Show which option is <strong>correct</strong> and which is <strong>wrong</strong></li>
+      <li>🏆 Update the user’s <strong>points</strong></li>
+      <li>➡️ Reveal the <strong>Next</strong> button</li>
+    </ul>
+
+    <div class="callout">
+      <strong>💡 Rule of thumb:</strong>
+      If something must change on screen, it must come from <strong>state</strong> (or derived state). In this lecture we add:
+      <ul>
+        <li><code>answer</code> (which option index the user selected)</li>
+        <li><code>points</code> (accumulated score)</li>
+      </ul>
+    </div>
+
+    <h2>2) New state you need</h2>
+
+    <h3>2.1 <code>answer</code>: which option index was selected</h3>
+    <p>
+      We store the chosen answer as the <strong>index</strong> of the option (0, 1, 2, or 3). We start with <code>null</code> meaning “no answer yet”.
+      This is important because it helps us:
+    </p>
+    <ul>
+      <li>🎨 Know when to apply correct/wrong styling</li>
+      <li>🔒 Disable buttons after the first click</li>
+      <li>➡️ Decide when “Next” can appear</li>
+    </ul>
+
+    <h3>2.2 <code>points</code>: score that updates after each answer</h3>
+    <p>
+      Points must update when the user answers correctly. Each question has its own <code>points</code> value (e.g., 10, 20, 30…).
+    </p>
+
+    <div class="hr"></div>
+
+    <h2>3) Reducer change: add the <code>newAnswer</code> action</h2>
+    <p class="mini">We handle the state transition in one place: the reducer.</p>
+
+    <pre><code>// App.js (or wherever your reducer/initialState lives)
+
+const initialState = {
+  questions: [],
+  status: "loading",
+  index: 0,
+
+  // ✅ New in this lecture
+  answer: null,
+  points: 0,
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    // ...other cases (dataReceived, dataFailed, start, etc.)
+
+    case "newAnswer": {
+      // 1) Identify the current question from existing state
+      const question = state.questions.at(state.index);
+
+      // 2) Check if the submitted answer is correct
+      const isCorrect = action.payload === question.correctOption;
+
+      // 3) Compute next points
+      const nextPoints = isCorrect
+        ? state.points + question.points
+        : state.points;
+
+      // 4) Return next state (immutable update)
+      return {
+        ...state,
+        answer: action.payload,
+        points: nextPoints,
+      };
+    }
+
+    default:
+      throw new Error("Unknown action: " + action.type);
+  }
+}
+</code></pre>
+
+    <div class="callout">
+      <strong>✅ Why compute points inside the reducer?</strong>
+      <p class="mini">
+        Because reducers are meant to centralize state transition logic. If you compute points inside the click handler, your app logic becomes scattered.
+        Keeping it in the reducer makes state updates predictable and easier to debug.
+      </p>
+    </div>
+
+    <h2>4) Dispatching <code>newAnswer</code> from the options</h2>
+    <p>
+      The click happens inside the <strong>Options</strong> component, so that component must be able to dispatch actions.
+      That means we pass <code>dispatch</code> down via props.
+    </p>
+
+    <h3>4.1 App → Question: pass <code>dispatch</code> and <code>answer</code></h3>
+    <pre><code>// App.js (rendering the Question when status === "active")
+
+{status === "active" &amp;&amp; (
+  &lt;Question
+    question={questions[index]}
+    dispatch={dispatch}
+    answer={answer}
+  /&gt;
+)}
+</code></pre>
+
+    <h3>4.2 Question → Options: forward props (light prop drilling)</h3>
+    <pre><code>// Question.js
+
+import Options from "./Options";
+
+export default function Question({ question, dispatch, answer }) {
+  return (
+    &lt;div&gt;
+      &lt;h4&gt;{question.question}&lt;/h4&gt;
+      &lt;Options question={question} dispatch={dispatch} answer={answer} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+    <h3>4.3 Options: dispatch with option index as payload</h3>
+    <p>
+      Remember: <strong>answer = option index</strong>. Use the second argument of <code>map</code> to get the index.
+    </p>
+
+    <pre><code>// Options.js
+
+export default function Options({ question, dispatch, answer }) {
+  const hasAnswered = answer !== null;
+
+  return (
+    &lt;div className="options"&gt;
+      {question.options.map((option, i) =&gt; (
+        &lt;button
+          key={option}
+          disabled={hasAnswered}
+          onClick={() =&gt;
+            dispatch({
+              type: "newAnswer",
+              payload: i, // ✅ store selected option index
+            })
+          }
+          className={`btn btn-option
+            ${i === answer ? "answer" : ""}
+            ${
+              hasAnswered
+                ? i === question.correctOption
+                  ? "correct"
+                  : "wrong"
+                : ""
+            }`}
+        &gt;
+          {option}
+        &lt;/button&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+    <div class="callout">
+      <strong>⚠️ Common bug you just avoided:</strong>
+      <p class="mini">
+        If you apply <code>correct</code>/<code>wrong</code> classes immediately (without checking <code>hasAnswered</code>), you reveal the correct option before the user clicks.
+        Always gate the styling behind <code>answer !== null</code>.
+      </p>
+    </div>
+
+    <h2>5) UI behavior checklist (what should happen after a click)</h2>
+    <ul>
+      <li>🟦 Selected option shifts / highlights (class <code>answer</code>)</li>
+      <li>✅ Correct option becomes blue (class <code>correct</code>)</li>
+      <li>🟨 Wrong options become yellow (class <code>wrong</code>)</li>
+      <li>🔒 Buttons become disabled after first click (prop <code>disabled</code>)</li>
+      <li>🏆 Points update only if correct (reducer logic)</li>
+    </ul>
+
+    <h2>6) Mental model: what’s the data flow?</h2>
+    <pre><code>🖱️ User clicks an option button
+        ↓
+Options.js calls dispatch({ type: "newAnswer", payload: i })
+        ↓
+Reducer receives (state, action)
+        ↓
+Reducer computes next state:
+  - answer = i
+  - points = points + question.points (if correct)
+        ↓
+React re-renders UI using updated state
+</code></pre>
+
+    <h2>7) Quick self-test (for retention)</h2>
+    <div class="callout">
+      <p><strong>✅ Questions:</strong></p>
+      <ul>
+        <li>Why is <code>answer</code> initialized as <code>null</code> instead of <code>0</code>?</li>
+        <li>Where do you compute the current question inside the reducer, and why?</li>
+        <li>What breaks if you remove <code>hasAnswered</code> from the class logic?</li>
+        <li>What property in each question object controls the score? (Answer: <code>question.points</code>)</li>
+      </ul>
+      <p class="mini">Tip: If you can explain these without looking, you understood this lecture well.</p>
+    </div>
+
+    <div class="hr"></div>
+
+    <p class="mini">
+      Next lecture preview ➡️ Implement “Next” behavior (advance <code>index</code>, reset <code>answer</code>, handle end-of-quiz).
+    </p>
+  </main>
+</body>
+</html>

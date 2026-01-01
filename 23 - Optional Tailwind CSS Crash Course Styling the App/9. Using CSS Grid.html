@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tailwind CSS — Using CSS Grid (Study Guide / Reviewer)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --ink:#111111;
+      --muted:#555555;
+      --soft:#f6f7f9;
+      --border:#e6e6e6;
+      --accent:#0b57d0;
+      --ok:#0f7b3a;
+      --warn:#8a5b00;
+      --bad:#b42318;
+      --codebg:#0b1020;
+      --codeink:#e9edf5;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+      hyphens:auto;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    header{
+      border-bottom:1px solid var(--border);
+      padding-bottom:14px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      font-size: 22px;
+      margin:0 0 6px;
+      letter-spacing:.2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    h2{
+      font-size: 16px;
+      margin: 18px 0 8px;
+    }
+
+    h3{
+      font-size: 14px;
+      margin: 14px 0 6px;
+    }
+
+    p{ margin: 8px 0; }
+
+    ul{ margin: 8px 0 8px 18px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .card{
+      border:1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 10px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.bad{ border-left-color: var(--bad); }
+
+    .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding: 6px 8px;
+      border-radius: 999px;
+      font-size: 12.5px;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codeink);
+      padding: 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12.5px; }
+
+    .twoCol{
+      display:block; /* keep single-column */
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 14px 0;
+    }
+
+    .kbd{ border:1px solid var(--border); border-bottom-width:2px; padding:1px 6px; border-radius:6px; background:#fff; font-family:inherit; font-size: 12px; }
+
+    .small{ font-size: 12.8px; color: var(--muted); }
+
+    /* Print: A4, clean margins, no link URLs */
+    @page{ size: A4; margin: 14mm 14mm 16mm 14mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width:none; padding:0; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]::after{ content: "" !important; }
+      pre{ break-inside: avoid; }
+      .card, .callout{ break-inside: avoid; }
+      h2, h3{ break-after: avoid; }
+      ul{ break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧱 Tailwind CSS — Using CSS Grid (App Layout)</h1>
+      <p class="subtitle">Reviewer / Study Guide — CSS Grid utilities in Tailwind, using the app layout example (Header • Content • Cart Overview).</p>
+    </header>
+
+    <section class="card">
+      <h2>🎯 What you’re building</h2>
+      <p>The goal is to create a <strong>global app layout</strong> with <strong>three rows</strong>:</p>
+      <ul>
+        <li>⬆️ <strong>Header</strong> (top)</li>
+        <li>🧩 <strong>Main content</strong> (middle, grows to fill remaining space)</li>
+        <li>🛒 <strong>CartOverview</strong> (bottom, always visible and pushed to the bottom)</li>
+      </ul>
+      <div class="callout ok">
+        <strong>Key idea:</strong> Use Grid rows like <code>auto 1fr auto</code> so the middle area expands while header/footer stay “content-sized.” ✅
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Core concepts (Beginner-friendly)</h2>
+
+      <div class="card">
+        <h3>1) Make a grid container</h3>
+        <p>In Tailwind, turning an element into a grid container is as simple as adding:</p>
+        <pre><code>className="grid"</code></pre>
+        <p class="small">This is similar to Flexbox where you use <code>flex</code> to create a flex container.</p>
+      </div>
+
+      <div class="card">
+        <h3>2) Give the layout a full screen height</h3>
+        <p>If you want the bottom section (CartOverview) to “stick” to the bottom, the layout needs a height to work with.</p>
+        <pre><code>className="h-screen"</code></pre>
+        <ul>
+          <li><code>h-screen</code> ≈ <code>height: 100vh</code></li>
+          <li>Other common ones: <code>h-full</code>, <code>min-h-screen</code> (useful when content can exceed screen height)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>3) Define rows: equal rows vs. “auto 1fr auto”</h3>
+        <p>If you do something like:</p>
+        <pre><code>className="grid grid-rows-3"</code></pre>
+        <p>…you get <strong>3 rows of equal height</strong>, which is usually <em>not</em> what we want for an app layout.</p>
+
+        <div class="callout warn">
+          <strong>What we want:</strong> Header and footer should be <code>auto</code> (size of content), middle should be <code>1fr</code> (fills remaining space). ⚠️
+        </div>
+
+        <p>Tailwind supports “custom values” using square brackets. In grid rows, you can do:</p>
+        <pre><code>className="grid h-screen grid-rows-[auto_1fr_auto]"</code></pre>
+        <p class="small">Note: Tailwind uses underscores <code>_</code> in these arbitrary values instead of spaces.</p>
+      </div>
+
+      <div class="card">
+        <h3>4) If content is tall: allow scrolling inside the main area</h3>
+        <p>On small screens, pages can get taller than the remaining space. If the middle content grows, you don’t want the whole layout to break.</p>
+        <p>Solution: apply scrolling to the <code>&lt;main&gt;</code> area:</p>
+        <pre><code>className="overflow-scroll"</code></pre>
+        <div class="callout">
+          <strong>Mental model:</strong> Header stays fixed-height, footer stays fixed-height, and the main area becomes the “scroll container.” 🧠
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Example: AppLayout using Grid (JSX snippet)</h2>
+      <p>Here is the pattern you’re aiming for:</p>
+      <pre><code>// AppLayout.jsx
+export default function AppLayout() {
+  return (
+    &lt;div className="grid h-screen grid-rows-[auto_1fr_auto]"&gt;
+      &lt;Header /&gt;
+
+      &lt;main className="overflow-scroll"&gt;
+        &lt;Outlet /&gt;
+      &lt;/main&gt;
+
+      &lt;CartOverview /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="chips">
+        <span class="chip">🧱 <code>grid</code></span>
+        <span class="chip">🖥️ <code>h-screen</code></span>
+        <span class="chip">📐 <code>grid-rows-[auto_1fr_auto]</code></span>
+        <span class="chip">🧻 <code>overflow-scroll</code></span>
+      </div>
+    </section>
+
+    <section>
+      <h2>🎛️ Centering page content with <code>max-w</code> + <code>mx-auto</code></h2>
+      <p>Often, you want to keep forms/pages from stretching too wide on large screens. Use:</p>
+      <ul>
+        <li><code>max-w-3xl</code> → sets a maximum width (fluid design)</li>
+        <li><code>mx-auto</code> → centers horizontally (left/right margins auto)</li>
+      </ul>
+
+      <div class="card">
+        <h3>✅ Typical pattern (with wrapper)</h3>
+        <p>Sometimes, the element you want to center is inside a grid and doesn’t behave the way you expect. A common fix is to add a wrapper <code>&lt;div&gt;</code>.</p>
+        <pre><code>// Example inside a page (e.g., CreateOrder.jsx)
+export default function CreateOrder() {
+  return (
+    &lt;div&gt;
+      &lt;div className="mx-auto max-w-3xl"&gt;
+        {/* Page content here */}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+        <div class="callout warn">
+          <strong>Why a wrapper helps:</strong> Grid items sometimes size/align in ways that make centering feel “ignored.” Adding a wrapper gives you a clean block element you can reliably center. ⚠️
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Mini practice (do it fast)</h2>
+      <div class="card">
+        <h3>Task A — Grid layout</h3>
+        <ol>
+          <li>Turn the AppLayout root into a grid container.</li>
+          <li>Set full viewport height.</li>
+          <li>Use <code>auto 1fr auto</code> rows.</li>
+          <li>Make <code>&lt;main&gt;</code> scrollable.</li>
+        </ol>
+        <pre><code>grid h-screen grid-rows-[auto_1fr_auto]
+overflow-scroll</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Task B — Center a page section</h3>
+        <ol>
+          <li>Wrap your page content in a div.</li>
+          <li>Apply <code>mx-auto max-w-3xl</code>.</li>
+        </ol>
+        <pre><code>mx-auto max-w-3xl</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>📝 Quick checks (self-quiz)</h2>
+      <div class="card">
+        <ol>
+          <li>❓ What does <code>grid-rows-[auto_1fr_auto]</code> achieve?</li>
+          <li>❓ Why do we need <code>h-screen</code> (or similar) for the “footer at bottom” effect?</li>
+          <li>❓ What problem does <code>overflow-scroll</code> solve on small screens?</li>
+          <li>❓ What does <code>mx-auto</code> do and when does it work best?</li>
+        </ol>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="callout ok">
+      <strong>Summary ✅</strong>
+      <ul>
+        <li>Use Grid for app layouts: <code>grid</code> + <code>h-screen</code> + <code>grid-rows-[auto_1fr_auto]</code></li>
+        <li>Make the content area scroll: <code>overflow-scroll</code> on <code>&lt;main&gt;</code></li>
+        <li>Center page content: <code>max-w-*</code> + <code>mx-auto</code> (often via a wrapper div)</li>
+      </ul>
+    </section>
+
+    <p class="small">Tip: Keep Tailwind docs open and search quickly (e.g., “height”, “grid-template-rows”, “max-width”, “overflow”).</p>
+  </div>
+</body>
+</html>

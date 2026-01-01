@@ -1,0 +1,392 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Next.js Rendering Analysis — Static vs Dynamic (Study Guide)</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --codebg:#0b1020;
+      --codefg:#e7eefc;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, var(--panel));
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+      margin-bottom: 16px;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color:#222;
+    }
+
+    main{ margin-top: 14px; }
+
+    section{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      margin: 12px 0;
+      background:#fff;
+    }
+
+    h2{
+      margin:0 0 10px 0;
+      font-size: 16px;
+    }
+    h3{
+      margin:14px 0 8px 0;
+      font-size: 14px;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid #111;
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .two-col{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .key{
+      font-weight:700;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px 12px;
+      border-radius: 12px;
+      overflow:auto;
+      border:1px solid #1b2547;
+      white-space: pre-wrap; /* important for printing */
+      word-break: break-word;
+    }
+
+    .legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin: 10px 0 0;
+      padding:0;
+      list-style:none;
+    }
+    .legend li{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+    .dot{
+      width:12px; height:12px; border-radius:50%;
+      border:2px solid #111; background:#fff;
+      flex:0 0 auto;
+    }
+    .lambda{
+      font-weight: 800;
+      border:2px solid #111;
+      width:18px; height:18px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius: 6px;
+      flex:0 0 auto;
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 12px 0;
+    }
+
+    .mini{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* Print styles: A4, clean margins, no cut-off, no unnecessary UI */
+    @media print{
+      @page{
+        size: A4;
+        margin: 14mm;
+      }
+      body{
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .page{
+        max-width: none;
+        padding: 0;
+      }
+      section, header{
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      pre{
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #000;
+      }
+      .chip, .legend li{
+        border-color:#000;
+      }
+      .callout{
+        border-left-color:#000;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧭 Next.js Rendering Analysis: Static vs Dynamic (In Practice)</h1>
+      <p class="sub">
+        Reviewer / study guide based on the lecture transcript: analyzing how routes are rendered after running a production build.
+      </p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Rendering Modes</span>
+        <span class="chip">⚙️ Tool: <code>npm run build</code></span>
+        <span class="chip">🧠 Goal: Understand why a route becomes dynamic</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>✅ What you are trying to learn</h2>
+        <p>
+          Next.js decides <span class="key">how each route is rendered</span>. Some routes can be generated ahead of time
+          (static), while others must be generated on-demand (dynamic).
+        </p>
+
+        <div class="callout">
+          <p><span class="key">Key idea:</span> You can inspect how Next.js classified your routes by running a production build and reading the output.</p>
+          <p class="mini">This is a practical way to confirm which routes are static and which ones are dynamic.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧩 Static vs Dynamic: beginner-friendly definitions</h2>
+
+        <div class="two-col">
+          <div>
+            <h3>🟢 Static rendering (pre-rendered)</h3>
+            <ul>
+              <li>HTML can be generated <span class="key">at build time</span>.</li>
+              <li>Next.js already knows the exact URL(s) and can create the page output ahead of time.</li>
+              <li>Result: fast delivery (often via CDN), less server work at request time.</li>
+            </ul>
+          </div>
+
+          <div class="divider"></div>
+
+          <div>
+            <h3>🟣 Dynamic rendering (server-rendered on demand)</h3>
+            <ul>
+              <li>HTML is generated <span class="key">when the request happens</span>.</li>
+              <li>Next.js cannot fully pre-generate the page because something is unknown at build time.</li>
+              <li>Common causes: dynamic route params, cookies, headers, search params, user-specific data, etc.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🛠️ How to check route rendering in practice</h2>
+        <p>
+          The lecture demonstrates using the Next.js build command to see which routes are static or dynamic.
+        </p>
+
+        <h3>Step-by-step</h3>
+        <ol>
+          <li>Stop your current dev process (if running).</li>
+          <li>Run the build command.</li>
+          <li>Read the output list of routes and the symbols Next.js shows.</li>
+        </ol>
+
+        <pre><code># In your Next.js project folder
+npm run build
+</code></pre>
+
+        <div class="callout">
+          <p>🧯 Note: You may see ESLint warnings during build (for example, suggesting Next.js Image component). Warnings don’t necessarily stop the build, but they are worth cleaning up over time.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🔎 Interpreting the build output symbols</h2>
+        <p>
+          After <code>npm run build</code>, Next.js prints a route list. In the lecture:
+        </p>
+
+        <ul class="legend">
+          <li><span class="dot" aria-hidden="true"></span> <span><span class="key">Small circle</span> → statically rendered</span></li>
+          <li><span class="lambda" aria-hidden="true">λ</span> <span><span class="key">Lambda</span> → dynamically rendered (server-rendered on demand)</span></li>
+        </ul>
+
+        <div class="callout">
+          <p>🧠 Mental model: “Static” means “Next.js could safely create the HTML ahead of time.” “Dynamic” means “Next.js needs server work when someone visits.”</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>❓ Why a dynamic route segment becomes a dynamic route</h2>
+        <p>
+          The lecture’s example is a route with a dynamic segment like a cabin detail page:
+        </p>
+
+        <pre><code># Example pattern (conceptual)
+ /cabins/[cabinId]
+</code></pre>
+
+        <h3>Beginner-friendly explanation</h3>
+        <ul>
+          <li><span class="key">Build time problem:</span> Next.js does not automatically know all possible <code>cabinId</code> values.</li>
+          <li>If Next.js doesn’t know which IDs exist, it can’t generate HTML files for:
+            <code>/cabins/1</code>, <code>/cabins/2</code>, <code>/cabins/999</code>, etc.
+          </li>
+          <li>So Next.js chooses <span class="key">dynamic rendering</span> for that route by default (shows as λ).</li>
+        </ul>
+
+        <div class="callout">
+          <p>🧷 In one sentence: a route becomes dynamic when Next.js cannot determine the final URL(s) to pre-render at build time.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Quick self-check exercises</h2>
+
+        <h3>Exercise A: Predict before building</h3>
+        <ul>
+          <li>Before you run <code>npm run build</code>, list your app’s routes on paper.</li>
+          <li>Mark which ones you think are static (🟢) and dynamic (🟣).</li>
+          <li>Then run the build and compare your prediction to the symbols.</li>
+        </ul>
+
+        <h3>Exercise B: Explain “why” in plain words</h3>
+        <ul>
+          <li>Pick one route that shows λ.</li>
+          <li>Write a 1–2 sentence reason using this template:</li>
+        </ul>
+
+        <pre><code>That route is dynamic because Next.js cannot pre-render it at build time.
+The missing/unknown part at build time is: _______________________.
+</code></pre>
+      </section>
+
+      <section>
+        <h2>📌 Practical notes from the lecture</h2>
+        <ul>
+          <li>Right now, routes are mostly static except the one with the dynamic segment.</li>
+          <li>Later, when you introduce things like cookies/headers/search params, more routes can become dynamic.</li>
+          <li>In real deployments (e.g., Vercel), the framework handles these decisions automatically behind the scenes.</li>
+        </ul>
+
+        <div class="callout">
+          <p>🚀 Takeaway: You do not need to “stress” about memorizing every output detail, but you should know how to inspect it when something is unexpectedly dynamic.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>➡️ What’s next (as hinted in the lecture)</h2>
+        <p>
+          There is a way to tell Next.js which dynamic IDs exist so it can pre-render them (at least for certain strategies).
+          The lecture says the next video will cover how to provide those possible IDs.
+        </p>
+        <p class="mini">
+          Keep this goal in mind: “If Next.js knows the list of valid IDs at build time, it can generate static pages for them.”
+        </p>
+      </section>
+
+      <section>
+        <h2>🧾 Summary (memorize this)</h2>
+        <ul>
+          <li>🧠 Next.js decides static vs dynamic per route.</li>
+          <li>🛠 Use <code>npm run build</code> to inspect how routes are rendered.</li>
+          <li>🟢 Static = pre-rendered at build time.</li>
+          <li>λ Dynamic = server-rendered on demand.</li>
+          <li>❗ A dynamic segment like <code>[id]</code> is often dynamic because Next.js can’t guess all IDs at build time.</li>
+        </ul>
+      </section>
+
+      <p class="mini" style="margin-top:12px;">
+        End of reviewer. Print tip: Use your browser’s Print dialog and set paper to A4 with default margins (the page already defines A4 margins for print).
+      </p>
+    </main>
+  </div>
+</body>
+</html>

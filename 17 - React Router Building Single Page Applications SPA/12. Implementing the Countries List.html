@@ -1,0 +1,445 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WorldWise — Implementing the Countries List (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --soft: #f6f7f9;
+      --border: #e6e6e6;
+      --accent: #0b57d0;
+      --accent-2: #0f766e;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --code-bg: #0b1020;
+      --code-text: #e6edf3;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 60px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff, #fbfbfb);
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+    }
+
+    .kicker {
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.25;
+      margin: 0 0 8px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    main { margin-top: 16px; }
+
+    .section {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-top: 14px;
+      background: #fff;
+    }
+
+    .section h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .section h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 8px 18px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--accent);
+      border-radius: 12px;
+      padding: 12px 12px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+
+    .callout .title {
+      margin: 0 0 6px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .callout.warn { border-left-color: var(--warn); background: #fffaf0; }
+    .callout.danger { border-left-color: var(--danger); background: #fff5f5; }
+    .callout.ok { border-left-color: var(--accent-2); background: #f0fdfa; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .card h4 {
+      margin: 0 0 6px;
+      font-size: 14px;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px 12px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,.10);
+    }
+
+    code, pre code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .inline-code {
+      padding: 1px 6px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    /* Print settings */
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, .section, .card, .callout { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      a[href]:after { content: ""; } /* don’t print URLs */
+      pre { white-space: pre-wrap; word-break: break-word; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <p class="kicker">React Router • Nested Routes • Data Derivation</p>
+      <h1>Implementing the Countries List (WorldWise)</h1>
+      <p class="subtitle">Reviewer / study guide for deriving a unique <span class="inline-code">countries</span> list from a <span class="inline-code">cities</span> array, plus naming, props, and common pitfalls.</p>
+      <div class="meta">
+        <span class="chip">🧩 Topic: Derived state</span>
+        <span class="chip">🧭 UI: Countries tab</span>
+        <span class="chip">⚙️ Tooling: React + Vite</span>
+        <span class="chip">🧠 Key idea: Compute where needed</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="section">
+        <h2>🎯 Goal</h2>
+        <p>
+          Build a <strong>Countries List</strong> UI that shows <em>unique</em> countries visited—derived from the list of cities.
+          Example: 5 cities across Portugal/Spain/Germany should render only <strong>3 countries</strong>.
+        </p>
+
+        <div class="callout ok">
+          <p class="title">✅ What you’re building</p>
+          <ul>
+            <li>A component like <span class="inline-code">CountryList.jsx</span> that receives <span class="inline-code">cities</span> + <span class="inline-code">isLoading</span>.</li>
+            <li>It computes a <span class="inline-code">countries</span> array by filtering out duplicates.</li>
+            <li>It renders <span class="inline-code">CountryItem</span> components (presentational).</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>🧠 Key Concepts (Beginner-Friendly)</h2>
+
+        <div class="grid">
+          <div class="card">
+            <h4>1) Derived State (a.k.a. computed data) 💡</h4>
+            <p class="muted">
+              If you can compute something from existing state/props (like countries from cities), you usually <strong>don’t store it in state</strong>.
+              You compute it when needed.
+            </p>
+          </div>
+          <div class="card">
+            <h4>2) Compute “close to where it’s used” 📍</h4>
+            <p class="muted">
+              Computing the countries inside <span class="inline-code">CountryList</span> means it runs only when that component renders.
+              Computing it in <span class="inline-code">App</span> could run on every re-render—even when the user isn’t viewing the Countries route.
+            </p>
+          </div>
+          <div class="card">
+            <h4>3) UI Disabling vs. Reducer/Logic Guards 🛡️</h4>
+            <p class="muted">
+              If something should be prevented (like duplicate countries), do it in logic—not only by UI.
+              UI is helpful, but logic is the source of truth.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>🧱 Step-by-Step Implementation</h2>
+
+        <h3>Step 1 — Create the component (copy the CityList pattern) 🧬</h3>
+        <p>
+          The lecture suggests copying the CityList structure because:
+          <strong>Loading state</strong>, <strong>empty state</strong>, and <strong>list rendering</strong> are identical patterns.
+        </p>
+
+        <div class="callout warn">
+          <p class="title">⚠️ Naming gotcha</p>
+          <p>
+            The lecture switches between <span class="inline-code">CountriesList</span> and <span class="inline-code">CountryList</span>.
+            If your CSS module is named <span class="inline-code">CountryList.module.css</span>, your component should consistently reference <span class="inline-code">styles.countryList</span> (lowercase c).
+          </p>
+        </div>
+
+        <h3>Step 2 — Add the nested route rendering the Countries list 🧭</h3>
+        <p>
+          In your <span class="inline-code">App.jsx</span> route config, the nested route <span class="inline-code">/app/countries</span> should render:
+          <span class="inline-code">&lt;CountryList cities={cities} isLoading={isLoading} /&gt;</span>
+        </p>
+
+        <h3>Step 3 — Derive unique countries from cities 🔁</h3>
+        <p>
+          We want a new array of objects like:
+          <span class="inline-code">{ country: "Portugal", emoji: "🇵🇹" }</span>
+          with no duplicates.
+        </p>
+
+        <div class="callout">
+          <p class="title">🧠 Why not compute in App?</p>
+          <p>
+            If you compute <span class="inline-code">countries</span> in <span class="inline-code">App</span>, the computation can run on re-renders triggered by other UI changes.
+            Computing inside <span class="inline-code">CountryList</span> scopes the work to where it matters.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>🧾 Reference Code (Clean, Beginner-Friendly)</h2>
+
+        <h3>A) CountryList.jsx (core structure) ✅</h3>
+        <pre><code>import Spinner from "./Spinner";
+import Message from "./Message";
+import CountryItem from "./CountryItem";
+import styles from "./CountryList.module.css";
+
+function CountryList({ cities, isLoading }) {
+  if (isLoading) return &lt;Spinner /&gt;;
+
+  if (!cities?.length)
+    return (
+      &lt;Message message="Add your first city by clicking on a city on the map." /&gt;
+    );
+
+  // ✅ Derived data: compute unique countries from cities
+  const countries = cities.reduce((arr, city) =&gt; {
+    const alreadyIncluded = arr
+      .map((el) =&gt; el.country)
+      .includes(city.country);
+
+    if (!alreadyIncluded) {
+      return [...arr, { country: city.country, emoji: city.emoji }];
+    }
+
+    return arr;
+  }, []);
+
+  return (
+    &lt;ul className={styles.countryList}&gt;
+      {countries.map((country) =&gt; (
+        &lt;CountryItem country={country} key={country.country} /&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+
+export default CountryList;
+</code></pre>
+
+        <div class="callout warn">
+          <p class="title">⚠️ Key choice: the list key</p>
+          <p>
+            In the lecture, the key is temporarily removed because <span class="inline-code">country.id</span> doesn’t exist.
+            A stable key for countries can be <span class="inline-code">country.country</span> (the country name), assuming it’s unique.
+          </p>
+        </div>
+
+        <h3>B) The reduce logic explained (super simple) 🙂</h3>
+        <ol>
+          <li>Start with an empty array <span class="inline-code">[]</span>.</li>
+          <li>Loop each city.</li>
+          <li>If its country is not yet in the array, add it.</li>
+          <li>If it’s already there, keep the array as-is.</li>
+        </ol>
+
+        <div class="divider"></div>
+
+        <h3>C) Alternative (more modern) approach with Map (optional) 🚀</h3>
+        <p class="muted">
+          This version is often faster and simpler to reason about for uniqueness, but the lecture intentionally practices <span class="inline-code">reduce</span>.
+        </p>
+        <pre><code>const countries = Array.from(
+  new Map(
+    cities.map((c) =&gt; [c.country, { country: c.country, emoji: c.emoji }])
+  ).values()
+);
+</code></pre>
+      </section>
+
+      <section class="section">
+        <h2>🧩 Common Mistakes (and fixes)</h2>
+
+        <div class="callout danger">
+          <p class="title">❌ Duplicate IDs in cities data</p>
+          <p>
+            If you copy city objects in <span class="inline-code">cities.json</span> and forget to change <span class="inline-code">id</span>, React may behave unpredictably and warns about duplicates.
+            Always ensure each city has a unique ID.
+          </p>
+        </div>
+
+        <div class="callout danger">
+          <p class="title">❌ CSS module class name mismatch</p>
+          <p>
+            If your CSS module exports <span class="inline-code">.countryList</span> but you write <span class="inline-code">styles.CountriesList</span>, nothing will style correctly.
+            CSS modules are strict: spelling and casing must match.
+          </p>
+        </div>
+
+        <div class="callout warn">
+          <p class="title">⚠️ Computing derived data too high in the tree</p>
+          <p>
+            Computing <span class="inline-code">countries</span> in <span class="inline-code">App</span> can work, but may do extra work on re-renders.
+            Later in the course, you’ll learn better ways to share data (Context / data routers).
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>🧪 Mini Practice (Quick Challenge)</h2>
+        <ol>
+          <li>Modify the reduce logic so it stores <span class="inline-code">countryCode</span> too (if available in data).</li>
+          <li>Add sorting: countries alphabetically by name.</li>
+          <li>Change the UI so it shows <span class="inline-code">(number of cities in that country)</span>.</li>
+        </ol>
+
+        <div class="callout">
+          <p class="title">💡 Hint: counting cities per country</p>
+          <pre><code>const counts = cities.reduce((acc, city) =&gt; {
+  acc[city.country] = (acc[city.country] || 0) + 1;
+  return acc;
+}, {});
+</code></pre>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>📝 Condensed Transcript Notes</h2>
+        <ul>
+          <li>Copy CityList → create CountryList (same loading + list pattern).</li>
+          <li>Pass <span class="inline-code">cities</span> into CountryList and compute unique countries there (avoid extra work in App).</li>
+          <li>File rename confusion is normal; keep third-party imports at the top.</li>
+          <li>Use <span class="inline-code">reduce</span> to build a unique countries array: add new country objects only when not yet included.</li>
+        </ul>
+      </section>
+
+      <footer>
+        Print tip: Use A4 • Margins are preconfigured • URLs are hidden in print.
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

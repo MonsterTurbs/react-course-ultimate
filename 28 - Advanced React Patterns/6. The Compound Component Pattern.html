@@ -1,0 +1,382 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced React Patterns — Compound Component Pattern (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #1a73e8;
+      --ok: #137333;
+      --warn: #b06000;
+      --bad: #b3261e;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 16px 16px 12px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      font-size: 12.5px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 16.5px;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 14.5px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #f7fbff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout.ok { border-left-color: var(--ok); background: #f6fff8; }
+    .callout.warn { border-left-color: var(--warn); background: #fffaf2; }
+    .callout.bad { border-left-color: var(--bad); background: #fff7f7; }
+
+    .k {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: #fbfbfb;
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: #fcfcfc;
+      border-radius: 10px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.5;
+      tab-size: 2;
+    }
+
+    code { font-family: var(--mono); }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      border: 0;
+      margin: 12px 0;
+    }
+
+    .twoCol {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    /* Keep it single-column even on wide screens, per requirement */
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* PRINT: A4, clean margins, consistent sizing, no URL after links */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { font-size: 11.5pt; }
+      .page { padding: 0; }
+      header, section { border-radius: 0; }
+      a { color: #000; text-decoration: none; }
+      a[href]::after { content: "" !important; }
+      .chip { border: 1px solid #ddd; }
+      pre { page-break-inside: avoid; }
+      section { break-inside: avoid-page; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>⚙️ Compound Component Pattern (React) — Study Guide</h1>
+      <p class="subtitle">
+        Topic: Advanced React Patterns • Focus: Compound Components using Context • Example: A super-flexible Counter
+      </p>
+      <div class="meta">
+        <span class="chip">🧩 Pattern: Compound Components</span>
+        <span class="chip">🧠 Key tool: Context API</span>
+        <span class="chip">🎯 Goal: Reuse UI + stateful logic with an expressive API</span>
+        <span class="chip">🖨️ Print-ready (A4, single-column)</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) Big Idea (What is a Compound Component?) 🧩</h2>
+        <p>
+          A <strong>compound component</strong> is a <strong>set of related components</strong> that are designed to be used
+          <strong>together</strong> to achieve one useful task (e.g., counter, modal, pagination, table, context menu).
+        </p>
+        <div class="callout">
+          <p><strong>Analogy (HTML):</strong> <span class="k">&lt;select&gt;</span> works with <span class="k">&lt;option&gt;</span>.
+          The options don’t really make sense outside the select. Same principle in React.</p>
+        </div>
+        <p>
+          The magic is that the parent component owns the <strong>state</strong>, while the children can
+          <strong>read</strong> and <strong>update</strong> that state <em>without passing props down manually</em>.
+        </p>
+      </section>
+
+      <section>
+        <h2>2) Why It’s Useful (Avoid “Prop Explosion”) 💥</h2>
+        <p>
+          Without this pattern, you often end up adding many props just to control layout and behavior:
+          hiding labels, moving buttons, positioning count, etc. This becomes a messy API.
+        </p>
+        <div class="callout warn">
+          <p><strong>Problem:</strong> Too many props → hard to maintain, hard to read, easy to misuse.</p>
+        </div>
+        <p>
+          With compound components, you configure behavior and layout by <strong>composing child components</strong>
+          (moving them around or omitting them), instead of designing a massive prop-based configuration.
+        </p>
+      </section>
+
+      <section>
+        <h2>3) What the API Looks Like (How You Use It) 🧱</h2>
+        <p>
+          The goal is an expressive API like this (you can freely reorder or remove pieces):
+        </p>
+        <pre><code>&lt;Counter&gt;
+  &lt;Counter.Label&gt;My super flexible counter&lt;/Counter.Label&gt;
+  &lt;Counter.Decrease icon=&quot;➖&quot; /&gt;
+  &lt;Counter.Count /&gt;
+  &lt;Counter.Increase icon=&quot;➕&quot; /&gt;
+&lt;/Counter&gt;</code></pre>
+        <div class="callout ok">
+          <p><strong>Flexibility win ✅</strong> You can move <span class="k">Counter.Count</span> anywhere, omit
+          <span class="k">Counter.Label</span>, swap icons, wrap pieces in extra HTML, etc.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) The “Recipe” (How to Build a Compound Component) 🧪</h2>
+        <ol style="margin: 8px 0 0 20px;">
+          <li><strong>Create a Context</strong> for the shared state and actions.</li>
+          <li><strong>Create the Parent</strong> component that owns the state (e.g., <span class="k">count</span>).</li>
+          <li><strong>Create Child</strong> components that consume the context (Label, Count, Increase, Decrease).</li>
+          <li><strong>Attach children as static properties</strong> on the parent (optional, but common):
+            <span class="k">Counter.Count = Count</span>, etc.</li>
+        </ol>
+        <div class="callout">
+          <p><strong>Key takeaway:</strong> The children get state/actions via <span class="k">useContext</span>,
+          not via props. This keeps the parent API clean and composition-friendly.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Implementation Walkthrough (Beginner-Friendly) 🧠</h2>
+        <h3>Step A — Create the Context</h3>
+        <pre><code>import { createContext } from "react";
+
+const CounterContext = createContext();</code></pre>
+
+        <h3>Step B — Parent Component owns the state</h3>
+        <pre><code>import { useState } from "react";
+
+function Counter({ children }) {
+  const [count, setCount] = useState(0);
+
+  const increase = () =&gt; setCount((c) =&gt; c + 1);
+  const decrease = () =&gt; setCount((c) =&gt; c - 1);
+
+  return (
+    &lt;CounterContext.Provider value={{ count, increase, decrease }}&gt;
+      &lt;span&gt;{children}&lt;/span&gt;
+    &lt;/CounterContext.Provider&gt;
+  );
+}</code></pre>
+
+        <div class="callout warn">
+          <p><strong>Why wrap with</strong> <span class="k">&lt;span&gt;</span>? If you used a <span class="k">&lt;div&gt;</span>, it could force line breaks.
+          Using a span keeps the layout more flexible. You can still wrap in a div outside if needed.</p>
+        </div>
+
+        <h3>Step C — Child components consume context</h3>
+        <pre><code>import { useContext } from "react";
+
+function Count() {
+  const { count } = useContext(CounterContext);
+  return &lt;span&gt;{count}&lt;/span&gt;;
+}
+
+function Label({ children }) {
+  return &lt;span&gt;{children}&lt;/span&gt;;
+}
+
+function Increase({ icon = "+" }) {
+  const { increase } = useContext(CounterContext);
+  return &lt;button onClick={increase}&gt;{icon}&lt;/button&gt;;
+}
+
+function Decrease({ icon = &quot;-&quot; }) {
+  const { decrease } = useContext(CounterContext);
+  return &lt;button onClick={decrease}&gt;{icon}&lt;/button&gt;;
+}</code></pre>
+
+        <h3>Step D — Attach children to parent (optional but common)</h3>
+        <pre><code>Counter.Count = Count;
+Counter.Label = Label;
+Counter.Increase = Increase;
+Counter.Decrease = Decrease;
+
+export default Counter;</code></pre>
+
+        <div class="callout ok">
+          <p><strong>Result ✅</strong> You now export only <span class="k">Counter</span>, but consumers can use
+          <span class="k">Counter.Count</span>, <span class="k">Counter.Label</span>, etc.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>6) Common Questions (and Practical Notes) ❓</h2>
+        <h3>“How do children know the state without props?”</h3>
+        <p>
+          They read it from <span class="k">CounterContext</span> using <span class="k">useContext</span>.
+          That context is provided by the parent’s <span class="k">CounterContext.Provider</span>.
+        </p>
+
+        <h3>“What if I use a child component outside &lt;Counter&gt;?”</h3>
+        <div class="callout bad">
+          <p>
+            Usually it will break or behave incorrectly, because the context values won’t exist.
+            This is expected: these children are designed to be used <strong>only</strong> with the parent.
+          </p>
+        </div>
+
+        <h3>“Is this overkill for a counter?”</h3>
+        <p>
+          Yes, for a simple counter. But this pattern becomes extremely powerful for real components like:
+          <strong>modals</strong>, <strong>pagination</strong>, <strong>tables</strong>, and <strong>context menus</strong>.
+        </p>
+      </section>
+
+      <section>
+        <h2>7) Quick Mental Model (Memory Aid) 🧠✨</h2>
+        <ul>
+          <li>🧩 <strong>Parent</strong> owns state + provides context.</li>
+          <li>🔌 <strong>Children</strong> consume context (read/update state).</li>
+          <li>🧱 <strong>Composition</strong> replaces “prop explosion”.</li>
+          <li>🔒 State is <strong>encapsulated</strong> inside the compound component.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>8) What’s Next 🚀</h2>
+        <p>
+          Next, this pattern will be applied to a more real-world component: a
+          <strong>super-flexible, standalone Modal window</strong> (and later a context menu).
+        </p>
+        <div class="callout">
+          <p><strong>Tip:</strong> Re-read the “Recipe” section and trace the data flow:
+          Provider → Context → Child components → UI updates.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Mini-Reviewer (Self-Test) ✅</h2>
+        <ol style="margin: 8px 0 0 20px;">
+          <li>What problem does the compound component pattern solve compared to “many props”?</li>
+          <li>Which React feature is commonly used to implement this pattern?</li>
+          <li>What are the 4 standard steps (“recipe”) to implement it?</li>
+          <li>Why does attaching <span class="k">Counter.Count</span> as a property work in JavaScript?</li>
+          <li>What real-world UI components are great candidates for this pattern?</li>
+        </ol>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

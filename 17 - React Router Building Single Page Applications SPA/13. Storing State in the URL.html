@@ -1,0 +1,427 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Router — Storing State in the URL (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f8f8f8;
+      --chip: #f1f3f5;
+      --callout: #f6f9ff;
+      --callout-border: #cfe1ff;
+      --ok-bg: #f4fbf6;
+      --ok-border: #bfe7c9;
+      --warn-bg: #fff7ed;
+      --warn-border: #fed7aa;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column A4-friendly container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 16px 16px 14px;
+      border-radius: 12px;
+    }
+
+    .kicker {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 22px;
+      line-height: 1.25;
+      margin: 0 0 8px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    main { margin-top: 18px; }
+
+    h2 {
+      font-size: 16px;
+      margin: 20px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul {
+      margin: 8px 0 10px 18px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+    }
+
+    .callout {
+      border: 1px solid var(--callout-border);
+      background: var(--callout);
+      padding: 12px 12px 12px;
+      border-radius: 12px;
+      margin: 12px 0;
+    }
+
+    .callout.ok {
+      border-color: var(--ok-border);
+      background: var(--ok-bg);
+    }
+
+    .callout.warn {
+      border-color: var(--warn-border);
+      background: var(--warn-bg);
+    }
+
+    .callout h3 {
+      margin-top: 0;
+    }
+
+    .mono {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    code { font-family: var(--mono); font-size: 0.95em; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .mini h3 { margin: 0 0 6px; }
+
+    .muted { color: var(--muted); }
+
+    .checklist li { list-style: none; }
+    .checklist li::before { content: "✅ "; }
+
+    .toc {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .toc a { color: inherit; text-decoration: none; }
+    .toc ul { margin-left: 16px; }
+
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+    /* Print settings */
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      a { color: inherit; text-decoration: none; }
+      a[href]:after { content: "" !important; }
+      header, .callout, .mini, .mono, .toc { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <p class="kicker">React Router • WorldWise Project</p>
+      <h1>13) Storing State in the URL</h1>
+      <p class="subtitle">Reviewer / Study Guide (beginner-friendly) — how to use the URL as “shared UI state” using <strong>Params</strong> and the <strong>Query String</strong>.</p>
+      <div class="chips" aria-label="Key topics">
+        <span class="chip">🧭 Routing & SPA</span>
+        <span class="chip">🧠 UI State</span>
+        <span class="chip">🏷️ Params</span>
+        <span class="chip">🔎 Query String</span>
+        <span class="chip">🔗 Shareable URLs</span>
+      </div>
+
+      <nav class="toc" aria-label="Table of contents">
+        <strong>Contents</strong>
+        <ul>
+          <li><a href="#big-idea">Big idea: URL can store UI state</a></li>
+          <li><a href="#why">Why store state in the URL?</a></li>
+          <li><a href="#what-is-ui-state">What counts as UI state?</a></li>
+          <li><a href="#two-tools">Two tools: Params vs Query String</a></li>
+          <li><a href="#examples">Examples (WorldWise & real apps)</a></li>
+          <li><a href="#react-router-api">React Router hooks you’ll use</a></li>
+          <li><a href="#quick-check">Quick self-check</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section id="big-idea">
+        <h2>🧠 Big idea: the URL can store state</h2>
+        <p>
+          Usually, we manage state with <code>useState</code> (and sometimes <code>useReducer</code>). But with React Router,
+          we can also treat parts of the <strong>URL</strong> as state—especially <strong>UI state</strong>.
+        </p>
+
+        <div class="callout ok">
+          <h3>💡 Mental model</h3>
+          <ul>
+            <li><strong>React state</strong> is great for local component behavior.</li>
+            <li><strong>URL state</strong> is great when many components need the same UI state, or when you want shareable/bookmarkable screens.</li>
+          </ul>
+        </div>
+
+        <p class="muted">
+          Example: <code>/app/cities</code> vs <code>/app/countries</code> already changes what the UI shows.
+          The next step is using Params and Query Strings to store more specific state.
+        </p>
+      </section>
+
+      <section id="why">
+        <h2>❓ Why store state in the URL?</h2>
+        <ul>
+          <li>🌍 <strong>Global access:</strong> any component can read the URL state without passing props through many levels.</li>
+          <li>➡️ <strong>Pass data between pages:</strong> you can move info to the next screen via the URL.</li>
+          <li>🔗 <strong>Share/bookmark:</strong> users can copy the link and keep the exact UI state (filters, selected city, map position, etc.).</li>
+        </ul>
+
+        <div class="callout">
+          <h3>🛒 Real-world example</h3>
+          <p>
+            On an online shop, the “filters” (color=blue, price=under-50) are UI state.
+            If filters are in the URL, a shared link will open the page with the same filters applied.
+          </p>
+        </div>
+      </section>
+
+      <section id="what-is-ui-state">
+        <h2>🎛️ What counts as UI state?</h2>
+        <p>UI state is anything that changes <em>how the UI looks/behaves</em> (not the core data itself).</p>
+        <ul>
+          <li>📂 Panel open/closed</li>
+          <li>↕️ Sorting order (e.g., “newest”, “A→Z”)</li>
+          <li>🔎 Filters (country=Portugal, visited=true)</li>
+          <li>🗺️ Map position (lat/lng) and zoom</li>
+          <li>🧭 Currently selected tab (cities vs countries)</li>
+        </ul>
+
+        <div class="callout warn">
+          <h3>⚠️ Practical rule</h3>
+          <p>
+            Don’t put <strong>sensitive</strong> data in URLs (tokens, passwords). URLs can be logged and shared.
+          </p>
+        </div>
+      </section>
+
+      <section id="two-tools">
+        <h2>🏷️ Two tools: Params vs Query String</h2>
+        <div class="grid">
+          <div class="mini">
+            <h3>1) Params (Path Parameters) 🏷️</h3>
+            <p class="muted">Best for identifying a specific resource/page (often “detail page” data).</p>
+            <ul>
+              <li>Used to pass a value in the path itself</li>
+              <li>Example: city name or city ID</li>
+            </ul>
+            <div class="mono">
+              <div><strong>Example URL</strong></div>
+              <div><code>/app/cities/Lisbon</code></div>
+              <div class="muted">Param = <code>Lisbon</code></div>
+            </div>
+          </div>
+
+          <div class="mini">
+            <h3>2) Query String (Search Params) 🔎</h3>
+            <p class="muted">Best for global UI state (filters, sorting, map position) that many components can read.</p>
+            <ul>
+              <li>Used after <code>?</code></li>
+              <li>Multiple values separated by <code>&amp;</code></li>
+            </ul>
+            <div class="mono">
+              <div><strong>Example URL</strong></div>
+              <div><code>/app/cities/Lisbon?lat=38.7223&amp;lng=-9.1393</code></div>
+              <div class="muted">Query string = <code>lat</code>, <code>lng</code></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <p>
+          ✅ Quick summary:
+          <strong>Params</strong> = “which item/page is this?”
+          while <strong>Query String</strong> = “how should the UI be configured right now?”
+        </p>
+      </section>
+
+      <section id="examples">
+        <h2>🧩 Examples you will see in WorldWise</h2>
+
+        <h3>Example A: City detail via Params</h3>
+        <p>
+          Clicking a city link can navigate to a URL that contains the city identifier.
+          The “Lisbon page” appears because the URL contains <code>Lisbon</code>.
+        </p>
+        <div class="mono">
+          <div><strong>City detail</strong></div>
+          <div><code>/app/cities/Lisbon</code></div>
+        </div>
+
+        <h3>Example B: Map position via Query String</h3>
+        <p>
+          When you click a city (or the map), you can store the map coordinates in the URL.
+          That makes the map state shareable/bookmarkable.
+        </p>
+        <div class="mono">
+          <div><strong>Map state</strong></div>
+          <div><code>/app/cities/Lisbon?lat=38.7223&amp;lng=-9.1393</code></div>
+        </div>
+
+        <h3>Example C: Filters in a shop (same concept)</h3>
+        <div class="mono">
+          <div><strong>Filter state</strong></div>
+          <div><code>/products?color=blue&amp;maxPrice=50&amp;sort=newest</code></div>
+        </div>
+      </section>
+
+      <section id="react-router-api">
+        <h2>🧰 React Router pieces you’ll use (quick preview)</h2>
+        <p class="muted">You’ll practice this in the next video. For now, just recognize the tools.</p>
+
+        <h3>1) Read Params: <code>useParams()</code> 🏷️</h3>
+        <div class="mono">
+<pre><code>// Route example:
+// &lt;Route path="/app/cities/:cityName" element={&lt;City /&gt;} /&gt;
+
+import { useParams } from "react-router-dom";
+
+function City() {
+  const { cityName } = useParams();
+  // cityName could be "Lisbon" or "Berlin"
+  return &lt;h2&gt;City: {cityName}&lt;/h2&gt;;
+}
+</code></pre>
+        </div>
+
+        <h3>2) Read/Write Query String: <code>useSearchParams()</code> 🔎</h3>
+        <div class="mono">
+<pre><code>import { useSearchParams } from "react-router-dom";
+
+function Map() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const lat = searchParams.get("lat");
+  const lng = searchParams.get("lng");
+
+  function goToLocation(newLat, newLng) {
+    setSearchParams({ lat: newLat, lng: newLng });
+  }
+
+  return (
+    &lt;&gt;
+      &lt;p&gt;lat: {lat} | lng: {lng}&lt;/p&gt;
+      &lt;button onClick={() =&gt; goToLocation(38.7223, -9.1393)}&gt;
+        Go to Lisbon
+      &lt;/button&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+        </div>
+
+        <div class="callout ok">
+          <h3>✅ Why this is powerful</h3>
+          <ul>
+            <li>Any component can read <code>cityName</code>, <code>lat</code>, <code>lng</code> directly from the URL.</li>
+            <li>No need to “thread props” through many layers just to share UI state.</li>
+            <li>User can bookmark/share a link and get the same UI immediately.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="quick-check">
+        <h2>📝 Quick self-check (1–2 minutes)</h2>
+        <ul class="checklist">
+          <li>Can you explain what “UI state” means in your own words?</li>
+          <li>When would you prefer URL state over <code>useState</code>?</li>
+          <li>Params: what is a good example of a param in WorldWise?</li>
+          <li>Query string: what UI state could you store there (map position, filters, sorting)?</li>
+          <li>Why is URL state great for sharing/bookmarking?</li>
+        </ul>
+
+        <div class="callout">
+          <h3>🏁 Takeaway</h3>
+          <p>
+            Use <strong>React state</strong> for local behavior, and use the <strong>URL</strong> when you want
+            shareable, globally-readable UI state (especially with Params and Query Strings).
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

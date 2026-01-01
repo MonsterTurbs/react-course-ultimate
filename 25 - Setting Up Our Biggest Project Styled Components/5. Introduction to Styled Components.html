@@ -1,0 +1,407 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Introduction to Styled Components — The Wild Oasis | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f7f7f9;
+      --info: #0b57d0;
+      --ok: #0b7a2a;
+      --warn: #8a4b00;
+      --danger: #b00020;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column, print-safe container */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 0 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--border);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout.info { border-left-color: var(--info); }
+    .callout.ok { border-left-color: var(--ok); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.danger { border-left-color: var(--danger); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 900px) {
+      .two { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Print rules */
+    @page { size: A4; margin: 18mm; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      pre { overflow: visible; white-space: pre-wrap; word-break: break-word; }
+      .chip { border-color: #dcdcdc; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🎨 Introduction to Styled Components</h1>
+      <p class="subtitle">
+        Reviewer / study guide based on the transcript: what Styled Components are, how they work, and how to create reusable UI primitives
+        and “styled versions” of existing components.
+      </p>
+      <div class="meta">
+        <span class="chip">🧩 CSS-in-JS</span>
+        <span class="chip">🧷 Scoped styles</span>
+        <span class="chip">🏷️ Auto-generated class names</span>
+        <span class="chip">⚛️ Styled React components</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>✅ What are Styled Components?</h2>
+        <p>
+          <strong>Styled Components</strong> is a library that lets you write <strong>CSS inside JavaScript</strong> (inside your component files).
+          The main idea is simple:
+        </p>
+        <ul>
+          <li>🧱 Start with an HTML element (like <code>h1</code>, <code>button</code>, <code>input</code>)</li>
+          <li>🎯 Use the <code>styled</code> function to create a <strong>new React component</strong> with CSS attached</li>
+          <li>♻️ Reuse that styled component everywhere instead of the raw HTML element</li>
+        </ul>
+
+        <div class="callout info">
+          <strong>Big benefit:</strong> styles are <strong>scoped</strong> to that component, helping avoid global CSS problems like class name collisions.
+        </div>
+      </section>
+
+      <section>
+        <h2>⚙️ How it works (behind the scenes)</h2>
+        <p>
+          When you create a styled component, the library:
+        </p>
+        <ul>
+          <li>🏷️ Generates a <strong>unique class name</strong> (often random-looking)</li>
+          <li>🧾 Injects your CSS rules under that class</li>
+          <li>🧩 Applies that class to the element when your component renders</li>
+        </ul>
+
+        <div class="callout ok">
+          Result: The CSS is only applied to that component instance (and other instances of the same styled component), not globally.
+        </div>
+      </section>
+
+      <section>
+        <h2>📦 Install + import</h2>
+        <h3>1) Install the library</h3>
+        <pre><code>npm install styled-components
+</code></pre>
+
+        <h3>2) Import <code>styled</code> (most common way)</h3>
+        <pre><code>import styled from "styled-components";
+</code></pre>
+
+        <p class="note">📝 The transcript demonstrates writing <code>styled.h1</code>, <code>styled.button</code>, etc., using a tagged template literal.</p>
+      </section>
+
+      <section>
+        <h2>🧪 Core pattern: style an HTML element</h2>
+        <p>
+          You pick an element (e.g., <code>h1</code>) then define its CSS inside a template literal.
+        </p>
+
+        <pre><code>import styled from "styled-components";
+
+const H1 = styled.h1`
+  font-size: 30px;
+  font-weight: 600;
+`;
+
+export default function App() {
+  return (
+    &lt;div&gt;
+      &lt;H1&gt;The Wild Oasis&lt;/H1&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout info">
+          <strong>Why the uppercase name?</strong> Styled components are React components, so they follow the React convention:
+          component names start with an uppercase letter (e.g., <code>H1</code>, <code>Button</code>).
+        </div>
+      </section>
+
+      <section>
+        <h2>🧱 Building reusable UI primitives</h2>
+        <p>
+          A common “real-world” approach is to create primitives like <strong>Button</strong>, <strong>Input</strong>, etc.,
+          and reuse them throughout the app.
+        </p>
+
+        <h3>🟣 Example: a reusable Button</h3>
+        <pre><code>import styled from "styled-components";
+
+const Button = styled.button`
+  font-size: 1.4rem;
+  padding: 1.2rem 1.6rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 7px;
+  background-color: purple;
+  color: white;
+  cursor: pointer;
+  margin-right: 20px;
+`;
+
+export default function App() {
+  return (
+    &lt;div&gt;
+      &lt;Button onClick={() =&gt; alert("Checking in!")}&gt;Check in&lt;/Button&gt;
+      &lt;Button onClick={() =&gt; alert("Checking out!")}&gt;Check out&lt;/Button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout ok">
+          ✅ Styled components automatically accept normal HTML props like <code>onClick</code>, <code>type</code>, <code>disabled</code>, etc.
+          You don’t need to manually forward props like you would in a custom wrapper component.
+        </div>
+
+        <h3>🔢 Example: a reusable Input</h3>
+        <pre><code>import styled from "styled-components";
+
+const Input = styled.input`
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 0.8rem 1.2rem;
+`;
+
+export default function App() {
+  return (
+    &lt;div&gt;
+      &lt;Input type="number" placeholder="Number of guests" /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+      </section>
+
+      <section>
+        <h2>🧩 Styling an existing component (like <code>App</code>)</h2>
+        <p>
+          A common beginner question is: “If <code>styled</code> creates components, how do we style a component that already exists?”
+        </p>
+
+        <p>
+          In the transcript, the approach is to style the wrapper element (e.g., a <code>div</code>) and replace it.
+          A naming convention is used:
+        </p>
+
+        <div class="callout info">
+          If the component is <code>App</code>, a common convention is to create a wrapper called <code>StyledApp</code>.
+        </div>
+
+        <pre><code>import styled from "styled-components";
+
+const StyledApp = styled.div`
+  background-color: orangered;
+  padding: 20px;
+`;
+
+export default function App() {
+  return (
+    &lt;StyledApp&gt;
+      &lt;h1&gt;Hello&lt;/h1&gt;
+    &lt;/StyledApp&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout warn">
+          The <code>orangered</code> example is intentionally ugly in the transcript—just to make the styling effect very obvious.
+        </div>
+
+        <p>
+          Want a different HTML element, like <code>main</code>? Just change it:
+        </p>
+        <pre><code>const StyledApp = styled.main`
+  padding: 20px;
+`;
+</code></pre>
+      </section>
+
+      <section>
+        <h2>🧠 Key takeaways</h2>
+        <ul>
+          <li>🎨 Styled Components let you write CSS inside JS using <strong>tagged template literals</strong>.</li>
+          <li>🏷️ Styles are scoped via auto-generated class names (helps avoid global CSS collisions).</li>
+          <li>♻️ Great for building reusable UI primitives (Button, Input, etc.).</li>
+          <li>🧩 For existing components, you typically style a wrapper element (e.g., <code>StyledApp</code>).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧰 VS Code setup (for better CSS experience)</h2>
+        <p>
+          To make the CSS inside template literals look and feel like real CSS (syntax highlighting + autocomplete), install a VS Code extension
+          for Styled Components.
+        </p>
+        <div class="callout ok">
+          ✅ After installing, your editor can provide CSS autocomplete and highlight your styles properly inside backticks.
+        </div>
+      </section>
+
+      <section>
+        <h2>📝 Mini-quiz (quick check)</h2>
+        <ol>
+          <li>Why do styled component names usually start with an uppercase letter?</li>
+          <li>What problem does “scoped CSS” solve compared to global CSS files?</li>
+          <li>Why can you pass <code>onClick</code> directly to a styled <code>button</code>?</li>
+          <li>What’s the purpose of the <code>StyledApp</code> convention?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🧾 One-paragraph recap</h2>
+        <p>
+          Styled Components is a CSS-in-JS library that lets you create styled React components by attaching CSS rules directly to HTML elements
+          like <code>h1</code>, <code>button</code>, and <code>input</code>. It generates unique class names behind the scenes, so styles are scoped to the
+          component and avoid common global CSS issues. You can use these styled components as reusable UI primitives, and they accept normal
+          HTML props like <code>onClick</code> without extra work. To style an existing component like <code>App</code>, you typically create a styled wrapper
+          (often named <code>StyledApp</code>) and replace your plain wrapper element with it.
+        </p>
+      </section>
+
+      <section>
+        <h2>➡️ What’s next</h2>
+        <div class="callout info">
+          Next lecture: learn how to add <strong>global styles</strong> with styled-components (e.g., CSS resets applied to the whole app).
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

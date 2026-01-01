@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fixing an Important Bug — Auth Cache (Supabase + React Query) | Study Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #5b5b5b;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --code-bg: #0b1020;
+      --code-text: #e7e9ee;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 20px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+      page-break-inside: avoid;
+    }
+
+    h2 {
+      font-size: 16.5px;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 14.5px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 0 22px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 5px solid var(--border);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 6px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .kpi {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .kpi .label {
+      color: var(--muted);
+      font-size: 12.5px;
+      margin: 0 0 6px;
+    }
+
+    .kpi .value {
+      margin: 0;
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+      margin: 10px 0;
+      border: 1px solid #0f1733;
+    }
+
+    pre code { color: inherit; }
+
+    .inline-code {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 0.95em;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px dashed var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-radius: 0; }
+
+      /* Prevent printing link URLs */
+      a[href]:after { content: "" !important; }
+
+      /* Avoid awkward splits */
+      h1, h2, h3 { page-break-after: avoid; }
+      pre, blockquote, ul, ol, table { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 Fixing an Important Bug (Auth Cache) — Supabase + React Query</h1>
+      <p class="subtitle">Reviewer / Study Guide • Beginner-friendly • Print-ready (A4) • Single column</p>
+      <div class="meta">
+        <span class="chip">✅ Topic: Auth + Authorization bug</span>
+        <span class="chip">🧠 Focus: React Query cache + user state</span>
+        <span class="chip">🛠️ Tools: Supabase Auth, React Router, React Query</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 What you’re building (and why this matters)</h2>
+        <p>
+          You already implemented <strong>authentication</strong> (log in / log out) and <strong>authorization</strong>
+          (protected routes). Now you found a real-world bug: the app sometimes <strong>fails to redirect</strong>
+          to the dashboard after logging in, or it stores a <strong>wrong/empty user</strong> in the React Query cache.
+        </p>
+
+        <div class="callout">
+          <strong>Key idea ✅</strong>
+          <p>
+            A Protected Route depends on the current user. If the cached “user” is <em>wrong</em> (or <em>null</em>) the app
+            will treat you as <strong>not authenticated</strong> even if login succeeded.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧠 Quick definitions (beginner-friendly)</h2>
+        <div class="grid">
+          <div class="kpi">
+            <p class="label">Authentication</p>
+            <p class="value">“Who are you?” (log in / log out)</p>
+          </div>
+          <div class="kpi">
+            <p class="label">Authorization</p>
+            <p class="value">“Are you allowed here?” (ProtectedRoute)</p>
+          </div>
+          <div class="kpi">
+            <p class="label">React Query Cache</p>
+            <p class="value">Stored data keyed by <span class="inline-code">queryKey</span> (ex: <span class="inline-code">['user']</span>)</p>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <p>
+          In your app, <span class="inline-code">useUser()</span> calls <span class="inline-code">getCurrentUser()</span>.
+          If there’s no active session, <span class="inline-code">getCurrentUser()</span> returns <span class="inline-code">null</span>.
+          That’s normal. The bug happens because <strong>login tries to “manually” put the user into the cache</strong>
+          but does it incorrectly.
+        </p>
+      </section>
+
+      <section>
+        <h2>🐛 The bug scenario (what you saw)</h2>
+        <ul>
+          <li>✅ If you <strong>log out</strong> and then <strong>log in</strong>, it usually works.</li>
+          <li>⚠️ If you are <strong>not logged in</strong> and you directly open the root URL (Dashboard route), you get redirected to Login.</li>
+          <li>⚠️ After redirect, a <strong>null user</strong> ends up in the React Query cache under <span class="inline-code">['user']</span>.</li>
+          <li>❌ Then you log in, but the app still doesn’t behave correctly (because cached user is wrong / user shape is wrong).</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Why this happens 🤔</strong>
+          <p>
+            <span class="inline-code">ProtectedRoute</span> reads the “user” from <span class="inline-code">useUser()</span>.
+            If the cached value for <span class="inline-code">['user']</span> is incorrect (null or wrong object shape),
+            then <span class="inline-code">isAuthenticated</span> becomes false (or throws errors when reading <span class="inline-code">user.role</span>).
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🔍 Root cause analysis</h2>
+        <h3>1) Wrong React Query API method</h3>
+        <p>
+          You used <span class="inline-code">setQueriesData</span> instead of <span class="inline-code">setQueryData</span>.
+          That’s a subtle typo but it changes behavior.
+        </p>
+
+        <h3>2) Wrong “user” shape saved to cache</h3>
+        <p>
+          Supabase login returns an object that contains <strong>session</strong> and <strong>user</strong>. But your app’s
+          <span class="inline-code">useUser()</span> expects just the <strong>user object</strong>.
+          So you must store <span class="inline-code">data.user</span> into the cache, not the entire data object.
+        </p>
+
+        <div class="callout">
+          <strong>Think of it like this 🧠</strong>
+          <p>
+            If <span class="inline-code">useUser()</span> expects: <span class="inline-code">{ role: 'authenticated', email: ... }</span>
+            but you store: <span class="inline-code">{ session: {...}, user: {...} }</span>
+            then <span class="inline-code">user.role</span> will be <em>undefined</em> or not what you think.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>✅ The fix (what to change)</h2>
+        <h3>Fix A: Use <span class="inline-code">setQueryData</span></h3>
+        <p>
+          In your <span class="inline-code">useLogin</span> hook, on success, use:
+          <span class="inline-code">queryClient.setQueryData(['user'], ...)</span>
+        </p>
+
+        <h3>Fix B: Store the correct object: <span class="inline-code">data.user</span></h3>
+        <p>
+          Save only the user object into cache:
+          <span class="inline-code">queryClient.setQueryData(['user'], data.user)</span>
+        </p>
+
+        <pre><code>// ✅ useLogin.js (core idea)
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { login as loginApi } from '../../services/apiAuth';
+
+export function useLogin() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { mutate: login, isLoading } = useMutation({
+    mutationFn: ({ email, password }) => loginApi({ email, password }),
+    onSuccess: (data) => {
+      // ✅ store the REAL user object (not {session, user})
+      queryClient.setQueryData(['user'], data.user);
+
+      // ✅ navigate to dashboard (replace to avoid going back to login)
+      navigate('/dashboard', { replace: true });
+    },
+    onError: (err) => {
+      toast.error('Provided email or password are incorrect');
+      console.error(err);
+    },
+  });
+
+  return { login, isLoading };
+}
+</code></pre>
+
+        <div class="callout">
+          <strong>Important note ⚠️</strong>
+          <p>
+            The <span class="inline-code">data</span> parameter in <span class="inline-code">onSuccess</span> is whatever your
+            <span class="inline-code">loginApi</span> function returns. If your API returns a different shape, adjust accordingly.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 How to confirm the bug is fixed (quick checklist)</h2>
+        <ul>
+          <li>✅ Log out.</li>
+          <li>✅ Manually open the root URL (Dashboard route).</li>
+          <li>✅ You should be redirected to Login (expected).</li>
+          <li>✅ Log in.</li>
+          <li>✅ You should be redirected to Dashboard reliably.</li>
+          <li>✅ Open React Query Devtools → <span class="inline-code">['user']</span> should contain the correct user object.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧯 Common mistakes (and how to avoid them)</h2>
+        <ul>
+          <li>⚠️ Mixing up <span class="inline-code">setQueriesData</span> vs <span class="inline-code">setQueryData</span>.</li>
+          <li>⚠️ Storing the wrong object shape in cache (saving <span class="inline-code">{ session, user }</span> instead of <span class="inline-code">user</span>).</li>
+          <li>⚠️ Computing <span class="inline-code">isAuthenticated</span> without guarding null values.</li>
+          <li>⚠️ Redirecting too early while user is still loading (forgetting <span class="inline-code">!isLoading</span> guard).</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Safe pattern ✅</strong>
+          <p>
+            When reading role: prefer <span class="inline-code">user?.role === 'authenticated'</span>
+            so it won’t crash when <span class="inline-code">user</span> is null.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>📝 Mini practice (quick quiz)</h2>
+        <ol>
+          <li>Why is login treated as a mutation in React Query?</li>
+          <li>What should be stored under query key <span class="inline-code">['user']</span>?</li>
+          <li>Why do we add <span class="inline-code">{ replace: true }</span> when navigating after login?</li>
+        </ol>
+
+        <div class="callout">
+          <strong>Suggested answers ✅</strong>
+          <ul>
+            <li>Because it changes server/session state and has success/error side effects (redirect, toast, cache).</li>
+            <li>The actual user object (the one your app uses for role checks), not the whole session payload.</li>
+            <li>So the browser back button doesn’t go back to the login page after a successful login.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>🏁 Summary (one page recap)</h2>
+        <ul>
+          <li>✅ Protected routes depend on a correct “current user”.</li>
+          <li>✅ If cache contains null/wrong shape, authorization logic fails.</li>
+          <li>✅ Fix by using <span class="inline-code">setQueryData</span> and storing <span class="inline-code">data.user</span>.</li>
+          <li>✅ After fix, direct access to root while logged out redirects to Login; logging in redirects to Dashboard reliably.</li>
+        </ul>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

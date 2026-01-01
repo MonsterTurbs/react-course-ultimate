@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — Custom Hooks, useRef, and More State (Section Overview)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #0b57d0;
+      --good: #0f7b3a;
+      --warn: #8a5a00;
+      --bad: #b42318;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 16px;
+      background: var(--soft);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    main { margin-top: 14px; }
+
+    section {
+      margin: 14px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    h3 {
+      margin: 12px 0 8px;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #f7fbff;
+      padding: 10px 12px;
+      border-radius: 10px;
+    }
+
+    .tip {
+      border-left-color: var(--good);
+      background: #f6fffa;
+    }
+
+    .warn {
+      border-left-color: var(--warn);
+      background: #fffaf3;
+    }
+
+    .danger {
+      border-left-color: var(--bad);
+      background: #fff5f5;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--soft);
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--muted);
+      font-size: 12px;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    .quote {
+      margin: 8px 0 0;
+      padding: 10px 12px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--muted);
+    }
+
+    .checklist input { transform: translateY(1px); }
+    .checklist label { margin-left: 8px; }
+
+    footer {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 14px 0 0;
+      padding: 8px 2px;
+    }
+
+    /* Print styles (A4) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { box-shadow: none !important; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      pre, blockquote { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🪝 React Hooks — Section Overview (Custom Hooks, <code>useRef</code>, and More State)</h1>
+      <p class="sub">Print-friendly reviewer / study guide (single-column, A4-ready)</p>
+      <div class="meta">
+        <div><span class="pill">📌 Focus</span> Deepen your understanding of Hooks beyond the basics.</div>
+        <div><span class="pill">🎯 Goal</span> Know the rules, why they exist, and when to use <code>useState</code>, <code>useRef</code>, and custom Hooks.</div>
+        <div><span class="pill">🧠 Reminder</span> Hooks can be easy at first, but mastery comes from knowing the constraints and patterns.</div>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) What this section is about 🧭</h2>
+        <p>
+          In this section, you go deeper into <strong>React Hooks</strong>. You will strengthen fundamentals (especially <code>useState</code>),
+          learn <strong><code>useRef</code></strong>, and even create your own <strong>custom Hooks</strong>.
+        </p>
+        <div class="callout">
+          <p><strong>Key idea:</strong> Hooks are simple to start with, but the real skill is using them correctly and consistently in real apps.</p>
+        </div>
+        <div class="quote">
+          <strong>Source transcript (excerpt):</strong>
+          <p>
+            “Hooks are easy to learn in the beginning, but hard to really master… a really solid understanding of Hooks is crucial…
+            we’ll understand the rules of Hooks and why they exist… explore the useRef Hook… and even create our own React Hooks.”
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) Learning objectives 🎯</h2>
+        <div class="grid">
+          <div class="callout tip">
+            <h3>✅ By the end, you should be able to…</h3>
+            <ul>
+              <li>Explain the <strong>Rules of Hooks</strong> and why React enforces them.</li>
+              <li>Use <code>useState</code> confidently (including patterns like derived state and functional updates).</li>
+              <li>Understand what <code>useRef</code> is <em>for</em> (and what it is <em>not</em> for).</li>
+              <li>Create and use <strong>custom Hooks</strong> to reuse logic across components.</li>
+              <li>Keep code maintainable by choosing the right Hook for the job.</li>
+            </ul>
+          </div>
+          <div class="callout warn">
+            <h3>⚠️ Note on <code>useEffect</code></h3>
+            <p>
+              This section won’t fully revisit <code>useEffect</code> yet (it will be inspected again later). That’s normal—Hooks learning is layered.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) Quick refresher: What are Hooks? 🧩</h2>
+        <p>
+          Hooks are functions that let function components <strong>“hook into”</strong> React features—like state, refs, and effects.
+          Instead of writing classes, you compose behavior using functions.
+        </p>
+        <div class="callout">
+          <h3>Common Hooks you already know / will use here</h3>
+          <ul>
+            <li>🧠 <code>useState</code> — store and update component state</li>
+            <li>🧷 <code>useRef</code> — store a mutable value that persists across renders (without re-rendering)</li>
+            <li>🧰 Custom Hook — extract reusable logic into a function that starts with <code>use</code></li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Rules of Hooks (the “why” + the “how”) 📏</h2>
+        <div class="callout danger">
+          <h3>🚫 The two big rules</h3>
+          <ul>
+            <li><strong>Only call Hooks at the top level</strong> (not inside loops, conditions, or nested functions).</li>
+            <li><strong>Only call Hooks from React functions</strong> (function components or custom Hooks).</li>
+          </ul>
+        </div>
+        <p>
+          <strong>Why does this exist?</strong> React relies on the <em>order</em> of Hook calls to correctly match state/ref “slots” between renders.
+          If you call Hooks conditionally, the order changes and React can’t reliably associate data with the right Hook call.
+        </p>
+        <div class="callout tip">
+          <h3>✅ Correct pattern</h3>
+          <pre><code>function MyComponent({ show }) {
+  const [count, setCount] = React.useState(0);
+
+  // ✅ Condition comes AFTER hooks
+  if (!show) return null;
+
+  return (
+    &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;
+      Clicked {count} times
+    &lt;/button&gt;
+  );
+}</code></pre>
+        </div>
+        <div class="callout warn">
+          <h3>❌ Incorrect pattern</h3>
+          <pre><code>function MyComponent({ show }) {
+  // ❌ Hook inside a condition
+  if (show) {
+    const [count, setCount] = React.useState(0);
+  }
+  return null;
+}</code></pre>
+          <p>Result: Hook call order becomes unpredictable → bugs or runtime errors.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>5) <code>useState</code> deeper understanding 🧠</h2>
+        <p>
+          <code>useState</code> is more than “store a value.” The goal is to model UI state cleanly and update it safely.
+        </p>
+        <h3>Helpful patterns</h3>
+        <ul>
+          <li><strong>Functional updates</strong> (best when the next state depends on the current state):</li>
+        </ul>
+        <pre><code>setCount(c =&gt; c + 1);</code></pre>
+        <ul>
+          <li><strong>Derived state</strong>: don’t store what you can compute (avoid duplicate sources of truth).</li>
+          <li><strong>Single responsibility state</strong>: keep state minimal and focused (better debugging + fewer bugs).</li>
+        </ul>
+        <div class="callout tip">
+          <p><strong>Rule of thumb:</strong> If you can calculate it from props/state during render, you probably don’t need to store it in state.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>6) <code>useRef</code> basics 🧷</h2>
+        <p>
+          <code>useRef</code> gives you a container that persists between renders <strong>without triggering a re-render</strong> when it changes.
+        </p>
+        <div class="callout">
+          <h3>Two common use cases</h3>
+          <ul>
+            <li>🎯 <strong>DOM access</strong> (focus an input, measure an element, etc.)</li>
+            <li>🗃️ <strong>Instance-like storage</strong> (store a timeout id, previous value, mutable flags, etc.)</li>
+          </ul>
+        </div>
+        <pre><code>function SearchBox() {
+  const inputRef = React.useRef(null);
+
+  function focusInput() {
+    inputRef.current?.focus();
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;input ref={inputRef} placeholder="Type..." /&gt;
+      &lt;button onClick={focusInput}&gt;Focus&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+        <div class="callout warn">
+          <h3>⚠️ What <code>useRef</code> is NOT</h3>
+          <ul>
+            <li>Not a replacement for state when UI must update.</li>
+            <li>If the screen needs to reflect the change, you usually want <code>useState</code>.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>7) Custom Hooks 🧰</h2>
+        <p>
+          A custom Hook is a function that starts with <code>use</code> and can call other Hooks.
+          It extracts reusable behavior so multiple components can share logic without duplication.
+        </p>
+        <div class="callout tip">
+          <h3>✅ Example: simple custom Hook</h3>
+          <pre><code>function useToggle(initial = false) {
+  const [value, setValue] = React.useState(initial);
+  const toggle = React.useCallback(() =&gt; setValue(v =&gt; !v), []);
+  return [value, toggle];
+}
+
+function Demo() {
+  const [isOpen, toggle] = useToggle();
+  return (
+    &lt;button onClick={toggle}&gt;
+      {isOpen ? "Open" : "Closed"}
+    &lt;/button&gt;
+  );
+}</code></pre>
+        </div>
+        <p>
+          Custom Hooks should feel like a “mini API” for one purpose. If you find the hook doing unrelated tasks, split it.
+        </p>
+      </section>
+
+      <section>
+        <h2>8) Mini checklist + quick self-test ✅</h2>
+        <div class="checklist">
+          <p><strong>Checklist</strong> (tick mentally before moving on):</p>
+          <ul style="list-style: none; padding-left: 0;">
+            <li><input type="checkbox" /> <label>I can explain why Hooks must be called at the top level.</label></li>
+            <li><input type="checkbox" /> <label>I know when to use <code>useState</code> vs <code>useRef</code>.</label></li>
+            <li><input type="checkbox" /> <label>I can describe what a custom Hook is and why it starts with <code>use</code>.</label></li>
+            <li><input type="checkbox" /> <label>I understand that <code>useEffect</code> will be revisited later.</label></li>
+          </ul>
+        </div>
+
+        <h3>Quick questions (no pressure) 📝</h3>
+        <ol>
+          <li>Why is calling a Hook inside an <code>if</code> statement dangerous?</li>
+          <li>What is the main difference between <code>useRef</code> and <code>useState</code> updates?</li>
+          <li>What problem do custom Hooks solve?</li>
+        </ol>
+
+        <div class="callout">
+          <h3>Suggested answers (short)</h3>
+          <ul>
+            <li>Hook order changes → React can’t match state/ref “slots” reliably.</li>
+            <li><code>useRef</code> changes don’t re-render; <code>useState</code> changes do.</li>
+            <li>Reuse logic cleanly across components without copy-paste.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>9) What to watch for in the next lessons 👀</h2>
+        <ul>
+          <li>More practical patterns around state updates and component design.</li>
+          <li>Real usage of <code>useRef</code> (DOM + non-DOM use cases).</li>
+          <li>Building custom Hooks that feel reusable and well-structured.</li>
+          <li>Finishing the project with better architecture and cleaner code.</li>
+        </ul>
+        <div class="callout tip">
+          <p><strong>Study tip:</strong> After each new Hook pattern, pause and ask: “Is this state, a ref, or derived data?” 🧠</p>
+        </div>
+      </section>
+
+      <footer>
+        <div>Print note: This page is designed for A4 printing. If anything looks tight, print at 100% scale (no “fit to page”).</div>
+        <div>Keyboard tip: Use <span class="kbd">Ctrl</span> + <span class="kbd">P</span> (Windows) or <span class="kbd">⌘</span> + <span class="kbd">P</span> (Mac) to print.</div>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

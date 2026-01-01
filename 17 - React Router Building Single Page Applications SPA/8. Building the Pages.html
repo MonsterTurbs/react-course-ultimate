@@ -1,0 +1,400 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WorldWise (React Router + CSS Modules) — Building the Pages (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --soft:#f6f7f9;
+      --border:#e6e6e6;
+      --accent:#0b57d0;
+      --ok:#0a7a35;
+      --warn:#8a4b00;
+      --bad:#9c1d1d;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column, print-friendly layout */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 22px 18px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: var(--soft);
+      padding: 16px 16px;
+      border-radius: 10px;
+    }
+    h1{
+      margin: 0 0 6px 0;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chip{
+      display:inline-block;
+      font-size: 12px;
+      color: var(--muted);
+      background:#fff;
+      border:1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+
+    main{ margin-top: 14px; }
+
+    h2{
+      margin: 18px 0 8px;
+      font-size: 16px;
+      line-height: 1.3;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    h3{
+      margin: 14px 0 6px;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+    p{ margin: 8px 0; }
+
+    .callout{
+      border: 1px solid var(--border);
+      border-left-width: 6px;
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 10px 0;
+      background: #fff;
+    }
+    .callout .title{
+      margin: 0 0 6px 0;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .callout.info{ border-left-color: var(--accent); }
+    .callout.ok{ border-left-color: var(--ok); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.bad{ border-left-color: var(--bad); }
+
+    ul{ margin: 8px 0 8px 20px; padding: 0; }
+    li{ margin: 6px 0; }
+
+    code, pre{
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    pre{
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .kbd{
+      font-family: var(--mono);
+      font-size: 12px;
+      border:1px solid var(--border);
+      background:#fff;
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    .table th,.table td{
+      border: 1px solid var(--border);
+      padding: 8px;
+      vertical-align: top;
+    }
+    .table th{
+      background: var(--soft);
+      text-align: left;
+    }
+
+    .divider{ height:1px; background:var(--border); margin: 14px 0; }
+
+    /* Print settings */
+    @page{
+      size: A4;
+      margin: 14mm 14mm 16mm 14mm;
+    }
+    @media print{
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width:none; padding:0; }
+      header{ border-radius:0; }
+      a{ color: var(--text); text-decoration: none; }
+      a[href]:after{ content: ""; }
+      .chip{ border-color: #d8d8d8; }
+      pre{ page-break-inside: avoid; }
+      .callout{ page-break-inside: avoid; }
+      h2,h3{ page-break-after: avoid; }
+      ul,ol{ page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧭 WorldWise — Building the Pages (React Router + CSS Modules)</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) • Single-column • A4 print-ready</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Copy starter UI + wire pages</span>
+        <span class="chip">🧩 Focus: Pages, PageNav, Logo link, routes</span>
+        <span class="chip">🧠 Skills: Debugging missing assets + imports</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>🎯 What you’re building in this lecture</h2>
+      <p>
+        You already know the fundamentals of <strong>React Router</strong> (routes + links) and <strong>CSS Modules</strong> (scoped styles). Now you “swap in” the real UI by copying the
+        <em>starter</em> pages/components into your project, then you wire a few missing pieces: navigation, logo link, and a missing login route.
+      </p>
+
+      <div class="callout info">
+        <p class="title">💡 Big idea</p>
+        <p>
+          Treat this like a real team workflow: a “designer teammate” provides ready-made markup + CSS modules. Your job is to integrate those files, connect routes/links, and fix integration issues.
+        </p>
+      </div>
+
+      <h2>🗂️ Starter files: where things go (and why)</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>📦 Item</th>
+            <th>📍 Put it here</th>
+            <th>✅ Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>data/</strong> folder</td>
+            <td>Project <strong>root</strong> (same level as <code>package.json</code>)</td>
+            <td>Used by the fake API / dev tooling in the project</td>
+          </tr>
+          <tr>
+            <td>Images like <strong>bg.jpg</strong>, logos, etc.</td>
+            <td><strong>public/</strong></td>
+            <td>Referenced by URL paths (e.g. <code>/bg.jpg</code>) without importing</td>
+          </tr>
+          <tr>
+            <td>Assets you want to <em>import</em> in JS</td>
+            <td><strong>src/assets</strong></td>
+            <td>Imported via ES modules (e.g. <code>import logo from ...</code>)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Common mistake: wrong image path</p>
+        <p>
+          If a CSS module tries <code>url('../img/bg.jpg')</code> but the file is actually in <strong>public</strong>, you’ll get a 404.
+          For public images, the safe path is usually <code>url('/bg.jpg')</code>.
+        </p>
+      </div>
+
+      <h2>🧱 Step-by-step integration checklist (VS Code)</h2>
+      <ul>
+        <li>📁 Drag <strong>starter/data</strong> to the <strong>project root</strong>.</li>
+        <li>🖼️ Drag the needed images (e.g. <strong>bg.jpg</strong>, logo images) into <strong>public/</strong>.</li>
+        <li>🧹 Delete <code>src/assets</code> if you won’t import images (optional, but matches the lesson).</li>
+        <li>📄 Copy starter <strong>pages</strong> into <code>src/pages</code> (overwrite the dummy pages).</li>
+        <li>🎨 Ensure each page’s <code>.module.css</code> is also copied (Homepage, Product, Pricing, Login).</li>
+        <li>🧭 Copy starter <strong>components</strong> as needed (PageNav, Logo, etc.).</li>
+        <li>🔁 Reopen changed files in VS Code (sometimes open tabs still show old content).</li>
+      </ul>
+
+      <h2>🏠 Homepage: add CTA button to “Go to the app”</h2>
+      <p>
+        The starter markup is missing a router link button that navigates to your app layout route (e.g. <code>/app</code>).
+        Use React Router’s <code>Link</code>.
+      </p>
+
+      <pre><code>// Homepage.jsx
+import { Link } from "react-router-dom";
+
+&lt;Link to="/app" className="cta"&gt;
+  Start tracking now 🚀
+&lt;/Link&gt;
+</code></pre>
+
+      <div class="callout info">
+        <p class="title">🧩 Why is <code>className="cta"</code> okay here?</p>
+        <p>
+          Because <code>cta</code> is a <strong>global</strong> class defined in <code>src/index.css</code>. This is a valid pattern when multiple pages need the exact same styling.
+        </p>
+      </div>
+
+      <h2>🧭 Page Navigation: PageNav + Logo</h2>
+      <p>
+        You add the shared navigation to each page so users can move without reloading. Typical links include:
+        <strong>Pricing</strong>, <strong>Product</strong>, and <strong>Login</strong>.
+      </p>
+
+      <h3>✅ NavLink for active styling</h3>
+      <p>
+        Use <code>NavLink</code> (not <code>Link</code>) so React Router automatically applies an <code>active</code> class to the current route.
+      </p>
+
+      <pre><code>// PageNav.jsx
+import { NavLink } from "react-router-dom";
+
+&lt;NavLink to="/pricing"&gt;Pricing&lt;/NavLink&gt;
+&lt;NavLink to="/product"&gt;Product&lt;/NavLink&gt;
+&lt;NavLink to="/login" className={styles.ctaLink}&gt;Login&lt;/NavLink&gt;
+</code></pre>
+
+      <h3>🏷️ CSS Modules tip: camelCase class names</h3>
+      <p>
+        In CSS modules, a class like <code>.cta-link</code> is awkward to reference in JS. Prefer <strong>camelCase</strong>:
+        <code>.ctaLink</code> so you can use <code>styles.ctaLink</code> easily.
+      </p>
+
+      <pre><code>/* PageNav.module.css */
+.ctaLink {
+  /* styles for the green login button */
+}
+</code></pre>
+
+      <h2>🖼️ Logo component: make it return to home</h2>
+      <p>
+        The logo should navigate to the homepage when clicked. Wrap the image in a <code>Link</code> to <code>"/"</code>.
+      </p>
+
+      <pre><code>// Logo.jsx
+import { Link } from "react-router-dom";
+
+export default function Logo() {
+  return (
+    &lt;Link to="/"&gt;
+      &lt;img src="/logo.png" alt="WorldWise logo" /&gt;
+    &lt;/Link&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout ok">
+        <p class="title">✅ Why <code>Link</code> (not <code>&lt;a&gt;</code>)?</p>
+        <p>
+          <code>Link</code> performs a <strong>client-side navigation</strong> (no hard refresh). <code>&lt;a&gt;</code> triggers a full page reload.
+        </p>
+      </div>
+
+      <h2>🔧 Integration bugs you will see (and how to fix them)</h2>
+
+      <h3>1) “Background image could not be found”</h3>
+      <ul>
+        <li>✅ Confirm the file exists in <strong>public/</strong>.</li>
+        <li>✅ Use <code>url('/bg.jpg')</code> for public assets.</li>
+      </ul>
+
+      <h3>2) “useState is not defined”</h3>
+      <p>
+        Some starter pages use state (e.g. Login page) but forgot imports.
+      </p>
+      <pre><code>import { useState } from "react";</code></pre>
+
+      <h3>3) Wrong module imported</h3>
+      <p>
+        If you copied modules around, it’s easy to import the old file. Verify the import path matches the correct file.
+      </p>
+      <pre><code>// Correct idea
+import styles from "./PageNav.module.css"; // same folder</code></pre>
+
+      <h3>4) Link works, but page shows “Not Found”</h3>
+      <p>
+        Usually this means the route is missing in <code>App.jsx</code>.
+      </p>
+
+      <h2>🧭 Add the missing /login route</h2>
+      <p>
+        If you can navigate to Pricing/Product but Login returns “Not Found,” add the route.
+        Keep routes in a readable order (matching navigation order).
+      </p>
+
+      <pre><code>// App.jsx (routing setup)
+import Login from "./pages/Login";
+
+&lt;Route path="login" element={&lt;Login /&gt;} /&gt;
+</code></pre>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Reminder about path values</p>
+        <p>
+          In React Router v6, nested route paths are often written without the leading slash (e.g. <code>path="login"</code>),
+          while <code>Link/NavLink to</code> commonly uses <code>"/login"</code> to start from the root.
+        </p>
+      </div>
+
+      <h2>✅ End state: what should work after this lecture</h2>
+      <ul>
+        <li>🏠 Homepage shows real content + background image loads correctly.</li>
+        <li>🧭 PageNav appears on all pages and highlights the active route.</li>
+        <li>🖼️ Logo is clickable and routes back to the homepage.</li>
+        <li>🔐 Login page is reachable via <code>/login</code> and the nav button looks like the design (CTA style).</li>
+        <li>🧪 You can reload on any page and it opens on that same route (SPA routing working).</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>🧠 Quick self-check questions</h2>
+      <ul>
+        <li>🤔 Why do we put images in <code>public/</code> instead of <code>src/assets</code> in this project?</li>
+        <li>🤔 Why does using <code>&lt;a href="..."&gt;</code> break the SPA feel?</li>
+        <li>🤔 What does <code>NavLink</code> give you that <code>Link</code> does not?</li>
+        <li>🤔 Why is <code>styles.ctaLink</code> preferred over a dashed CSS class name?</li>
+      </ul>
+
+      <div class="callout info">
+        <p class="title">➡️ What’s next</p>
+        <p>
+          Next lecture: build the <strong>App Layout</strong> (sidebar + map) and continue wiring logic/data.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

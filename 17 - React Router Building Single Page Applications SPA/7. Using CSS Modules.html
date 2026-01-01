@@ -1,0 +1,471 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WorldWise — Using CSS Modules (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --codebg: #0b0f19;
+      --codetext: #e8edf6;
+      --accent: #0b57d0;
+      --ok: #0f7b3a;
+      --warn: #b45309;
+      --bad: #b42318;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      hyphens: auto;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      margin: 14px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    h3 {
+      margin: 12px 0 6px;
+      font-size: 14px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 8px 20px; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.ok {
+      border-left-color: var(--ok);
+      background: #f3fff6;
+    }
+
+    .callout.warn {
+      border-left-color: var(--warn);
+      background: #fff7ed;
+    }
+
+    .callout.bad {
+      border-left-color: var(--bad);
+      background: #fff1f2;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      margin-right: 6px;
+      white-space: nowrap;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      background: var(--codebg);
+      color: var(--codetext);
+      border-radius: 12px;
+      padding: 12px 12px;
+      overflow: auto;
+      border: 1px solid #0b132a;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    .inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* Print rules */
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-radius: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+      a[href]:after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 Using CSS Modules in React (WorldWise Project)</h1>
+      <p class="subtitle">Reviewer / Study Guide — beginner-friendly notes, examples, and common pitfalls (A4 print-ready)</p>
+      <div class="meta">
+        <div><span class="tag">Topic</span> CSS Modules (Vite / Create React App)</div>
+        <div><span class="tag">Focus</span> Local scoping, class name hashing, global CSS, and <span class="inline-code">:global()</span></div>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>✅ Learning goals</h2>
+        <ul>
+          <li>Understand what CSS Modules are and why they’re useful (no more global class conflicts).</li>
+          <li>Create CSS module files using the correct naming convention: <span class="inline-code">ComponentName.module.css</span>.</li>
+          <li>Import module styles and apply them in JSX using <span class="inline-code">className={styles.someClass}</span>.</li>
+          <li>Know what NOT to do: avoid global element selectors that affect the whole app.</li>
+          <li>Use global CSS when appropriate (resets, CSS variables, base typography).</li>
+          <li>Use <span class="inline-code">:global()</span> to style classes coming from external sources (e.g., React Router’s <span class="inline-code">active</span> class).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧠 Quick concept: What is a CSS Module?</h2>
+        <p>
+          A CSS Module is a regular CSS file that becomes <strong>component-scoped</strong>. That means the classes you define in that file are meant to be used only by the component that imports them.
+        </p>
+        <div class="callout ok">
+          <p><strong>Key benefit:</strong> No more naming clashes. Two different components can both have a class named <span class="inline-code">nav</span>, and they won’t conflict.</p>
+        </div>
+        <p class="mini">😄 Good news: CSS Modules work out of the box in Create React App and Vite. Nothing to install.</p>
+      </section>
+
+      <section>
+        <h2>🗂️ Step 1 — Create the module file</h2>
+        <p>
+          The naming convention is critical. For a component named <strong>PageNav</strong>, the CSS module should be:
+        </p>
+        <p><span class="inline-code">PageNav.module.css</span></p>
+        <p>Example (simple placeholder styles):</p>
+        <pre><code>/* PageNav.module.css */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ✅ Scoped descendant selector: affects only ul INSIDE this component's .nav */
+.nav ul {
+  list-style: none;
+  display: flex;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+}
+</code></pre>
+
+        <div class="callout warn">
+          <p>
+            ⚠️ Avoid writing a plain element selector like <span class="inline-code">ul { ... }</span> inside a module.
+            Even though it’s in a module file, it can still become effectively global and defeat the purpose.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🔌 Step 2 — Import and use module classes in JSX</h2>
+        <p>
+          CSS Modules export all classes as one JavaScript object (commonly named <span class="inline-code">styles</span>).
+        </p>
+        <pre><code>// PageNav.jsx
+import { NavLink } from "react-router-dom";
+import styles from "./PageNav.module.css";
+
+export default function PageNav() {
+  return (
+    &lt;nav className={styles.nav}&gt;
+      &lt;ul&gt;
+        &lt;li&gt;&lt;NavLink to="/"&gt;Home&lt;/NavLink&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;NavLink to="/pricing"&gt;Pricing&lt;/NavLink&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;NavLink to="/product"&gt;Product&lt;/NavLink&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout">
+          <p>📌 Important: In JSX, module classNames are not strings. You use JavaScript expression mode:</p>
+          <p><span class="inline-code">className={styles.nav}</span> (not <span class="inline-code">className="nav"</span>)</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🔐 Why CSS Modules prevent naming clashes</h2>
+        <p>
+          When your app runs, CSS Modules transform your class names into unique names (they “hash” them).
+          Example:
+        </p>
+        <ul>
+          <li><span class="inline-code">.nav</span> becomes something like <span class="inline-code">nav__a1b2c</span> behind the scenes.</li>
+          <li>Another module’s <span class="inline-code">.nav</span> becomes <span class="inline-code">nav__x9y8z</span> — different, so no collision.</li>
+        </ul>
+        <div class="callout ok">
+          <p>✅ Result: You can reuse class names like <span class="inline-code">container</span>, <span class="inline-code">title</span>, <span class="inline-code">nav</span> across components safely.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Demo idea: Two components, same class name</h2>
+        <p>
+          You can create an <strong>AppNav</strong> component with its own module and also define <span class="inline-code">.nav</span> there.
+          They won’t clash.
+        </p>
+
+        <pre><code>/* AppNav.module.css */
+.nav {
+  background: rebeccapurple;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+</code></pre>
+
+        <pre><code>// AppNav.jsx
+import styles from "./AppNav.module.css";
+
+export default function AppNav() {
+  return (
+    &lt;nav className={styles.nav}&gt;
+      App Navigation
+    &lt;/nav&gt;
+  );
+}
+</code></pre>
+
+        <div class="callout warn">
+          <p>
+            ⚠️ You might see some devs do: <span class="inline-code">const { nav } = styles</span> and then <span class="inline-code">className={nav}</span>.
+            It works, but it can reduce clarity in large JSX files. Using <span class="inline-code">styles.nav</span> is often easier to scan.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🌍 Global CSS is still allowed (and sometimes required)</h2>
+        <p>
+          Some CSS should be global, like:
+        </p>
+        <ul>
+          <li>CSS reset (box-sizing, margins)</li>
+          <li>CSS variables (<span class="inline-code">:root { --color: ... }</span>)</li>
+          <li>Base typography on <span class="inline-code">body</span></li>
+        </ul>
+
+        <p>
+          In a Vite project, you can keep a global <span class="inline-code">index.css</span> and import it in <span class="inline-code">main.jsx</span>:
+        </p>
+        <pre><code>// main.jsx
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App.jsx";
+import "./index.css";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  &lt;React.StrictMode&gt;
+    &lt;App /&gt;
+  &lt;/React.StrictMode&gt;
+);
+</code></pre>
+
+        <div class="callout ok">
+          <p>✅ Best practice: Keep global CSS minimal (variables + reset). Put component-specific styles in CSS modules.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧷 Using <span class="inline-code">:global()</span> inside a module</h2>
+        <p>
+          Sometimes you need to style a class name that does <strong>not</strong> come from your module — for example, a class provided by a library.
+          In React Router, <span class="inline-code">NavLink</span> automatically adds an <span class="inline-code">active</span> class to the current route.
+        </p>
+
+        <div class="callout warn">
+          <p>
+            ⚠️ If you write <span class="inline-code">.nav .active { ... }</span> inside a module, it may not work as expected because <span class="inline-code">active</span> can get treated like a module class.
+          </p>
+        </div>
+
+        <p>✅ Correct approach: mark the external class as global.</p>
+        <pre><code>/* PageNav.module.css */
+.nav :global(.active) {
+  background: #16a34a; /* green */
+  color: white;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+</code></pre>
+
+        <div class="callout">
+          <p>🧠 Rule of thumb: Use <span class="inline-code">:global()</span> when the class name originates outside your module (router, third-party libs, etc.).</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>🛠️ Common mistakes and fixes</h2>
+        <h3>1) “My styles don’t apply”</h3>
+        <ul>
+          <li>Check the filename ends with <span class="inline-code">.module.css</span>.</li>
+          <li>Make sure you imported it: <span class="inline-code">import styles from "./X.module.css"</span>.</li>
+          <li>Make sure you used <span class="inline-code">className={styles.someClass}</span> (not a plain string).</li>
+        </ul>
+
+        <h3>2) “It styles the whole app (I thought it was scoped)”</h3>
+        <ul>
+          <li>Avoid naked element selectors like <span class="inline-code">ul { ... }</span>.</li>
+          <li>Prefer scoped selectors like <span class="inline-code">.nav ul { ... }</span>.</li>
+        </ul>
+
+        <h3>3) “NavLink active styling doesn’t work”</h3>
+        <ul>
+          <li>Use <span class="inline-code">:global(.active)</span> inside your module selector chain.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🧾 Mini recap</h2>
+        <div class="two-col">
+          <div>
+            <p><strong>✅ What you do</strong></p>
+            <ul>
+              <li>Create <span class="inline-code">Component.module.css</span></li>
+              <li>Import: <span class="inline-code">import styles from "./Component.module.css"</span></li>
+              <li>Use: <span class="inline-code">className={styles.className}</span></li>
+              <li>Keep global CSS for reset/variables</li>
+              <li>Use <span class="inline-code">:global()</span> for external classes</li>
+            </ul>
+          </div>
+          <div>
+            <p><strong>⚠️ What you avoid</strong></p>
+            <ul>
+              <li>Using <span class="inline-code">className="nav"</span> (won’t map to the hashed class)</li>
+              <li>Using global element selectors inside modules</li>
+              <li>Forgetting <span class="inline-code">:global(.active)</span> for NavLink</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Quick self-check (practice)</h2>
+        <ol>
+          <li>What file extension makes CSS a “module” in Vite/CRA?</li>
+          <li>Why do CSS Modules prevent class name collisions?</li>
+          <li>How do you style a class coming from React Router (<span class="inline-code">active</span>) inside a module?</li>
+        </ol>
+        <div class="callout ok">
+          <p>✅ If you can answer these, you’re ready to use CSS Modules confidently in the WorldWise project.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Next up</h2>
+        <p>
+          🚀 With CSS Modules set up, you can now style each page and reusable component without worrying about global CSS side effects.
+          This becomes especially valuable as your React Router app grows.
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

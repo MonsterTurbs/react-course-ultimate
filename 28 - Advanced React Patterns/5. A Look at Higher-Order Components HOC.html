@@ -1,0 +1,398 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced React Patterns — Higher-Order Components (HOC) | Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --good:#0f7b3e;
+      --warn:#8a5a00;
+      --bad:#a61b1b;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column page container */
+    .page{
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 18px 40px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: linear-gradient(0deg, var(--soft2), var(--bg));
+      padding:18px 16px;
+      border-radius:12px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 1.55rem;
+      line-height:1.25;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: .98rem;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      background:#fff;
+      color:#222;
+      font-size:.88rem;
+    }
+
+    main{margin-top:18px;}
+
+    h2{
+      margin: 18px 0 8px;
+      font-size: 1.22rem;
+      line-height:1.25;
+    }
+
+    h3{
+      margin: 14px 0 6px;
+      font-size: 1.06rem;
+    }
+
+    p{margin: 8px 0;}
+
+    .callout{
+      border:1px solid var(--border);
+      border-left: 6px solid var(--accent);
+      background: var(--soft2);
+      border-radius:10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout.good{border-left-color: var(--good);}
+    .callout.warn{border-left-color: var(--warn);}
+    .callout.bad{border-left-color: var(--bad);}
+
+    .callout .title{
+      margin:0 0 6px;
+      font-weight:700;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+
+    .kvs{
+      margin:12px 0;
+      border:1px solid var(--border);
+      border-radius:10px;
+      overflow:hidden;
+    }
+
+    .kvs .row{
+      display:grid;
+      grid-template-columns: 200px 1fr;
+      gap:10px;
+      padding:10px 12px;
+      border-top:1px solid var(--border);
+      background:#fff;
+    }
+
+    .kvs .row:first-child{border-top:none;}
+
+    .kvs .key{color:#222; font-weight:700;}
+    .kvs .val{color:#222;}
+
+    ul{margin:8px 0 8px 18px; padding:0;}
+    li{margin:6px 0;}
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      margin:10px 0;
+      padding:12px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background: var(--soft);
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap:anywhere;
+    }
+
+    .hr{
+      height:1px;
+      background:var(--border);
+      margin: 18px 0;
+    }
+
+    .checklist{
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:#fff;
+      padding: 10px 12px;
+      margin: 12px 0;
+    }
+
+    .checklist h3{margin-top:0;}
+
+    .small{color:var(--muted); font-size:.94rem;}
+
+    .footer{
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    /* Print styles */
+    @media print {
+      @page { size: A4; margin: 14mm 12mm; }
+
+      body{ background:#fff; }
+      .page{ max-width:none; padding:0; }
+
+      header, .callout, .kvs, pre, .checklist {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      h1, h2, h3 { break-after: avoid-page; page-break-after: avoid; }
+
+      /* Do not print URL/link targets */
+      a, a:visited { color: inherit; text-decoration: none; }
+      a[href]::after { content: "" !important; }
+
+      /* Reduce ink-heavy backgrounds */
+      pre{ background:#fff; }
+      .callout{ background:#fff; }
+      header{ background:#fff; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Higher-Order Components (HOC) — Study Guide</h1>
+      <p class="subtitle">Advanced React Patterns: what an HOC is, why it exists, and how to recognize/use one in real projects.</p>
+      <div class="meta">
+        <span class="chip">🧠 Topic: Advanced React Patterns</span>
+        <span class="chip">🧩 Pattern: Higher-Order Component (HOC)</span>
+        <span class="chip">🎯 Goal: Enhance a component you cannot edit</span>
+      </div>
+    </header>
+
+    <main>
+      <div class="callout">
+        <p class="title">✅ Core idea (memorize this)</p>
+        <p>
+          A <strong>Higher-Order Component</strong> is a <strong>function</strong> that <strong>takes a component</strong> and <strong>returns a new component</strong> that wraps it with extra behavior.
+          Think: “<strong>Component → Enhanced Component</strong>”.
+        </p>
+        <p class="small">In this lecture’s scenario: you have a <em>ProductList</em> from a third-party library, you cannot change it, but you want to add toggle features (collapse list + show less/more).</p>
+      </div>
+
+      <h2>1) When would you use an HOC?</h2>
+      <div class="kvs" role="table" aria-label="When to use an HOC">
+        <div class="row" role="row">
+          <div class="key" role="cell">Situation</div>
+          <div class="val" role="cell">You have a component you <strong>cannot modify</strong> (third-party / locked code), but you need to <strong>add behavior</strong> around it.</div>
+        </div>
+        <div class="row" role="row">
+          <div class="key" role="cell">What you add</div>
+          <div class="val" role="cell">Reusable logic + UI wrapper elements (e.g., buttons, layout, computed props).</div>
+        </div>
+        <div class="row" role="row">
+          <div class="key" role="cell">Modern reality</div>
+          <div class="val" role="cell">Writing HOCs by hand is less common today (hooks exist), but many libraries still <strong>expose HOCs</strong> and you need to understand them.</div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Important context</p>
+        <p>
+          HOCs became popular before React Hooks because they were one of the main ways to share stateful logic.
+          Today, you usually prefer <strong>custom hooks</strong> for shared logic, and <strong>composition</strong> for shared UI — but HOCs are still around.
+        </p>
+      </div>
+
+      <h2>2) What does an HOC look like?</h2>
+      <p>
+        By convention, HOCs are often named starting with <code>with</code> (e.g., <code>withToggles</code>, <code>withAuth</code>, <code>withRouter</code>). 🏷️
+      </p>
+
+      <div class="callout good">
+        <p class="title">🧩 Mental model</p>
+        <ul>
+          <li>🧱 You start with a “base” component (e.g., <code>ProductList</code>).</li>
+          <li>🔧 The HOC adds features by wrapping it (buttons, logic, extra props).</li>
+          <li>🎁 Result: a new component (e.g., <code>ProductListWithToggles</code>) that you render instead.</li>
+        </ul>
+      </div>
+
+      <h3>Generic template</h3>
+      <pre><code>// HOC signature
+function withSomething(WrappedComponent) {
+  return function EnhancedComponent(props) {
+    // 1) add state/logic
+    // 2) compute new props
+    // 3) render wrapper UI
+
+    return (
+      &lt;div&gt;
+        {/* wrapper UI */}
+        &lt;WrappedComponent {...props} /* plus extras */ /&gt;
+      &lt;/div&gt;
+    );
+  };
+}</code></pre>
+
+      <h2>3) The lecture example: <code>withToggles</code></h2>
+      <p>
+        Scenario: you receive a third-party <code>ProductList</code> that cannot be changed, but you want to add the same two toggle behaviors from the previous lecture:
+      </p>
+      <ul>
+        <li>🟣 Collapse/expand the list</li>
+        <li>🔽 Show less / show all (e.g., only 3 items vs all items)</li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">🧠 What the HOC does</p>
+        <ul>
+          <li>Creates internal state (collapsed? showAll?)</li>
+          <li>Computes <code>displayItems</code> based on toggles</li>
+          <li>Renders the same wrapper UI (buttons + layout)</li>
+          <li>Renders <code>WrappedComponent</code> in the middle, passing props + computed items</li>
+        </ul>
+      </div>
+
+      <h3>How you create the enhanced component</h3>
+      <pre><code>// 1) Import the HOC and the base component
+// 2) Call the HOC with the base component
+const ProductListWithToggles = withToggles(ProductList);
+
+// 3) Render the enhanced component instead of the original
+&lt;ProductListWithToggles title="Products (HOC)" items={products} /&gt;;</code></pre>
+
+      <div class="callout good">
+        <p class="title">🎯 Key takeaway</p>
+        <p>
+          Calling an HOC like <code>withToggles(ProductList)</code> returns a <strong>new component</strong>.
+          That new component behaves like the original, but with extra functionality.
+        </p>
+      </div>
+
+      <h2>4) Why the wrapper spreads props (<code>{...props}</code>)</h2>
+      <p>
+        A common pattern inside HOCs is forwarding props to the wrapped component:
+      </p>
+      <pre><code>&lt;WrappedComponent {...props} items={displayItems} /&gt;</code></pre>
+      <ul>
+        <li>✅ Keeps the enhanced component compatible with the original API</li>
+        <li>✅ Allows you to “decorate” behavior without breaking usage</li>
+        <li>⚠️ But: be careful not to accidentally overwrite props (order matters)</li>
+      </ul>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Common pitfall: prop overwrites</p>
+        <p>
+          If you do <code>&lt;WrappedComponent items={displayItems} {...props} /&gt;</code>, then <code>props.items</code> can override <code>displayItems</code>.
+          Usually you want <code>{...props}</code> first, then your overrides last.
+        </p>
+      </div>
+
+      <h2>5) HOC vs Render Props vs Custom Hooks (quick comparison)</h2>
+      <div class="kvs" role="table" aria-label="Pattern comparison">
+        <div class="row" role="row">
+          <div class="key" role="cell">Custom Hook</div>
+          <div class="val" role="cell">Reuse <strong>stateful logic</strong> only. You still write the UI in each component. 🪝</div>
+        </div>
+        <div class="row" role="row">
+          <div class="key" role="cell">Render Props</div>
+          <div class="val" role="cell">Reuse logic + wrapper UI, but you pass a <strong>render function</strong> to control item rendering. 🎨</div>
+        </div>
+        <div class="row" role="row">
+          <div class="key" role="cell">HOC</div>
+          <div class="val" role="cell">Reuse logic + wrapper UI by <strong>wrapping a component</strong> and returning an enhanced component. 🧩</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p class="title">🤔 Practical rule of thumb</p>
+        <ul>
+          <li>If the library gives you an HOC, learn how to <strong>use</strong> it (even if you rarely write one).</li>
+          <li>If you control the codebase, prefer <strong>hooks + composition</strong> most of the time.</li>
+          <li>If you need to reuse logic + wrapper UI but want the caller to decide what to render, render props can be a good fit.</li>
+        </ul>
+      </div>
+
+      <h2>6) Mini checklist for understanding an HOC in the wild</h2>
+      <div class="checklist">
+        <h3>✅ Spot it fast</h3>
+        <ul>
+          <li>🔎 It’s a function that <strong>accepts a component</strong> as an argument.</li>
+          <li>🔁 It <strong>returns a new component</strong> (often an inner function).</li>
+          <li>🧩 The returned component renders <code>&lt;WrappedComponent ... /&gt;</code> inside.</li>
+          <li>📦 It often forwards props: <code>&lt;WrappedComponent {...props} /&gt;</code>.</li>
+          <li>🏷️ Naming often starts with <code>with</code>: <code>withToggles</code>, <code>withAuth</code>, etc.</li>
+        </ul>
+      </div>
+
+      <h2>7) Summary (what to remember for exams/interviews)</h2>
+      <ul>
+        <li>✅ HOC = <strong>function</strong> that takes a component and returns an <strong>enhanced component</strong>.</li>
+        <li>✅ Used when you want to <strong>add features</strong> to a component, especially one you <strong>cannot edit</strong>.</li>
+        <li>✅ Still relevant because some libraries expose HOCs, even if hooks are more common today.</li>
+        <li>✅ Typical API: <code>const Enhanced = withX(Base);</code> then render <code>&lt;Enhanced /&gt;</code>.</li>
+      </ul>
+
+      <div class="hr"></div>
+
+      <div class="callout good">
+        <p class="title">🚀 Next topic preview</p>
+        <p>
+          The next major pattern is the <strong>Compound Component Pattern</strong> — often considered the most useful modern pattern for building reusable UI systems (e.g., modals, context menus).
+        </p>
+      </div>
+
+      <p class="footer">
+        Print tip: Use your browser’s “Print” → “Save as PDF”. This page is optimized for A4, single-column printing with safe line-wrapping.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

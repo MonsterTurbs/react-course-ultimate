@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Atomic Blog — Challenge 1 (Study Guide & Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #1a73e8;
+      --accent-2: #0f766e;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      hyphens: auto;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px 60px;
+    }
+
+    header {
+      padding: 16px 14px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.55rem;
+      line-height: 1.25;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 0.88rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+      line-height: 1.3;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.03rem;
+      line-height: 1.35;
+    }
+
+    p { margin: 8px 0; }
+
+    ul, ol {
+      margin: 8px 0 8px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #f3f8ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.warn {
+      border-left-color: var(--warn);
+      background: #fff7ed;
+    }
+
+    .callout.danger {
+      border-left-color: var(--danger);
+      background: #fef2f2;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .kbd {
+      font-family: var(--mono);
+      font-size: 0.92em;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    code, pre {
+      font-family: var(--mono);
+      font-size: 0.92rem;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 10px 12px;
+      background: #0b1020;
+      color: #e6edf3;
+      border-radius: 10px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .muted { color: var(--muted); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 10px 0;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Print rules (A4, clean, no cut-offs) */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { break-inside: avoid; page-break-inside: avoid; }
+      a { color: #000; text-decoration: none; }
+      a[href]::after { content: ""; } /* do not print URLs */
+      .chip { background: #fff; }
+      pre { break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>⚛️ Atomic Blog — Challenge 1: Understand the App (Reviewer / Study Guide)</h1>
+      <p class="subtitle">Goal: practice reading an existing codebase, mapping the data flow, and spotting prop drilling—before learning the Context API.</p>
+      <div class="meta">
+        <span class="chip">🧭 Focus: Code reading & data-flow tracing</span>
+        <span class="chip">🧠 Topic: Context API setup stage</span>
+        <span class="chip">🧰 Tooling: CRA vs Vite detection</span>
+        <span class="chip">⏱️ Suggested time: 15–20 minutes</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>🎯 What you are expected to achieve</h2>
+        <ul>
+          <li>✅ Understand <strong>what the Atomic Blog app does</strong> (features + UI behavior).</li>
+          <li>✅ Identify <strong>where state lives</strong> and how it flows through components (top-down, props, callbacks).</li>
+          <li>✅ Build a mental model of the <strong>component tree</strong> and the data dependencies.</li>
+          <li>✅ Notice <strong>prop drilling</strong> and why it becomes painful in real projects.</li>
+        </ul>
+        <div class="callout">
+          <strong>💡 Main skill:</strong> You are simulating a real team scenario: someone built the project before you joined, and you must quickly become productive by understanding the code.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧰 Setup & run the starter project</h2>
+        <h3>1) Copy starter folder</h3>
+        <ul>
+          <li>Open course starter files → find <strong>Project #12: Atomic Blog</strong>.</li>
+          <li>Copy the entire <strong>starter</strong> folder to your working location (Desktop is fine), then rename to <strong>Atomic Blog</strong>.</li>
+          <li>Open the folder in VS Code.</li>
+        </ul>
+
+        <h3>2) Install dependencies</h3>
+        <p>Because the starter folder ships without <code>node_modules</code>, you must install packages:</p>
+        <pre>npm install</pre>
+
+        <h3>3) Determine whether it is CRA or Vite</h3>
+        <p>Check <code>package.json</code> → <code>scripts</code>:</p>
+        <ul>
+          <li>If you see <strong>react-scripts</strong> (e.g., <code>react-scripts start</code>) → it is <strong>Create React App (CRA)</strong>.</li>
+          <li>If you see <strong>vite</strong> (e.g., <code>vite</code>, <code>vite build</code>) → it is a <strong>Vite</strong> project.</li>
+        </ul>
+
+        <h3>4) Start the app</h3>
+        <p>For CRA:</p>
+        <pre>npm start</pre>
+
+        <div class="callout warn">
+          <strong>⚠️ Tip:</strong> If port 3000 is already used, CRA will usually ask to run on another port. Say “Yes”.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧭 How to study the codebase (practical strategy)</h2>
+        <div class="grid">
+          <div>
+            <h3>Step A — Start from the UI</h3>
+            <ul>
+              <li>Click around the app and list features you observe.</li>
+              <li>Note what updates when you interact (what changes in the UI).</li>
+              <li>Ask: “Which data is displayed? Where could it come from?”</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3>Step B — Inspect the component tree</h3>
+            <ul>
+              <li>Open React DevTools → <strong>Components</strong> tab.</li>
+              <li>Sketch the tree on paper or in a note. Focus on the main containers and repeated list items.</li>
+              <li>Identify which components hold state vs presentational components.</li>
+            </ul>
+            <p class="muted">📝 Output you want: a simple diagram like <em>App → Header → Controls → List → ListItem</em> (exact names depend on the starter).</p>
+          </div>
+
+          <div>
+            <h3>Step C — Find “the state owner”</h3>
+            <ul>
+              <li>Search for <code>useState</code>, <code>useReducer</code>, or any data arrays/objects.</li>
+              <li>Confirm: which component owns the “source of truth” state?</li>
+              <li>Look for derived state (e.g., filtering, sorting) and where it is computed.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3>Step D — Trace data flow (props + callbacks)</h3>
+            <ul>
+              <li>Follow props passed down through layers (especially data arrays and handlers like <code>onAdd</code>, <code>onDelete</code>, <code>onSelect</code>).</li>
+              <li>For any user action: find the event handler in the component, then jump to the function definition.</li>
+              <li>Track: “user action → handler → state update → UI re-render”.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>🧠 Mental model:</strong> React apps are usually “top-down state, bottom-up events”. Data flows down via props; user events bubble up via callbacks that update state.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧱 Prop drilling (what to watch for)</h2>
+        <p>
+          <strong>Prop drilling</strong> happens when you pass props through intermediate components that do not really need them,
+          just so a deeper child can use them.
+        </p>
+        <div class="callout warn">
+          <strong>🔎 In this challenge:</strong> The code intentionally contains a lot of prop drilling so you can feel the pain and understand why Context exists.
+        </div>
+
+        <h3>Why prop drilling becomes a problem</h3>
+        <ul>
+          <li>🧩 Hard to maintain: many components must be updated when a prop changes shape.</li>
+          <li>🧭 Hard to trace: it becomes unclear where data originates or is used.</li>
+          <li>🧪 Hard to test: intermediate components must accept props they do not care about.</li>
+          <li>👥 Team friction: new developers struggle to understand the data flow quickly.</li>
+        </ul>
+
+        <h3>What to write down while studying</h3>
+        <ul>
+          <li>Which props are passed through multiple layers?</li>
+          <li>Which components are “prop pass-through only”?</li>
+          <li>Which state seems like it should be global/shared?</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🗺️ Suggested worksheet (fill this out as you study)</h2>
+        <ol>
+          <li>📌 <strong>Main state variables:</strong> list them (e.g., posts, search, sort, selection, form input).</li>
+          <li>🏠 <strong>State owner components:</strong> where each piece of state is defined.</li>
+          <li>🔁 <strong>Derived state:</strong> what is computed from other state (e.g., filteredPosts).</li>
+          <li>🧷 <strong>Handlers:</strong> which events update which state (e.g., handleAddPost → setPosts).</li>
+          <li>🧬 <strong>Prop drilling chain:</strong> write one example chain from owner → deep child.</li>
+        </ol>
+        <div class="callout">
+          <strong>✅ If you can explain one full cycle</strong> (user action → state update → UI update) clearly, you are ready to move on to Context.
+        </div>
+      </section>
+
+      <section>
+        <h2>🧪 Quick self-check (mini quiz)</h2>
+        <ol>
+          <li>What tells you this project is CRA and not Vite?</li>
+          <li>Where does the main state live (which component)?</li>
+          <li>Give one example of prop drilling in the app.</li>
+          <li>What is one prop you pass through components that do not use it?</li>
+          <li>Which UI state would be a good candidate for Context later?</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>🧾 Transcript (original lecture text)</h2>
+        <p class="muted">Included for completeness and future review.</p>
+        <div class="divider"></div>
+        <p>Let's do something unconventional now and start the section with a challenge.</p>
+        <p>However, this is a very different challenge because all I want you to do in this one is to study and understand both the code and the data flow in a small, new application on your own.</p>
+        <p>And to get started, let's just open up our starter files and then let's go to this project number 12, called Atomic Blog, and then let's copy the entire starter folder onto our desktop.</p>
+        <p>And then we can just rename it to Atomic Blog again.</p>
+        <p>And then all we're going to do is to open it up in VS code.</p>
+        <p>So this time, we are not creating a new project from scratch using Create React App, or Vite, but instead I already did that before and so here are all the files now.</p>
+        <p>So, the idea of this challenge is that someone on your team built this small project before you had joined the team and so now they handed that project over to you, and so of course then you need to jump into the project and understand how it works and what it does.</p>
+        <p>And so that is basically the goal of this challenge.</p>
+        <p>So, this is a super important skill to have as a React developer, especially if you work on a team with other developers.</p>
+        <p>So then, you really need to be able to understand the React code that other developers wrote.</p>
+        <p>And so that's what we will do now.</p>
+        <p>So, first of all, notice how we don't have any node modules folder, and so the first thing to do is to install that by opening up our terminal and run NPM install.</p>
+        <p>Now, we don't even know how this project was built, so if it is a Vite project or if it's a Create React App project.</p>
+        <p>And to check that out, we can open up our package.json.</p>
+        <p>And then here in the script, we see that all of them start with React scripts and not Vite.</p>
+        <p>So therefore, this is a Create React App, okay?</p>
+        <p>Therefore, that means that we start this application by running NPM start.</p>
+        <p>So, otherwise we wouldn't even know how to start this application.</p>
+        <p>Now, here we have something running already, so let's just try another one.</p>
+        <p>And there we go.</p>
+        <p>So, it takes some time to open here, as always, but then here it is.</p>
+        <p>So this is The Atomic Blog.</p>
+        <p>Now, I will not explain what this application is and what it does because that's the whole point of this challenge.</p>
+        <p>So, for the rest of this video, I want you to now explore the code right here in the source code folder and then the application here as well.</p>
+        <p>So, probably for that, you should take a look at a component tree first and then move to the code and check where most of the state lives and then how that state and the data in general flow through the application tree.</p>
+        <p>Now, one of the main things that I want you to notice as you do this is how there is a lot of prop drilling going on.</p>
+        <p>Now, some of that prop drilling could actually easily be solved, but this example has all of that prop drilling actually on purpose.</p>
+        <p>So, it's a bit of an artificial example just to showcase this problem.</p>
+        <p>But anyway, I will now leave you to it.</p>
+        <p>So, take at least 15 or 20 minutes to understand this application now because you will need to understand it actually to keep going in this section.</p>
+        <p>So, I will suppose that after this lecture, you really know the code base in and out.</p>
+        <p>And then, once you're done doing that, I meet you in the next lecture where we will talk about what the context API is.</p>
+      </section>
+
+      <section>
+        <h2>✅ Done criteria</h2>
+        <ul>
+          <li>🙂 You can explain the app’s purpose in 2–3 sentences.</li>
+          <li>🧭 You can point to the main state owner(s) in code.</li>
+          <li>🧵 You can name at least one prop-drilling chain and why it’s annoying.</li>
+          <li>🚀 You feel ready to learn Context as a solution to the pain you observed.</li>
+        </ul>
+        <p class="muted">Next lecture: what the Context API is, and why it helps with prop drilling and shared state.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

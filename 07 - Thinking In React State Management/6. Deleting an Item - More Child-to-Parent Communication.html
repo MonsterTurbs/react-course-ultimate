@@ -1,0 +1,414 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Deleting an Item — More Child-to-Parent Communication | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background: #fef2f2; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .diagram{
+      border: 1px dashed var(--border);
+      background:#ffffff;
+      border-radius: 10px;
+      padding: 10px 10px;
+      margin: 12px 0;
+    }
+
+    .badge{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:#ffffff;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      color: var(--muted);
+      vertical-align: middle;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre, .diagram{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn, .callout.danger{ background:#ffffff; }
+      .card, .term, pre, .callout, .diagram{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Deleting an Item — More Child-to-Parent Communication ❌⬆️</h1>
+      <p class="subtitle">
+        Reviewer/study guide: implementing delete behavior in the Far Away app. The click happens in <strong>Item</strong>, but state lives in <strong>App</strong>, so we use callbacks for child-to-parent communication.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">🧬 One-way data flow</span>
+        <span class="chip">⬆️ Child-to-parent communication</span>
+        <span class="chip">🧱 Immutable array updates</span>
+        <span class="chip">🧹 Delete with filter()</span>
+        <span class="chip">🪝 Pass callbacks as props</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Goal: Click ❌ to Remove an Item</h2>
+      <div class="card">
+        <ul>
+          <li>Each packing entry is rendered by an <strong>Item</strong> component.</li>
+          <li>The delete click happens in <strong>Item</strong> (child).</li>
+          <li>The <span class="badge">items</span> state lives in <strong>App</strong> (parent).</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <p>
+          This is another classic case of <strong>child-to-parent communication</strong>:
+          a child component needs to trigger a state update that lives in the parent.
+        </p>
+      </div>
+
+      <div class="diagram" aria-label="Component tree">
+        <pre><code>App (items state)
+├─ Form
+└─ PackingList
+   └─ Item (delete click happens here)
+</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Step 1 — Create the Delete Handler Where State Lives (in App) 🏠</h2>
+      <div class="card">
+        <p>
+          We delete by updating state. To know which element to delete, we pass an <strong>id</strong> into the handler.
+        </p>
+        <pre><code>function App() {
+  const [items, setItems] = useState([]);
+
+  function handleDeleteItem(id) {
+    setItems((items) =&gt; items.filter((item) =&gt; item.id !== id));
+  }
+
+  return (
+    &lt;div className="app"&gt;
+      &lt;Form onAddItems={handleAddItems} /&gt;
+      &lt;PackingList items={items} onDeleteItem={handleDeleteItem} /&gt;
+      &lt;Stats items={items} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+        <p class="mini">
+          <strong>Why <code>filter</code>?</strong> It returns a new array (immutable). Anything that doesn’t match stays. The matching id is removed.
+        </p>
+      </div>
+
+      <div class="term">
+        <div class="icon">🧱</div>
+        <div class="body">
+          <p class="title">Immutable delete pattern</p>
+          <p class="desc">Delete with <code>filter()</code> so you don’t mutate the original array (React-friendly).</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Step 2 — Pass the Handler Down to Where the Click Happens ⬇️</h2>
+      <div class="card">
+        <p>
+          The click is inside <strong>Item</strong>, but <strong>Item</strong> is created inside <strong>PackingList</strong>.
+          So the handler travels through <strong>PackingList</strong> to each <strong>Item</strong>.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>PackingList receives and forwards the handler</h3>
+        <pre><code>function PackingList({ items, onDeleteItem }) {
+  return (
+    &lt;div className="list"&gt;
+      &lt;ul&gt;
+        {items.map((item) =&gt; (
+          &lt;Item
+            key={item.id}
+            item={item}
+            onDeleteItem={onDeleteItem}
+          /&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+        <p class="mini">
+          PackingList doesn’t "use" the delete handler itself; it just passes it along.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <p>
+          You can’t pass from <strong>App</strong> directly to <strong>Item</strong> unless App renders Item directly.
+          Props flow only through the actual parent→child relationships.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Step 3 — Call the Handler Correctly in Item (Don’t Accidentally Pass the Event) 🎯</h2>
+      <div class="card">
+        <p>
+          In Item, we want to call <code>onDeleteItem</code> with <code>item.id</code>.
+          If you pass <code>onDeleteItem</code> directly to <code>onClick</code>, React calls it with the event object.
+        </p>
+      </div>
+
+      <div class="term">
+        <div class="icon">⚠️</div>
+        <div class="body">
+          <p class="title">Common mistake</p>
+          <p class="desc">This passes the click event object into your function (not the id).</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Wrong ❌</h3>
+        <pre><code>function Item({ item, onDeleteItem }) {
+  return (
+    &lt;li&gt;
+      &lt;span&gt;{item.quantity} {item.description}&lt;/span&gt;
+      &lt;button onClick={onDeleteItem}&gt;❌&lt;/button&gt;
+    &lt;/li&gt;
+  );
+}
+</code></pre>
+      </div>
+
+      <div class="term">
+        <div class="icon">✅</div>
+        <div class="body">
+          <p class="title">Correct pattern</p>
+          <p class="desc">Wrap the call in an arrow function so you can pass your own argument (item.id).</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Correct ✅</h3>
+        <pre><code>function Item({ item, onDeleteItem }) {
+  return (
+    &lt;li&gt;
+      &lt;span&gt;{item.quantity} {item.description}&lt;/span&gt;
+      &lt;button onClick={() =&gt; onDeleteItem(item.id)}&gt;❌&lt;/button&gt;
+    &lt;/li&gt;
+  );
+}
+</code></pre>
+
+        <p class="mini">
+          <strong>Why this works:</strong> you’re passing a function to React.
+          React calls it on click, and then your function calls <code>onDeleteItem</code> with the id.
+        </p>
+      </div>
+
+      <div class="callout">
+        <p>
+          This is the same principle as form submission:
+          React calls your handler with an event — unless you wrap and pass what you need (like an id).
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) What React Does After Delete 🔄</h2>
+      <div class="card">
+        <ol>
+          <li>User clicks ❌ in <strong>Item</strong>.</li>
+          <li><strong>Item</strong> calls <code>onDeleteItem(item.id)</code> ⬆️</li>
+          <li><strong>App</strong> runs <code>setItems</code> with a filtered array.</li>
+          <li>State updates → React re-renders affected components → UI updates (item disappears). ✨</li>
+        </ol>
+      </div>
+
+      <div class="callout ok">
+        <p>
+          Key takeaway: the UI changed because state changed.
+          We did not manually remove DOM nodes. React re-rendered the view.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Bonus Note: Initial Items vs Empty State 🧪</h2>
+      <div class="card">
+        <p>
+          You can initialize your state with sample data (helpful for demos/testing) or keep it empty:
+        </p>
+        <pre><code>// Empty by default
+const [items, setItems] = useState([]);
+
+// Or preload test items
+const [items, setItems] = useState(initialItems);
+</code></pre>
+        <p class="mini">
+          If ESLint warns that <code>initialItems</code> is unused, remove it or use it as the initial state.
+        </p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>7) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>Why must the delete handler live in <strong>App</strong> and not in <strong>Item</strong>?</li>
+          <li>Why do we prefer <code>filter()</code> for deletion in React?</li>
+          <li>Why is <code>onClick={onDeleteItem}</code> wrong in this case?</li>
+          <li>What does the arrow wrapper <code>() =&gt; onDeleteItem(item.id)</code> do?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li>State lives in App; Item doesn’t own the state.</li>
+          <li>It returns a new array (immutable update) without mutating state.</li>
+          <li>React passes the click event object, not your item id.</li>
+          <li>It creates a function so you can pass the id when the click happens.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Keep margins around ~14mm and enable background graphics only if you want shaded callouts.
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,278 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thinking in React — State Management (Section Overview) | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background: #fef2f2; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn, .callout.danger{ background:#ffffff; }
+      .card, .term, pre, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Section Overview — Thinking in React (State Management) 🧠⚙️</h1>
+      <p class="subtitle">
+        Reviewer/study guide: the core React skill of “thinking in React”, with this section focusing on state management.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">🧠 Think in React</span>
+        <span class="chip">📍 Where state lives</span>
+        <span class="chip">🧮 Deriving state</span>
+        <span class="chip">⬆️ Lifting state up</span>
+        <span class="chip">👨‍👩‍👧 Parent ↔ Child communication</span>
+        <span class="chip">🧳 Far Away app</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) What This Section Is About</h2>
+      <div class="callout">
+        <p>
+          This section introduces a <strong>core skill</strong> every React developer needs from the beginning:
+          <strong>thinking in React</strong>.
+        </p>
+        <p class="mini">
+          “Thinking in React” includes many areas, but the focus here is <strong>state management</strong>.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Skills You Will Learn (State Management Focus) 🎯</h2>
+
+      <div class="term">
+        <div class="icon">📍</div>
+        <div class="body">
+          <p class="title">When and where to create state variables</p>
+          <p class="desc">Decide which component should own the data so the UI stays consistent and predictable.</p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">🧮</div>
+        <div class="body">
+          <p class="title">When and how to derive state</p>
+          <p class="desc">Learn to compute values from existing state instead of duplicating data (reduces bugs and keeps logic clean).</p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">⬆️</div>
+        <div class="body">
+          <p class="title">Communicate between child and parent components</p>
+          <p class="desc">Use callbacks + props to let children notify parents about user actions (events flow up via functions).</p>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="icon">🪜</div>
+        <div class="body">
+          <p class="title">Lift state up</p>
+          <p class="desc">Move state to the nearest common parent so sibling components can share and synchronize data.</p>
+        </div>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Why this matters:</strong> these are among the most important real-world React skills—especially for building interactive apps. ✅</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) How This Connects to the “Far Away” App 🧳</h2>
+      <div class="card">
+        <p>
+          You will apply these state management skills as you continue building the <strong>Far Away travel list</strong> application.
+        </p>
+        <ul>
+          <li>Managing state so the list, form, and stats stay synchronized</li>
+          <li>Sharing data between components (especially siblings)</li>
+          <li>Keeping derived UI (like counts and percentages) accurate</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Quick “Think in React” Checklist ✅</h2>
+      <div class="card">
+        <ol>
+          <li><strong>What changes over time?</strong> (That’s a state candidate.)</li>
+          <li><strong>Who needs that data?</strong> (Put state in the common ancestor.)</li>
+          <li><strong>Can I compute this from other state?</strong> (Derive it instead of duplicating.)</li>
+          <li><strong>How does data flow?</strong> (Props down, events up via callbacks.)</li>
+        </ol>
+      </div>
+
+      <div class="callout">
+        <p><strong>Study habit tip:</strong> each time you build a feature, pause and answer the 4 questions above. This trains “thinking in React”. 🧠</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>5) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>What does “thinking in React” mean in this section?</li>
+          <li>What does it mean to “derive state”?</li>
+          <li>Why do we lift state up?</li>
+          <li>How do children communicate with parents in React?</li>
+          <li>Why are these skills needed for the Far Away app?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li>Making good decisions about where state lives and how it flows through components.</li>
+          <li>Compute values from existing state instead of storing duplicates.</li>
+          <li>To share data across siblings and keep the UI synchronized.</li>
+          <li>Parents pass callback props; children call them on events.</li>
+          <li>Because the app has multiple components that must stay in sync (form, list, stats).</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Keep margins around ~14mm and enable background graphics only if you want shaded callouts.
+    </footer>
+  </main>
+</body>
+</html>

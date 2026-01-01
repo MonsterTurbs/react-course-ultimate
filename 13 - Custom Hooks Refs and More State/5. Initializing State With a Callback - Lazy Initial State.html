@@ -1,0 +1,337 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Persisting Watchlist with localStorage + Lazy Initial State</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 14px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .two-col{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini{
+      border:1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background:#fff;
+    }
+
+    .kpi{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top:10px;
+    }
+
+    .kpi .box{
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background:#fff;
+    }
+
+    .muted{ color:var(--muted); }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 React Study Guide: Persisting a Watchlist with <code>localStorage</code> + Lazy Initial State</h1>
+      <p class="subtitle">Goal: make the “watched movies” list survive page reloads by syncing React state with browser storage, and initialize state efficiently using a callback.</p>
+      <div class="meta">
+        <span class="chip">✅ Topic: <strong>useEffect</strong> + localStorage sync</span>
+        <span class="chip">🧩 Topic: <strong>useState</strong> lazy initializer callback</span>
+        <span class="chip">🛠️ Skill: JSON.stringify / JSON.parse</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What problem are we solving?</h2>
+      <p>Right now, when a user adds movies to a watchlist and then reloads the page, the list disappears because React state resets on reload.</p>
+      <div class="callout">
+        <strong>✅ Fix:</strong> Store the watchlist in <code>localStorage</code> whenever it changes, then read it back when the app loads.
+      </div>
+    </section>
+
+    <section>
+      <h2>📦 Quick primer: What is <code>localStorage</code>?</h2>
+      <ul>
+        <li>It’s a simple <strong>key → value</strong> storage built into the browser.</li>
+        <li>It’s <strong>scoped per domain</strong> (data saved on one site isn’t available on another site).</li>
+        <li>It stores values as <strong>strings only</strong> (so arrays/objects must be converted using JSON).</li>
+      </ul>
+
+      <div class="kpi">
+        <div class="box">
+          <p><strong>🧠 Rule of thumb:</strong> Objects/arrays → <code>JSON.stringify()</code> before saving; strings → <code>JSON.parse()</code> after reading.</p>
+        </div>
+      </div>
+
+      <pre><code>// Save
+localStorage.setItem("watched", JSON.stringify(watchedArray));
+
+// Read
+const stored = localStorage.getItem("watched");
+const watchedArray = stored ? JSON.parse(stored) : [];</code></pre>
+    </section>
+
+    <section>
+      <h2>1) 🗃️ Part 1 — Write to localStorage when the watchlist changes</h2>
+      <p>There are two common places to update localStorage:</p>
+      <ul>
+        <li><strong>Option A:</strong> inside the event handler (when adding/removing a movie)</li>
+        <li><strong>Option B (recommended here):</strong> inside an effect that runs whenever <code>watched</code> changes</li>
+      </ul>
+
+      <h3>⚠️ Why not write to localStorage immediately after <code>setWatched</code>?</h3>
+      <p>Because state updates are <strong>asynchronous</strong>. Right after calling <code>setWatched</code>, the variable <code>watched</code> still holds the old (stale) value in that same render cycle.</p>
+
+      <div class="callout">
+        <strong>✅ Best practice:</strong> Use <code>useEffect</code> so the write happens <em>after</em> React commits the new state.
+      </div>
+
+      <pre><code>useEffect(() =&gt; {
+  localStorage.setItem("watched", JSON.stringify(watched));
+}, [watched]);</code></pre>
+
+      <p class="muted">Note: On first mount, this effect runs and may store an empty array if <code>watched</code> starts empty. That’s normal, but we’ll handle reading initial data correctly in Part 2.</p>
+    </section>
+
+    <section>
+      <h2>2) 🔄 Part 2 — Read from localStorage when the app loads</h2>
+      <p>You might think: “Use another <code>useEffect</code> that reads localStorage on mount and then calls <code>setWatched</code>.”</p>
+      <p>That works, but there’s a cleaner and often better approach: <strong>lazy initial state</strong>.</p>
+
+      <h3>🧩 Lazy initializer: pass a function to <code>useState</code></h3>
+      <p><code>useState</code> can accept a <strong>callback function</strong>. React will execute it <strong>only once</strong> on the initial render, and use its return value as the initial state.</p>
+
+      <pre><code>const [watched, setWatched] = useState(() =&gt; {
+  const stored = localStorage.getItem("watched");
+  return stored ? JSON.parse(stored) : [];
+});</code></pre>
+
+      <div class="callout">
+        <strong>✅ Benefits:</strong> You avoid an extra “read effect”, and you avoid running that read computation on every re-render.
+      </div>
+
+      <h3>⚠️ Common bug: “<code>watched.map is not a function</code>”</h3>
+      <p>If you forget to <code>JSON.parse</code> the stored value, you’ll get a string instead of an array. When your UI tries <code>watched.map(...)</code>, it crashes.</p>
+      <pre><code>// ❌ Wrong (stored is a string)
+const stored = localStorage.getItem("watched");
+return stored;
+
+// ✅ Right
+return stored ? JSON.parse(stored) : [];</code></pre>
+    </section>
+
+    <section>
+      <h2>🚫 Avoid this pattern</h2>
+      <p>Do not <strong>call</strong> the initializer function directly in <code>useState</code>, like this:</p>
+      <pre><code>// ❌ Don’t do this — the function runs on every render
+const [watched, setWatched] = useState(getInitialWatched());</code></pre>
+
+      <p>Even if React ignores the value on re-renders, the function call still happens every render, which can be inefficient or cause side effects.</p>
+
+      <pre><code>// ✅ Do this instead — pass a function
+const [watched, setWatched] = useState(() =&gt; getInitialWatched());</code></pre>
+
+      <div class="callout">
+        <strong>🧠 Purity rule:</strong> The initializer callback should be a <em>pure</em> function and should not take arguments.
+      </div>
+    </section>
+
+    <section>
+      <h2>🔗 Why <code>useEffect</code> syncing is superior to “manual writes” in handlers</h2>
+      <p>If you only wrote to localStorage inside the “add movie” handler, you would also need to write inside the “delete movie” handler (and any other changes) to keep storage updated.</p>
+      <div class="callout">
+        <strong>✅ With an effect:</strong> You synchronize state → storage in one place. Any change (add/remove/clear) updates storage automatically.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 Final reference implementation (copy/paste)</h2>
+      <p>This is the usual minimal pattern used in real React apps:</p>
+      <pre><code>import { useEffect, useState } from "react";
+
+export function useWatched() {
+  const [watched, setWatched] = useState(() =&gt; {
+    const stored = localStorage.getItem("watched");
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  useEffect(() =&gt; {
+    localStorage.setItem("watched", JSON.stringify(watched));
+  }, [watched]);
+
+  return { watched, setWatched };
+}</code></pre>
+
+      <p class="muted">You can later extract this into a custom hook (as the lecture hints) to reuse the same persistence logic across components.</p>
+    </section>
+
+    <section>
+      <h2>📝 Mini practice (to check understanding)</h2>
+      <div class="two-col">
+        <div class="mini">
+          <h3>✅ Exercise A</h3>
+          <p>Create a “Clear Watchlist” button that sets <code>watched</code> to <code>[]</code>. Verify localStorage becomes an empty array too.</p>
+        </div>
+        <div class="mini">
+          <h3>✅ Exercise B</h3>
+          <p>Change the key from <code>"watched"</code> to <code>"watched_v2"</code>. What happens on reload? (Hint: you are now reading a different key.)</p>
+        </div>
+        <div class="mini">
+          <h3>✅ Exercise C</h3>
+          <p>Store a second piece of state (e.g., <code>theme</code>) in localStorage with the same pattern.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>🧠 <code>localStorage</code> values are strings → use JSON to store arrays/objects.</li>
+        <li>✅ Sync state to storage using <code>useEffect</code> with <code>[watched]</code>.</li>
+        <li>🧩 Read initial state using a <strong>lazy initializer</strong>: <code>useState(() =&gt; ...)</code>.</li>
+        <li>⚠️ Avoid calling the initializer directly: <code>useState(fn())</code> — pass it instead.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

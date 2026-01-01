@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Study Guide — Building the App Header (React)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #1a73e8;
+      --codebg: #0b1020;
+      --codefg: #e8eefc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header.top {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 18px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 8px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .toc {
+      margin: 14px 0 0;
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+    }
+
+    .toc ul { margin: 8px 0 0 18px; padding: 0; }
+    .toc li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      background: #fff;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout .title {
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .box h4 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    ul { margin: 8px 0 8px 18px; }
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .muted { color: var(--muted); }
+
+    .mini {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    /* Print settings (A4) */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      :root { --soft: #ffffff; }
+      body { background: #ffffff; }
+      .page { max-width: none; padding: 0; }
+      header.top { border: 1px solid #ddd; background: #fff; }
+      a, a:visited { color: #000; text-decoration: none; }
+      pre { border: 1px solid #ddd; }
+      .callout { break-inside: avoid; page-break-inside: avoid; }
+      .box { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="top">
+      <p class="kicker">React • UI Composition • Authentication UX</p>
+      <h1>Building the App Header 🧩</h1>
+      <p class="subtitle">Reviewer / Study Guide: Add a header menu (account + logout), show the current user’s name + avatar, and style the header so it looks like a real-world app. (Single-column, A4 print-ready)</p>
+
+      <section class="toc" aria-label="Table of contents">
+        <strong>Quick Outline 📌</strong>
+        <ul>
+          <li>Header goals (what the header should contain)</li>
+          <li>HeaderMenu component (icons + navigation)</li>
+          <li>UserAvatar component (read user metadata + fallback avatar)</li>
+          <li>Header layout styling (align menu + avatar + username)</li>
+          <li>Common pitfalls + checklist</li>
+        </ul>
+      </section>
+    </header>
+
+    <section>
+      <h2>1) What we’re building (Header goals) 🎯</h2>
+      <p>
+        The application header will typically contain:
+      </p>
+      <ul>
+        <li>👤 <strong>User identity</strong>: username/full name + avatar</li>
+        <li>🧭 <strong>Quick actions</strong>: small menu buttons (e.g., Account, Logout)</li>
+        <li>🌙 (Later) a <strong>Dark Mode toggle</strong> (planned for future lecture)</li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">Key idea ✅</p>
+        <p>
+          The header is a <strong>UI composition</strong> problem: you assemble smaller reusable components
+          (like <code>Logout</code>, <code>UserAvatar</code>, and <code>ButtonIcon</code>) into a clean layout.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Create the HeaderMenu component 🧾</h2>
+      <p>
+        The header menu is just a small list of icon buttons aligned horizontally.
+        It is similar in spirit to the logout button, but it’s better to keep <code>Logout</code> as its own component
+        because it contains logic (mutation, loading spinner, etc.).
+      </p>
+
+      <div class="grid">
+        <div class="box">
+          <h4>What goes into HeaderMenu?</h4>
+          <ul>
+            <li>🔓 <strong>Logout</strong> component</li>
+            <li>⚙️ <strong>Account</strong> button (navigates to <code>/account</code>)</li>
+            <li class="muted">(Later) 🌙 Dark mode toggle button</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h4>Why a separate component?</h4>
+          <ul>
+            <li>Keeps <code>Header.jsx</code> clean and readable</li>
+            <li>Encapsulates menu styling (list + flex layout)</li>
+            <li>Easy to extend later (add dark mode, notifications, etc.)</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Example: <code>HeaderMenu.jsx</code> 🧠</h3>
+      <pre>
+// HeaderMenu.jsx
+import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
+
+import ButtonIcon from "./ButtonIcon";
+import Logout from "../features/authentication/Logout";
+
+// NOTE: icon name varies by your icon library; keep consistent with your project
+import { HiOutlineUser } from "react-icons/hi2";
+
+const StyledHeaderMenu = styled.ul`
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+`;
+
+export default function HeaderMenu() {
+  const navigate = useNavigate();
+
+  return (
+    <StyledHeaderMenu>
+      <li>
+        <ButtonIcon onClick={() => navigate("/account")}
+          aria-label="Open account settings"
+        >
+          <HiOutlineUser />
+        </ButtonIcon>
+      </li>
+
+      <li>
+        <Logout />
+      </li>
+    </StyledHeaderMenu>
+  );
+}
+      </pre>
+
+      <div class="callout">
+        <p class="title">Beginner-friendly note 🧾</p>
+        <p>
+          A menu doesn’t have to be complicated. An unordered list (<code>&lt;ul&gt;</code>) + list items (<code>&lt;li&gt;</code>)
+          is great for semantics and accessibility—then you style it with flexbox.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Add the UserAvatar component 👤🖼️</h2>
+      <p>
+        We want to show the user’s avatar and name in the header.
+        The user data comes from Supabase Auth, which stores extra fields in <code>user.user_metadata</code>
+        (like <code>fullName</code> and <code>avatar</code>).
+      </p>
+
+      <div class="callout">
+        <p class="title">Important detail ⚠️</p>
+        <p>
+          If a user was created manually in Supabase (via dashboard), they may have <strong>no metadata</strong>.
+          That’s why you need a safe fallback avatar (e.g., <code>default-user.jpg</code>) and you should handle
+          missing names gracefully.
+        </p>
+      </div>
+
+      <h3>Recommended pattern: get the current user via <code>useUser</code> ✅</h3>
+      <ul>
+        <li>✅ Use <code>useUser()</code> (React Query cache) to read the current user</li>
+        <li>✅ On a protected page, the user should already be loaded, so you often don’t need another loading check</li>
+        <li>✅ Read <code>fullName</code> and <code>avatar</code> from <code>user.user_metadata</code></li>
+        <li>✅ Fallback to <code>default-user.jpg</code> if <code>avatar</code> is missing/empty</li>
+      </ul>
+
+      <h3>Example: <code>UserAvatar.jsx</code> 🧠</h3>
+      <pre>
+// UserAvatar.jsx
+import styled from "styled-components";
+import { useUser } from "./useUser";
+
+const StyledUserAvatar = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+
+  & img {
+    display: block;
+    width: 3.6rem;
+    height: 3.6rem;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  & span {
+    font-weight: 600;
+    font-size: 1.4rem;
+  }
+`;
+
+export default function UserAvatar() {
+  const { user } = useUser();
+
+  // Safe reads (metadata might be missing for older users)
+  const fullName = user?.user_metadata?.fullName ?? "User";
+  const avatar = user?.user_metadata?.avatar;
+
+  const avatarSrc = avatar ? avatar : "/default-user.jpg";
+
+  return (
+    <StyledUserAvatar>
+      <img src={avatarSrc} alt={`Avatar of ${fullName}`} />
+      <span>{fullName}</span>
+    </StyledUserAvatar>
+  );
+}
+      </pre>
+
+      <p class="mini">Tip: If your build setup requires imports for images, you may need to import the default avatar rather than using a string path.</p>
+    </section>
+
+    <section>
+      <h2>4) Put it together in the Header 🧱</h2>
+      <p>
+        Now the header becomes a simple layout container: on the right side, show
+        <strong>UserAvatar</strong> + <strong>HeaderMenu</strong>.
+      </p>
+
+      <h3>Example: <code>Header.jsx</code> layout (flex-end) ➡️</h3>
+      <pre>
+// Header.jsx (conceptual)
+import styled from "styled-components";
+
+import HeaderMenu from "./HeaderMenu";
+import UserAvatar from "../features/authentication/UserAvatar";
+
+const StyledHeader = styled.header`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2.4rem;
+`;
+
+export default function Header() {
+  return (
+    <StyledHeader>
+      <UserAvatar />
+      <HeaderMenu />
+    </StyledHeader>
+  );
+}
+      </pre>
+
+      <div class="callout">
+        <p class="title">UX note ✨</p>
+        <p>
+          Using <code>justify-content: flex-end</code> pushes actions to the right side, which matches most admin dashboards.
+          The gap ensures the avatar/name doesn’t visually collide with menu icons.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) How this connects to Auth (mental model) 🧠🔐</h2>
+      <div class="grid">
+        <div class="box">
+          <h4>Where does the user data come from?</h4>
+          <ul>
+            <li>Supabase Auth stores session in local storage</li>
+            <li><code>getCurrentUser()</code> checks session → fetches user</li>
+            <li><code>useUser()</code> caches the user in React Query</li>
+            <li>Header can safely read <code>useUser()</code> on protected routes</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>Why metadata matters</h4>
+          <ul>
+            <li><code>user.user_metadata.fullName</code> is what you set on signup</li>
+            <li><code>user.user_metadata.avatar</code> will store avatar URL later</li>
+            <li>Users created manually may not have these → handle nulls</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Common mistakes and quick fixes 🧯</h2>
+      <div class="box">
+        <h4>Common issues</h4>
+        <ul>
+          <li>❌ <strong>Avatar/name is undefined</strong> → Use optional chaining and fallbacks (<code>??</code>)</li>
+          <li>❌ <strong>Account button doesn’t navigate</strong> → Confirm route exists (e.g., <code>/account</code>) and use <code>useNavigate()</code></li>
+          <li>❌ <strong>Logout button duplicates logic</strong> → Keep <code>Logout</code> as a dedicated component (mutation + spinner)</li>
+          <li>❌ <strong>Header alignment looks off</strong> → Use flexbox with <code>align-items: center</code> and a consistent <code>gap</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Checklist (done means done) ✅</h2>
+      <ul>
+        <li>✅ Header shows <strong>UserAvatar</strong> (name + avatar)</li>
+        <li>✅ Header includes <strong>HeaderMenu</strong> (Account button + Logout)</li>
+        <li>✅ Account button navigates to <code>/account</code></li>
+        <li>✅ Avatar has fallback (<code>default-user.jpg</code>) if empty</li>
+        <li>✅ Layout is flex and right-aligned (professional dashboard feel)</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <p class="muted"><strong>Next lecture preview ➡️</strong> Implement “Update Account” features: change user name, upload avatar, update password.</p>
+    </section>
+  </main>
+</body>
+</html>

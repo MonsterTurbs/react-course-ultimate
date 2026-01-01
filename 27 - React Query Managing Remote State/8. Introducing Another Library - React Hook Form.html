@@ -1,0 +1,492 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Hook Form — Study Guide (Create Cabin Form)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --soft2: #fbfbfb;
+      --accent: #1a73e8;
+      --accent2: #0b57d0;
+      --good: #0f766e;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --codebg: #0b1020;
+      --codetext: #e9eefc;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      word-wrap: break-word;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--soft2), var(--bg));
+      border-radius: 14px;
+      padding: 18px 16px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .toc {
+      margin: 14px 0 0;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: 12px;
+    }
+    .toc h2 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+    .toc ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .toc li { margin: 4px 0; }
+
+    section {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: 14px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 10px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .callout.good { border-color: rgba(15, 118, 110, 0.35); }
+    .callout.warn { border-color: rgba(180, 83, 9, 0.35); }
+    .callout.bad  { border-color: rgba(185, 28, 28, 0.35); }
+
+    .k {
+      font-weight: 700;
+      color: var(--accent2);
+    }
+
+    ul { padding-left: 20px; }
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      overflow-x: auto;
+      border: 1px solid rgba(255,255,255,0.10);
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--bg);
+    }
+
+    .muted { color: var(--muted); }
+
+    a {
+      color: var(--accent2);
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(11, 87, 208, 0.5);
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print settings */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header, section { box-shadow: none !important; }
+
+      /* Avoid ugly print artifacts */
+      a { color: #000; text-decoration: none; border-bottom: none; }
+      a[href]::after { content: "" !important; }
+
+      /* Keep cards intact when possible */
+      header, section, .callout, .mini, pre { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Slightly tighter for print */
+      h1 { font-size: 20px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 14px; }
+      p, li { font-size: 11.5pt; }
+      .subtitle, .chip, .muted { font-size: 10.5pt; }
+      pre { font-size: 10.5pt; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧾 React Hook Form (v7) — Study Guide</h1>
+      <p class="subtitle">Topic: Setting up <span class="k">React Hook Form</span> for the <span class="k">Create Cabin Form</span> (uncontrolled inputs, <code>register</code>, <code>handleSubmit</code>)</p>
+      <div class="meta">
+        <span class="chip">Single-column</span>
+        <span class="chip">White background</span>
+        <span class="chip">A4 print-ready</span>
+        <span class="chip">Beginner-friendly</span>
+      </div>
+
+      <div class="toc" aria-label="Table of contents">
+        <h2>📌 Table of Contents</h2>
+        <ul>
+          <li><a href="#goal">Goal of this lecture</a></li>
+          <li><a href="#ui">Step 1: Put the form in the UI (temporary)</a></li>
+          <li><a href="#install">Step 2: Install React Hook Form v7</a></li>
+          <li><a href="#useform">Step 3: <code>useForm</code>, <code>register</code>, <code>handleSubmit</code></a></li>
+          <li><a href="#register">Step 4: Register inputs (no controlled inputs needed)</a></li>
+          <li><a href="#submit">Step 5: Submit handler and captured data</a></li>
+          <li><a href="#reset">Reset/Cancel button behavior</a></li>
+          <li><a href="#next">What’s next</a></li>
+          <li><a href="#review">Quick review + mini quiz</a></li>
+        </ul>
+      </div>
+    </header>
+
+    <section id="goal">
+      <h2>🎯 Goal of this lecture</h2>
+      <p>
+        You will integrate <span class="k">React Hook Form</span> to handle a real-world form in a React SPA.
+        The focus is <span class="k">form handling</span> (submit + errors + validation), not UI components.
+      </p>
+
+      <div class="callout good">
+        <p><strong>✅ Key idea:</strong> React Hook Form lets you read form values <em>without</em> creating a state variable for every input. Less code, fewer re-renders, simpler forms.</p>
+      </div>
+
+      <ul>
+        <li>We already have form UI components (Form, FormRow, Label, Error, Input).</li>
+        <li>We will <strong>temporarily</strong> show the form below the cabins table (later: modal).</li>
+        <li>We will then wire the form using <code>useForm()</code>.</li>
+      </ul>
+    </section>
+
+    <section id="ui">
+      <h2>🧱 Step 1: Put the form in the UI (temporary)</h2>
+      <p>
+        The project already has a <span class="k">CreateCabinForm</span> component with multiple rows/inputs.
+        For now, we want a quick way to <span class="k">toggle</span> the form visibility.
+      </p>
+
+      <h3>✅ Where to place it (for now)</h3>
+      <ul>
+        <li><strong>Do not</strong> put the form inside <code>CabinTable</code> (keep the table component focused).</li>
+        <li>Put the form in the <strong>Cabins page</strong>, below the table.</li>
+      </ul>
+
+      <h3>🧠 Temporary UI behavior</h3>
+      <ul>
+        <li>Add a button: <strong>“Add new cabin”</strong>.</li>
+        <li>Add state: <code>showForm</code> (boolean).</li>
+        <li>Toggle state on button click.</li>
+        <li>Conditionally render: <code>{showForm && &lt;CreateCabinForm /&gt;}</code></li>
+      </ul>
+
+      <pre><code>// CabinsPage.jsx (simplified)
+import { useState } from "react";
+import Button from "../ui/Button";
+import CreateCabinForm from "../features/cabins/CreateCabinForm";
+
+export default function Cabins() {
+  const [showForm, setShowForm] = useState(false);
+
+  return (
+    &lt;&gt;
+      {/* existing rows: title, filters, table ... */}
+
+      &lt;Button onClick={() =&gt; setShowForm((s) =&gt; !s)}&gt;
+        Add new cabin
+      &lt;/Button&gt;
+
+      {showForm &amp;&amp; &lt;CreateCabinForm /&gt;}
+    &lt;/&gt;
+  );
+}</code></pre>
+
+      <div class="callout warn">
+        <p><strong>🕒 Note:</strong> This is temporary. The form will later move into a modal. For now, the goal is to get form handling working quickly.</p>
+      </div>
+    </section>
+
+    <section id="install">
+      <h2>📦 Step 2: Install React Hook Form v7</h2>
+      <p>
+        Install the library (version 7) to match the course setup.
+      </p>
+      <pre><code>npm i react-hook-form@7</code></pre>
+
+      <div class="callout good">
+        <p><strong>✅ Why version matters:</strong> major versions can change APIs. Matching the course version avoids confusing differences.</p>
+      </div>
+    </section>
+
+    <section id="useform">
+      <h2>🧩 Step 3: <code>useForm</code>, <code>register</code>, <code>handleSubmit</code></h2>
+      <p>
+        In the form component (CreateCabinForm), call <code>useForm()</code>.
+        It returns helpful functions.
+      </p>
+
+      <div class="grid2">
+        <div class="mini">
+          <h3>🧷 <code>register</code></h3>
+          <p class="muted">Connects an input to React Hook Form so RHF can read its value.</p>
+        </div>
+        <div class="mini">
+          <h3>🧾 <code>handleSubmit</code></h3>
+          <p class="muted">Wraps your submit handler. It gathers values from registered inputs and then calls your function with the final data.</p>
+        </div>
+      </div>
+
+      <pre><code>import { useForm } from "react-hook-form";
+
+export default function CreateCabinForm() {
+  const { register, handleSubmit } = useForm();
+
+  // later: more helpers like formState.errors, reset, etc.
+
+  function onSubmit(data) {
+    console.log(data);
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit(onSubmit)}&gt;
+      {/* inputs will be registered here */}
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 Beginner tip:</strong> Think of <code>handleSubmit</code> as a “collector + validator + caller.” It collects field values and then calls your <code>onSubmit</code> with a clean object.</p>
+      </div>
+    </section>
+
+    <section id="register">
+      <h2>📝 Step 4: Register inputs (no controlled inputs needed)</h2>
+      <p>
+        Notice the form inputs are <span class="k">not controlled</span> (no <code>useState</code> per field).
+        React Hook Form works great with uncontrolled inputs.
+      </p>
+
+      <div class="callout good">
+        <p><strong>✅ Result:</strong> no manual <code>onChange</code> handlers and no state variables per input. RHF injects the needed props for you.</p>
+      </div>
+
+      <h3>How registering looks</h3>
+      <p>
+        You “spread” the output of <code>register("fieldName")</code> into the input.
+        This looks unusual at first, but it’s standard RHF usage.
+      </p>
+
+      <pre><code>// Example inputs (simplified)
+
+&lt;input {...register("name")} /&gt;
+&lt;input type="number" {...register("maxCapacity")} /&gt;
+&lt;input type="number" {...register("regularPrice")} /&gt;
+&lt;input type="number" defaultValue={0} {...register("discount")} /&gt;
+&lt;textarea {...register("description")} /&gt;
+
+// File input is often handled a bit differently — we'll do it later.
+</code></pre>
+
+      <h3>What does <code>register()</code> actually do?</h3>
+      <p>
+        RHF adds props like <code>onChange</code>, <code>onBlur</code>, and <code>ref</code> to the input.
+        You can see these in React DevTools when you inspect the element.
+      </p>
+
+      <div class="callout">
+        <p><strong>🔎 DevTools observation:</strong> after registering an input, you’ll see extra props/functions on that input. That’s RHF wiring itself into your form.</p>
+      </div>
+    </section>
+
+    <section id="submit">
+      <h2>🚀 Step 5: Submit handler and captured data</h2>
+      <p>
+        The submit flow is:
+      </p>
+      <ol>
+        <li>User clicks the submit button (inside the form).</li>
+        <li>Form triggers <code>onSubmit</code> event.</li>
+        <li>RHF runs <code>handleSubmit(onSubmit)</code>.</li>
+        <li>RHF collects values from all <strong>registered</strong> fields.</li>
+        <li>RHF calls <code>onSubmit(data)</code> with a data object.</li>
+      </ol>
+
+      <pre><code>function onSubmit(data) {
+  // data is an object with all registered fields
+  // Example output:
+  // {
+  //   name: "Test Cabin",
+  //   maxCapacity: "5",
+  //   regularPrice: "500",
+  //   discount: "100",
+  //   description: "..."
+  // }
+  console.log(data);
+}
+
+&lt;form onSubmit={handleSubmit(onSubmit)}&gt;
+  ...
+&lt;/form&gt;</code></pre>
+
+      <div class="callout warn">
+        <p><strong>⚠️ Note about types:</strong> HTML inputs usually give you strings (even for numbers). Later you can validate/transform as needed (RHF supports value parsing options).</p>
+      </div>
+
+      <p>
+        At this stage, the goal is simply to prove:
+        <span class="k">we can submit and receive all form values</span> without manual state handling.
+      </p>
+    </section>
+
+    <section id="reset">
+      <h2>↩️ Reset/Cancel button behavior</h2>
+      <p>
+        The “Cancel” button works using standard HTML form behavior.
+        Set the button type to <code>reset</code> so it clears inputs.
+      </p>
+
+      <pre><code>&lt;button type="reset"&gt;Cancel&lt;/button&gt;</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 Reminder:</strong> A button inside a form is <code>type="submit"</code> by default, unless you explicitly change it.</p>
+      </div>
+    </section>
+
+    <section id="next">
+      <h2>🧭 What’s next</h2>
+      <ul>
+        <li>✅ Add <strong>validation rules</strong> in <code>register()</code> (required, min, etc.).</li>
+        <li>✅ Display <strong>form errors</strong> in the UI (using the existing Error component).</li>
+        <li>✅ Use the submitted <code>data</code> to <strong>create a new cabin</strong> in Supabase (mutation + invalidation).</li>
+        <li>✅ Later: move the form into a <strong>modal</strong> for a cleaner UI.</li>
+      </ul>
+
+      <div class="callout good">
+        <p><strong>✨ End goal:</strong> “Add Cabin” becomes a real feature: submit → Supabase insert → React Query invalidates → table refreshes automatically.</p>
+      </div>
+    </section>
+
+    <section id="review">
+      <h2>📚 Quick review + mini quiz</h2>
+
+      <h3>Cheat sheet 🧠</h3>
+      <ul>
+        <li><code>const { register, handleSubmit } = useForm()</code></li>
+        <li><code>{...register("fieldName")}</code> on each input you want RHF to manage</li>
+        <li><code>onSubmit={handleSubmit(onSubmit)}</code> on the <code>&lt;form&gt;</code></li>
+        <li><code>onSubmit(data)</code> receives all registered values</li>
+      </ul>
+
+      <div class="hr"></div>
+
+      <h3>Mini quiz ✅</h3>
+      <ol>
+        <li>Why don’t we need <code>useState</code> for each input when using React Hook Form?</li>
+        <li>What happens if an input is <em>not</em> registered?</li>
+        <li>What does <code>handleSubmit</code> do that a normal <code>onSubmit</code> handler doesn’t?</li>
+        <li>Why set the Cancel button to <code>type="reset"</code>?</li>
+      </ol>
+
+      <div class="callout">
+        <p class="muted"><strong>Answer hints:</strong> (1) RHF collects values via refs/events. (2) RHF won’t include it in <code>data</code>. (3) It collects values (and later validates). (4) It resets the form using built-in HTML behavior.</p>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

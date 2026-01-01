@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js (App Router) — Nested Layouts (Account Area Sidebar) | Study Guide</title>
+  <style>
+    /* =========================
+       Print-first, A4-friendly CSS
+       ========================= */
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --soft: #f6f7f9;
+      --border: #e6e6e6;
+      --accent: #0b57d0;
+      --good: #0f766e;
+      --warn: #b45309;
+      --bad:  #b91c1c;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 16px 16px 14px;
+      border-radius: 12px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    nav.toc {
+      margin-top: 16px;
+      border-top: 1px dashed var(--border);
+      padding-top: 12px;
+    }
+
+    .toc h2 {
+      margin: 0 0 10px;
+      font-size: 15px;
+    }
+
+    .toc ul {
+      margin: 0;
+      padding-left: 18px;
+      columns: 1;
+    }
+
+    .toc li { margin: 6px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 14px 0;
+      background: #fff;
+      page-break-inside: avoid;
+    }
+
+    section h2 {
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    section h3 {
+      margin: 14px 0 8px;
+      font-size: 14.5px;
+    }
+
+    p { margin: 8px 0; }
+
+    .muted { color: var(--muted); }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .callout.good { border-left: 6px solid var(--good); }
+    .callout.warn { border-left: 6px solid var(--warn); }
+    .callout.bad  { border-left: 6px solid var(--bad); }
+
+    .kvs {
+      margin: 10px 0 0;
+      padding-left: 18px;
+    }
+
+    .kvs li { margin: 6px 0; }
+
+    .mini {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .code {
+      margin: 10px 0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .code .label {
+      padding: 8px 10px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: #333;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    pre {
+      margin: 0;
+      padding: 12px 12px;
+      background: #fbfbfc;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.45;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    code { font-family: var(--mono); }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .qa {
+      padding-left: 18px;
+      margin: 10px 0 0;
+    }
+
+    .qa li { margin: 8px 0; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; margin: 0; padding: 0; }
+      section, header { border-color: #d9d9d9; box-shadow: none; }
+      a { color: #111; text-decoration: none; }
+      /* Do not print automatic URL expansions */
+      a[href]:after { content: "" !important; }
+      pre { white-space: pre-wrap; overflow: visible; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1 class="title">🧭 Next.js Nested Layouts (App Router) — Account Area Sidebar</h1>
+      <p class="subtitle">Print-friendly reviewer: how to create <strong>segment-specific layouts</strong> (e.g., <code>/account</code>) so a sidebar persists across nested routes like <code>/account/reservations</code> and <code>/account/profile</code>.</p>
+      <div class="chips">
+        <span class="chip">✅ Single-column</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+        <span class="chip">⚙️ Next.js convention: <code>layout.js</code></span>
+        <span class="chip">🧩 Key idea: <code>{"{children}"}</code></span>
+      </div>
+
+      <nav class="toc" aria-label="Table of contents">
+        <h2>📌 Table of Contents</h2>
+        <ul>
+          <li><a href="#goal">Goal: persistent sidebar for the account area</a></li>
+          <li><a href="#root-vs-nested">Root layout vs nested layout (mental model)</a></li>
+          <li><a href="#how-to">How to implement: <code>app/account/layout.js</code></a></li>
+          <li><a href="#children">Why <code>children</code> matters</a></li>
+          <li><a href="#sidenav">Adding the SideNavigation + using <code>next/link</code></a></li>
+          <li><a href="#height">Common UI/layout fixes (full height, width, spacing)</a></li>
+          <li><a href="#metadata">Fixing titles with per-page metadata</a></li>
+          <li><a href="#mistakes">Common mistakes & debugging tips</a></li>
+          <li><a href="#quiz">Mini quiz</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section id="goal">
+        <h2>🎯 Goal: persistent sidebar for the account area</h2>
+        <p>We want a layout that stays visible for all routes under the <code>/account</code> segment:</p>
+        <ul class="kvs">
+          <li><code>/account</code> → dashboard-style welcome</li>
+          <li><code>/account/reservations</code> → reservation list</li>
+          <li><code>/account/profile</code> → profile update form</li>
+        </ul>
+        <div class="callout good">
+          <p><strong>Key idea ✅</strong> A layout added inside a route folder becomes the shared wrapper for that segment and all nested segments.</p>
+        </div>
+      </section>
+
+      <section id="root-vs-nested">
+        <h2>🧠 Root layout vs nested layout (mental model)</h2>
+        <p><strong>Root layout</strong> lives at <code>app/layout.js</code>. It wraps <em>everything</em> (all top-level routes like <code>/</code>, <code>/cabins</code>, <code>/about</code>, <code>/account</code>).</p>
+        <p><strong>Nested layout</strong> lives inside a specific route segment folder (e.g., <code>app/account/layout.js</code>). It wraps only that segment and its children routes.</p>
+
+        <div class="code">
+          <div class="label"><span>📁 Example folder structure</span><span class="mini">(App Router conventions)</span></div>
+          <pre><code>app/
+  layout.js            // Root layout (applies to ALL routes)
+  page.js              // /
+  cabins/
+    page.js            // /cabins
+  about/
+    page.js            // /about
+  account/
+    layout.js          // Nested layout (applies to /account/*)
+    page.js            // /account
+    reservations/
+      page.js          // /account/reservations
+    profile/
+      page.js          // /account/profile
+</code></pre>
+        </div>
+
+        <div class="callout warn">
+          <p><strong>Reminder ⚠️</strong> In the App Router, the file name <code>layout.js</code> is a convention. Its presence changes your UI composition because it becomes a wrapper in the route tree.</p>
+        </div>
+      </section>
+
+      <section id="how-to">
+        <h2>🛠️ How to implement: <code>app/account/layout.js</code></h2>
+        <p>Create a <code>layout.js</code> inside the <code>account</code> folder. Use a simple 2-column layout (sidebar + main content).</p>
+
+        <div class="code">
+          <div class="label"><span>✅ app/account/layout.js (basic scaffold)</span><span class="mini">uses <code>children</code></span></div>
+          <pre><code>export default function Layout({ children }) {
+  return (
+    &lt;div className="grid grid-cols-[16rem_1fr] gap-12"&gt;
+      &lt;div&gt;Navigation&lt;/div&gt;
+      &lt;main&gt;{children}&lt;/main&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+        </div>
+
+        <p class="muted">When you navigate to <code>/account</code>, you will see the layout. When you navigate to other top-level pages like <code>/cabins</code>, this nested layout is not used.</p>
+      </section>
+
+      <section id="children">
+        <h2>🧩 Why <code>children</code> matters</h2>
+        <p>If you forget <code>{"{children}"}</code>, you will only see the layout shell (sidebar area), and the page content will not appear.</p>
+
+        <div class="grid2">
+          <div class="callout bad">
+            <p><strong>Wrong ❌</strong> No <code>children</code> → only the layout renders.</p>
+            <div class="code">
+              <div class="label"><span>Missing children</span></div>
+              <pre><code>export default function Layout() {
+  return (
+    &lt;div&gt;
+      &lt;div&gt;Sidebar&lt;/div&gt;
+      &lt;div&gt;Main area&lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+            </div>
+          </div>
+
+          <div class="callout good">
+            <p><strong>Correct ✅</strong> Render <code>children</code> where the page should appear.</p>
+            <div class="code">
+              <div class="label"><span>Children placed in main area</span></div>
+              <pre><code>export default function Layout({ children }) {
+  return (
+    &lt;div&gt;
+      &lt;div&gt;Sidebar&lt;/div&gt;
+      &lt;main&gt;{children}&lt;/main&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="sidenav">
+        <h2>🧭 Adding the SideNavigation + using <code>next/link</code></h2>
+        <p>Instead of hardcoding links, a common pattern is to store nav items in an array of objects and map them into UI items.</p>
+
+        <div class="callout good">
+          <p><strong>Pattern ✅</strong> <em>Data-driven navigation</em> (array of items → render list). This makes it easy to add/remove items and keep your UI consistent.</p>
+        </div>
+
+        <div class="code">
+          <div class="label"><span>✅ SideNavigation.jsx (conceptual example)</span><span class="mini">swap <code>&lt;a&gt;</code> to <code>&lt;Link&gt;</code></span></div>
+          <pre><code>import Link from "next/link";
+// icons usually come from an icon pack like Heroicons
+
+const navLinks = [
+  { name: "Home", href: "/account" },
+  { name: "Reservations", href: "/account/reservations" },
+  { name: "Profile", href: "/account/profile" },
+];
+
+export default function SideNavigation() {
+  return (
+    &lt;nav&gt;
+      &lt;ul&gt;
+        {navLinks.map((link) =&gt; (
+          &lt;li key={link.href}&gt;
+            &lt;Link href={link.href}&gt;{link.name}&lt;/Link&gt;
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+  );
+}
+</code></pre>
+        </div>
+
+        <div class="callout warn">
+          <p><strong>Common fix ⚠️</strong> If your starter navigation uses <code>&lt;a href="..."&gt;</code>, replace it with <code>Link</code> from <code>next/link</code> to keep client-side navigation behavior.</p>
+        </div>
+      </section>
+
+      <section id="height">
+        <h2>📐 Common UI/layout fixes (full height, width, spacing)</h2>
+        <p>In the lecture, a frequent “why does the sidebar not fill the page?” issue occurs because the surrounding containers are not sized in a way that lets the inner grid stretch.</p>
+
+        <h3>✅ Fix 1: Make the root layout container behave like a full-height wrapper</h3>
+        <p class="muted">One simple approach is making the container a grid (or flex) and letting the main area fill remaining space.</p>
+
+        <div class="code">
+          <div class="label"><span>Example idea: grid-based wrapper for height</span></div>
+          <pre><code>// In a parent layout/container (conceptual)
+&lt;body className="min-h-screen flex flex-col"&gt;
+  &lt;Header /&gt;
+  &lt;div className="flex-1 grid w-full"&gt;
+    {children}
+  &lt;/div&gt;
+&lt;/body&gt;
+</code></pre>
+        </div>
+
+        <h3>✅ Fix 2: Ensure the layout container uses full width</h3>
+        <p>If the nested layout looks “squeezed,” adding <code>w-full</code> (100% width) to the appropriate wrapper often resolves it.</p>
+
+        <div class="callout good">
+          <p><strong>Rule of thumb ✅</strong> If something should stretch, confirm that every parent in the chain is not “shrinking” it unintentionally.</p>
+        </div>
+      </section>
+
+      <section id="metadata">
+        <h2>🏷️ Fixing titles with per-page metadata</h2>
+        <p>If you do not set metadata in your nested pages, they may inherit defaults (like a generic “Welcome …”). You can override the title per page by exporting <code>metadata</code>.</p>
+
+        <div class="code">
+          <div class="label"><span>✅ app/account/profile/page.js</span><span class="mini">override title</span></div>
+          <pre><code>export const metadata = {
+  title: "Update profile",
+};
+
+export default function Page() {
+  return &lt;h2&gt;Update your profile&lt;/h2&gt;;
+}
+</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="label"><span>✅ app/account/reservations/page.js</span><span class="mini">override title</span></div>
+          <pre><code>export const metadata = {
+  title: "Reservations",
+};
+
+export default function Page() {
+  return &lt;h2&gt;Your reservations&lt;/h2&gt;;
+}
+</code></pre>
+        </div>
+      </section>
+
+      <section id="mistakes">
+        <h2>🧯 Common mistakes & debugging tips</h2>
+
+        <div class="callout bad">
+          <p><strong>1) “My nested routes show only the sidebar.” ❌</strong></p>
+          <ul class="kvs">
+            <li>You forgot to render <code>{"{children}"}</code> in <code>app/account/layout.js</code>.</li>
+            <li>You rendered the wrong placeholder (e.g., left “Navigation” text and never replaced it with your real component).</li>
+          </ul>
+        </div>
+
+        <div class="callout warn">
+          <p><strong>2) “I used the sidebar component but navigation doesn’t behave right.” ⚠️</strong></p>
+          <ul class="kvs">
+            <li>The starter component uses <code>&lt;a&gt;</code> tags. Replace with <code>Link</code> from <code>next/link</code>.</li>
+            <li>Make sure you imported the correct component name (e.g., <code>SideNavigation</code>, not a different one like <code>Navigation</code>).</li>
+          </ul>
+        </div>
+
+        <div class="callout good">
+          <p><strong>3) “I’m confused where to place layout.js.” ✅</strong></p>
+          <ul class="kvs">
+            <li>Think in segments: the folder name becomes part of the URL. Place <code>layout.js</code> at the segment level that should share the UI.</li>
+            <li>If things look wrong, temporarily move the <code>layout.js</code> up/down one level to confirm which routes it affects.</li>
+            <li>When you are multiple levels deep, experimentation is a valid strategy: adjust placement and re-check the routes affected.</li>
+          </ul>
+        </div>
+
+        <div class="divider"></div>
+        <h3>✅ Quick checklist</h3>
+        <ul class="kvs">
+          <li>☑️ Does <code>app/account/layout.js</code> exist?</li>
+          <li>☑️ Does it accept <code>{"{ children }"}</code> and render it?</li>
+          <li>☑️ Do nested routes have <code>page.js</code> files?</li>
+          <li>☑️ Are sidebar links implemented via <code>next/link</code>?</li>
+          <li>☑️ Are page titles correct via <code>export const metadata</code>?</li>
+        </ul>
+      </section>
+
+      <section id="quiz">
+        <h2>🧪 Mini quiz (for retention)</h2>
+        <ol class="qa">
+          <li>
+            <strong>What does putting <code>layout.js</code> inside <code>app/account/</code> do?</strong>
+            <div class="mini">Answer: It creates a layout that wraps <code>/account</code> and all nested routes like <code>/account/*</code>.</div>
+          </li>
+          <li>
+            <strong>Why is the <code>children</code> prop essential in layouts?</strong>
+            <div class="mini">Answer: It is where Next.js renders the current page (and nested layouts/pages) for that segment.</div>
+          </li>
+          <li>
+            <strong>What is the most common cause of “only the sidebar shows”?</strong>
+            <div class="mini">Answer: The layout forgot to render <code>{"{children}"}</code>.</div>
+          </li>
+          <li>
+            <strong>Why replace <code>&lt;a&gt;</code> with <code>Link</code>?</strong>
+            <div class="mini">Answer: <code>Link</code> enables Next.js client-side navigation behavior and route transitions.</div>
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>✅ Summary</h2>
+        <ul class="kvs">
+          <li>🧱 Root layout (<code>app/layout.js</code>) wraps the whole site.</li>
+          <li>🧩 Nested layout (<code>app/account/layout.js</code>) wraps only the <code>/account</code> segment and its nested routes.</li>
+          <li>🌉 <code>{"{children}"}</code> is the slot where page content renders.</li>
+          <li>🧭 Sidebars are typically a shared UI concern → ideal use-case for nested layouts.</li>
+          <li>🏷️ Use per-page <code>metadata</code> exports to keep titles meaningful.</li>
+        </ul>
+        <p class="muted">Next up in the course: more real Next.js work with data fetching and interactive features. 🚀</p>
+      </section>
+
+      <p class="mini muted">End of reviewer — you can print this page to A4 PDF (single column, print-optimized spacing).</p>
+    </main>
+  </div>
+</body>
+</html>

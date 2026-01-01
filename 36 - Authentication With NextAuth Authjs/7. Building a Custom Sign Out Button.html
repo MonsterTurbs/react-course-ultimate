@@ -1,0 +1,362 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Auth.js (NextAuth) — Custom Sign Out Button (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f8f9fb;
+      --soft2: #fbfbfd;
+      --accent: #0b57d0;
+      --accent2: #1a73e8;
+      --ok: #137333;
+      --warn: #b06000;
+      --danger: #b3261e;
+      --codebg: #0b1020;
+      --codefg: #e6edf3;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column, print-friendly container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--soft2), var(--bg));
+      padding: 18px 18px 14px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-block;
+      font-size: 0.85rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      color: #222;
+      white-space: nowrap;
+    }
+
+    main { margin-top: 18px; }
+
+    h2 {
+      font-size: 1.2rem;
+      margin: 20px 0 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin: 16px 0 6px;
+    }
+
+    p { margin: 8px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .callout.ok { border-left: 4px solid var(--ok); }
+    .callout.warn { border-left: 4px solid var(--warn); }
+    .callout.danger { border-left: 4px solid var(--danger); }
+
+    ul, ol { margin: 8px 0 8px 22px; }
+    li { margin: 6px 0; }
+
+    code, kbd {
+      font-family: var(--mono);
+      font-size: 0.95em;
+    }
+
+    kbd {
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      padding: 1px 6px;
+      border-radius: 6px;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+    }
+
+    pre {
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 12px;
+      padding: 14px 14px;
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,0.10);
+      margin: 10px 0 14px;
+      page-break-inside: avoid;
+    }
+
+    pre code { font-family: var(--mono); font-size: 0.9rem; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .small {
+      font-size: 0.94rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Print: A4, clean margins, remove link URLs, keep single column */
+    @page { size: A4; margin: 14mm 14mm 16mm; }
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header { box-shadow: none; }
+      a, a:visited { color: #000; text-decoration: none; }
+      /* Do NOT print URL/href after links */
+      a[href]::after { content: "" !important; }
+      /* Avoid splitting code blocks/callouts */
+      pre, .callout { break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🚪 Custom Sign Out Button in Next.js (Auth.js / NextAuth v5)</h1>
+      <p class="subtitle">Reviewer / study guide: implement a <strong>custom sign out</strong> button using a <strong>server action</strong>, even when the button lives inside a <strong>client component</strong>.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Authentication UX</span>
+        <span class="chip">🧠 Concept: Server Actions</span>
+        <span class="chip">🧱 Constraint: Client vs Server Components</span>
+        <span class="chip">🔁 Result: Sign out → redirect to Home</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>✅ What you will build</h2>
+      <ul>
+        <li>📤 A <strong>server action</strong> called <code>signOutAction</code> (or <code>SignOutAction</code>) that calls Auth.js <code>signOut()</code>.</li>
+        <li>🏠 After signing out, the user is redirected to <strong>"/" (homepage)</strong>.</li>
+        <li>🧭 A <strong>Sign Out button</strong> in the side navigation that triggers the server action via a <code>&lt;form action&gt;</code>.</li>
+      </ul>
+
+      <div class="callout ok">
+        <strong>Key idea 🙂</strong>
+        <p>
+          A <strong>server action can be invoked from a client component</strong> and it will still run <strong>only on the server</strong>.
+          This lets you keep the auth flow server-side (cleaner + often better UX).
+        </p>
+      </div>
+
+      <h2>🧩 Why this pattern is needed</h2>
+      <div class="grid">
+        <div class="callout">
+          <h3>Problem: The Sign Out button is inside a client component</h3>
+          <p class="small">
+            Your side navigation is a <strong>client component</strong> (it has interactivity/state). Therefore, a Sign Out button inside it is also client-side.
+          </p>
+        </div>
+        <div class="callout">
+          <h3>Temptation: Use <code>onClick</code> directly</h3>
+          <p class="small">
+            In theory you could wire an <code>onClick</code> to some function, but the course uses the <strong>same server-action form pattern</strong> as the Sign In button.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>Important 🙂‍↕️</strong>
+        <p>
+          With Auth.js, <code>signOut()</code> is a server-side helper function you typically want to execute on the server.
+          Server actions are the clean bridge for that.
+        </p>
+      </div>
+
+      <h2>🛠 Step-by-step implementation</h2>
+
+      <h3>1) Ensure Auth.js exports <code>signOut</code></h3>
+      <p>
+        In your auth setup file (often <code>app/_lib/auth.js</code>), you likely already did this in the previous lecture:
+      </p>
+      <pre><code>// app/_lib/auth.js
+import NextAuth from "next-auth";
+import Google from "next-auth/providers/google";
+
+const authConfig = {
+  providers: [
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+    }),
+  ],
+  // ...callbacks/pages/etc.
+};
+
+export const {
+  auth,
+  handlers: { GET, POST },
+  signIn,
+  signOut,
+} = NextAuth(authConfig);
+</code></pre>
+
+      <h3>2) Create the server action for signing out</h3>
+      <p>
+        In your server actions file (example: <code>app/_lib/actions.js</code>), add:
+      </p>
+      <pre><code>// app/_lib/actions.js
+"use server";
+
+import { signOut } from "./auth";
+
+export async function signOutAction() {
+  await signOut({ redirectTo: "/" });
+}
+</code></pre>
+
+      <div class="callout">
+        <strong>What this does 🤓</strong>
+        <ul>
+          <li><code>"use server"</code> forces these exports to execute on the server only.</li>
+          <li><code>signOut({ redirectTo: "/" })</code> logs the user out and navigates them back to the homepage.</li>
+          <li>No arguments are needed for this action.</li>
+        </ul>
+      </div>
+
+      <h3>3) Wire the action to your Sign Out button via <code>&lt;form action&gt;</code></h3>
+      <p>
+        Even if your sign-out UI is inside a client component (like a sidebar), you can still call the server action through a form.
+      </p>
+
+      <pre><code>// components/SignOutButton.jsx (example)
+"use client";
+
+import { signOutAction } from "@/app/_lib/actions";
+
+export default function SignOutButton() {
+  return (
+    &lt;form action={signOutAction}&gt;
+      &lt;button className="your-button-classes"&gt;
+        Sign out
+      &lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+</code></pre>
+
+      <div class="callout ok">
+        <strong>Why this works ✅</strong>
+        <p>
+          Submitting the form triggers the server action. Even though the button is rendered by a client component,
+          the action itself is executed server-side.
+        </p>
+      </div>
+
+      <h2>🧪 What to test (expected behavior)</h2>
+      <ol>
+        <li>Click the custom <strong>Sign out</strong> button in the side navigation. ✅</li>
+        <li>You should be redirected to <strong>"/"</strong>. 🏠</li>
+        <li>The user avatar in the navigation should disappear. 🖼️→❌</li>
+        <li>Protected areas (e.g., <code>/account</code>) should prompt you to log in again. 🔒</li>
+        <li>Reservation UI should show a “Please log in…” message when logged out. 🗓️ + 🔑</li>
+      </ol>
+
+      <h2>🧯 Common pitfalls and fixes</h2>
+      <div class="callout danger">
+        <strong>1) Import path issues</strong>
+        <p>
+          If your import alias <code>@/</code> is not configured, use a relative import.
+          Ensure the server action is imported from the correct location.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <strong>2) Missing <code>"use server"</code></strong>
+        <p>
+          If you forget <code>"use server"</code> at the top of the actions file, Next.js will not treat the function as a server action.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <strong>3) Sidebar is a client component — that is fine</strong>
+        <p>
+          The important part is: don’t try to execute server-only logic directly in the browser.
+          Use the <code>&lt;form action&gt;</code> pattern.
+        </p>
+      </div>
+
+      <h2>🧠 Quick recap</h2>
+      <ul>
+        <li>🔧 Create <code>signOutAction</code> (server action) that calls <code>signOut({ redirectTo: "/" })</code>.</li>
+        <li>🧾 Wrap the button in <code>&lt;form action={signOutAction}&gt;</code>.</li>
+        <li>🧭 Clicking Sign Out logs out the user and returns them to the homepage.</li>
+        <li>🔒 Protected routes will request login again after sign out.</li>
+      </ul>
+
+      <div class="hr"></div>
+
+      <p class="small">
+        Next lecture direction: connect authenticated users (Auth.js session) with guest records in Supabase (so logins map to DB users).
+      </p>
+    </main>
+  </div>
+</body>
+</html>

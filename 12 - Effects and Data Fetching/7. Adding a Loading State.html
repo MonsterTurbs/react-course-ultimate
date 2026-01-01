@@ -1,0 +1,327 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React useEffect — Adding a Loading State (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --chip: #f2f2f2;
+      --codebg: #fbfbfb;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      hyphens: auto;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      margin: 18px 0 10px;
+    }
+
+    h3 {
+      font-size: 1.02rem;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .chips {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .note {
+      background: var(--soft);
+      border-left: 4px solid #cfcfcf;
+      padding: 10px 12px;
+      border-radius: 10px;
+    }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 6px; }
+
+    ul { margin: 8px 0 8px 22px; }
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92rem;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .kbd {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.95em;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    .mini {
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    /* Print styles (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: 100%; padding: 0; }
+      header { page-break-after: avoid; }
+      h1, h2, h3 { page-break-after: avoid; }
+      .card, .callout, pre { page-break-inside: avoid; }
+
+      /* If any links exist, don't print URLs */
+      a[href]::after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>⏳ Adding a Loading State in React (useEffect)</h1>
+      <p class="subtitle">Study Guide — show a loader while fetching data, then render the movie list when ready.</p>
+      <div class="chips" aria-label="tags">
+        <span class="chip">⚛️ React</span>
+        <span class="chip">🪝 useEffect</span>
+        <span class="chip">🧠 State</span>
+        <span class="chip">🌐 Data Fetching</span>
+        <span class="chip">⏱️ Loading UI</span>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>🎯 Goal</h2>
+      <p>
+        When data is still being fetched (slow network, API delay), users should see a clear indicator like
+        <strong>“Loading…”</strong> instead of a blank area.
+      </p>
+      <div class="note">
+        <strong>Why it matters:</strong> Real apps almost always fetch data. A loader improves UX by explaining
+        what’s happening instead of showing an empty screen.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧪 How to see the problem</h2>
+      <p>
+        In the browser DevTools, open the <strong>Network</strong> tab and throttle to something like <strong>Slow 3G</strong>.
+        Then reload the app.
+      </p>
+      <ul>
+        <li>Without a loader: you may see a brief “blank flash” while waiting for the API response.</li>
+        <li>With a loader: you’ll see <strong>Loading…</strong> during the wait, then the list appears.</li>
+      </ul>
+      <p class="mini">Tip: Network tab is your best friend when debugging HTTP requests.</p>
+    </section>
+
+    <section class="card">
+      <h2>🧩 The solution pattern</h2>
+      <div class="grid">
+        <div class="callout">
+          <strong>✅ Add a loading state</strong>
+          <ul>
+            <li>Create <code>isLoading</code> with initial value <code>false</code>.</li>
+            <li>Set <code>isLoading</code> to <code>true</code> <em>right before</em> the fetch starts.</li>
+            <li>Set <code>isLoading</code> to <code>false</code> when the fetch finishes (success or failure).</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <strong>✅ Conditional rendering</strong>
+          <p>
+            Render a <code>&lt;Loader /&gt;</code> component when <code>isLoading</code> is true; otherwise render
+            <code>&lt;MovieList /&gt;</code>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧠 Beginner-friendly mental model</h2>
+      <p>
+        Think of <code>isLoading</code> as a simple traffic light for your UI:
+      </p>
+      <ul>
+        <li>🟡 <strong>true</strong> → “Data is on the way… show a loader.”</li>
+        <li>🟢 <strong>false</strong> → “Data is ready… show the results.”</li>
+      </ul>
+      <div class="note">
+        <strong>Key idea:</strong> You’re not “waiting” in React. You update state, and React re-renders with the right UI.
+      </div>
+    </section>
+
+    <div class="hr" role="separator" aria-label="separator"></div>
+
+    <section class="card">
+      <h2>🧾 Code example (core idea)</h2>
+      <p>This matches the lecture’s approach: set loading before/after the async fetch, then conditionally render.</p>
+
+      <h3>1) Add the state</h3>
+      <pre><code>// inside App()
+const [movies, setMovies] = useState([]);
+const [isLoading, setIsLoading] = useState(false);
+</code></pre>
+
+      <h3>2) Set loading around the fetch in useEffect</h3>
+      <pre><code>useEffect(function () {
+  async function fetchMovies() {
+    try {
+      setIsLoading(true);
+
+      const res = await fetch(`YOUR_URL_HERE`);
+      const data = await res.json();
+
+      setMovies(data.Search);
+    } finally {
+      // finally runs whether fetch succeeds or fails
+      setIsLoading(false);
+    }
+  }
+
+  fetchMovies();
+}, []);
+</code></pre>
+
+      <div class="note">
+        <strong>Why <code>finally</code>?</strong> It prevents your app from getting stuck in “Loading…” if an error happens.
+      </div>
+
+      <h3>3) Render Loader vs List</h3>
+      <pre><code>&lt;main&gt;
+  {isLoading ? &lt;Loader /&gt; : &lt;MovieList movies={movies} /&gt;}
+&lt;/main&gt;
+</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>🧱 The Loader component</h2>
+      <p>Keep it simple at first. You can upgrade to a spinner later.</p>
+      <pre><code>function Loader() {
+  return &lt;p className="loader"&gt;⏳ Loading…&lt;/p&gt;;
+}
+</code></pre>
+      <div class="note">
+        <strong>Pro tip:</strong> A tiny loader is better than a blank screen. Fancy spinners can come later.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>✅ What you should remember</h2>
+      <ul>
+        <li>Use <code>isLoading</code> state to control what the user sees while data is fetching.</li>
+        <li>Set loading <strong>before</strong> <code>fetch</code> starts, reset it <strong>after</strong> everything finishes.</li>
+        <li>Use conditional rendering: <code>isLoading ? &lt;Loader/&gt; : &lt;MovieList/&gt;</code></li>
+        <li>This pattern is extremely common in real React apps.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>🧠 Mini self-check</h2>
+      <ul>
+        <li>❓ If the network is slow, do I still show helpful UI? (Loader)</li>
+        <li>❓ Do I ever leave <code>isLoading</code> stuck on true? (Use <code>finally</code> or proper error handling)</li>
+        <li>❓ Am I keeping render logic side-effect free? (Fetch is inside <code>useEffect</code>)</li>
+      </ul>
+    </section>
+
+    <p class="mini">End of lecture notes — “Adding a Loading State”.</p>
+  </main>
+</body>
+</html>

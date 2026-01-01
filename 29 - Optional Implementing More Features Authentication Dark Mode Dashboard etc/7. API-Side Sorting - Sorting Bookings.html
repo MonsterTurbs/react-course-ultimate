@@ -1,0 +1,382 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — API-Side Sorting (Supabase + React Query)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f6f8fa;
+      --callout: #f3f4f6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 6px 0;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul {
+      margin: 10px 0 10px 18px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .toc {
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      border-radius: 10px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .toc a:hover { text-decoration: underline; }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--callout);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 6px; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      overflow: auto;
+      margin: 10px 0;
+      white-space: pre;
+    }
+
+    .badge {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      border: 0;
+      margin: 16px 0;
+    }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm 14mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { padding: 0; max-width: none; }
+      a { color: inherit; text-decoration: none; }
+      a[href]:after { content: ""; } /* do not print URLs */
+      pre { page-break-inside: avoid; }
+      .callout, .card, .toc { page-break-inside: avoid; }
+      h2, h3 { page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>API-Side Sorting (Bookings) — Supabase + React Query</h1>
+      <p class="subtitle">Reviewer / Study Guide • Single-column • A4 print-ready</p>
+    </header>
+
+    <section class="toc" aria-label="Table of Contents">
+      <strong>📌 Table of Contents</strong>
+      <ul>
+        <li><a href="#idea">💡 Core Idea</a></li>
+        <li><a href="#flow">🧭 End-to-End Flow</a></li>
+        <li><a href="#usebookings">🧩 Reading sortBy from the URL (useBookings)</a></li>
+        <li><a href="#getbookings">🗃️ Applying sorting in Supabase (getBookings)</a></li>
+        <li><a href="#cache">🧠 React Query cache behavior</a></li>
+        <li><a href="#pitfalls">⚠️ Common pitfalls</a></li>
+        <li><a href="#checklist">✅ Quick checklist</a></li>
+      </ul>
+    </section>
+
+    <section id="idea">
+      <h2>💡 Core Idea</h2>
+      <div class="kpi">
+        <div class="card">
+          <span class="badge">Goal</span>
+          <p><strong>Sort bookings on the server (Supabase)</strong>, not on the client.</p>
+          <p>Instead of downloading all bookings and sorting in the UI, you send a <em>sort instruction</em> to Supabase, and Supabase returns already-sorted results.</p>
+        </div>
+        <div class="card">
+          <span class="badge">Key mechanism</span>
+          <p><strong>URL state → useBookings → getBookings</strong></p>
+          <ul>
+            <li>Store the sorting choice in the URL (query string): <code>?sortBy=startDate-descending</code></li>
+            <li>Read it in <code>useBookings</code> (allowed to use hooks)</li>
+            <li>Pass it as an options object into <code>getBookings</code></li>
+            <li>Apply it using Supabase <code>.order()</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>🧠 Why do this?</strong>
+        <ul>
+          <li>🚀 Less data downloaded when you later combine sorting with filtering/pagination.</li>
+          <li>🔁 Works naturally with React Query: different sort combinations become different cached queries.</li>
+          <li>🔗 Shareable/bookmarkable state via URL.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="flow">
+      <h2>🧭 End-to-End Flow</h2>
+      <ol>
+        <li>👆 User changes sorting in the UI (Sort dropdown).</li>
+        <li>🔗 The selection updates the URL: <code>sortBy=&lt;field&gt;-&lt;direction&gt;</code>.</li>
+        <li>🧩 <code>useBookings</code> reads <code>sortBy</code> from <code>useSearchParams()</code>.</li>
+        <li>📦 <code>useBookings</code> builds a <code>sortBy</code> object like <code>{ field, direction }</code>.</li>
+        <li>🗃️ <code>getBookings({ filter, sortBy })</code> builds a Supabase query, then conditionally adds:</li>
+      </ol>
+      <pre><code>query = query.order(sortBy.field, { ascending: sortBy.direction === "ascending" });</code></pre>
+      <ol start="6">
+        <li>🧠 React Query uses a queryKey that includes <code>filter</code> and <code>sortBy</code>, so changing them triggers a refetch.</li>
+      </ol>
+    </section>
+
+    <section id="usebookings">
+      <h2>🧩 Reading <code>sortBy</code> from the URL (useBookings)</h2>
+      <p>Because <code>getBookings</code> is a regular function (not a hook), you read URL search params inside the custom hook <code>useBookings</code>, then pass the resulting options into <code>getBookings</code>.</p>
+
+      <div class="callout">
+        <strong>🧷 Expected URL format</strong>
+        <p><code>?status=checked-in&amp;sortBy=startDate-descending</code></p>
+        <ul>
+          <li><code>field</code> is before the dash (<code>startDate</code>)</li>
+          <li><code>direction</code> is after the dash (<code>descending</code>)</li>
+        </ul>
+      </div>
+
+      <h3>Example pattern</h3>
+      <pre><code>// useBookings.js (conceptual example)
+import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { getBookings } from "../../services/apiBookings";
+
+export function useBookings() {
+  const [searchParams] = useSearchParams();
+
+  // 1) Filter (already implemented in previous lecture)
+  const filterValue = searchParams.get("status");
+  const filter =
+    !filterValue || filterValue === "all"
+      ? null
+      : { field: "status", value: filterValue, method: "eq" };
+
+  // 2) Sort
+  const sortByRaw = searchParams.get("sortBy") || "startDate-descending";
+  const [field, direction] = sortByRaw.split("-");
+  const sortBy = { field, direction };
+
+  // 3) Include filter + sortBy in the queryKey so React Query refetches
+  const { data: bookings, isLoading } = useQuery({
+    queryKey: ["bookings", filter, sortBy],
+    queryFn: () => getBookings({ filter, sortBy }),
+  });
+
+  return { bookings, isLoading };
+}
+</code></pre>
+
+      <div class="callout">
+        <strong>✅ What to remember</strong>
+        <ul>
+          <li>🧷 <code>queryKey</code> works like a dependency array: if <code>sortBy</code> changes, the query refetches.</li>
+          <li>🧼 Use a default value so first page load has a stable sorting behavior.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="getbookings">
+      <h2>🗃️ Applying sorting in Supabase (getBookings)</h2>
+      <p>The idea is to build a Supabase query step-by-step, then apply filter and sorting only when they exist.</p>
+
+      <h3>Core pattern: conditional query building</h3>
+      <pre><code>// apiBookings.js (conceptual example)
+import supabase from "./supabase";
+
+export async function getBookings({ filter, sortBy } = {}) {
+  let query = supabase
+    .from("bookings")
+    .select(
+      "id, created_at, startDate, endDate, numNights, numGuests, status, totalPrice, cabins(name), guests(fullName,email)"
+    );
+
+  // 1) Filtering (already covered previously)
+  if (filter) {
+    const method = filter.method || "eq";
+    query = query[method](filter.field, filter.value);
+  }
+
+  // 2) Sorting (server-side)
+  if (sortBy?.field) {
+    query = query.order(sortBy.field, {
+      ascending: sortBy.direction === "ascending",
+    });
+  }
+
+  const { data, error } = await query;
+  if (error) throw new Error("Bookings could not be loaded");
+
+  return data;
+}
+</code></pre>
+
+      <div class="callout">
+        <strong>🧩 The important detail</strong>
+        <p>Supabase sorting uses <code>.order()</code>, not <code>.sort()</code>. You also pass options like <code>{ ascending: true/false }</code>.</p>
+      </div>
+
+      <h3>Quick mental model</h3>
+      <ul>
+        <li>🧱 Start with a base query: <code>let query = supabase.from(...).select(...)</code></li>
+        <li>🧰 Add behaviors conditionally: filter, sort, (next: pagination)</li>
+        <li>✅ Finally: <code>const { data, error } = await query;</code></li>
+      </ul>
+    </section>
+
+    <section id="cache">
+      <h2>🧠 React Query cache behavior</h2>
+      <p>Once <code>filter</code> and <code>sortBy</code> are included in the <code>queryKey</code>, React Query caches each combination separately.</p>
+
+      <div class="callout">
+        <strong>🔢 Combination thinking</strong>
+        <p>If you have 4 filter options and 4 sort options, that can produce up to <strong>16</strong> cached combinations (4 × 4).</p>
+        <p>Result: switching between options feels instant once combinations are cached. ✨</p>
+      </div>
+
+      <h3>Why this is valuable</h3>
+      <ul>
+        <li>🔁 Switch back and forth quickly without re-downloading (if still fresh in cache).</li>
+        <li>🧩 A clean mental model: <em>queryKey identifies a dataset version</em>.</li>
+      </ul>
+    </section>
+
+    <section id="pitfalls">
+      <h2>⚠️ Common pitfalls</h2>
+      <ul>
+        <li><strong>“Sorting doesn’t change when I click options”</strong> → your <code>queryKey</code> is missing <code>sortBy</code>.</li>
+        <li><strong>“Always same order”</strong> → you forgot the <code>{ ascending: ... }</code> option in <code>.order()</code>.</li>
+        <li><strong>“Split returns wrong values”</strong> → ensure the URL value is always <code>field-direction</code> with exactly one dash.</li>
+        <li><strong>“Server sorting but UI looks inconsistent”</strong> → confirm you are rendering the server results (not old client-sorted state).</li>
+      </ul>
+
+      <div class="callout">
+        <strong>🛠️ Debug tip</strong>
+        <p>Log the parsed values:</p>
+        <pre><code>console.log({ sortByRaw, field, direction });</code></pre>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <h2>✅ Quick checklist</h2>
+      <ul>
+        <li>✅ Sort selection updates URL (<code>sortBy=...</code>)</li>
+        <li>✅ <code>useBookings</code> reads <code>sortBy</code> and builds <code>{ field, direction }</code></li>
+        <li>✅ <code>queryKey</code> includes <code>filter</code> and <code>sortBy</code></li>
+        <li>✅ <code>getBookings</code> uses <code>.order(field, { ascending })</code></li>
+        <li>✅ Default sorting works when URL has no <code>sortBy</code></li>
+      </ul>
+
+      <hr class="hr" />
+      <p><strong>Next topic:</strong> 📄 Pagination — the 3rd core data operation (Filter + Sort + Paginate).</p>
+    </section>
+  </main>
+</body>
+</html>

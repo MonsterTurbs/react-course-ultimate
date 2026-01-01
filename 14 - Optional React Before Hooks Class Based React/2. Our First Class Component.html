@@ -1,0 +1,369 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Our First Class Component (Classy Weather Setup + State Basics)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+      --danger:#b00020;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .compare{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 4px;
+      font-size: 13.5px;
+    }
+    .compare th,
+    .compare td{
+      border:1px solid var(--border);
+      padding: 10px 10px;
+      vertical-align: top;
+    }
+    .compare th{
+      background: var(--panel);
+      text-align:left;
+      font-weight:700;
+    }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+    .danger{ color: var(--danger); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🏛️ React Study Guide: Our First Class Component</h1>
+      <p class="subtitle">We start a new app (“Classy Weather”) and build a first class-based component. Focus: how class components are structured, why <code>render()</code> is required, and how state works via <code>constructor</code> + <code>this.state</code>.</p>
+      <div class="meta">
+        <span class="chip">🧱 Legacy React: Class Components</span>
+        <span class="chip">🔁 Required: <code>render()</code></span>
+        <span class="chip">🧠 State: <code>constructor</code> + <code>this.state</code></span>
+        <span class="chip">🧰 Tooling: CRA v5 + starter files</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What we’re building in this section</h2>
+      <p>This section introduces a small app called <strong>“Classy Weather”</strong> 🌦️ (a weather app built using React classes).</p>
+      <ul>
+        <li>🔎 Search a location (e.g., London, Lisbon)</li>
+        <li>📅 Show today + next 6 days (weekly forecast)</li>
+        <li>🌐 Data comes from an API</li>
+      </ul>
+      <div class="callout">
+        <strong>Goal of this lecture:</strong> get the project running and create your first class component + first class state.
+      </div>
+    </section>
+
+    <section>
+      <h2>🛠️ Step 1: Create the project (Create React App v5)</h2>
+      <p>From terminal/command prompt:</p>
+      <pre><code>npx create-react-app@5 classy-weather</code></pre>
+      <p class="muted">(The lecture described CRA v5 and naming the app “Classy Weather”. Exact command formats can vary; the key point is creating a new CRA project.)</p>
+
+      <div class="rule">
+        <h3>📦 Add starter files</h3>
+        <ul>
+          <li>Copy the provided starter files into <code>src/</code>.</li>
+          <li>Delete “junk” files you don’t need.</li>
+          <li>Keep only the essentials (as described): <code>index.js</code>, <code>App.js</code>, a CSS file, and a <code>starter.js</code> file from the starter pack.</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <strong>Quick sanity check:</strong> Run <code>npm start</code> ▶️ and confirm the dev server loads.
+      </div>
+    </section>
+
+    <section>
+      <h2>🏛️ Step 2: Create your first class component</h2>
+      <p>Before Hooks (pre-2019), React components were commonly written using <strong>JavaScript classes</strong>.</p>
+
+      <div class="rule">
+        <h3>✅ Basic structure (bare-bones)</h3>
+        <pre><code>import React from "react";
+
+class Counter extends React.Component {
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;button&gt;-&lt;/button&gt;
+        &lt;span&gt;0&lt;/span&gt;
+        &lt;button&gt;+&lt;/button&gt;
+      &lt;/div&gt;
+    );
+  }
+}
+
+export default Counter;</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Key rule:</strong> Every class component must implement <code>render()</code>, and it must return JSX.
+      </div>
+
+      <p class="muted">JSX works the same as in function components. The big difference is how you handle state, props, and side effects.</p>
+    </section>
+
+    <section>
+      <h2>🧠 Class component state: <code>constructor</code> + <code>this.state</code></h2>
+      <p>In class components, you can’t use Hooks like <code>useState</code>. Instead, you initialize state in the <code>constructor</code>:</p>
+
+      <pre><code>import React from "react";
+
+class Counter extends React.Component {
+  constructor(props) {
+    super(props);
+
+    // ✅ One state object for the whole component
+    this.state = {
+      count: 5,
+    };
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;button&gt;-&lt;/button&gt;
+        &lt;span&gt;{this.state.count}&lt;/span&gt;
+        &lt;button&gt;+&lt;/button&gt;
+      &lt;/div&gt;
+    );
+  }
+}
+
+export default Counter;</code></pre>
+
+      <div class="callout">
+        <strong>Why the boilerplate?</strong> With ES6 classes, the constructor receives <code>props</code>, and you must call <code>super(props)</code> so the parent class (<code>React.Component</code>) is properly initialized.
+      </div>
+
+      <div class="callout">
+        <strong>Important pattern you’ll see everywhere:</strong>
+        <ul>
+          <li><code>this.state.someValue</code> to read state</li>
+          <li><code>this.props.someProp</code> to read props</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>🆚 Class state vs Hook state (quick comparison)</h2>
+      <table class="compare" aria-label="Class state vs Hook state">
+        <thead>
+          <tr>
+            <th>Function + Hooks</th>
+            <th>Class Components</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <ul>
+                <li>Multiple state variables: <code>useState</code> per value</li>
+                <li>Cleaner initialization</li>
+                <li>State updates can use callback: <code>setX(x =&gt; x + 1)</code></li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Usually a single state object: <code>this.state = { ... }</code></li>
+                <li>More boilerplate (<code>constructor</code>, <code>super</code>)</li>
+                <li>Updates via <code>this.setState(...)</code> (next lecture)</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <strong>Beginner-friendly takeaway:</strong> Class state “lives” on the component instance (the <code>this</code> object), while Hook state “lives” in React’s Hook system.
+      </div>
+    </section>
+
+    <section>
+      <h2>🔍 Common beginner confusions (and fixes)</h2>
+      <div class="rule">
+        <h3 class="warn">⚠️ “Do I really need to import React?”</h3>
+        <p>In class components, you typically import React because you extend <code>React.Component</code>:</p>
+        <pre><code>import React from "react";
+class MyComp extends React.Component { /* ... */ }</code></pre>
+      </div>
+
+      <div class="rule">
+        <h3 class="warn">⚠️ “Why is it <code>this.state.count</code>?”</h3>
+        <p>Because the state object is stored on the component instance. In classes, <code>this</code> refers to the current instance created from the class.</p>
+      </div>
+
+      <div class="rule">
+        <h3 class="warn">⚠️ “Why is there only one state object?”</h3>
+        <p>That’s how class components were designed. You can store many fields inside that one object, but it’s still one <code>this.state</code>.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ What’s next</h2>
+      <p>Right now, the counter renders a number from <code>this.state</code>, but the buttons do nothing yet.</p>
+      <div class="callout">
+        <strong>Next lecture:</strong> attach event handlers to the buttons and learn how to update state in classes (usually via <code>this.setState</code>).</n      </div>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>🏛️ A class component is an ES6 class that <code>extends React.Component</code>.</li>
+        <li>🧾 It must implement <code>render()</code> and return JSX.</li>
+        <li>🧠 State is initialized in <code>constructor(props)</code> using <code>this.state = { ... }</code>.</li>
+        <li>👀 Reading state uses <code>this.state.someKey</code>; reading props uses <code>this.props.someProp</code>.</li>
+        <li>🧰 Compared to Hooks, class components require more boilerplate (but are important for legacy codebases).</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

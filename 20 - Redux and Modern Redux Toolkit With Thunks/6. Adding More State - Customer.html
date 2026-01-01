@@ -1,0 +1,347 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redux — Adding More State (Customer) | Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b1020;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      padding:16px 16px;
+      border-radius:12px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size:22px;
+      margin:0 0 6px 0;
+      letter-spacing:.2px;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    h2{
+      font-size:16px;
+      margin:18px 0 10px;
+      padding-top:8px;
+      border-top:1px solid var(--border);
+    }
+
+    h3{
+      font-size:14px;
+      margin:14px 0 8px;
+    }
+
+    p{margin:8px 0;}
+
+    .callout{
+      border:1px solid var(--border);
+      background:#fff;
+      border-left:5px solid #c9c9c9;
+      border-radius:10px;
+      padding:12px 12px;
+      margin:12px 0;
+    }
+
+    .callout strong{display:inline-block; margin-right:6px;}
+
+    ul{margin:8px 0 8px 20px; padding:0;}
+    li{margin:6px 0;}
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin:10px 0;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:var(--panel);
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 1px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    pre{
+      margin:10px 0;
+      padding:12px;
+      border-radius:12px;
+      background:var(--code);
+      color:#e8eaf2;
+      border:1px solid #1c2447;
+      overflow:auto;
+      font-size:12px;
+      line-height:1.45;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .muted{color:var(--muted);}
+
+    .hr{
+      height:1px;
+      background:var(--border);
+      margin:14px 0;
+    }
+
+    /* Print styles (A4, clean output) */
+    @page{ size: A4; margin: 14mm; }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width:none; padding:0; }
+      header, .card, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      pre{ break-inside: avoid; page-break-inside: avoid; }
+      a{ color:inherit; text-decoration:none; }
+      a[href]::after{ content:""; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧰 Redux: Adding More State (Customer)</h1>
+      <p class="subtitle">Study guide / reviewer — creating a <strong>customer</strong> slice of state, adding <strong>action creators</strong>, writing a <strong>customer reducer</strong>, and combining reducers into a <strong>root reducer</strong> using <code>combineReducers</code>.</p>
+    </header>
+
+    <section class="callout">
+      <strong>🎯 Goal</strong>
+      Add a second “domain” of global state (Customer) alongside Account, then combine both reducers so the Redux store holds <code>{ account: ..., customer: ... }</code>.
+    </section>
+
+    <h2>1) What you’re building</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>🧾 Customer state fields</h3>
+        <ul>
+          <li><strong>fullName</strong> — starts empty</li>
+          <li><strong>nationalID</strong> — starts empty</li>
+          <li><strong>createdAt</strong> — starts empty (set automatically when customer is created)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>🏦 Account state (existing)</h3>
+        <ul>
+          <li><strong>balance</strong></li>
+          <li><strong>loan</strong></li>
+          <li><strong>loanPurpose</strong></li>
+        </ul>
+        <p class="muted">This lecture keeps Account and Customer separate just to learn Redux mechanics. In a real app, these might be related (e.g., accountId).</p>
+      </div>
+    </div>
+
+    <h2>2) Initial state objects</h2>
+    <p>We keep initial state per domain. That makes reducers simpler and helps us reason about store shape.</p>
+
+    <pre><code>// Customer initial state
+const initialStateCustomer = {
+  fullName: "",
+  nationalID: "",
+  createdAt: "",
+};
+
+// Account initial state (already exists)
+const initialStateAccount = {
+  balance: 0,
+  loan: 0,
+  loanPurpose: "",
+};</code></pre>
+
+    <h2>3) Action creators for Customer</h2>
+    <div class="callout">
+      <strong>🧠 Remember</strong>
+      Action creators are just <em>functions that return action objects</em>. They’re a convention to reduce typos and centralize action definitions.
+    </div>
+
+    <h3>3.1 Create customer</h3>
+    <ul>
+      <li>Inputs: <code>fullName</code>, <code>nationalID</code></li>
+      <li>Also adds: <code>createdAt</code> (computed here, not in reducer)</li>
+    </ul>
+
+    <pre><code>export function createCustomer(fullName, nationalID) {
+  return {
+    type: "customer/createCustomer",
+    payload: {
+      fullName,
+      nationalID,
+      createdAt: new Date().toISOString(),
+    },
+  };
+}</code></pre>
+
+    <div class="callout">
+      <strong>⚠️ Why compute <code>createdAt</code> here?</strong>
+      Creating a date/time is a <em>side effect</em> (non-deterministic). Reducers must be <strong>pure</strong>, so we avoid time-based logic inside reducers.
+    </div>
+
+    <h3>3.2 Update name</h3>
+    <p>Simple action: only updates one field.</p>
+    <pre><code>export function updateName(fullName) {
+  return {
+    type: "customer/updateName",
+    payload: fullName,
+  };
+}</code></pre>
+
+    <h2>4) Customer reducer</h2>
+    <p>The reducer uses <code>state</code> + <code>action</code> to compute the <strong>next state</strong>. No mutation, no async, no side effects.</p>
+
+    <pre><code>function customerReducer(state = initialStateCustomer, action) {
+  switch (action.type) {
+    case "customer/createCustomer":
+      return {
+        ...state,
+        fullName: action.payload.fullName,
+        nationalID: action.payload.nationalID,
+        createdAt: action.payload.createdAt,
+      };
+
+    case "customer/updateName":
+      return {
+        ...state,
+        fullName: action.payload,
+      };
+
+    default:
+      return state;
+  }
+}</code></pre>
+
+    <div class="callout">
+      <strong>✅ Why spread <code>...state</code> even if you overwrite all fields?</strong>
+      Future-proofing. If later you add fields (e.g., <code>status</code>), you won’t accidentally drop them.
+    </div>
+
+    <h2>5) Combine reducers into a root reducer</h2>
+    <p>Redux store accepts a single reducer. When we have multiple reducers (domains/features), we combine them into one “root reducer”.</p>
+
+    <pre><code>import { createStore, combineReducers } from "redux";
+
+function accountReducer(state = initialStateAccount, action) {
+  // ...existing account reducer cases
+  return state;
+}
+
+const rootReducer = combineReducers({
+  account: accountReducer,
+  customer: customerReducer,
+});
+
+const store = createStore(rootReducer);</code></pre>
+
+    <div class="callout">
+      <strong>🧩 Store shape rule</strong>
+      The keys you provide to <code>combineReducers</code> become the top-level keys in <code>store.getState()</code>.
+      <div class="hr"></div>
+      <div class="muted">Example: <code>{ account: {...}, customer: {...} }</code></div>
+    </div>
+
+    <h2>6) Dispatching actions (quick demo)</h2>
+    <p>Dispatch is still <code>store.dispatch(...)</code>. Redux figures out which reducer updates what based on the combined reducer setup.</p>
+
+    <pre><code>// Customer actions
+store.dispatch(createCustomer("Your Name", "123456789"));
+store.dispatch(updateName("Your Updated Name"));
+
+// Account actions (still work)
+store.dispatch(deposit(250));
+
+console.log(store.getState());
+// {
+//   account: {...},
+//   customer: { fullName, nationalID, createdAt }
+// }</code></pre>
+
+    <div class="callout">
+      <strong>📝 Important note</strong>
+      The string prefix like <code>account/...</code> and <code>customer/...</code> is a <strong>developer convention</strong> for readability. Redux doesn’t “route” actions by reading prefixes; the root reducer runs and each slice reducer decides whether to handle the action.
+    </div>
+
+    <h2>7) Beginner-friendly mental model</h2>
+    <ul>
+      <li>🏪 <strong>Store</strong> = one global container for state</li>
+      <li>🧾 <strong>Action</strong> = instruction object (<code>{ type, payload }</code>)</li>
+      <li>🧠 <strong>Reducer</strong> = pure function that returns next state</li>
+      <li>🧩 <strong>combineReducers</strong> = merges slice reducers into one root reducer</li>
+      <li>🔁 <strong>Dispatch</strong> = sends actions to the store</li>
+    </ul>
+
+    <h2>8) Common pitfalls</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>❌ Side effects in reducers</h3>
+        <p class="muted">Examples: generating dates, random IDs, API calls, timers.</p>
+        <p>Keep reducers pure. Do side effects in action creators / thunks / middleware.</p>
+      </div>
+      <div class="card">
+        <h3>❌ Typos in action types</h3>
+        <p>One reason action creators help: you avoid repeating strings manually in many places.</p>
+      </div>
+      <div class="card">
+        <h3>⚠️ Naming confusion</h3>
+        <p><code>combineReducers({ account: accountReducer })</code> means your state lives at <code>state.account</code>.</p>
+      </div>
+    </div>
+
+    <h2>9) Quick checklist</h2>
+    <ul>
+      <li>✅ Create <code>initialStateCustomer</code></li>
+      <li>✅ Create action creators: <code>createCustomer</code>, <code>updateName</code></li>
+      <li>✅ Build <code>customerReducer</code> with correct cases</li>
+      <li>✅ Use <code>combineReducers</code> to create <code>rootReducer</code></li>
+      <li>✅ <code>createStore(rootReducer)</code> and test with <code>store.dispatch</code> + <code>store.getState()</code></li>
+    </ul>
+
+    <section class="callout">
+      <strong>➡️ Next</strong>
+      The code is getting messy in one file. The next step is to refactor into a more professional folder structure (separate reducers, action creators, and store setup).
+    </section>
+  </main>
+</body>
+</html>

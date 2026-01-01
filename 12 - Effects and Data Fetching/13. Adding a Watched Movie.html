@@ -1,0 +1,470 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — Adding a Watched Movie (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f6f8fa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 0;
+      font-size: 0.98rem;
+    }
+
+    .meta {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    h2 {
+      font-size: 1.22rem;
+      margin: 18px 0 10px;
+      letter-spacing: -0.1px;
+    }
+
+    h3 {
+      font-size: 1.06rem;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .callout strong { display: inline-block; margin-bottom: 4px; }
+
+    .bullets {
+      margin: 8px 0 12px;
+      padding-left: 18px;
+    }
+
+    .bullets li { margin: 6px 0; }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0 14px;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      background: var(--codebg);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      font-size: 0.9em;
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      font-size: 0.82rem;
+      color: var(--muted);
+      vertical-align: baseline;
+      margin-left: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini {
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    /* Print setup (A4) */
+    @page {
+      size: A4;
+      margin: 14mm 14mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      header { border-bottom: 1px solid #000; }
+      .meta, .callout, pre { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>React — Adding a Watched Movie</h1>
+      <p class="subtitle">Reviewer / Study Guide (usePopcorn project): building a real watched list with user ratings, duplicate protection, and delete.</p>
+      <div class="meta">
+        <div><strong>Focus:</strong> State updates, prop drilling, derived state, and safe UI logic. <span class="tag">useState</span> <span class="tag">data flow</span></div>
+        <div class="mini">Print tip: This page is A4-ready and single-column. Code blocks won’t overflow when printed.</div>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) What the “Watched List” is (and what it needs) 🍿</h2>
+      <p>
+        The watched list is just an <strong>array of movie objects</strong> stored in state. Each object must contain the fields the UI needs
+        to display a watched movie card and compute summary statistics.
+      </p>
+
+      <div class="callout">
+        <strong>✅ A watched movie object usually needs:</strong>
+        <ul class="bullets">
+          <li>🆔 <code>imdbID</code></li>
+          <li>🎬 <code>title</code>, <code>year</code>, <code>poster</code></li>
+          <li>⭐ <code>imdbRating</code> (number)</li>
+          <li>🧑‍⚖️ <code>userRating</code> (number) — user’s star rating</li>
+          <li>⏱️ <code>runtime</code> (number) — minutes only (not “148 min” as a string)</li>
+        </ul>
+      </div>
+
+      <p class="mini">
+        Why do we care about “number vs string”? Because averages like <code>avgRating</code> require numeric math.
+      </p>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>2) Add a movie to the watched state (immutable update) ➕</h2>
+      <p>
+        The watched array lives in the <strong>App</strong> component. So the “add” handler should also be in App, then passed down.
+      </p>
+
+      <h3>In App: create the handler</h3>
+      <pre><code>function handleAddWatched(movie) {
+  setWatched(watched =&gt; [...watched, movie]);
+}</code></pre>
+
+      <div class="callout">
+        <strong>Why the callback form?</strong>
+        <p class="mini">
+          Using <code>setWatched(w =&gt; ...)</code> guarantees you always work with the latest state.
+          This avoids stale state bugs when multiple updates happen quickly.
+        </p>
+      </div>
+
+      <h3>Pass it to MovieDetails (where the button is)</h3>
+      <pre><code>&lt;MovieDetails
+  selectedId={selectedId}
+  onAddWatched={handleAddWatched}
+  onCloseMovie={handleCloseMovie}
+  watched={watched}
+/&gt;</code></pre>
+
+      <p class="mini">
+        Notice: we also pass <code>watched</code> down later to detect duplicates.
+      </p>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>3) Build the “newWatchedMovie” object correctly 🧱</h2>
+      <p>
+        Inside <strong>MovieDetails</strong> you already fetched the full movie details (title/year/poster/runtime/imdbRating, etc.).
+        Now create a new object with the exact property names your watched components expect.
+      </p>
+
+      <h3>Example: handleAdd</h3>
+      <pre><code>function handleAdd() {
+  const newWatchedMovie = {
+    imdbID: selectedId,
+    title,
+    year,
+    poster,
+    imdbRating: Number(imdbRating),
+    runtime: Number(runtime.split(" ").at(0)),
+    userRating,
+  };
+
+  onAddWatched(newWatchedMovie);
+  onCloseMovie();
+}</code></pre>
+
+      <div class="callout">
+        <strong>Common gotchas ⚠️</strong>
+        <ul class="bullets">
+          <li>🔁 Duplicate keys: don’t accidentally write <code>imdbRating</code> twice, or use the wrong key name.</li>
+          <li>🔤 Runtime usually arrives as a string like <code>"148 min"</code> → convert to <code>148</code>.</li>
+          <li>🧩 Your watched list UI might expect <code>title</code> not <code>Title</code> (case matters!).</li>
+        </ul>
+      </div>
+
+      <p>
+        Closing details after adding is a UX improvement: users immediately see the updated watched list.
+      </p>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>4) Capture user rating from StarRating (lift state up) ⭐</h2>
+      <p>
+        The star component has internal state, but the watched list needs the rating in <strong>MovieDetails</strong>.
+        So you store rating in MovieDetails and pass a setter into <code>StarRating</code>.
+      </p>
+
+      <h3>In MovieDetails: state</h3>
+      <pre><code>const [userRating, setUserRating] = useState(0);</code></pre>
+
+      <h3>Pass setter to StarRating</h3>
+      <pre><code>&lt;StarRating
+  maxRating={10}
+  size={24}
+  onSetRating={setUserRating}
+/&gt;</code></pre>
+
+      <div class="callout">
+        <strong>UI rule ✅</strong>
+        <p class="mini">
+          Only show “Add to list” if the user has rated:
+        </p>
+        <pre><code>{userRating &gt; 0 &amp;&amp; (
+  &lt;button className="btn-add" onClick={handleAdd}&gt;
+    Add to list
+  &lt;/button&gt;
+)}</code></pre>
+      </div>
+
+      <p class="mini">
+        This prevents adding “unrated” movies and keeps your stats meaningful.
+      </p>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>5) Prevent duplicates: hide rating UI if already watched 🚫</h2>
+      <p>
+        If the movie is already in the watched array, you should:
+      </p>
+      <ul class="bullets">
+        <li>❌ Hide the star rating + add button</li>
+        <li>✅ Show a message: “You rated this movie ⭐ X”</li>
+      </ul>
+
+      <h3>Derived state: isWatched</h3>
+      <pre><code>const isWatched = watched
+  .map(m =&gt; m.imdbID)
+  .includes(selectedId);</code></pre>
+
+      <h3>Derived state: watchedUserRating</h3>
+      <pre><code>const watchedUserRating = watched
+  .find(m =&gt; m.imdbID === selectedId)
+  ?.userRating;</code></pre>
+
+      <h3>Conditional UI (fragment used for multiple roots)</h3>
+      <pre><code>&lt;div className="rating"&gt;
+  {!isWatched ? (
+    &lt;&gt;
+      &lt;StarRating maxRating={10} size={24} onSetRating={setUserRating} /&gt;
+      {userRating &gt; 0 &amp;&amp; (
+        &lt;button className="btn-add" onClick={handleAdd}&gt;
+          Add to list
+        &lt;/button&gt;
+      )}
+    &lt;/&gt;
+  ) : (
+    &lt;p&gt;⭐ You rated this movie {watchedUserRating}&lt;/p&gt;
+  )}
+&lt;/div&gt;</code></pre>
+
+      <div class="callout">
+        <strong>Why optional chaining (?.)?</strong>
+        <p class="mini">
+          If the movie isn’t in watched, <code>find</code> returns <code>undefined</code>. Optional chaining prevents a crash.
+        </p>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>6) Delete from watched list (filter by ID) 🗑️</h2>
+      <p>
+        Deleting is another classic immutable update: create a new array without the removed item.
+      </p>
+
+      <h3>In App</h3>
+      <pre><code>function handleDeleteWatched(id) {
+  setWatched(watched =&gt; watched.filter(movie =&gt; movie.imdbID !== id));
+}</code></pre>
+
+      <h3>Prop drilling to the watched movie item</h3>
+      <pre><code>&lt;WatchedMovieList
+  watched={watched}
+  onDeleteWatched={handleDeleteWatched}
+/&gt;</code></pre>
+
+      <pre><code>// Inside WatchedMovie (button)
+&lt;button
+  className="btn-delete"
+  onClick={() =&gt; onDeleteWatched(movie.imdbID)}
+&gt;
+  ×
+&lt;/button&gt;</code></pre>
+
+      <div class="callout">
+        <strong>Reminder ✍️</strong>
+        <p class="mini">
+          If you pass an argument, you need a callback: <code>() =&gt; onDeleteWatched(id)</code> (not a direct call).
+        </p>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>7) Stats formatting (make averages look professional) 📊</h2>
+      <p>
+        Floating point math can look messy. When displaying averages, format the output.
+      </p>
+
+      <pre><code>// Example display formatting
+avgImdbRating.toFixed(2)
+avgUserRating.toFixed(2)
+avgRuntime.toFixed(0)</code></pre>
+
+      <div class="callout">
+        <strong>Tip</strong>
+        <p class="mini">
+          Use <code>toFixed(2)</code> for ratings, and often <code>toFixed(0)</code> for runtime minutes.
+        </p>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>8) Practical mental model: data flow in this lecture 🧠</h2>
+      <div class="grid">
+        <div class="callout">
+          <strong>🎯 Where state lives</strong>
+          <ul class="bullets">
+            <li><strong>App</strong>: <code>watched</code>, <code>selectedId</code></li>
+            <li><strong>MovieDetails</strong>: <code>movie</code> details, <code>userRating</code>, loading flags</li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <strong>🔁 What happens when user clicks “Add to list”</strong>
+          <ol class="bullets">
+            <li>Create <code>newWatchedMovie</code> in MovieDetails</li>
+            <li>Call <code>onAddWatched(newWatchedMovie)</code> → updates App state</li>
+            <li>React re-renders: summary + watched list update automatically</li>
+            <li>Call <code>onCloseMovie()</code> to return to list view</li>
+          </ol>
+        </div>
+
+        <div class="callout">
+          <strong>🛡️ Safety rules</strong>
+          <ul class="bullets">
+            <li>Never mutate arrays/objects in state; always create new ones.</li>
+            <li>Use callback form of state setters when derived from previous state.</li>
+            <li>Prefer derived state (like <code>isWatched</code>) over “extra state”.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>Quick self-check ✅</h2>
+      <ul class="bullets">
+        <li>Can you explain why <code>watched</code> must live in App (not inside MovieDetails)?</li>
+        <li>Can you list the exact fields required for <code>newWatchedMovie</code>?</li>
+        <li>Do you know why <code>runtime</code> and <code>imdbRating</code> must be numbers?</li>
+        <li>Can you explain how <code>isWatched</code> prevents duplicates?</li>
+        <li>Can you explain why <code>() =&gt; handler(id)</code> is needed for delete?</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Key takeaway 🧩</strong>
+        <p class="mini">
+          This lecture is mostly about <em>data flow</em>: state in the parent, handlers passed down, and derived state used for UI rules.
+          If you can trace the props and state changes, you’re building real React skill.
+        </p>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

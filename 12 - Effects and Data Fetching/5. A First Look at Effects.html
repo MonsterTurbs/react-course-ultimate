@@ -1,0 +1,359 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — A First Look at Effects (useEffect) | Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e7e7e7;
+      --soft:#f7f7f8;
+      --chip:#f2f4f7;
+      --accent:#0b57d0;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header{
+      padding: 18px 18px 14px;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+
+    h1{
+      font-size: 24px;
+      margin: 0 0 6px;
+      letter-spacing: .1px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: #222;
+    }
+
+    main{
+      margin-top: 16px;
+    }
+
+    h2{
+      font-size: 18px;
+      margin: 18px 0 8px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3{
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p{margin: 10px 0;}
+
+    ul{margin: 8px 0 10px 20px;}
+    li{margin: 6px 0;}
+
+    .callout{
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .callout strong{display:block; margin-bottom:6px;}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .two-col{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 760px){
+      .two-col{grid-template-columns: 1fr;}
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      overflow: hidden;
+      white-space: pre-wrap; /* word-wrap for printing */
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: #fbfbfc;
+      border: 1px solid var(--border);
+    }
+
+    .divider{height:1px;background:var(--border);margin:16px 0;}
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    /* Print styles */
+    @page { size: A4; margin: 14mm; }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header, .callout, pre{ break-inside: avoid; }
+      h2, h3{ break-after: avoid; }
+      a{ color: var(--text); text-decoration: none; }
+      a[href]::after{ content: "" !important; } /* do not print URLs */
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>useEffect — A First Look at Effects</h1>
+      <p class="subtitle">Reviewer / Study Guide (beginner-friendly) — Single-column, A4 print-ready</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: Side Effects</span>
+        <span class="chip">🧰 Hook: useEffect</span>
+        <span class="chip">⚙️ Compare: Event Handlers vs Effects</span>
+        <span class="chip">🧠 Key idea: Synchronization</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>1) Quick refresher: What is a “side effect” in React?</h2>
+      <p>
+        A <strong>side effect</strong> is any interaction between your component and the <strong>outside world</strong> (outside the component).
+        Think: code that makes something “real” happen.
+      </p>
+
+      <div class="callout">
+        <strong>💡 Common examples of side effects</strong>
+        <ul>
+          <li>🌐 Fetching data from an API (e.g., OMDb movies)</li>
+          <li>🕒 Setting timers (<code>setTimeout</code>, <code>setInterval</code>)</li>
+          <li>🧩 Subscribing/unsubscribing to events (e.g., <code>window.addEventListener</code>)</li>
+          <li>🧭 Changing browser state (e.g., <code>document.title</code>, navigation)</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <strong>⚠️ Important rule</strong>
+        <p>
+          Side effects should <strong>not</strong> run during <strong>render logic</strong> (top-level code that runs when the component function runs).
+          Doing side effects in render can lead to bugs (like infinite loops).
+        </p>
+      </div>
+
+      <h2>2) Where are side effects allowed?</h2>
+      <p>In React, you normally create side effects in two places:</p>
+
+      <div class="two-col">
+        <div class="callout">
+          <strong>✅ Option A: Event handlers (preferred)</strong>
+          <p>
+            Event handlers run <strong>because the user did something</strong> (click, submit, change).
+            This is the most common and usually the best place for “do something” code.
+          </p>
+          <ul>
+            <li>Triggered by user actions</li>
+            <li>Easy to reason about</li>
+            <li>Usually avoids unnecessary work</li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <strong>✅ Option B: Effects via <code>useEffect</code></strong>
+          <p>
+            Effects run <strong>automatically</strong> at certain times, typically <strong>after render</strong>,
+            to keep your component synchronized with an external system.
+          </p>
+          <ul>
+            <li>Run after paint (not during render logic)</li>
+            <li>Can run on mount, re-render, and unmount (via cleanup)</li>
+            <li>Good for “sync with external world” tasks</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>3) Event handler vs Effect: same result, different timing</h2>
+      <p>
+        Example: fetching movie data is a side effect. You can do it either:
+        (1) when the user triggers an event, or (2) automatically when the component mounts.
+      </p>
+
+      <h3>🎯 A) Fetch on a user action (Event handler)</h3>
+      <pre><code>// Fetch only when the user clicks
+function handleSearchClick() {
+  fetch(`https://www.omdbapi.com/?apikey=${KEY}&s=interstellar`)
+    .then(res =&gt; res.json())
+    .then(data =&gt; setMovies(data.Search));
+}
+
+return (
+  &lt;button onClick={handleSearchClick}&gt;
+    Search movies
+  &lt;/button&gt;
+);</code></pre>
+
+      <p>
+        ✅ Use this when you want the side effect only after the user does something.
+      </p>
+
+      <h3>🚀 B) Fetch automatically after mount (Effect)</h3>
+      <pre><code>import { useEffect, useState } from "react";
+
+useEffect(function () {
+  fetch(`https://www.omdbapi.com/?apikey=${KEY}&s=interstellar`)
+    .then(res =&gt; res.json())
+    .then(data =&gt; setMovies(data.Search));
+}, []); // 👈 empty dependency array = run once on mount</code></pre>
+
+      <p>
+        ✅ Use this when you want data as soon as the component appears on screen.
+      </p>
+
+      <div class="callout">
+        <strong>🧠 Key takeaway</strong>
+        <p>
+          Both approaches can fetch the same data, but they differ in <strong>when</strong> they run:
+          <strong>event handlers</strong> run on user events, while <strong>effects</strong> run automatically after render.
+        </p>
+      </div>
+
+      <h2>4) What are the 3 parts of an effect?</h2>
+      <div class="grid">
+        <div class="callout">
+          <strong>1) The effect code (the function)</strong>
+          <p>Runs after render (timing depends on dependencies).</p>
+        </div>
+        <div class="callout">
+          <strong>2) The dependency array</strong>
+          <p>
+            Controls <em>when</em> the effect runs.
+            This is the part that often confuses people at first.
+          </p>
+          <ul>
+            <li><code>[]</code> → run once after mount</li>
+            <li><code>[query]</code> → run after mount and whenever <code>query</code> changes</li>
+            <li><em>(no array)</em> → run after every render (rarely what you want)</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <strong>3) Optional cleanup function</strong>
+          <p>
+            A function you return from the effect. React calls it <strong>before the next effect run</strong>
+            (re-render) and also on <strong>unmount</strong>. Think “🧹 clean up what I started”.
+          </p>
+        </div>
+      </div>
+
+      <h3>🧹 Cleanup example (simple mental model)</h3>
+      <pre><code>useEffect(() =&gt; {
+  const id = setInterval(() =&gt; {
+    console.log("tick");
+  }, 1000);
+
+  // Cleanup: stop the interval
+  return () =&gt; clearInterval(id);
+}, []);</code></pre>
+
+      <h2>5) Lifecycle thinking is helpful, but “sync” is the real purpose</h2>
+      <p>
+        It’s okay to initially think in lifecycle terms:
+        <strong>mount</strong> → <strong>re-render</strong> → <strong>unmount</strong>.
+        Effects can hook into those moments.
+      </p>
+
+      <div class="callout">
+        <strong>✅ Better mental model: Synchronization</strong>
+        <p>
+          Effects exist mainly to keep a component <strong>synchronized</strong> with something external
+          (API data, subscriptions, timers, browser APIs). In other words: “keep React in sync with the outside world.”
+        </p>
+      </div>
+
+      <h2>6) Practical rule of thumb</h2>
+      <div class="callout">
+        <strong>🏁 Prefer event handlers whenever possible</strong>
+        <p>
+          If a side effect can be triggered by a user action (click/submit/etc.), do it in an <strong>event handler</strong>.
+          Use <code>useEffect</code> when the side effect must happen automatically to synchronize with external systems.
+        </p>
+      </div>
+
+      <h2>7) Mini self-check (quick quiz)</h2>
+      <ul>
+        <li>✅ Is fetching data a side effect? <strong>Yes</strong>.</li>
+        <li>✅ Should data fetching happen in render logic? <strong>No</strong>.</li>
+        <li>✅ What controls when an effect runs? <strong>The dependency array</strong>.</li>
+        <li>✅ What is cleanup for? <strong>Stopping/unsubscribing/undoing external work</strong>.</li>
+        <li>✅ What is usually preferred: effects or event handlers? <strong>Event handlers</strong>.</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <p class="subtitle">
+        Tip for printing: In VS Code, press <span class="kbd">Cmd</span> + <span class="kbd">P</span> (or browser Print)
+        → choose “Save as PDF” or your printer. This page is formatted for A4.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

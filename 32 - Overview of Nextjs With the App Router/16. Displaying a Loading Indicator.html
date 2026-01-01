@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js App Router — Loading UI (loading.js) + Streaming (Reviewer)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --codebg:#0b0f14;
+      --codetext:#e6edf3;
+      --accent:#111111;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      text-rendering:optimizeLegibility;
+    }
+
+    /* Single-column, A4-friendly content width */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 18px 48px;
+    }
+
+    header{
+      padding: 14px 14px 10px;
+      border:1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+    }
+
+    h1{
+      font-size: 1.55rem;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border:1px solid var(--border);
+      background: var(--soft);
+      padding: 6px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    nav.toc{
+      margin: 14px 0 0;
+      padding: 12px 14px;
+      border:1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    nav.toc h2{
+      font-size: 1.05rem;
+      margin: 0 0 8px;
+    }
+
+    nav.toc ul{
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    nav.toc li{ margin: 6px 0; }
+
+    section{
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    h2{
+      font-size: 1.18rem;
+      margin: 0 0 10px;
+    }
+
+    h3{
+      font-size: 1.03rem;
+      margin: 16px 0 8px;
+    }
+
+    p{ margin: 8px 0; }
+
+    .callout{
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ color: var(--text); }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kvs{
+      margin: 8px 0 0;
+      padding-left: 0;
+      list-style: none;
+    }
+
+    .kvs li{
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      margin: 8px 0;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      margin: 10px 0;
+      padding: 12px 12px;
+      background: var(--codebg);
+      color: var(--codetext);
+      border-radius: 12px;
+      overflow: auto;
+      border: 1px solid #0f1621;
+    }
+
+    pre code{ font-size: 0.92rem; }
+
+    .inline-code{
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--soft);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .two-col{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 920px){
+      .two-col{ grid-template-columns: 1fr 1fr; }
+    }
+
+    .divider{
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .quiz ol{ margin: 6px 0 0; }
+    .quiz li{ margin: 8px 0; }
+
+    .answers{
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+    }
+
+    /* Print: A4, clean margins, no link URLs */
+    @media print{
+      @page{ size: A4; margin: 14mm 14mm 16mm; }
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      section, header, nav.toc{ break-inside: avoid; page-break-inside: avoid; }
+      pre{ white-space: pre-wrap; word-break: break-word; overflow: visible; }
+      a[href]:after{ content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>⏳ Next.js App Router — Loading UI (loading.js) + Streaming</h1>
+      <p class="subtitle">Reviewer / Study Guide (Beginner-friendly) — How to show an instant loading indicator while server data is fetching.</p>
+      <div class="meta">
+        <span class="chip">📌 Topic: <strong>loading.js</strong> convention</span>
+        <span class="chip">🚚 Concept: <strong>Streaming</strong> SSR output</span>
+        <span class="chip">🧠 Related: <strong>Server Components</strong> + data fetching</span>
+      </div>
+    </header>
+
+    <nav class="toc" aria-label="Table of contents">
+      <h2>📚 Table of Contents</h2>
+      <ul>
+        <li><a href="#goal">Goal &amp; Problem</a></li>
+        <li><a href="#idea">Core Idea: loading.js</a></li>
+        <li><a href="#how">How It Works (Mental Model)</a></li>
+        <li><a href="#demo">Mini Demo Code</a></li>
+        <li><a href="#streaming">Streaming: renderToReadableStream</a></li>
+        <li><a href="#limits">Limitations &amp; JavaScript Requirement</a></li>
+        <li><a href="#granular">Granular Loading with Suspense (Preview)</a></li>
+        <li><a href="#best">Best Practices Checklist</a></li>
+        <li><a href="#quiz">Quick Quiz</a></li>
+        <li><a href="#summary">Summary</a></li>
+      </ul>
+    </nav>
+
+    <section id="goal">
+      <h2>🎯 Goal &amp; Problem</h2>
+      <p>
+        When a page fetches data on the <strong>server</strong> (e.g., a server component that calls <span class="inline-code">fetch()</span>), there can be a noticeable delay
+        before the final HTML reaches the browser.
+      </p>
+      <div class="callout">
+        <strong>Problem:</strong> Users click a route (e.g., <span class="inline-code">/cabins</span>) and wait with a blank/paused feeling.
+        <br />
+        <strong>Goal:</strong> Show an <em>instant</em> loading UI while the page’s server work (data fetching + rendering) is still happening.
+      </div>
+    </section>
+
+    <section id="idea">
+      <h2>🧩 Core Idea: <span class="inline-code">loading.js</span> Convention</h2>
+      <p>
+        In the Next.js App Router, you can create a file named <span class="inline-code">loading.js</span> to define a loading state.
+        This is a <strong>convention</strong> (special filename) that Next.js understands automatically.
+      </p>
+
+      <ul class="kvs">
+        <li>✅ Place <span class="inline-code">loading.js</span> inside <span class="inline-code">app/</span> to create a <strong>global</strong> loader.</li>
+        <li>✅ That global loader can show while <em>any</em> route is waiting for data (even deep routes).</li>
+        <li>✅ The loader usually replaces only the <strong>page segment</strong> content, while the <strong>layout</strong> stays visible.</li>
+      </ul>
+
+      <div class="callout">
+        💡 Think of it like: <strong>Layout renders immediately</strong> (navigation/logo), then the route content says <em>“Loading…”</em> until the server finishes.
+      </div>
+    </section>
+
+    <section id="how">
+      <h2>🧠 How It Works (Simple Mental Model)</h2>
+      <div class="two-col">
+        <div>
+          <h3>1) You navigate to a route</h3>
+          <p>
+            Example: user clicks <span class="inline-code">/cabins</span>.
+            The server starts fetching data for that route.
+          </p>
+
+          <h3>2) Next.js shows loading UI fast</h3>
+          <p>
+            While the server is still working, Next.js can immediately show the UI from <span class="inline-code">loading.js</span>
+            for that route segment.
+          </p>
+        </div>
+
+        <div>
+          <h3>3) Content swaps in automatically</h3>
+          <p>
+            As soon as the server finishes generating the final HTML for the route, the browser swaps the real content in.
+            No manual state needed for this basic case.
+          </p>
+
+          <div class="callout">
+            ✅ You do <strong>not</strong> need to manually track <span class="inline-code">isLoading</span> state for this page-level loading.
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3>Why it feels nice</h3>
+      <ul class="kvs">
+        <li>🚀 Better perceived performance: users see feedback immediately.</li>
+        <li>🧭 Layout stays stable: navigation/logo can render instantly.</li>
+        <li>🧩 Minimal code: just a file with the right name.</li>
+      </ul>
+    </section>
+
+    <section id="demo">
+      <h2>🧪 Mini Demo Code (What You’d Write)</h2>
+      <p>
+        Below is a simplified example matching the lecture:
+        <strong>server component page fetches data</strong>, and <span class="inline-code">loading.js</span> shows while it’s waiting.
+      </p>
+
+      <h3>1) Global Loader: <span class="inline-code">app/loading.js</span></h3>
+      <pre><code>export default function Loading() {
+  return &lt;p&gt;⏳ LOADING DATA...&lt;/p&gt;;
+}</code></pre>
+
+      <h3>2) Page that fetches on the server: <span class="inline-code">app/cabins/page.js</span></h3>
+      <pre><code>export default async function Page() {
+  const res = await fetch("https://jsonplaceholder.typicode.com/users");
+  const data = await res.json();
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Cabins&lt;/h1&gt;
+      &lt;ul&gt;
+        {data.map(user =&gt; (
+          &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        🧠 Important: The <span class="inline-code">console.log()</span> inside a server component prints in the <strong>terminal</strong> (server), not the browser console.
+      </div>
+    </section>
+
+    <section id="streaming">
+      <h2>🚚 Streaming: What <span class="inline-code">loading.js</span> Activates</h2>
+      <p>
+        Under the hood, <span class="inline-code">loading.js</span> enables <strong>streaming</strong> for that part of the UI.
+        Instead of waiting to send everything in one big HTML response, the server can send HTML in parts.
+      </p>
+
+      <div class="two-col">
+        <div>
+          <h3>Old mental model (simplified)</h3>
+          <p>
+            Using server rendering that outputs a full HTML string first, then sends it.
+          </p>
+          <pre><code>// Conceptual (not Next.js)
+renderToString(app)</code></pre>
+        </div>
+
+        <div>
+          <h3>Streaming mental model</h3>
+          <p>
+            Output can be streamed progressively.
+          </p>
+          <pre><code>// Conceptual (what enables streaming)
+renderToReadableStream(app)</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        ✅ Practical effect: layout content can appear quickly, while slower content arrives shortly after.
+      </div>
+    </section>
+
+    <section id="limits">
+      <h2>⚠️ Limitations &amp; JavaScript Requirement</h2>
+      <ul class="kvs">
+        <li>🧩 <strong>Streaming needs JavaScript enabled</strong> in the browser (per the lecture).</li>
+        <li>🚫 If you must fully support “no-JS browsing”, relying on <span class="inline-code">loading.js</span> may not work as intended.</li>
+        <li>🔁 A global loader is coarse: if only one small component is slow, the loader may replace the whole page segment.</li>
+      </ul>
+
+      <div class="callout">
+        ✅ Rule of thumb: Use <span class="inline-code">loading.js</span> for a simple first win.
+        If you need more fine-grained loading states, move to Suspense-based patterns.
+      </div>
+    </section>
+
+    <section id="granular">
+      <h2>🧵 Granular Loading with Suspense (Preview)</h2>
+      <p>
+        In real apps, a page might have many components and only one is slow.
+        In that case, you may want a loader for <em>only that component</em>.
+      </p>
+      <div class="callout">
+        🧠 Next step (later in the course): use <strong>Suspense</strong> to stream and show fallbacks at a component level.
+        This gives you a more granular loading UX.
+      </div>
+      <p>
+        You do not need to master this yet for the basic <span class="inline-code">loading.js</span> pattern—just remember it exists.
+      </p>
+    </section>
+
+    <section id="best">
+      <h2>✅ Best Practices Checklist</h2>
+      <ul class="kvs">
+        <li>🧭 Keep loading UI simple: short text or a small spinner/skeleton.</li>
+        <li>🧱 Ensure the layout stays stable (nav/logo) so users feel oriented.</li>
+        <li>⏱️ Avoid heavy work in the loader itself—loaders should render instantly.</li>
+        <li>🧪 Test on slow networks (e.g., “Slow 3G” in DevTools) to confirm the UX.</li>
+        <li>🧠 If only one part is slow, plan to use Suspense for finer control later.</li>
+      </ul>
+    </section>
+
+    <section id="quiz" class="quiz">
+      <h2>📝 Quick Quiz (Check Your Understanding)</h2>
+      <ol>
+        <li>What file name convention enables a loading UI in the App Router?</li>
+        <li>Why does the layout (navigation/logo) appear instantly while page content loads?</li>
+        <li>What does <span class="inline-code">loading.js</span> activate behind the scenes?</li>
+        <li>If only one component is slow (not the whole page), what feature can provide a more granular loader?</li>
+        <li>Where do <span class="inline-code">console.log</span> statements from server components appear?</li>
+      </ol>
+
+      <div class="answers">
+        <strong>Answers</strong>
+        <ol>
+          <li><span class="inline-code">loading.js</span></li>
+          <li>Because layout is shared UI and can render immediately; the route segment content is what waits for server work.</li>
+          <li>Streaming (progressive HTML delivery), commonly associated with <span class="inline-code">renderToReadableStream</span> conceptually.</li>
+          <li><strong>Suspense</strong></li>
+          <li>In the server terminal (not the browser console), unless code runs on the client.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="summary">
+      <h2>🏁 Summary</h2>
+      <ul class="kvs">
+        <li>⏳ Add <span class="inline-code">app/loading.js</span> to show an instant loading state while server data loads.</li>
+        <li>🧩 Layout stays visible; the route segment content swaps from loader → real content automatically.</li>
+        <li>🚚 This pattern relates to <strong>streaming</strong> (HTML arrives in parts) rather than one big response.</li>
+        <li>🧵 For more granular loaders, Suspense-based streaming is the next step.</li>
+      </ul>
+
+      <p class="callout">
+        ✅ If you remember only one thing: <strong>In App Router, you often “add features by creating convention files”</strong>
+        (like <span class="inline-code">page.js</span>, <span class="inline-code">layout.js</span>, <span class="inline-code">loading.js</span>).
+      </p>
+    </section>
+
+  </main>
+</body>
+</html>

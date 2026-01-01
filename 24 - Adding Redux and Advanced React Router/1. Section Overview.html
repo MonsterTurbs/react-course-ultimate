@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Section 24 — Adding Redux & Advanced React Router — Section Overview (Study Guide)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column, print-friendly page */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px;
+    }
+
+    header{
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 22px;
+      margin: 0 0 6px 0;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    h2{
+      font-size: 16px;
+      margin: 18px 0 8px;
+    }
+
+    h3{
+      font-size: 14px;
+      margin: 14px 0 6px;
+    }
+
+    p{ margin: 8px 0; }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin: 12px 0;
+    }
+
+    .callout.ok{ border-left-color: var(--ok); }
+    .callout.warn{ border-left-color: var(--warn); }
+
+    ul{ margin: 8px 0 8px 20px; padding: 0; }
+    li{ margin: 6px 0; }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre{
+      background:#0b0b0b;
+      color:#f3f3f3;
+      padding: 10px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      border: 1px solid #1f1f1f;
+      white-space: pre-wrap;
+    }
+
+    .tagrow{ display:flex; flex-wrap:wrap; gap:8px; margin-top: 10px; }
+    .tag{
+      border: 1px solid var(--border);
+      background: #ffffff;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .mini{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    details{ border:1px solid var(--border); border-radius:10px; padding: 10px 12px; background:#fff; }
+    details > summary{ cursor:pointer; font-weight:700; }
+
+    /* Print rules: A4, clean spacing, hide non-essential UI */
+    @page{ size: A4; margin: 14mm; }
+
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header{ border-bottom: 1px solid #000; }
+      a{ color: inherit; text-decoration: none; }
+      /* Do NOT print URLs */
+      a[href]::after{ content: ""; }
+      pre{ border: 1px solid #000; }
+      details{ break-inside: avoid; }
+      .card, .callout{ break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧠 Section 24: Adding Redux + Advanced React Router — Section Overview</h1>
+      <p class="subtitle">Print-friendly reviewer / study guide (single-column, A4-ready)</p>
+      <div class="tagrow" aria-label="tags">
+        <span class="tag">🛒 Shopping Cart</span>
+        <span class="tag">🧰 Redux Toolkit (RTK)</span>
+        <span class="tag">🧭 React Router Data APIs</span>
+        <span class="tag">⚙️ Real-world patterns</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>📜 Transcript (core message)</h2>
+      <div class="card">
+        <p><strong>Welcome back.</strong></p>
+        <p>In this section, we’re going to implement the heart of the application by adding a <strong>shopping cart</strong> with <strong>Redux Toolkit</strong>.</p>
+        <p>While doing this, we’ll explore the <strong>advanced parts of React Router’s data loading features</strong>, and continue exploring <strong>real-world Redux use cases</strong>.</p>
+        <p class="mini">Note: The lecture assumes you already learned Redux earlier in the course.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🎯 What you will build in this section</h2>
+      <ul>
+        <li>🛒 A <strong>shopping cart</strong> feature that can add/remove items and track quantities.</li>
+        <li>🧰 State management using <strong>Redux Toolkit</strong> (slices, actions, reducers, store).</li>
+        <li>🧭 Integration with <strong>React Router data APIs</strong> (loaders/actions) in a realistic flow.</li>
+        <li>✅ Better UX patterns: derived totals, disabled states, and predictable state updates.</li>
+      </ul>
+
+      <div class="callout ok">
+        <strong>✅ Outcome:</strong> By the end, your app will feel much closer to a real production app: global state, predictable updates, and a cart that works across pages.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Key ideas (beginner-friendly)</h2>
+
+      <div class="grid2">
+        <div class="card">
+          <h3>1) Why a shopping cart is “the heart” 🫀</h3>
+          <p>A cart affects multiple screens (menu → cart → checkout/order). That means you need shared state that is:</p>
+          <ul>
+            <li>Accessible anywhere in the UI</li>
+            <li>Easy to update in a consistent way</li>
+            <li>Easy to debug when things go wrong</li>
+          </ul>
+          <p class="mini">This is exactly where a global state tool like Redux shines.</p>
+        </div>
+
+        <div class="card">
+          <h3>2) Redux Toolkit (RTK) in one sentence 🧰</h3>
+          <p><strong>Redux Toolkit</strong> is the recommended way to write Redux today. It reduces boilerplate and gives you safe, standard patterns.</p>
+          <ul>
+            <li>📦 <strong>slice</strong> = state + reducers + actions in one place</li>
+            <li>🏪 <strong>store</strong> = the single source of truth</li>
+            <li>🧮 <strong>selectors</strong> = reusable “read” logic (e.g., totals)</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>3) React Router “data loading” (advanced use) 🧭</h3>
+          <p>Modern React Router lets you load data <em>before</em> rendering a route (loaders) and handle form submissions (actions) in a route-centric way.</p>
+          <ul>
+            <li>📥 <strong>loader</strong> → fetch data for a route</li>
+            <li>📤 <strong>action</strong> → handle mutations (create/update)</li>
+            <li>🔄 Works well with a cart because ordering is a mutation</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧪 Mini examples (mental model)</h2>
+      <p class="mini">These are simplified examples to help you recognize patterns while watching/typing along.</p>
+
+      <h3>Example A: A basic cart slice 🛒</h3>
+      <pre><code>// cartSlice.js
+import { createSlice } from "@reduxjs/toolkit";
+
+const initialState = {
+  items: [], // [{ id, name, price, quantity }]
+};
+
+const cartSlice = createSlice({
+  name: "cart",
+  initialState,
+  reducers: {
+    addItem(state, action) {
+      const item = action.payload;
+      const existing = state.items.find((i) =&gt; i.id === item.id);
+      if (existing) existing.quantity += 1;
+      else state.items.push({ ...item, quantity: 1 });
+    },
+    removeItem(state, action) {
+      const id = action.payload;
+      state.items = state.items.filter((i) =&gt; i.id !== id);
+    },
+    clearCart(state) {
+      state.items = [];
+    },
+  },
+});
+
+export const { addItem, removeItem, clearCart } = cartSlice.actions;
+export default cartSlice.reducer;
+</code></pre>
+
+      <h3>Example B: Store setup 🏪</h3>
+      <pre><code>// store.js
+import { configureStore } from "@reduxjs/toolkit";
+import cartReducer from "./cartSlice";
+
+export const store = configureStore({
+  reducer: {
+    cart: cartReducer,
+  },
+});
+</code></pre>
+
+      <h3>Example C: Using totals (derived state) 🧮</h3>
+      <pre><code>// selector example
+export const selectCartTotal = (state) =&gt;
+  state.cart.items.reduce((sum, item) =&gt; sum + item.price * item.quantity, 0);
+</code></pre>
+
+      <div class="callout warn">
+        <strong>⚠️ Common beginner mistake:</strong> Storing “totalPrice” directly in state and constantly trying to keep it in sync. Prefer calculating totals with selectors when possible.
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Checklist to confirm you understand the overview</h2>
+      <ul>
+        <li>Can you explain why a cart needs <strong>shared/global state</strong>?</li>
+        <li>Can you define what a <strong>slice</strong> is in Redux Toolkit?</li>
+        <li>Do you understand the difference between a <strong>loader</strong> and an <strong>action</strong> in React Router?</li>
+        <li>Can you name at least 2 cart actions (e.g., add, remove, clear)?</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📝 Quick reviewer notes (easy to memorize)</h2>
+      <div class="card">
+        <ul>
+          <li>🛒 Cart touches many pages → needs global state.</li>
+          <li>🧰 RTK = less boilerplate + safer patterns.</li>
+          <li>🧭 React Router loaders/actions = route-driven data + mutations.</li>
+          <li>🧮 Prefer derived state (selectors) for totals.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>📌 What to do next</h2>
+      <div class="callout">
+        <p><strong>Next step:</strong> Jump back into the project and begin implementing the cart with Redux Toolkit, then wire it into the routes that create/update orders.</p>
+        <p class="mini">Tip: Keep Redux DevTools open so you can watch actions and state changes as you work.</p>
+      </div>
+    </section>
+
+    <details>
+      <summary>🧾 Notes for printing</summary>
+      <ul>
+        <li>Designed for A4 printing with safe margins.</li>
+        <li>Single-column layout; long words wrap to avoid cut-off.</li>
+        <li>Links won’t print URL text (clean reviewer output).</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>

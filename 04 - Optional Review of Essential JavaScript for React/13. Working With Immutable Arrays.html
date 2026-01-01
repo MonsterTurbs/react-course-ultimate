@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JavaScript Review — Working With Immutable Arrays (React)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f6f8fa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column layout */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul {
+      margin: 8px 0 12px 20px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 14px;
+      background: #fff;
+      margin: 14px 0;
+    }
+
+    .callout.soft {
+      background: var(--soft);
+    }
+
+    .callout h3 { margin-top: 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .rule {
+      border-left: 4px solid #111;
+      padding-left: 10px;
+      margin: 10px 0;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .inline-code {
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1px 6px;
+    }
+
+    .checklist {
+      list-style: none;
+      margin-left: 0;
+      padding-left: 0;
+    }
+    .checklist li {
+      padding-left: 26px;
+      position: relative;
+    }
+    .checklist li::before {
+      content: "✅";
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    .warnings {
+      list-style: none;
+      margin-left: 0;
+      padding-left: 0;
+    }
+    .warnings li {
+      padding-left: 26px;
+      position: relative;
+    }
+    .warnings li::before {
+      content: "⚠️";
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    .kbd {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    a { color: inherit; text-decoration: underline; }
+
+    /* Print settings */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+
+      /* Avoid printing URLs after links */
+      a[href]::after { content: "" !important; }
+
+      header, .callout, pre {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      h2, h3 {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 Working With Immutable Arrays (React-Friendly JavaScript)</h1>
+      <p class="subtitle">
+        Reviewer / Study Guide — how to <strong>add</strong>, <strong>delete</strong>, and <strong>update</strong> items in arrays <em>without mutating</em> the original array.
+      </p>
+      <div class="meta">
+        <span class="pill">Topic: Immutable updates</span>
+        <span class="pill">Key tools: spread, filter, map</span>
+        <span class="pill">React focus: state updates</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 Why “immutable” matters in React</h2>
+      <p>
+        In React, you will often store arrays in <span class="inline-code">state</span> (e.g., a list of books, todos, products). When you update that list,
+        React works best when you create a <strong>new array</strong> (new reference) instead of changing (mutating) the original array.
+      </p>
+
+      <div class="callout soft">
+        <h3 class="rule">🧠 Core rule</h3>
+        <p>
+          If an array is coming from React state, treat it as <strong>read-only</strong>.
+          Make a copy (or build a new array) and return that.
+        </p>
+        <ul class="warnings">
+          <li>Avoid mutating methods like <span class="inline-code">push</span>, <span class="inline-code">pop</span>, <span class="inline-code">splice</span>, and <span class="inline-code">sort</span> directly on state arrays.</li>
+          <li>Prefer “create new” patterns using <span class="inline-code">[...]</span>, <span class="inline-code">filter</span>, and <span class="inline-code">map</span>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>📚 Example data</h2>
+      <p>We’ll use an array of book objects (very common in real apps: arrays of objects).</p>
+      <pre><code>const books = [
+  { id: 1, title: "The Lord of the Rings", author: "J. R. R. Tolkien", pages: 1216 },
+  { id: 2, title: "The Cyberiad", author: "Stanislaw Lem", pages: 295 },
+  { id: 3, title: "Dune", author: "Frank Herbert", pages: 658 },
+  { id: 4, title: "Harry Potter and the Philosopher's Stone", author: "J. K. Rowling", pages: 223 },
+  { id: 5, title: "A Game of Thrones", author: "George R. R. Martin", pages: 835 },
+];</code></pre>
+    </section>
+
+    <section>
+      <h2>➕ 1) Add an item (without mutating)</h2>
+      <p>
+        To add a new object into an array immutably, create a <strong>new array</strong> and spread the old items into it.
+      </p>
+
+      <div class="grid">
+        <div class="callout">
+          <h3>✅ Add to the end (most common)</h3>
+          <pre><code>const newBook = {
+  id: 6,
+  title: "Harry Potter and the Chamber of Secrets",
+  author: "J. K. Rowling",
+  pages: 251,
+};
+
+const booksAfterAdd = [...books, newBook];</code></pre>
+          <p class="subtitle">Mental model: “take everything from <span class="inline-code">books</span>, then append one more.”</p>
+        </div>
+
+        <div class="callout">
+          <h3>✅ Add to the beginning</h3>
+          <pre><code>const booksAfterAddToStart = [newBook, ...books];</code></pre>
+          <p class="subtitle">Useful for “latest first” lists.</p>
+        </div>
+      </div>
+
+      <div class="callout soft">
+        <h3>🧠 React note</h3>
+        <p>
+          React state updates often look like:
+          <span class="inline-code">setBooks(prev =&gt; [...prev, newBook])</span>
+          so you always update from the latest state.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>➖ 2) Delete an item (without mutating)</h2>
+      <p>
+        To delete one item, use <span class="inline-code">filter</span> because it returns a new array that is usually <strong>shorter</strong>.
+      </p>
+
+      <div class="callout">
+        <h3>✅ Delete by <span class="inline-code">id</span></h3>
+        <pre><code>const idToDelete = 3;
+
+const booksAfterDelete = books.filter(book =&gt; book.id !== idToDelete);
+// Keeps every book EXCEPT the one with id 3</code></pre>
+      </div>
+
+      <div class="callout soft">
+        <h3 class="rule">🧠 How to think about the condition</h3>
+        <p>
+          In <span class="inline-code">filter</span>, return <strong>true</strong> for items you want to keep.
+          Return <strong>false</strong> for the item you want removed.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>✏️ 3) Update an item (without mutating)</h2>
+      <p>
+        To update one object inside an array, use <span class="inline-code">map</span> because it returns a new array with the <strong>same length</strong>.
+        Only one element changes; the rest are returned as-is.
+      </p>
+
+      <div class="callout">
+        <h3>✅ Update by <span class="inline-code">id</span> (the “map + ternary + spread” recipe)</h3>
+        <pre><code>const idToUpdate = 1;
+
+const booksAfterUpdate = books.map(book =&gt;
+  book.id === idToUpdate
+    ? { ...book, pages: 1210 } // create a NEW object + override fields
+    : book                     // keep the original object
+);</code></pre>
+      </div>
+
+      <div class="callout soft">
+        <h3 class="rule">🧠 Why we spread the object</h3>
+        <p>
+          <span class="inline-code">{ ...book, pages: 1210 }</span> copies all existing properties and then overrides <span class="inline-code">pages</span>.
+          This prevents mutating the existing object.
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>✅ Realistic update example</h3>
+        <pre><code>function updateBookTitle(list, id, newTitle) {
+  return list.map(book =>
+    book.id === id ? { ...book, title: newTitle } : book
+  );
+}
+
+const next = updateBookTitle(books, 2, "The Cyberiad (Updated)");</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>⚠️ Common mistakes (and the safe alternatives)</h2>
+      <ul class="warnings">
+        <li><strong>Mutation:</strong> <span class="inline-code">books.push(newBook)</span> (changes the original array)</li>
+        <li><strong>Immutable:</strong> <span class="inline-code">const next = [...books, newBook]</span></li>
+      </ul>
+
+      <ul class="warnings">
+        <li><strong>Mutation:</strong> <span class="inline-code">books.splice(index, 1)</span> (changes the original array)</li>
+        <li><strong>Immutable:</strong> <span class="inline-code">const next = books.filter((_, i) =&gt; i !== index)</span></li>
+      </ul>
+
+      <ul class="warnings">
+        <li><strong>Mutation:</strong> <span class="inline-code">books.sort(...)</span> (sort mutates!)</li>
+        <li><strong>Immutable:</strong> <span class="inline-code">const next = books.slice().sort(...)</span> or <span class="inline-code">const next = [...books].sort(...)</span></li>
+      </ul>
+
+      <div class="callout soft">
+        <h3>📌 Quick reminder</h3>
+        <p>
+          In React, the safe default is: <strong>never mutate</strong> arrays or objects that came from state.
+          Always create a new array/object when changing data.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧾 Cheat sheet (memorize these 3 recipes)</h2>
+      <ul class="checklist">
+        <li><strong>Add:</strong> <span class="inline-code">const next = [...arr, item]</span> (or <span class="inline-code">[item, ...arr]</span>)</li>
+        <li><strong>Delete:</strong> <span class="inline-code">const next = arr.filter(x =&gt; x.id !== id)</span></li>
+        <li><strong>Update:</strong> <span class="inline-code">const next = arr.map(x =&gt; x.id === id ? { ...x, field: value } : x)</span></li>
+      </ul>
+
+      <div class="callout">
+        <h3>🔁 Mini self-check</h3>
+        <ul>
+          <li>Does my update return a <strong>new array</strong>?</li>
+          <li>If I changed one item, did I create a <strong>new object</strong> for that item?</li>
+          <li>Did I avoid <span class="inline-code">push</span>/<span class="inline-code">splice</span>/<span class="inline-code">sort</span> directly on state?</li>
+        </ul>
+      </div>
+
+      <p class="subtitle">
+        If you can do these three operations confidently, you are well-prepared for typical React state updates.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

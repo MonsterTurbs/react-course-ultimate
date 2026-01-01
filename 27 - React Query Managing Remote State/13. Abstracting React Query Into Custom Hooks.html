@@ -1,0 +1,497 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Query — Abstracting Logic into Custom Hooks (Study Guide)</title>
+  <style>
+    /* =========================
+       Print-friendly A4 setup
+       ========================= */
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --chip: #f3f4f6;
+      --codebg: #f7f7f7;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      word-wrap: break-word;
+      hyphens: auto;
+    }
+
+    /* Single-column container */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px 18px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 18px 16px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: 0.2px;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    h2 {
+      margin: 18px 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 15.5px;
+      line-height: 1.25;
+    }
+
+    p { margin: 8px 0; }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px 14px;
+    }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    ul { margin: 8px 0 8px 18px; }
+    li { margin: 6px 0; }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .k {
+      display: inline-block;
+      font-weight: 700;
+      padding: 0 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--soft);
+      font-size: 12px;
+    }
+
+    /* Print tweaks */
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; }
+      header, .card, .callout { break-inside: avoid; }
+      pre { break-inside: avoid; }
+
+      /* Prevent printing link URLs */
+      a[href]:after { content: "" !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 React Query: Abstracting Logic into Custom Hooks</h1>
+      <p class="subtitle">
+        Reviewer / Study Guide (Beginner-friendly) — Topic: refactoring React Query logic (queries + mutations) into feature-level custom hooks.
+      </p>
+      <div class="chips" aria-label="tags">
+        <span class="chip">React Query v4</span>
+        <span class="chip">useQuery</span>
+        <span class="chip">useMutation</span>
+        <span class="chip">invalidateQueries</span>
+        <span class="chip">Custom Hooks</span>
+        <span class="chip">React Hook Form</span>
+      </div>
+    </header>
+
+    <div class="hr"></div>
+
+    <section class="grid">
+      <div class="callout">
+        <h2 style="margin-top:0;">✅ Main Goal of the Lecture</h2>
+        <p>
+          Extract (refactor) React Query logic out of UI components and into <strong>custom hooks</strong>.
+          This is best practice in bigger apps because it keeps components clean and makes data logic reusable.
+        </p>
+        <ul>
+          <li>UI components become mostly “rendering + event wiring.”</li>
+          <li>Hooks become the “data layer” for the feature (cabins).</li>
+          <li>Less copy/paste across components; fewer bugs long-term.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2 style="margin-top:0;">🔧 Quick UI Fixes Mentioned</h2>
+        <ul>
+          <li>🧹 Remove a useless/unused line from the textarea (cleanup).</li>
+          <li>
+            💸 Discount display improvement:
+            <ul>
+              <li>If <code>discount</code> is <strong>0</strong> (or falsy), don’t render the Discount styled component.</li>
+              <li>Instead, show a simple placeholder like a medium dash: <span class="k">—</span></li>
+            </ul>
+          </li>
+        </ul>
+
+        <h3>Example (Discount placeholder)</h3>
+        <pre><code>// inside a row
+{discount ? (
+  &lt;Discount&gt;{formatCurrency(discount)}&lt;/Discount&gt;
+) : (
+  &lt;span&gt;—&lt;/span&gt;
+)}</code></pre>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>🧠 Why Custom Hooks Here?</h2>
+      <div class="card">
+        <p>
+          In the cabins feature you already have repeated patterns:
+        </p>
+        <ul>
+          <li><strong>useQuery</strong> for reading cabins</li>
+          <li><strong>useMutation</strong> for deleting, creating, and editing cabins</li>
+          <li>Shared side-effects: <code>toast.success</code>, <code>toast.error</code>, and <code>queryClient.invalidateQueries</code></li>
+        </ul>
+        <p>
+          When these are duplicated inside multiple components, components become large and harder to maintain.
+          Extracting them into hooks keeps things modular.
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3 style="margin-top:0;">Rule of Thumb ✅</h3>
+        <p>
+          Put a custom hook in the <strong>feature folder</strong> when it’s specific to that feature.
+          Put hooks in a shared <strong>hooks/</strong> folder only when they’re reusable across multiple features.
+        </p>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>🗑️ Hook 1: <code>useDeleteCabin</code></h2>
+      <div class="card">
+        <p><strong>What it replaces:</strong> mutation code previously living inside <code>CabinRow</code>.</p>
+        <ul>
+          <li>Uses <code>useMutation</code> to call the API delete function.</li>
+          <li>On success: invalidate the <code>["cabins"]</code> query so UI refetches and updates automatically.</li>
+          <li>On error: show toast.</li>
+        </ul>
+
+        <h3>Typical Implementation Shape</h3>
+        <pre><code>// useDeleteCabin.js
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { deleteCabin as deleteCabinAPI } from "../../services/apiCabins";
+
+export function useDeleteCabin() {
+  const queryClient = useQueryClient();
+
+  const { isLoading: isDeleting, mutate: deleteCabin } = useMutation({
+    mutationFn: deleteCabinAPI,
+    onSuccess: () =&gt; {
+      toast.success("Cabin successfully deleted");
+      queryClient.invalidateQueries({ queryKey: ["cabins"] });
+    },
+    onError: (err) =&gt; toast.error(err.message),
+  });
+
+  return { isDeleting, deleteCabin };
+}</code></pre>
+
+        <h3>How the component becomes cleaner</h3>
+        <pre><code>// CabinRow.jsx
+const { isDeleting, deleteCabin } = useDeleteCabin();
+
+&lt;button disabled={isDeleting} onClick={() =&gt; deleteCabin(cabinId)}&gt;
+  Delete
+&lt;/button&gt;</code></pre>
+      </div>
+
+      <div class="callout">
+        <h3 style="margin-top:0;">⚠️ Real-world note: Delete can fail due to Foreign Keys</h3>
+        <p>
+          If a cabin is referenced by bookings (e.g., <code>bookings.cabinId = 1</code>), the database may block deletion.
+          That’s why deleting cabin <code>id = 1</code> can fail while deleting others works.
+        </p>
+        <ul>
+          <li>🧩 This is a <strong>data integrity</strong> rule, not a React Query problem.</li>
+          <li>✅ Handle it gracefully: show a helpful error toast.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>➕ Hook 2: <code>useCreateCabin</code></h2>
+      <div class="card">
+        <p><strong>What it replaces:</strong> create mutation logic inside <code>CreateCabinForm</code>.</p>
+        <p>
+          Key behavior:
+        </p>
+        <ul>
+          <li>Mutation calls <code>createCabin</code> API</li>
+          <li>On success: toast + invalidate cabins query</li>
+          <li>On error: toast</li>
+        </ul>
+
+        <h3>Important detail (React Hook Form reset)</h3>
+        <p>
+          The form’s <code>reset()</code> comes from <strong>React Hook Form</strong>, so it does <em>not</em> naturally live inside the hook.
+          The solution: pass an <code>onSuccess</code> callback when calling <code>mutate</code>.
+        </p>
+
+        <h3>Hook example</h3>
+        <pre><code>// useCreateCabin.js
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { createCabin } from "../../services/apiCabins";
+
+export function useCreateCabin() {
+  const queryClient = useQueryClient();
+
+  const { isLoading: isCreating, mutate: createCabinMutate } = useMutation({
+    mutationFn: createCabin,
+    onSuccess: () =&gt; {
+      toast.success("New cabin successfully created");
+      queryClient.invalidateQueries({ queryKey: ["cabins"] });
+    },
+    onError: (err) =&gt; toast.error(err.message),
+  });
+
+  return { isCreating, createCabin: createCabinMutate };
+}</code></pre>
+
+        <h3>Call mutate with per-call options</h3>
+        <pre><code>// CreateCabinForm.jsx
+const { reset } = useForm();
+const { isCreating, createCabin } = useCreateCabin();
+
+function onSubmit(data) {
+  createCabin(data, {
+    onSuccess: (newCabin) =&gt; {
+      // ✅ this is where RHF reset belongs
+      reset();
+      console.log("Created cabin:", newCabin);
+    },
+  });
+}</code></pre>
+
+        <p>
+          💡 React Query allows <strong>global</strong> callbacks in the hook AND <strong>per-call</strong> callbacks when calling <code>mutate</code>.
+          This is perfect for form-specific behavior (like resetting fields).
+        </p>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>✏️ Hook 3: <code>useEditCabin</code></h2>
+      <div class="card">
+        <p><strong>What it replaces:</strong> edit mutation logic inside the form component.</p>
+
+        <h3>Typical shape</h3>
+        <pre><code>// useEditCabin.js
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { createEditCabin } from "../../services/apiCabins";
+
+export function useEditCabin() {
+  const queryClient = useQueryClient();
+
+  const { isLoading: isEditing, mutate: editCabin } = useMutation({
+    mutationFn: ({ newCabinData, id }) =&gt; createEditCabin(newCabinData, id),
+    onSuccess: () =&gt; {
+      toast.success("Cabin successfully edited");
+      queryClient.invalidateQueries({ queryKey: ["cabins"] });
+    },
+    onError: (err) =&gt; toast.error(err.message),
+  });
+
+  return { isEditing, editCabin };
+}</code></pre>
+
+        <h3>Why the mutation function accepts ONE argument</h3>
+        <p>
+          React Query’s <code>mutate</code> passes a single “variables” argument into <code>mutationFn</code>.
+          If you need multiple values (like <code>id</code> + <code>data</code>), wrap them in an object.
+        </p>
+
+        <pre><code>// good pattern
+editCabin({ newCabinData: dataToSave, id: editId });</code></pre>
+      </div>
+
+      <div class="callout">
+        <h3 style="margin-top:0;">🧠 Common “edit image” edge case</h3>
+        <p>
+          In edit mode, <code>image</code> might be:
+        </p>
+        <ul>
+          <li>✅ a <strong>string URL</strong> (keep existing image)</li>
+          <li>✅ a <strong>FileList</strong> / file object (upload new image)</li>
+        </ul>
+        <p>
+          You typically normalize it before sending to the API:
+        </p>
+        <pre><code>const image = typeof data.image === "string"
+  ? data.image
+  : data.image?.[0];</code></pre>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>📦 Hook 4: <code>useCabins</code> (Query Hook)</h2>
+      <div class="card">
+        <p>
+          This hook wraps the “read cabins” query:
+        </p>
+        <ul>
+          <li>Components call <code>useCabins()</code> instead of repeating <code>useQuery</code> boilerplate.</li>
+          <li>Returns a consistent shape: <code>{ isLoading, error, cabins }</code>.</li>
+        </ul>
+
+        <h3>Example</h3>
+        <pre><code>// useCabins.js
+import { useQuery } from "@tanstack/react-query";
+import { getCabins } from "../../services/apiCabins";
+
+export function useCabins() {
+  const {
+    isLoading,
+    data: cabins,
+    error,
+  } = useQuery({
+    queryKey: ["cabins"],
+    queryFn: getCabins,
+  });
+
+  return { isLoading, error, cabins };
+}</code></pre>
+
+        <h3>Benefit: cache reuse anywhere</h3>
+        <p>
+          If another component calls <code>useCabins()</code>, React Query can serve data from cache (instant),
+          then refetch if needed depending on staleness rules.
+        </p>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>🧪 Debugging Checklist (from the lecture’s “real dev” moments)</h2>
+      <div class="card">
+        <ul>
+          <li>✅ If delete fails only for one cabin, check foreign key references (bookings → cabinId).</li>
+          <li>✅ If UI doesn’t update after mutation, confirm you invalidate the correct key: <code>["cabins"]</code>.</li>
+          <li>✅ If form reset can’t be called inside the hook, use <code>mutate(variables, { onSuccess })</code>.</li>
+          <li>✅ If discounts look odd, render a placeholder dash when discount is zero.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section>
+      <h2>📌 Summary</h2>
+      <div class="callout">
+        <ul>
+          <li>🧩 Custom hooks keep feature code maintainable as the app grows.</li>
+          <li>⚡ Mutations invalidate queries to keep UI in sync (refetch after create/edit/delete).</li>
+          <li>🧠 Use per-call mutation callbacks for UI-specific side effects (e.g., form reset).</li>
+          <li>🧱 Database constraints (foreign keys) can block deletes — handle with clear toasts.</li>
+        </ul>
+      </div>
+    </section>
+
+    <p style="margin-top:14px; color: var(--muted); font-size: 12.5px;">
+      End of reviewer. Print tip: Use your browser’s Print dialog and select A4. This layout is designed for clean single-column printing.
+    </p>
+  </main>
+</body>
+</html>

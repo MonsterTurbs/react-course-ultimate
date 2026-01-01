@@ -1,0 +1,495 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Checking In a Booking (Server Mutations + UI State)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --accent: #0b57d0;
+      --good: #0f7b40;
+      --warn: #b45309;
+      --bad: #b42318;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column, print-friendly container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header {
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    h2 {
+      margin: 18px 0 10px;
+      font-size: 16.5px;
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14.5px;
+    }
+
+    p { margin: 8px 0; }
+
+    .chiprow { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      display: inline-block;
+      padding: 6px 10px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 12px;
+      background: #fff;
+      margin: 10px 0;
+    }
+
+    .callout {
+      border-left: 5px solid var(--accent);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.good { border-left-color: var(--good); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.bad  { border-left-color: var(--bad); }
+
+    ul, ol { margin: 8px 0 8px 22px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+    .kpi .icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      font-size: 16px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .muted { color: var(--muted); }
+    .hr { height: 1px; background: var(--border); border: 0; margin: 14px 0; }
+
+    .twoCol {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13.5px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th { background: var(--soft); }
+
+    .quiz .q {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 10px 0;
+      background: #fff;
+    }
+
+    .answers {
+      border-top: 1px dashed var(--border);
+      margin-top: 10px;
+      padding-top: 10px;
+      color: var(--muted);
+    }
+
+    /* Print settings */
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      :root { --bg: #ffffff; }
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+
+      /* Avoid breaking important blocks */
+      header, .card, .callout, pre, table, .quiz .q { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Ensure plain text printing — no URL clutter */
+      a, a:visited { color: inherit; text-decoration: none; }
+      a[href]:after { content: "" !important; }
+
+      /* Remove non-essential UI effects */
+      .chip { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🏨 Checking In a Booking — Reviewer / Study Guide</h1>
+      <p class="subtitle">Topic: React Router navigation + route params, React Query mutations, Supabase updates, UI state rules (paid confirmation), and fixing cache key bugs.</p>
+      <div class="chiprow">
+        <span class="chip">⚛️ React</span>
+        <span class="chip">🧭 React Router</span>
+        <span class="chip">🧠 React Query</span>
+        <span class="chip">🗄️ Supabase</span>
+        <span class="chip">✅ Controlled Checkbox</span>
+        <span class="chip">🔁 Cache Keys</span>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>1) Goal of this lecture</h2>
+      <div class="grid">
+        <div class="kpi">
+          <div class="icon">🎯</div>
+          <div>
+            <strong>Business requirement:</strong> Hotel staff must be able to <em>check in</em> arriving guests.
+            <p class="muted">Some bookings may be <strong>unpaid</strong> when the guest arrives (pay-at-hotel). Payment happens outside the app, but staff must confirm payment before check-in.</p>
+          </div>
+        </div>
+
+        <div class="kpi">
+          <div class="icon">🧩</div>
+          <div>
+            <strong>UX entry points:</strong>
+            <ul>
+              <li>✅ Booking Detail Page: show a <strong>Check in</strong> button</li>
+              <li>✅ Context Menu in each booking row: <strong>Check in</strong> option</li>
+              <li class="muted">Later: Dashboard “arrivals today” check-in shortcuts</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2) When is a booking allowed to be checked in?</h2>
+      <div class="callout warn">
+        <p><strong>Rule of thumb:</strong> Only <strong>unconfirmed</strong> bookings can be checked in. ✅</p>
+        <p class="muted">If status is already <strong>checked-in</strong> or <strong>checked-out</strong>, hide the check-in action (or disable it) to prevent invalid operations.</p>
+      </div>
+
+      <table aria-label="Status rules">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Can Check In?</th>
+            <th>Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>unconfirmed</td>
+            <td>✅ Yes</td>
+            <td>Guest arrives; staff may confirm payment and check them in.</td>
+          </tr>
+          <tr>
+            <td>checked-in</td>
+            <td>❌ No</td>
+            <td>Already checked in; duplicate check-in would be invalid.</td>
+          </tr>
+          <tr>
+            <td>checked-out</td>
+            <td>❌ No</td>
+            <td>Stay already completed; cannot re-check in.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>3) Navigation flow (Menus → Check-in route)</h2>
+      <p>We add a <strong>Check in</strong> action both in the booking row context menu and on the booking detail page.</p>
+
+      <div class="callout good">
+        <p><strong>Route design:</strong> navigate to <code>/checkin/:bookingId</code> so the page can fetch the correct booking.</p>
+      </div>
+
+      <h3>Menu button navigation example</h3>
+      <pre><code>// Inside BookingRow
+const navigate = useNavigate();
+
+{status === "unconfirmed" &amp;&amp; (
+  &lt;Menus.Button
+    icon={&lt;HiArrowDownOnSquare /&gt;}
+    onClick={() =&gt; navigate(`/checkin/${bookingId}`)}
+  &gt;
+    Check in
+  &lt;/Menus.Button&gt;
+)}</code></pre>
+
+      <h3>App route example</h3>
+      <pre><code>// app routes
+&lt;Route path="checkin/:bookingId" element={&lt;Checkin /&gt;} /&gt;;
+
+// Checkin page component should be thin:
+// return &lt;CheckinBooking /&gt;</code></pre>
+
+      <div class="callout">
+        <p>🧠 <strong>Architecture rule used:</strong> Pages should avoid fetching data. Put data fetching inside feature components (e.g., <code>features/check-in-out/CheckinBooking</code>).</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>4) Fetch the booking data on the Check-in page</h2>
+      <p>The check-in page needs booking data to show guest name, price, payment status, etc.</p>
+
+      <h3>Use the existing <code>useBooking</code> hook (React Query)</h3>
+      <pre><code>const { booking, isLoading } = useBooking();
+if (isLoading) return &lt;Spinner /&gt;;</code></pre>
+
+      <div class="callout warn">
+        <p><strong>Bug fix you must remember:</strong> include <code>bookingId</code> inside the React Query <code>queryKey</code>.</p>
+        <p class="muted">If you use only <code>["booking"]</code> for every booking detail, all pages share the same cache entry → stale or wrong booking data can appear when navigating between bookings.</p>
+      </div>
+
+      <pre><code>// ✅ Correct queryKey
+useQuery({
+  queryKey: ["booking", bookingId],
+  queryFn: () =&gt; getBooking(bookingId),
+  retry: false,
+});</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>5) Payment confirmation checkbox (controlled UI)</h2>
+      <p>Staff must confirm payment <strong>before</strong> check-in, but only if the booking was not paid yet.</p>
+
+      <div class="callout good">
+        <p><strong>UI approach:</strong> Use a checkbox + a disabled confirm button.</p>
+        <ul>
+          <li>Checkbox is <strong>controlled</strong> (value comes from React state).</li>
+          <li>Initial checkbox state comes from <code>booking.isPaid</code>, but booking arrives async.</li>
+          <li>So: start state as <code>false</code>, then sync using <code>useEffect</code>.</li>
+        </ul>
+      </div>
+
+      <h3>Why you can’t initialize state from <code>booking.isPaid</code> immediately</h3>
+      <div class="callout warn">
+        <p>🕒 When the component mounts, <code>booking</code> might still be <code>undefined</code> (data not fetched yet). Initializing state from it would be wrong.</p>
+      </div>
+
+      <h3>Recommended implementation</h3>
+      <pre><code>const [confirmPaid, setConfirmPaid] = useState(false);
+
+useEffect(() =&gt; {
+  setConfirmPaid(booking?.isPaid ?? false);
+}, [booking]);
+
+&lt;Checkbox
+  id="confirm-paid"
+  checked={confirmPaid}
+  disabled={confirmPaid === true}
+  onChange={() =&gt; setConfirmPaid((v) =&gt; !v)}
+&gt;
+  I confirm that {guest.fullName} has paid the total amount
+&lt;/Checkbox&gt;</code></pre>
+
+      <div class="callout bad">
+        <p><strong>Common mistake:</strong> using <code>value</code> instead of <code>checked</code> for checkbox controls.</p>
+        <p class="muted">Checkbox inputs are controlled with <code>checked</code>, not <code>value</code>.</p>
+      </div>
+
+      <h3>Disable the “Check in” action until payment is confirmed</h3>
+      <pre><code>&lt;Button
+  disabled={!confirmPaid || isCheckingIn}
+  onClick={handleCheckin}
+&gt;
+  Check in booking
+&lt;/Button&gt;</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>6) What does “Check in” do technically?</h2>
+      <div class="kpi">
+        <div class="icon">🛠️</div>
+        <div>
+          <p><strong>It’s just an update (mutation)</strong> on the bookings row:</p>
+          <ul>
+            <li><code>status</code>: <code>"unconfirmed"</code> → <code>"checked-in"</code></li>
+            <li><code>isPaid</code>: <code>false</code> → <code>true</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Mutation hook (conceptual)</h3>
+      <pre><code>// useCheckin.js (concept)
+const queryClient = useQueryClient();
+const navigate = useNavigate();
+
+const { mutate: checkin, isLoading: isCheckingIn } = useMutation({
+  mutationFn: ({ bookingId }) =&gt;
+    updateBooking(bookingId, { status: "checked-in", isPaid: true }),
+  onSuccess: (data) =&gt; {
+    toast.success(`Booking #${data.id} successfully checked in`);
+    queryClient.invalidateQueries({ active: true });
+    navigate("/");
+  },
+  onError: () =&gt; toast.error("There was an error while checking in"),
+});
+
+return { checkin, isCheckingIn };</code></pre>
+
+      <div class="callout">
+        <p>✅ Nice improvement: invalidating <code>{ active: true }</code> avoids remembering query keys, but it can refetch more than necessary. Use it when acceptable.</p>
+      </div>
+
+      <h3>Check-in button handler (safety guard)</h3>
+      <pre><code>function handleCheckin() {
+  if (!confirmPaid) return; // 🔒 guard
+  checkin({ bookingId });
+}</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>7) Practical UI checklist</h2>
+      <ol>
+        <li>✅ Show “Check in” action only when <code>status === "unconfirmed"</code></li>
+        <li>✅ Route exists: <code>/checkin/:bookingId</code></li>
+        <li>✅ <code>useBooking</code> reads <code>bookingId</code> from params and uses queryKey <code>["booking", bookingId]</code></li>
+        <li>✅ Checkbox is controlled using <code>checked</code> and synced via <code>useEffect</code></li>
+        <li>✅ Check-in button disabled until payment confirmed</li>
+        <li>✅ Mutation updates <code>status</code> + <code>isPaid</code></li>
+        <li>✅ On success: toast, invalidate queries, navigate</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>8) Common pitfalls (and fixes)</h2>
+      <div class="callout bad">
+        <p><strong>1) Wrong cache key:</strong> using the same queryKey for all bookings.</p>
+        <p class="muted">Fix: <code>["booking", bookingId]</code></p>
+      </div>
+      <div class="callout bad">
+        <p><strong>2) Checkbox not controlled:</strong> using <code>value</code> instead of <code>checked</code>.</p>
+        <p class="muted">Fix: <code>checked={confirmPaid}</code></p>
+      </div>
+      <div class="callout warn">
+        <p><strong>3) Initial state mismatch:</strong> trying to initialize from async booking immediately.</p>
+        <p class="muted">Fix: start false → sync via <code>useEffect</code>.</p>
+      </div>
+      <div class="callout warn">
+        <p><strong>4) Button spam/double submit:</strong> not disabling during mutation.</p>
+        <p class="muted">Fix: disable while <code>isCheckingIn</code> is true.</p>
+      </div>
+    </section>
+
+    <section class="card quiz">
+      <h2>9) Quick mini-quiz (with answers)</h2>
+
+      <div class="q">
+        <p><strong>Q1.</strong> Which booking status is allowed to be checked in?</p>
+        <div class="answers"><strong>A:</strong> Only <code>unconfirmed</code> bookings.</div>
+      </div>
+
+      <div class="q">
+        <p><strong>Q2.</strong> Why shouldn’t you initialize <code>confirmPaid</code> with <code>booking.isPaid</code> directly in <code>useState</code>?</p>
+        <div class="answers"><strong>A:</strong> Because booking data is fetched async; on first render booking may be undefined. Use <code>useEffect</code> to sync once data arrives.</div>
+      </div>
+
+      <div class="q">
+        <p><strong>Q3.</strong> What two fields are updated during check-in?</p>
+        <div class="answers"><strong>A:</strong> <code>status</code> → <code>"checked-in"</code>, and <code>isPaid</code> → <code>true</code>.</div>
+      </div>
+
+      <div class="q">
+        <p><strong>Q4.</strong> What is the correct React Query key for booking details pages?</p>
+        <div class="answers"><strong>A:</strong> <code>["booking", bookingId]</code> so each booking has its own cache entry.</div>
+      </div>
+
+      <div class="q">
+        <p><strong>Q5.</strong> What prop controls a checkbox in React: <code>value</code> or <code>checked</code>?</p>
+        <div class="answers"><strong>A:</strong> <code>checked</code>.</div>
+      </div>
+    </section>
+
+    <hr class="hr" />
+
+    <section class="card">
+      <h2>10) What’s next?</h2>
+      <p>🍳 Next lecture adds the option to buy breakfast during check-in (if not already included). That will add more state + another update/mutation flow.</p>
+      <p class="muted">Tip: Keep the check-in page focused: validate input/state → call mutation → update cache → navigate.</p>
+    </section>
+  </main>
+</body>
+</html>

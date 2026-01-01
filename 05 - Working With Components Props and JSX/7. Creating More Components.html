@@ -1,0 +1,497 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate React Course — Creating More Components (Reviewer)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    section {
+      margin: 16px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    /* Better anchor navigation when clicking the TOC */
+    :target { scroll-margin-top: 16px; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li { margin: 6px 0; }
+
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-left: 6px;
+      white-space: nowrap;
+    }
+
+    .callout {
+      border-left: 4px solid #d0d0d0;
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .muted { color: var(--muted); }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; }
+
+    .toc {
+      border: 1px dashed var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .toc ol {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .toc a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #bdbdbd;
+    }
+
+    .toc a:hover { text-decoration: none; }
+
+    .term {
+      display: inline-block;
+      padding: 1px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body { font-size: 11pt; line-height: 1.45; }
+      .page { max-width: none; padding: 0; }
+      header { margin-bottom: 10px; padding-bottom: 10px; }
+
+      /* Let long sections flow across pages; avoid splitting key blocks */
+      section { break-inside: auto; page-break-inside: auto; }
+      .card, .callout, pre, .toc { break-inside: avoid; page-break-inside: avoid; }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+      .toolbar { display: none !important; }
+
+      /* Avoid printing URL after links */
+      a[href]:after { content: "" !important; }
+
+      /* Avoid link styling in print */
+      a { color: inherit; text-decoration: none; }
+      .toc a { border-bottom: none; }
+
+      /* Ensure consistent print colors */
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🧩 Creating More Components — Reviewer</h1>
+      <p class="subtitle">Building the app layout with Header, Menu, and Footer + component composition. Single-column, A4 print-ready.</p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <span class="muted">Tip: In Print dialog, set Paper size = A4, Margins = Default.</span>
+      </div>
+
+      <div class="toc">
+        <strong>📌 Quick Table of Contents</strong>
+        <ol>
+          <li><a href="#goal">Lesson goal & final UI overview</a></li>
+          <li><a href="#layout-components">Create layout components: Header/Menu/Footer</a></li>
+          <li><a href="#function-styles">Function styles: function vs arrow</a></li>
+          <li><a href="#header">Header component</a></li>
+          <li><a href="#footer-createelement">Footer: React.createElement demo</a></li>
+          <li><a href="#footer-jsx">Footer: back to JSX + current time</a></li>
+          <li><a href="#menu">Menu component + move Pizza components inside</a></li>
+          <li><a href="#composition">Big idea: composition (small → big components)</a></li>
+          <li><a href="#practice">Practice & quick self-check</a></li>
+        </ol>
+      </div>
+    </header>
+
+    <section id="goal">
+      <h2>🎯 Lesson goal & final UI overview</h2>
+      <p>
+        With your new knowledge about JSX, you now build a more realistic UI structure by creating bigger “layout”
+        components.
+      </p>
+
+      <div class="card">
+        <h3>What the finished UI looks like 👀</h3>
+        <ul>
+          <li>🏷️ <strong>Header</strong>: restaurant name (pizzeria title)</li>
+          <li>🍕 <strong>Menu</strong>: the “heart” of the app — list of pizzas (reusing <code>&lt;Pizza /&gt;</code> many times)</li>
+          <li>🕒 <strong>Footer</strong>: open/closed status + a button (for now, the button does nothing)</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <p><strong>Main shift in this lecture ✅</strong></p>
+        <p class="muted">
+          Instead of focusing only on the small <code>Pizza</code> component, you create bigger components that define
+          the page layout: <code>Header</code>, <code>Menu</code>, and <code>Footer</code>.
+        </p>
+      </div>
+    </section>
+
+    <section id="layout-components">
+      <h2>🏗️ Create layout components: Header, Menu, Footer</h2>
+      <p>
+        You create one component for each big part of the page:
+      </p>
+
+      <pre><code>function Header() {}
+function Menu() {}
+function Footer() {}</code></pre>
+
+      <div class="callout">
+        <p><strong>Common beginner reminder ⚠️</strong></p>
+        <p class="muted">Don’t forget the parentheses <code>()</code> when writing function components.</p>
+      </div>
+    </section>
+
+    <section id="function-styles">
+      <h2>🧠 Function styles: function vs arrow</h2>
+      <p>
+        You can write components using different JavaScript function styles. The course uses the <strong>function</strong>
+        keyword, but you can use arrow functions if you prefer.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Option A: function keyword ✅</h3>
+          <pre><code>function Header() {
+  return &lt;h1&gt;Fast React Pizza Co.&lt;/h1&gt;;
+}</code></pre>
+        </div>
+        <div class="card">
+          <h3>Option B: arrow function ✅</h3>
+          <pre><code>const Header = () =&gt; {
+  return &lt;h1&gt;Fast React Pizza Co.&lt;/h1&gt;;
+};</code></pre>
+        </div>
+      </div>
+
+      <p class="muted">Both are valid. Consistency within a project matters more than the style choice.</p>
+    </section>
+
+    <section id="header">
+      <h2>🏷️ Header component</h2>
+      <p>
+        The header returns the restaurant name. Then you use <code>&lt;Header /&gt;</code> in <code>App</code> instead of a plain
+        <code>&lt;h1&gt;</code>.
+      </p>
+
+      <pre><code>function Header() {
+  return &lt;h1&gt;Fast React Pizza Co.&lt;/h1&gt;;
+}
+
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;Header /&gt;
+      {/* other components */}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>JSX “magic” 🪄</strong></p>
+        <p class="muted">
+          You include <code>&lt;Header /&gt;</code> like an HTML tag, but React calls <code>Header()</code> and renders the returned JSX.
+        </p>
+      </div>
+    </section>
+
+    <section id="footer-createelement">
+      <h2>⚙️ Footer: React.createElement demo</h2>
+      <p>
+        To connect with the previous JSX lecture, you briefly build the footer using <code>React.createElement</code>.
+        This shows how painful React would be without JSX.
+      </p>
+
+      <pre><code>function Footer() {
+  return React.createElement(
+    "footer",
+    null,
+    "We're currently open"
+  );
+}</code></pre>
+
+      <div class="card">
+        <h3>What gets rendered in the real DOM? 🌐</h3>
+        <p class="muted">
+          After React renders, the DOM only contains real HTML tags like <code>&lt;h1&gt;</code>, <code>&lt;div&gt;</code>, <code>&lt;footer&gt;</code>.
+          The DOM doesn’t know you had components named <code>Header</code> or <code>Pizza</code>.
+        </p>
+      </div>
+    </section>
+
+    <section id="footer-jsx">
+      <h2>🕒 Footer: back to JSX + display current time</h2>
+      <p>
+        Next, you switch back to JSX and embed JavaScript to show the current time.
+      </p>
+
+      <pre><code>function Footer() {
+  return (
+    &lt;footer&gt;
+      We're currently open {new Date().toLocaleTimeString()}.
+    &lt;/footer&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Key JSX skill ✅</strong></p>
+        <p class="muted">Use <code>{ }</code> to embed JavaScript expressions inside JSX.</p>
+      </div>
+    </section>
+
+    <section id="menu">
+      <h2>🍕 Menu component + move Pizza components inside</h2>
+      <p>
+        The menu contains the pizza list. You add an <code>&lt;h2&gt;</code> and then place pizza components below.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Menu structure ✅</h3>
+          <pre><code>function Menu() {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Our menu&lt;/h2&gt;
+      &lt;Pizza /&gt;
+      &lt;Pizza /&gt;
+      &lt;Pizza /&gt;
+      &lt;Pizza /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Then render it in App ✅</h3>
+          <pre><code>function App() {
+  return (
+    &lt;div&gt;
+      &lt;Header /&gt;
+      &lt;Menu /&gt;
+      &lt;Footer /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Reminder ⚠️</strong></p>
+        <p class="muted">
+          If you try to return multiple siblings (like an <code>&lt;h2&gt;</code> and pizzas) without a wrapper, React will error.
+          Wrap them in a single root element like <code>&lt;div&gt;...&lt;/div&gt;</code> (or a Fragment).
+        </p>
+      </div>
+    </section>
+
+    <section id="composition">
+      <h2>🧱 Big idea: composition (small → big components)</h2>
+      <p>
+        This lecture demonstrates how React UIs are built by combining smaller components into bigger ones.
+      </p>
+
+      <div class="card">
+        <h3>Component “ladder” 🪜</h3>
+        <ul>
+          <li>🍕 <strong>Small</strong>: <code>Pizza</code> (tiny reusable UI block)</li>
+          <li>📋 <strong>Medium</strong>: <code>Menu</code> (groups multiple pizzas)</li>
+          <li>🏁 <strong>Large</strong>: <code>App</code> (combines <code>Header</code>, <code>Menu</code>, <code>Footer</code>)</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <p><strong>Key takeaway 🔑</strong></p>
+        <p class="muted">
+          You build complex interfaces by composing components: small → bigger → full app.
+          Later, props will let each repeated pizza show different data.
+        </p>
+      </div>
+    </section>
+
+    <section id="practice">
+      <h2>🧪 Practice & quick self-check</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Practice 1: Add a wrapper ✅</h3>
+          <p class="muted">Make sure your <code>Menu</code> returns one root element even with many pizzas.</p>
+        </div>
+
+        <div class="card">
+          <h3>Practice 2: Footer time 🕒</h3>
+          <ul>
+            <li>Show the current time with <code>toLocaleTimeString()</code>.</li>
+            <li>Try showing date too with <code>toLocaleDateString()</code>.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Self-check ✅</h3>
+          <ul>
+            <li>What does “nesting components” mean?</li>
+            <li>Why is <code>React.createElement</code> harder to read than JSX?</li>
+            <li>After rendering, does the DOM know your component names?</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Quick summary 🧠</strong></p>
+        <p class="muted">
+          In this lecture you created bigger layout components (Header/Menu/Footer) and used component composition
+          to assemble a complete UI. JSX makes this composition readable and easy.
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Reviewer generated from the provided lecture transcript. Designed for clean A4 printing (single column, word-wrapped).</p>
+    </footer>
+  </main>
+</body>
+</html>

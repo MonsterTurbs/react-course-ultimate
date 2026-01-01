@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React + Supabase — Building the Sign Up Form (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #f7f7f7;
+      --soft2: #fbfbfb;
+      --accent: #0b57d0;
+      --good: #0f7b0f;
+      --warn: #8a5a00;
+      --bad: #b00020;
+      --code-bg: #0b0f14;
+      --code-fg: #e7edf3;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Single-column page */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px 64px;
+    }
+
+    header {
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      padding: 18px 16px;
+      border-radius: 10px;
+    }
+
+    .kicker {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: var(--muted);
+    }
+
+    main { margin-top: 16px; }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 10px;
+      line-height: 1.25;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 14px 0 8px;
+      line-height: 1.25;
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0 8px 18px; padding: 0; }
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .callout.good { border-left-color: var(--good); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.bad { border-left-color: var(--bad); }
+
+    .label {
+      display: inline-block;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--muted);
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border-radius: 10px;
+      padding: 12px;
+      overflow: auto;
+      border: 1px solid #1e2a36;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+      white-space: pre;
+    }
+
+    .muted { color: var(--muted); }
+
+    /* Print styles (A4, clean output) */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      :root { --bg: #ffffff; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header, section { border-color: #cfcfcf; }
+      .chip { border-color: #cfcfcf; }
+      .code { border-color: #222; }
+
+      /* Avoid awkward splits */
+      header, section, .card, .callout { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Keep a single-column, no sidebars */
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <p class="kicker">Study Guide • React Query • Supabase • Auth</p>
+      <h1>Building the Sign Up Form (Employees-only Signup) 🧾🔐</h1>
+      <p class="subtitle">How to build a validated signup form using <strong>react-hook-form</strong>, preparing it to create users in Supabase (next lecture).</p>
+      <div class="meta">
+        <span class="chip">Single-column</span>
+        <span class="chip">A4 print-ready</span>
+        <span class="chip">Beginner-friendly</span>
+        <span class="chip">Validation-focused ✅</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) Big idea (what we’re building) 🎯</h2>
+        <p>
+          In this app, <strong>not everyone can sign up</strong>. Only <strong>hotel employees</strong> can become users, and new users are created
+          <strong>inside the app</strong> (typically by existing staff).
+        </p>
+        <div class="callout good">
+          <span class="label">Why?</span>
+          This “employees-only signup” acts like an automatic verification step: if an existing staff member creates you,
+          you’re effectively approved. ✅
+        </div>
+        <ul>
+          <li>Signup form lives on the <strong>Users</strong> page (not a public signup route).</li>
+          <li>We’ll build the form UI + validation now.</li>
+          <li>Next lecture: wire it to Supabase and actually create users.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>2) Why use react-hook-form here? 🧠</h2>
+        <p>
+          For bigger forms with validation, it’s cleaner to use a form library so you don’t manage input state manually.
+          <strong>react-hook-form</strong> will:
+        </p>
+        <ul>
+          <li>Register inputs and track values for you 🧾</li>
+          <li>Run validation rules automatically ✅</li>
+          <li>Expose errors in a predictable way (so you can show messages) ⚠️</li>
+        </ul>
+        <div class="callout">
+          <span class="label">Mindset</span>
+          Let the library handle state + validation, and your submit handler can focus only on “what to do with valid data.”
+        </div>
+      </section>
+
+      <section>
+        <h2>3) Signup form fields & validation rules ✅</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>Full Name 👤</h3>
+            <ul>
+              <li><strong>Required</strong>: “This field is required”</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Email 📧</h3>
+            <ul>
+              <li><strong>Required</strong></li>
+              <li><strong>Pattern</strong>: must be a valid email format</li>
+              <li>Error message: “Provide a valid email address”</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Password 🔑</h3>
+            <ul>
+              <li><strong>Required</strong></li>
+              <li><strong>Min length</strong>: at least 8 characters</li>
+              <li>Error message: “Password needs a minimum of 8 characters”</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Confirm Password 🔁</h3>
+            <ul>
+              <li><strong>Required</strong></li>
+              <li><strong>Custom validate</strong>: must match the Password field</li>
+              <li>Error message: “Passwords need to match”</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <span class="label">Common pitfall</span>
+          Confirm password matching is not a built-in rule by default—you typically implement it using a
+          <strong>validate</strong> callback + <strong>getValues()</strong>.
+        </div>
+      </section>
+
+      <section>
+        <h2>4) React Hook Form wiring (the core pattern) 🧩</h2>
+        <p class="muted">This is the mental model you should remember:</p>
+        <ul>
+          <li><strong>useForm()</strong> gives you tools like <code>register</code>, <code>handleSubmit</code>, <code>getValues</code>, and <code>formState.errors</code>.</li>
+          <li>Each input uses <code>{...register(name, rules)}</code>.</li>
+          <li>Errors are shown using <code>errors?.fieldName?.message</code>.</li>
+          <li>Submit uses <code>onSubmit={handleSubmit(onSubmit, onError)}</code>.</li>
+        </ul>
+
+        <div class="code" aria-label="Example pattern">
+// 1) Setup
+const { register, handleSubmit, getValues, formState: { errors } } = useForm();
+
+// 2) Register inputs
+<input {...register('fullName', { required: 'This field is required' })} />
+
+<input {...register('email', {
+  required: 'This field is required',
+  pattern: {
+    value: /\S+@\S+\.\S+/, // example email regex
+    message: 'Provide a valid email address'
+  }
+})} />
+
+<input {...register('password', {
+  required: 'This field is required',
+  minLength: { value: 8, message: 'Password needs a minimum of 8 characters' }
+})} />
+
+<input {...register('passwordConfirm', {
+  required: 'This field is required',
+  validate: (value) => value === getValues('password') || 'Passwords need to match'
+})} />
+
+// 3) Submit
+<form onSubmit={handleSubmit(onSubmit)}>
+  ...
+</form>
+        </div>
+
+        <div class="callout good">
+          <span class="label">Why it’s nice</span>
+          Once validation passes, <code>onSubmit(data)</code> receives clean, validated form values. No extra checks needed. ✅
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Showing error messages in the UI 🧯</h2>
+        <p>
+          Having validation rules is not enough—you must display errors so users know what to fix.
+          The standard pattern is: if <code>errors.field</code> exists, render its message.
+        </p>
+        <div class="code" aria-label="Error message example">
+<FormRow label="Full name" error={errors?.fullName?.message}>
+  <Input {...register('fullName', { required: 'This field is required' })} />
+</FormRow>
+
+<FormRow label="Email" error={errors?.email?.message}>
+  <Input {...register('email', {
+    required: 'This field is required',
+    pattern: { value: /\S+@\S+\.\S+/, message: 'Provide a valid email address' },
+  })} />
+</FormRow>
+        </div>
+        <div class="callout">
+          <span class="label">Tip</span>
+          As the user fixes input, errors should disappear automatically—this gives a polished experience. ✨
+        </div>
+      </section>
+
+      <section>
+        <h2>6) Submit handler (what happens now vs. next lecture) 🚦</h2>
+        <p>
+          At this stage, submitting the form typically just logs the data, proving validation works.
+          The next lecture will connect this to Supabase to <strong>actually create a user</strong>.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <h3>Now ✅</h3>
+            <ul>
+              <li>Form renders on Users page</li>
+              <li>Inputs are registered via <code>register</code></li>
+              <li>Validation works + errors show</li>
+              <li><code>onSubmit(data)</code> receives valid payload</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Next 🎯</h3>
+            <ul>
+              <li>Call Supabase signup API</li>
+              <li>Handle loading + success + error UX</li>
+              <li>Possibly reset the form after success</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <span class="label">Reminder</span>
+          In this app, signup is not public. It’s an internal admin/staff action. 🏨
+        </div>
+      </section>
+
+      <section>
+        <h2>7) Quick self-check (mini quiz) 📝</h2>
+        <ol>
+          <li>Why do we use <strong>react-hook-form</strong> instead of managing input state manually?</li>
+          <li>How do you validate “Confirm Password” matches “Password”?</li>
+          <li>What object holds validation messages?</li>
+          <li>What does <code>handleSubmit</code> do for you?</li>
+        </ol>
+        <p class="muted">If you can answer these, you’re ready to wire signup to Supabase in the next lecture.</p>
+      </section>
+
+      <section>
+        <h2>8) Key takeaway ✅</h2>
+        <div class="callout good">
+          <p style="margin:0;">
+            Build forms in two steps: <strong>(1) UI + validation</strong>, then <strong>(2) connect to the backend</strong>.
+            By finishing step (1) well, step (2) becomes straightforward.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

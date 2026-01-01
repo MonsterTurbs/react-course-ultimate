@@ -1,0 +1,397 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Far Away — Controlled Elements (Forms in React) | Reviewer</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f7;
+      --soft2:#fbfbfb;
+      --accent:#0b57d0;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --danger:#b91c1c;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    header{
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1{ margin:0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13.5px; }
+
+    h2{ margin: 22px 0 10px; font-size: 18px; }
+    h3{ margin: 16px 0 8px; font-size: 15.5px; }
+    p{ margin: 8px 0; }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: var(--soft2);
+      border-radius: 10px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .callout{
+      border-left: 5px solid var(--accent);
+      background: #f4f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .callout.ok{ border-left-color: var(--ok); background: #f0fdfa; }
+    .callout.warn{ border-left-color: var(--warn); background: #fffbeb; }
+    .callout.danger{ border-left-color: var(--danger); background: #fef2f2; }
+
+    ul,ol{ margin: 8px 0 8px 22px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .term{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      margin: 10px 0;
+    }
+    .term .icon{
+      width: 28px;
+      flex: 0 0 28px;
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .term .body{ flex:1; }
+    .term .title{ font-weight: 700; margin: 0 0 4px; }
+    .term .desc{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow:auto;
+      white-space: pre-wrap; /* wrap for printing */
+      word-wrap: break-word;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .mini{ color: var(--muted); font-size: 13px; }
+    .divider{ border:none; border-top:1px solid var(--border); margin: 16px 0; }
+
+    /* Print styles (A4 bond paper) */
+    @page{ size: A4; margin: 14mm; }
+    @media print{
+      body{ background:#ffffff !important; color:#000000 !important; }
+      .page{ max-width: none; padding: 0; margin: 0; }
+      header{ border-bottom: 1px solid #000000; }
+      .chip, .card, .term, pre{ border-color: #000000; }
+      .callout{ background: #ffffff; border-left-color: #000000; }
+      .callout.ok, .callout.warn, .callout.danger{ background:#ffffff; }
+      .card, .term, pre, .callout{ break-inside: avoid; page-break-inside: avoid; }
+      a, a:visited{ color:#000000; text-decoration:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>Controlled Elements — Forms in React 🎛️</h1>
+      <p class="subtitle">
+        Study guide based on the lecture transcript: why inputs need to be “controlled”, how to implement them, and how to read/reset form data.
+      </p>
+      <div class="chip-row" aria-label="Key topics">
+        <span class="chip">🧠 useState</span>
+        <span class="chip">✍️ input value + onChange</span>
+        <span class="chip">🔽 select value + onChange</span>
+        <span class="chip">🔢 String → Number</span>
+        <span class="chip">🧾 handleSubmit</span>
+        <span class="chip">🧩 Sibling components</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) What Are Controlled Elements?</h2>
+      <div class="callout">
+        <p><strong>Default behavior:</strong> form fields (<code>input</code>, <code>select</code>) maintain their own state inside the DOM. 🌐</p>
+        <p>
+          That means the “source of truth” for the current value lives in the HTML element itself.
+          In React, we usually prefer to keep state inside the React app (component state), not scattered in the DOM.
+        </p>
+      </div>
+
+      <div class="term">
+        <div class="icon">🎛️</div>
+        <div class="body">
+          <p class="title">Controlled element (definition)</p>
+          <p class="desc">A form element whose value is controlled by React state. React owns the data; the DOM only displays it.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Why control inputs? ✅</h3>
+        <ul>
+          <li>Easier to <strong>read values</strong> (you already have them in state).</li>
+          <li>Keeps state in <strong>one central place</strong> (inside React, not inside the DOM).</li>
+          <li>Makes it easy to <strong>reset</strong> the form after submission.</li>
+          <li>Helps keep UI and state <strong>always in sync</strong>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) The 3-Step Pattern to Control an Input ✅</h2>
+      <div class="callout ok">
+        <ol>
+          <li><strong>Create state</strong> (with <code>useState</code>)</li>
+          <li><strong>Bind state</strong> to the element via <code>value={state}</code></li>
+          <li><strong>Update state</strong> on every change via <code>onChange</code></li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Example: control the “description” text input ✍️</h3>
+        <pre><code>import { useState } from "react";
+
+function Form() {
+  const [description, setDescription] = useState("");
+
+  return (
+    &lt;input
+      type="text"
+      placeholder="Item..."
+      value={description}
+      onChange={(e) =&gt; setDescription(e.target.value)}
+    /&gt;
+  );
+}</code></pre>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Important:</strong> if you set <code>value={description}</code> but forget <code>onChange</code>, the input becomes “locked”. 🔒</p>
+        <p class="mini">Because React always forces the value to match state, and state never changes.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Understanding <code>e.target.value</code> (Beginner-Friendly)</h2>
+      <div class="term">
+        <div class="icon">🧪</div>
+        <div class="body">
+          <p class="title">What is <code>e</code>?</p>
+          <p class="desc">It’s the event object React passes to your handler when an event happens (here: change event).</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>What do these mean?</h3>
+        <ul>
+          <li><code>e.target</code> → the element that triggered the event (the input/select)</li>
+          <li><code>e.target.value</code> → the current value inside that element</li>
+        </ul>
+        <pre><code>onChange={(e) =&gt; {
+  // e.target is the &lt;input&gt;
+  // e.target.value is what the user typed
+  setDescription(e.target.value);
+}}</code></pre>
+      </div>
+
+      <div class="callout">
+        <p><strong>What happens on every keystroke?</strong> ⌨️</p>
+        <ol>
+          <li>User types → change event fires</li>
+          <li><code>setDescription(...)</code> updates state</li>
+          <li>React re-renders</li>
+          <li><code>value={description}</code> updates the input to match state</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Control the <code>&lt;select&gt;</code> (Quantity) 🔽</h2>
+      <div class="card">
+        <h3>A) Create quantity state</h3>
+        <p class="mini">Default should be 1 (the lecture temporarily uses 5 just to show the effect).</p>
+        <pre><code>const [quantity, setQuantity] = useState(1);
+
+&lt;select value={quantity} onChange={...}&gt;
+  ...
+&lt;/select&gt;</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>B) Update quantity on change</h3>
+        <pre><code>&lt;select
+  value={quantity}
+  onChange={(e) =&gt; setQuantity(Number(e.target.value))}
+&gt;
+  ...
+&lt;/select&gt;</code></pre>
+        <p class="mini">
+          React gives <code>e.target.value</code> as a <strong>string</strong>, even if your options look numeric.
+          Converting with <code>Number(...)</code> prevents subtle bugs.
+        </p>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Why convert to a number?</strong> 🔢</p>
+        <ul>
+          <li>Without conversion: quantity becomes "10" (string)</li>
+          <li>With conversion: quantity becomes 10 (number)</li>
+        </ul>
+        <p class="mini">DevTools makes it easy to spot: strings show quotes; numbers don’t.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Use the Form Values in <code>handleSubmit</code> 🧾</h2>
+      <div class="callout">
+        <p>
+          Controlled elements make it simple: by the time you submit, you already have
+          <code>description</code> and <code>quantity</code> in state.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Create the item object (as in the lecture)</h3>
+        <pre><code>function handleSubmit(e) {
+  e.preventDefault();
+
+  // Guard clause: do nothing if empty
+  if (!description) return;
+
+  const newItem = {
+    id: Date.now(),
+    description,
+    quantity,
+    packed: false,
+  };
+
+  console.log(newItem);
+
+  // Reset form back to initial state
+  setDescription("");
+  setQuantity(1);
+}</code></pre>
+      </div>
+
+      <div class="term">
+        <div class="icon">🛡️</div>
+        <div class="body">
+          <p class="title">Guard clause</p>
+          <p class="desc">A simple early return that prevents submitting invalid data (e.g., empty description).</p>
+        </div>
+      </div>
+
+      <div class="callout ok">
+        <p><strong>Why resetting is easy now:</strong> just set state back to defaults. React updates the form automatically. 🙂</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) A Key React Idea: Data Cannot Flow Sideways 📌</h2>
+      <div class="callout warn">
+        <p><strong>Problem introduced at the end of the lecture:</strong></p>
+        <p>
+          You create <code>newItem</code> in <strong>Form</strong>, but you want it to appear in <strong>PackingList</strong>.
+          These are sibling components.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Why props alone won’t solve it</h3>
+        <ul>
+          <li>Props flow <strong>down</strong> the component tree.</li>
+          <li>Form is not the parent of PackingList, so it cannot directly pass props to it.</li>
+          <li>To share data between siblings, you typically lift state up to the common parent (often <code>App</code>).</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <p><strong>What’s next:</strong> “thinking in React” and state management concepts to move data from Form → List. 🧠</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section>
+      <h2>7) Quick Self-Check 🧠</h2>
+      <div class="card">
+        <ol>
+          <li>What makes an input “controlled”?</li>
+          <li>What are the three steps of the controlled elements technique?</li>
+          <li>Why does a controlled input become “locked” if you forget <code>onChange</code>?</li>
+          <li>Why do we convert <code>e.target.value</code> to a number for quantity?</li>
+          <li>Why can’t Form directly pass the new item to PackingList using props?</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Answer hints ✅</h3>
+        <ul>
+          <li>React state is the single source of truth (<code>value</code> comes from state).</li>
+          <li>State → value binding → onChange updates.</li>
+          <li>No state updates means React keeps forcing the old value.</li>
+          <li>Values from DOM events are strings; numbers prevent bugs.</li>
+          <li>They are siblings; props don’t flow sideways—state must be lifted up.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mini" style="margin-top:16px;">
+      Print tip: In your browser Print dialog, set Paper Size = A4. Keep margins around ~14mm and enable background graphics only if you want shaded callouts.
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React — Component Lifecycle (Study Guide)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --panel: #fafafa;
+      --chip: #f3f4f6;
+      --accent: #1a73e8;
+      --good: #137333;
+      --warn: #b3261e;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin: 0 0 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #222;
+    }
+
+    main { display: block; }
+
+    section {
+      margin: 16px 0 18px;
+      padding: 14px 14px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: -0.1px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 15px;
+    }
+
+    p { margin: 8px 0; }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    li { margin: 6px 0; }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .callout {
+      border-left: 5px solid var(--accent);
+      background: var(--panel);
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .good {
+      border-left-color: var(--good);
+    }
+
+    .warn {
+      border-left-color: var(--warn);
+    }
+
+    .k {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #f6f8fa;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 0.95em;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      padding: 12px;
+      background: #0b1020;
+      color: #e9eefc;
+      border-radius: 12px;
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,0.08);
+      line-height: 1.45;
+      tab-size: 2;
+    }
+
+    pre code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .card h3 { margin-top: 0; }
+
+    .hr {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    /* Print */
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      section { break-inside: avoid; }
+      pre { break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>React Component Lifecycle — Reviewer / Study Guide</h1>
+      <p class="subtitle">Topic: lifecycle of a <strong>component instance</strong> (mount → re-render → unmount) and why it matters for <span class="k">useEffect</span>.</p>
+      <div class="meta">
+        <span class="chip">🧠 Beginner-friendly</span>
+        <span class="chip">🪝 Effects-ready</span>
+        <span class="chip">🧩 React internals (practical)</span>
+        <span class="chip">🖨️ A4 print-ready</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) Core Idea (What “Lifecycle” Means) 💡</h2>
+        <p>
+          When we say <strong>component lifecycle</strong>, we’re really talking about the lifecycle of a <strong>component instance</strong>.
+          A component (the function you wrote) is like a <em>blueprint</em>. The instance is the “real thing” that lives in the app.
+        </p>
+
+        <div class="callout">
+          <p><strong>🧩 Component vs Instance</strong></p>
+          <ul>
+            <li><strong>Component</strong> = a JavaScript function (blueprint).</li>
+            <li><strong>Component instance</strong> = React’s created “copy” of that component in the UI tree (has its own <em>state</em>, <em>props</em>, etc.).</li>
+          </ul>
+        </div>
+
+        <p class="small">Why we still say “component lifecycle”: it’s common shorthand. Saying “component instance lifecycle” every time is tedious.</p>
+      </section>
+
+      <section>
+        <h2>2) The 3 Lifecycle Phases 🧭</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>👶 A) Mount (Initial Render)</h3>
+            <p><strong>Mount</strong> = the instance appears for the first time.</p>
+            <ul>
+              <li>React renders it for the first time.</li>
+              <li>Fresh <strong>state</strong> and <strong>props</strong> are set up for that instance.</li>
+              <li>Think: the component instance is “born”.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>🔁 B) Re-render (Update)</h3>
+            <p><strong>Re-render</strong> = the instance is called again to compute the next UI snapshot.</p>
+            <ul>
+              <li>Can happen many times (unlimited).</li>
+              <li>Does <strong>not</strong> automatically mean DOM is fully rebuilt—React updates only what changed (reconciliation).</li>
+              <li>This phase is <strong>optional</strong> (some components mount then unmount without updates).</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>☠️ C) Unmount</h3>
+            <p><strong>Unmount</strong> = the instance is removed from the UI tree.</p>
+            <ul>
+              <li>The instance is destroyed and removed from the screen.</li>
+              <li>Its <strong>state</strong> and <strong>props</strong> are gone with it.</li>
+              <li>Think: the instance “dies”.</li>
+            </ul>
+            <p class="small">A future mount creates a <em>new</em> instance — not the same one.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) What Causes Re-renders? (Practical Triggers) 🎯</h2>
+        <p>
+          In practice, a component instance can re-render when:
+        </p>
+        <ul>
+          <li>✅ Its <strong>state</strong> updates (very common).</li>
+          <li>✅ Its <strong>props</strong> change (parent passes new props).</li>
+          <li>✅ Its <strong>parent re-renders</strong> (child gets re-rendered too by default).</li>
+          <li>✅ <strong>Context</strong> it consumes changes (you’ll learn this later).</li>
+        </ul>
+
+        <div class="callout warn">
+          <p><strong>⚠️ Important reminder</strong></p>
+          <p>
+            A re-render is just React calling the function again to calculate the next UI.
+            It doesn’t automatically mean “DOM rewrite”. React decides the minimal DOM updates afterward.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Why Lifecycle Matters (Hello, <span class="k">useEffect</span>) 🪝</h2>
+        <p>
+          Lifecycle is essential because React lets us run code at specific points in time.
+          That’s exactly what <span class="k">useEffect</span> is for.
+        </p>
+
+        <div class="panel">
+          <p><strong>🧠 Mental model</strong></p>
+          <ul>
+            <li><strong>On mount:</strong> run setup code (e.g., fetch data, subscribe, start timers).</li>
+            <li><strong>On updates:</strong> re-run effect when dependencies change.</li>
+            <li><strong>On unmount:</strong> cleanup (unsubscribe, clear timers, cancel listeners).</li>
+          </ul>
+        </div>
+
+        <h3>Beginner example (concept only)</h3>
+        <pre><code>// Runs after the component is placed on screen (mount)
+// and again when `query` changes (update)
+// Cleanup runs when it re-runs and when it unmounts
+useEffect(() =&gt; {
+  const controller = new AbortController();
+
+  async function load() {
+    const res = await fetch(`/api/search?q=${query}`, {
+      signal: controller.signal,
+    });
+    // setState(...) with the result
+  }
+
+  load();
+
+  return () =&gt; {
+    controller.abort(); // cleanup on unmount or before re-run
+  };
+}, [query]);</code></pre>
+
+        <p class="small">Note: You’ll cover the exact execution rules of <span class="k">useEffect</span> in the next lectures.</p>
+      </section>
+
+      <section>
+        <h2>5) Quick Checklist (For Practice) ✅</h2>
+        <ul>
+          <li>✅ A <strong>component</strong> is a blueprint; a <strong>component instance</strong> is what lives in the UI.</li>
+          <li>✅ Lifecycle phases: <strong>mount</strong> → (optional) <strong>re-render</strong> → <strong>unmount</strong>.</li>
+          <li>✅ Re-renders can happen due to state, props, parent re-render, or context changes.</li>
+          <li>✅ Unmount destroys instance state/props; next mount is a fresh instance.</li>
+          <li>✅ Lifecycle matters because <span class="k">useEffect</span> lets you run code on mount/update/unmount (via cleanup).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>6) Self-Quiz (Optional) 🧪</h2>
+        <ol>
+          <li>What’s the difference between a <strong>component</strong> and a <strong>component instance</strong>?</li>
+          <li>Which lifecycle phase creates “fresh state and props”?</li>
+          <li>Name 3 reasons a component instance can re-render.</li>
+          <li>What happens to state when a component instance unmounts?</li>
+          <li>Why is lifecycle knowledge important for <span class="k">useEffect</span>?</li>
+        </ol>
+        <div class="hr"></div>
+        <p class="small">Tip: If you can answer these without looking, you’re ready to move on to effects.</p>
+      </section>
+
+      <p class="small">End of reviewer — React Component Lifecycle</p>
+    </main>
+  </div>
+</body>
+</html>

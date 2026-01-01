@@ -1,0 +1,363 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Study Guide — Custom Hooks: What They Are & When to Create One</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --code:#0b0f19;
+      --codeText:#e6edf3;
+      --ok:#0a7a2f;
+      --warn:#8a5a00;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:12px;
+      padding:18px 18px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      font-size: 22px;
+      line-height:1.25;
+      margin:0 0 8px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13.5px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .chip{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:4px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 16px 12px;
+      margin: 14px 0;
+      background:#fff;
+      page-break-inside: avoid;
+    }
+
+    h2{
+      font-size: 16.5px;
+      margin:0 0 10px;
+      line-height:1.25;
+    }
+
+    h3{
+      font-size: 14.5px;
+      margin: 12px 0 8px;
+      line-height:1.25;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 10px 22px; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border-left: 4px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout strong{ display:inline-block; margin-right:6px; }
+
+    .rule{
+      border: 1px dashed var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .flow{
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 13.5px;
+    }
+
+    .flow ol{ margin: 8px 0 0 18px; }
+
+    pre{
+      background: var(--code);
+      color: var(--codeText);
+      padding: 12px 12px;
+      border-radius: 10px;
+      overflow:auto;
+      margin: 10px 0;
+      font-size: 12.5px;
+      line-height:1.5;
+      tab-size: 2;
+    }
+
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .muted{ color:var(--muted); }
+    .ok{ color: var(--ok); font-weight:700; }
+    .warn{ color: var(--warn); font-weight:700; }
+
+    /* Print */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; margin:0; padding:0; }
+      header, section{ border-color:#cfcfcf; }
+      pre{ overflow: visible; white-space: pre-wrap; word-wrap: break-word; }
+      a{ color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <header>
+      <h1>🧠 React Study Guide: Custom Hooks — What They Are & When to Create One</h1>
+      <p class="subtitle">Custom hooks exist for one main reason: <strong>reusability</strong>. They let you reuse logic that includes React hooks across multiple components.</p>
+      <div class="meta">
+        <span class="chip">🧩 Reuse: UI vs logic</span>
+        <span class="chip">🧷 Custom hook = logic + hooks</span>
+        <span class="chip">📛 Naming: must start with <code>use</code></span>
+        <span class="chip">📏 One hook, one purpose</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>♻️ Reusability in React: only 2 things can be reused</h2>
+      <p>In React, there are basically two reusable units:</p>
+      <ul>
+        <li>🧱 <strong>A piece of UI</strong> → reuse with a <strong>component</strong></li>
+        <li>🧠 <strong>A piece of logic</strong> → reuse with a <strong>function</strong> (or a custom hook)</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Decision rule:</strong> If you want to reuse UI, create a component. If you want to reuse logic, keep reading.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧠 Reusing logic: function or custom hook?</h2>
+      <p>Ask this one question:</p>
+      <div class="flow">
+        <strong>Does the logic I want to reuse contain React hooks?</strong>
+        <ol>
+          <li>If <strong>NO</strong> ✅ → use a <strong>regular function</strong> (inside or outside the component)</li>
+          <li>If <strong>YES</strong> ✅ → you must create a <strong>custom hook</strong></li>
+        </ol>
+      </div>
+
+      <div class="callout">
+        <strong>Why?</strong> You can’t just move hook-using logic into a normal function. Hook rules require hooks to run inside React components or other hooks.
+      </div>
+    </section>
+
+    <section>
+      <h2>🧷 What is a custom hook?</h2>
+      <p>A custom hook is simply a <strong>JavaScript function</strong> that:</p>
+      <ul>
+        <li>🧩 contains <strong>one or more React hooks</strong> (e.g., <code>useState</code>, <code>useEffect</code>)</li>
+        <li>♻️ packages that logic so multiple components can reuse it</li>
+        <li>🕶️ is usually <strong>non-visual</strong> logic (logic that doesn’t directly render UI)</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Good definition:</strong> Custom hooks let us reuse “stateful logic” (or any logic containing hooks) across components.
+      </div>
+    </section>
+
+    <section>
+      <h2>📌 Custom hook vs component (key differences)</h2>
+
+      <div class="rule">
+        <h3>✅ Custom Hook</h3>
+        <ul>
+          <li>Is a JS function that can receive and return <strong>any data</strong></li>
+          <li>Often returns an <strong>object</strong> or an <strong>array</strong></li>
+          <li>Must use at least one React hook</li>
+          <li>Does <strong>not</strong> return JSX</li>
+        </ul>
+      </div>
+
+      <div class="rule">
+        <h3>✅ Component</h3>
+        <ul>
+          <li>Is also a JS function, but it receives <strong>props</strong></li>
+          <li>Must return <strong>JSX</strong> (UI output)</li>
+          <li>Uses hooks to manage UI state/effects</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>📛 Naming rule: must start with <code>use</code></h2>
+      <p>For React (and tooling like ESLint) to treat your function as a hook:</p>
+      <ul>
+        <li class="ok">✅ The name must start with <code>use</code> (example: <code>useFetch</code>)</li>
+        <li class="warn">⚠️ If it doesn’t start with <code>use</code>, it’s just a regular function in React’s eyes</li>
+      </ul>
+
+      <pre><code>// ✅ Hook name
+function useFetch(url) {
+  // ... uses hooks
+}
+
+// ❌ Not recognized as a hook
+function fetchLogic(url) {
+  // ... even if it uses hooks (this is wrong)
+}</code></pre>
+    </section>
+
+    <section>
+      <h2>🧱 One custom hook should have one purpose</h2>
+      <p>A good custom hook is:</p>
+      <ul>
+        <li>🎯 focused (does one specific thing)</li>
+        <li>♻️ reusable and portable (can be used in other components or even other projects)</li>
+        <li>🧪 easy to test and reason about</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Avoid:</strong> dumping all hooks from a component into one massive custom hook. That rarely becomes reusable.
+      </div>
+    </section>
+
+    <section>
+      <h2>🌍 Real-world note: custom hook libraries exist</h2>
+      <p>Because hooks have been around for years, developers commonly share useful custom hooks. There are many hook libraries on NPM that you can adopt instead of reinventing the wheel.</p>
+      <p class="muted">(You still should understand the fundamentals so you can assess quality and fit.)</p>
+    </section>
+
+    <section>
+      <h2>📐 Rules of hooks still apply</h2>
+      <p>Since custom hooks are made from React hooks, the same rules apply:</p>
+      <ul>
+        <li>✅ Only call hooks at the <strong>top level</strong> (not inside loops/conditions)</li>
+        <li>✅ Only call hooks from <strong>React components</strong> or <strong>other hooks</strong></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧪 Example custom hook (simple fetch pattern)</h2>
+      <p>This is the kind of example mentioned in the lecture: combining state + effect into a reusable fetch hook.</p>
+
+      <pre><code>import { useEffect, useState } from "react";
+
+export function useFetch(url) {
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() =&gt; {
+    let ignore = false;
+
+    async function fetchData() {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Request failed");
+        const json = await res.json();
+
+        if (!ignore) setData(json);
+      } catch (err) {
+        if (!ignore) setError(err.message);
+      } finally {
+        if (!ignore) setIsLoading(false);
+      }
+    }
+
+    fetchData();
+    return () =&gt; {
+      ignore = true;
+    };
+  }, [url]);
+
+  return { data, isLoading, error };
+}</code></pre>
+
+      <div class="callout">
+        <strong>Notice:</strong> This is not UI. It’s reusable logic that any component can call.
+      </div>
+    </section>
+
+    <section>
+      <h2>📝 Quick decision checklist (memorize this)</h2>
+      <ul>
+        <li>🧱 Reuse UI? → component</li>
+        <li>🧠 Reuse logic with no hooks? → regular function</li>
+        <li>🧷 Reuse logic that uses hooks? → custom hook</li>
+        <li>🎯 Keep each hook focused on one job</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📌 Key takeaways</h2>
+      <ul>
+        <li>♻️ Custom hooks exist for reusability of non-visual logic.</li>
+        <li>🧷 If reused logic contains hooks, extract it into a custom hook (not a normal function).</li>
+        <li>📛 The name must start with <code>use</code>.</li>
+        <li>📏 One custom hook should have one purpose and be portable.</li>
+        <li>📐 Rules of hooks apply to custom hooks too.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

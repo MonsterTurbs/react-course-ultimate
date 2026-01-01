@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Next.js Data — Setting Up Supabase (Reviewer)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#f7f7f8;
+      --codebg:#0b0f19;
+      --codefg:#e8e8e8;
+      --accent:#1f4ed8;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 60px;
+    }
+
+    header{
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    h1{
+      font-size: 26px;
+      line-height: 1.2;
+      margin: 0 0 8px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 14px;
+    }
+
+    h2{
+      font-size: 18px;
+      margin: 22px 0 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3{
+      font-size: 15px;
+      margin: 14px 0 8px;
+    }
+
+    p{ margin: 8px 0; }
+
+    .chip-row{ margin-top:10px; display:flex; flex-wrap:wrap; gap:8px; }
+    .chip{
+      display:inline-block;
+      border:1px solid var(--border);
+      background:var(--soft);
+      padding:6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color:#222;
+    }
+
+    .callout{
+      border:1px solid var(--border);
+      background: #fff;
+      padding: 12px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .callout.soft{ background: var(--soft); }
+
+    .callout strong{ display:inline-block; margin-bottom:6px; }
+
+    ul,ol{ padding-left: 20px; margin: 8px 0; }
+    li{ margin: 6px 0; }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 12px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #111827;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 10px 0;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border:1px solid var(--border);
+      background:var(--soft);
+      border-bottom-width:2px;
+      padding: 0 6px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .mini{
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .two-col{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    .table th, .table td{
+      border:1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+    .table th{
+      background: var(--soft);
+      text-align: left;
+    }
+
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    .hr{ height:1px; background:var(--border); margin: 16px 0; }
+
+    /* Print styles (A4) */
+    @page { size: A4; margin: 16mm; }
+    @media print {
+      body{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page{ max-width: none; padding: 0; }
+      header{ margin-bottom: 10px; }
+      h1{ font-size: 20px; }
+      h2{ page-break-after: avoid; }
+      pre, .callout{ page-break-inside: avoid; }
+
+      /* Do not append URLs after links when printing */
+      a[href]:after { content: "" !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>🗄️ Setting Up Supabase in a Next.js App (Study Guide)</h1>
+      <p class="subtitle">Topic: Connecting your Wild Oasis website to Supabase using a server-side Supabase client + environment variables.</p>
+      <div class="chip-row">
+        <span class="chip">Next.js</span>
+        <span class="chip">Supabase</span>
+        <span class="chip">Environment Variables</span>
+        <span class="chip">RLS (Row Level Security)</span>
+        <span class="chip">Service Role Key</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>🎯 What you will build in this lecture</h2>
+      <ul>
+        <li>Install the Supabase SDK for JavaScript.</li>
+        <li>Create a <code>supabase.js</code> helper inside your <code>lib</code> folder to initialize a Supabase client.</li>
+        <li>Store <strong>Supabase URL</strong> and a <strong>key</strong> using <strong>environment variables</strong> in <code>.env.local</code>.</li>
+        <li>Understand why using the <strong>Service Role key</strong> can bypass <strong>Row Level Security (RLS)</strong> and why this must stay <strong>server-only</strong>.</li>
+      </ul>
+
+      <div class="callout soft">
+        <strong>🧠 Big idea:</strong>
+        <p>With Next.js (App Router + Server Components), you can fetch data <em>on the server</em> and render HTML for users fast — while keeping sensitive secrets (like a Service Role key) off the browser.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>🧩 Quick refresher: What is Supabase in this project?</h2>
+      <p>Supabase is your backend service that provides:</p>
+      <ul>
+        <li>🗃️ A Postgres database (tables like <code>cabins</code>, <code>bookings</code>, <code>guests</code>, <code>settings</code>)</li>
+        <li>🔐 Authentication (users can sign in)</li>
+        <li>🛡️ Security rules via <strong>Row Level Security (RLS)</strong></li>
+      </ul>
+
+      <div class="callout">
+        <strong>✅ Assumption in the lecture:</strong>
+        <p>You already created the tables + seeded data in a previous “Supabase Crash Course” / Wild Oasis admin app project.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>1) 📦 Install the Supabase client library</h2>
+      <p>Run this in your project terminal:</p>
+      <pre><code>npm install @supabase/supabase-js</code></pre>
+      <p class="mini">Tip: If you see a slightly different package name in older materials, follow the official one above (<code>@supabase/supabase-js</code>).</p>
+    </section>
+
+    <section>
+      <h2>2) 🧱 Create <code>lib/supabase.js</code> (Supabase client setup)</h2>
+      <p>You create a small helper that initializes the Supabase client once, then reuse it anywhere in your data-access functions.</p>
+
+      <h3>📁 Suggested structure</h3>
+      <ul>
+        <li><code>app/</code> (routes, layouts, pages)</li>
+        <li><code>lib/</code> (API/data helpers, Supabase setup)</li>
+      </ul>
+
+      <h3>🧪 Example: <code>lib/supabase.js</code></h3>
+      <pre><code>import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+
+export const supabase = createClient(supabaseUrl, supabaseKey);</code></pre>
+
+      <div class="callout soft">
+        <strong>🤔 Why store URL & key in <code>process.env</code>?</strong>
+        <p>So secrets do not live inside your source code. This is standard practice for security and deployments.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) 🔐 Create <code>.env.local</code> (Environment Variables)</h2>
+      <p>At the project root, create a file named <code>.env.local</code> and add key/value pairs:</p>
+      <pre><code>SUPABASE_URL="https://YOUR-PROJECT-REF.supabase.co"
+SUPABASE_KEY="YOUR-KEY-HERE"</code></pre>
+
+      <div class="callout">
+        <strong>⚠️ Important:</strong>
+        <ul>
+          <li><code>.env.local</code> should not be committed to Git (it usually belongs in <code>.gitignore</code>).</li>
+          <li>After changing env vars, you often need to restart the dev server.</li>
+        </ul>
+      </div>
+
+      <h3>🌍 Server-only vs Public env vars</h3>
+      <p>Next.js treats env vars differently depending on their name:</p>
+      <table class="table" aria-label="Environment variable visibility">
+        <thead>
+          <tr>
+            <th>Env var name</th>
+            <th>Available where?</th>
+            <th>Use-case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>SUPABASE_KEY</code></td>
+            <td>Server only (default)</td>
+            <td>✅ Secrets, service-role keys, API private keys</td>
+          </tr>
+          <tr>
+            <td><code>NEXT_PUBLIC_*</code></td>
+            <td>Server + Browser</td>
+            <td>✅ Non-sensitive values needed on the client</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout soft">
+        <strong>🧠 Rule of thumb:</strong>
+        <p>If it would be dangerous for a random user to see it in DevTools, do <strong>not</strong> prefix it with <code>NEXT_PUBLIC_</code>.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) 🛡️ RLS (Row Level Security) and why the “Service Role key” matters</h2>
+      <p>In Supabase, RLS policies can restrict who can read rows from a table.</p>
+
+      <div class="callout">
+        <strong>Example issue in this website:</strong>
+        <p>If your <code>cabins</code> table policy allows only authenticated users, then unauthenticated visitors cannot see cabin data — but your hotel website should show cabins publicly.</p>
+      </div>
+
+      <h3>🔑 Two common keys</h3>
+      <ul>
+        <li>🟢 <strong>Anon/Public key</strong>: intended for use in the browser when RLS rules are correctly set up.</li>
+        <li>🔴 <strong>Service Role key</strong>: bypasses RLS and has full database access.</li>
+      </ul>
+
+      <div class="callout" style="border-color:#f2c3c3; background:#fff5f5;">
+        <strong>🚨 Critical security warning (must remember):</strong>
+        <p><strong>Never expose the Service Role key to the browser.</strong> If it leaks, anyone can read/write your database depending on your setup.</p>
+      </div>
+
+      <h3>✅ Why using Service Role key can be okay here</h3>
+      <p>In this architecture, you fetch data on the <strong>server</strong> (Server Components / Route Handlers). The Service Role key stays in <code>.env.local</code> and is never shipped to the client.</p>
+
+      <div class="callout soft">
+        <strong>💡 Mental model:</strong>
+        <p>Visitors request a page → your server uses the key to read cabins → server renders HTML → browser only receives HTML (and possibly safe data via props).</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) 🔌 Use the Supabase client from your “data service” file</h2>
+      <p>Once you have <code>supabase</code> exported, your data-access helpers can import it and perform queries.</p>
+
+      <h3>🧪 Example: <code>lib/data-service.js</code> (simplified)</h3>
+      <pre><code>import { supabase } from "@/app/_lib/supabase";
+
+export async function getCabins() {
+  const { data, error } = await supabase.from("cabins").select("*");
+  if (error) throw new Error(error.message);
+  return data;
+}</code></pre>
+
+      <div class="callout soft">
+        <strong>🧩 Beginner tip:</strong>
+        <p>Most Supabase queries return an object like <code>{ data, error }</code>. Always handle <code>error</code> early to avoid confusing bugs later.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>✅ Checklist (quick self-test)</h2>
+      <ul>
+        <li>☑️ I installed <code>@supabase/supabase-js</code>.</li>
+        <li>☑️ I created <code>lib/supabase.js</code> and exported the Supabase client.</li>
+        <li>☑️ I created <code>.env.local</code> with <code>SUPABASE_URL</code> and <code>SUPABASE_KEY</code>.</li>
+        <li>☑️ I understand that <code>NEXT_PUBLIC_*</code> variables are accessible in the browser.</li>
+        <li>☑️ I understand the Service Role key bypasses RLS and must be server-only.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧠 Common mistakes and fixes</h2>
+      <div class="two-col">
+        <div class="callout">
+          <strong>❌ “process.env.SUPABASE_URL is undefined”</strong>
+          <ul>
+            <li>Make sure <code>.env.local</code> is at the project root.</li>
+            <li>Restart the dev server after editing env vars.</li>
+            <li>Check spelling: <code>SUPABASE_URL</code> vs <code>SUPABASEURL</code>.</li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <strong>❌ “Access denied / RLS violation”</strong>
+          <ul>
+            <li>If you use the anon key: you must configure RLS policies to allow the read you want.</li>
+            <li>If you use the service role key: ensure the code runs server-side only.</li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <strong>❌ “I used NEXT_PUBLIC_SUPABASE_KEY…”</strong>
+          <p>That would expose your key to the browser. Remove <code>NEXT_PUBLIC_</code> for secret keys immediately.</p>
+        </div>
+
+        <div class="callout">
+          <strong>✅ “RequireJS vs ES Modules confusion”</strong>
+          <p>In modern Next.js, prefer ESM imports:</p>
+          <pre><code>// ✅ Good
+import { createClient } from "@supabase/supabase-js";</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>📝 Mini Q&amp;A (for retention)</h2>
+      <ol>
+        <li><strong>Why do we use <code>.env.local</code>?</strong><br />
+          <span class="mini">To keep config/secrets out of code and control what runs server-only vs public.</span>
+        </li>
+        <li><strong>What does <code>NEXT_PUBLIC_</code> do?</strong><br />
+          <span class="mini">It makes the variable available in client-side JavaScript.</span>
+        </li>
+        <li><strong>Why is the Service Role key dangerous?</strong><br />
+          <span class="mini">It can bypass RLS and can provide full access to your database.</span>
+        </li>
+        <li><strong>How can we still show cabins publicly if RLS blocks anon reads?</strong><br />
+          <span class="mini">Fetch on the server using a server-only secret (or adjust RLS policies carefully).</span>
+        </li>
+      </ol>
+    </section>
+
+    <div class="hr"></div>
+
+    <p class="mini">End of reviewer: “Setting Up Supabase”. You’re now ready to fetch cabin/booking data in the next lessons (streaming, caching, static vs dynamic rendering).</p>
+  </main>
+</body>
+</html>

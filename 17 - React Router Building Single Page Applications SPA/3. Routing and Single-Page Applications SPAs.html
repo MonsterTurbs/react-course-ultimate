@@ -1,0 +1,346 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Router & Single‑Page Applications (SPAs) — Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --chip:#f3f4f6;
+      --accent:#0b57d0;
+      --shadow:0 1px 0 rgba(0,0,0,.03);
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+    }
+
+    /* Single-column page container */
+    .page{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 40px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background:var(--soft);
+      border-radius:14px;
+      padding:18px 16px;
+      box-shadow:var(--shadow);
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 24px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      display:inline-block;
+      padding:6px 10px;
+      border:1px solid var(--border);
+      background: #fff;
+      border-radius:999px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    main{
+      margin-top: 14px;
+    }
+
+    section{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:16px;
+      margin: 12px 0;
+      box-shadow:var(--shadow);
+      background:#fff;
+    }
+
+    h2{
+      margin:0 0 10px;
+      font-size: 18px;
+    }
+
+    h3{
+      margin:14px 0 8px;
+      font-size: 15px;
+    }
+
+    p{margin: 8px 0;}
+
+    ul{
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    li{margin: 6px 0;}
+
+    .callout{
+      border-left: 4px solid var(--accent);
+      background: #f7faff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+
+    .two{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:var(--soft);
+    }
+
+    .k{
+      font-weight:700;
+      color:#000;
+    }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+
+    pre{
+      margin:10px 0 0;
+      padding:12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+      overflow:auto;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+
+    .hr{
+      height:1px;
+      background:var(--border);
+      margin: 12px 0;
+    }
+
+    /* Print settings */
+    @page { size: A4; margin: 14mm; }
+    @media print {
+      body{ background:#fff; }
+      .page{ max-width: none; padding: 0; }
+      header, section{ box-shadow:none !important; }
+      header{ background:#fff; }
+      .chip{ background:#fff; }
+      a[href]:after{ content: ""; } /* never print URLs */
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>React Router & Single‑Page Applications (SPAs) — Study Guide</h1>
+      <p class="subtitle">Beginner‑friendly reviewer on routing, routes, and how SPAs work in React.</p>
+      <div class="meta">
+        <span class="chip">🧭 Topic: Client‑Side Routing</span>
+        <span class="chip">⚛️ React: React Router concepts</span>
+        <span class="chip">🖨️ A4 Print‑Ready • Single Column</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>1) What “Routing” Means 🧭</h2>
+        <p>
+          <span class="k">Routing</span> in a web app means <span class="k">matching a URL</span> (like <code>/</code>, <code>/login</code>, <code>/app</code>) to a <span class="k">specific UI view</span>.
+        </p>
+        <div class="card">
+          <p><span class="k">In React</span>, we typically match each URL to a <span class="k">React component</span>.</p>
+          <p>Each match between a <span class="k">URL</span> and a <span class="k">component</span> is called a <span class="k">route</span>.</p>
+        </div>
+
+        <h3>Quick mental model 🧠</h3>
+        <ul>
+          <li>Visit <code>example.com/</code> → render <span class="k">Home</span> component 🏠</li>
+          <li>Visit <code>example.com/login</code> → render <span class="k">Login</span> component 🔐</li>
+          <li>After login, redirect to <code>/app</code> → render <span class="k">App</span> screen 🧩</li>
+        </ul>
+
+        <div class="callout">
+          <p>✅ Benefit: routing keeps the UI <span class="k">in sync</span> with the browser URL, making navigation predictable and shareable.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) Client‑Side vs Server‑Side Routing 🌐</h2>
+        <div class="two">
+          <div class="card">
+            <h3>Client‑Side Routing (React apps) 🖥️</h3>
+            <ul>
+              <li>Runs in the <span class="k">browser</span></li>
+              <li>Changes URL and updates UI without full page reload</li>
+              <li>Typical tool: <span class="k">React Router</span></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Server‑Side Routing (traditional websites) 🧱</h3>
+            <ul>
+              <li>Server decides which HTML page to return</li>
+              <li>Link click usually triggers a <span class="k">full page load</span></li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout">🧩 In this section, you focus on <span class="k">client‑side routing</span> for React applications.</p>
+      </section>
+
+      <section>
+        <h2>3) Why React Needs React Router 🔌</h2>
+        <p>
+          Many front‑end frameworks include routing built‑in, but <span class="k">React relies on third‑party libraries</span> for many features.
+        </p>
+        <ul>
+          <li>Routing is usually handled by <span class="k">React Router</span> 🧭</li>
+          <li>It’s one of the most widely used third‑party libraries in the React ecosystem</li>
+        </ul>
+        <div class="callout">
+          <p>📌 Practical takeaway: If you want to build professional React apps, learning React Router is non‑optional.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) What Is a Single‑Page Application (SPA)? 📄</h2>
+        <p>
+          A <span class="k">Single‑Page Application</span> is a web app that runs <span class="k">entirely in the browser</span> (client).
+          It uses routes so that different URLs display different views.
+        </p>
+
+        <h3>How SPAs work (step‑by‑step) 🔁</h3>
+        <ol style="margin:8px 0 0; padding-left: 18px;">
+          <li>User clicks a special router link 🔗</li>
+          <li>The browser URL changes (no full reload) 🧭</li>
+          <li>JavaScript updates the DOM ✨</li>
+          <li>React Router renders the component for the new URL ⚛️</li>
+        </ol>
+
+        <div class="callout">
+          <p>🚫 No “hard reloads”: the app feels like a native mobile/desktop experience because navigation is instant and smooth.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Common Clarification: “Aren’t all React apps SPAs?” 🤔</h2>
+        <p>
+          It’s true that many small React apps update the DOM without reloading. But to be a <span class="k">real SPA</span> in a professional sense,
+          you typically need <span class="k">URLs + routing</span> so the app can:
+        </p>
+        <ul>
+          <li>Represent screens via URLs (deep linking) 🔗</li>
+          <li>Support browser navigation (Back/Forward) ⬅️➡️</li>
+          <li>Keep UI and URL synchronized 🧭</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>6) Data Loading in an SPA 🧺</h2>
+        <p>
+          SPAs can still fetch data from servers (usually via a web API). The key rule is:
+        </p>
+        <div class="card">
+          <p><span class="k">SPA rule:</span> Fetch data as needed, but don’t load a whole new HTML page for navigation.</p>
+        </div>
+        <ul>
+          <li>✅ Allowed: component fetches data (e.g., <code>fetch()</code> / <code>axios</code>)</li>
+          <li>❌ Not SPA behavior: navigation that forces a full document reload</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>7) Mini Example (Concept Only) 🧪</h2>
+        <p>
+          This is a <span class="k">conceptual</span> example showing “URL → component”. You’ll implement the real version in code soon.
+        </p>
+        <pre>// Routes you might have in an app
+/
+/login
+/app
+
+// Meaning:
+/      → render &lt;Home /&gt;
+/login → render &lt;Login /&gt;
+/app   → render &lt;AppLayout /&gt;</pre>
+        <div class="callout">
+          <p>📝 Remember: each mapping between URL and component is a <span class="k">route</span>.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>8) Quick Checklist for Exams / Interviews ✅</h2>
+        <div class="grid">
+          <div class="card">
+            <p><span class="k">Route</span> = URL ↔ component mapping 🧭</p>
+          </div>
+          <div class="card">
+            <p><span class="k">Client‑side routing</span> updates UI without full reload ⚡</p>
+          </div>
+          <div class="card">
+            <p><span class="k">SPA</span> = one document, many views, JS updates DOM 📄</p>
+          </div>
+          <div class="card">
+            <p><span class="k">React Router</span> is the standard tool for routing in React 🔌</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>9) Key Takeaways 🎯</h2>
+        <ul>
+          <li>Routing maps URLs to views (components) so users can navigate by URL and links 🧭</li>
+          <li>SPAs change URL and UI without reloading the page—JavaScript updates the DOM ⚛️</li>
+          <li>React relies on React Router for routing (third‑party) 🔌</li>
+          <li>SPAs can fetch data from servers, but navigation should not trigger full page reloads 🧺</li>
+        </ul>
+        <div class="hr"></div>
+        <p class="subtitle">Next: Implement routing with React Router in your project code.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

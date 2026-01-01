@@ -1,0 +1,384 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React useEffect Dependency Array — Study Guide (Print-Friendly)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --border: #e6e6e6;
+      --soft: #fafafa;
+      --codebg: #f6f8fa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Single-column page container */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    header {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      margin: 0 0 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    main { margin-top: 18px; }
+
+    h2 {
+      font-size: 1.15rem;
+      margin: 22px 0 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.02rem;
+      margin: 14px 0 8px;
+    }
+
+    p { margin: 10px 0; }
+
+    ul, ol {
+      margin: 10px 0 10px 22px;
+      padding: 0;
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-left: 6px solid #111;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .callout .title {
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .callout.muted {
+      background: var(--soft);
+      border-left-color: #444;
+    }
+
+    .callout.warn {
+      background: #fff;
+      border-left-color: #b00020;
+    }
+
+    .callout.ok {
+      background: #fff;
+      border-left-color: #0a7a2f;
+    }
+
+    .chiprow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.9rem;
+      color: #222;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 10px 0;
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      overflow: auto;
+      white-space: pre-wrap;     /* wrap long lines */
+      word-break: break-word;    /* avoid cut-offs */
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code {
+      background: var(--codebg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* Print rules */
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        max-width: none;
+        padding: 0;
+        margin: 0;
+      }
+      header, .callout, pre {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      h2, h3 { break-after: avoid; page-break-after: avoid; }
+      a { color: inherit; text-decoration: none; }
+      a::after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>useEffect Dependency Array — Reviewer / Study Guide 🧠</h1>
+      <p class="subtitle">Goal: understand what the dependency array does, why it exists, and how it affects effects, re-renders, and synchronization (print-friendly, single column).</p>
+      <div class="chiprow" aria-label="Quick topics">
+        <span class="chip">🔁 Re-renders</span>
+        <span class="chip">🧩 Dependencies</span>
+        <span class="chip">🕒 When effects run</span>
+        <span class="chip">✅ Rules</span>
+        <span class="chip">⚠️ Common mistakes</span>
+      </div>
+    </header>
+
+    <main>
+      <h2>1) Core idea: why does useEffect need a dependency array? 🤔</h2>
+      <p>
+        By default, an effect runs <strong>after every render</strong>. In practice, that is almost never what you want.
+        The dependency array is how you tell React <em>when</em> an effect should run.
+      </p>
+
+      <div class="callout ok">
+        <p class="title">✅ Mental model</p>
+        <p>
+          Think of <code>useEffect</code> like an “event listener” for <strong>state/props changes</strong>.
+          When any dependency changes, React runs the effect again.
+        </p>
+      </div>
+
+      <h2>2) What are “dependencies”? 🧩</h2>
+      <p>
+        <strong>Dependencies</strong> are the <strong>state variables and props</strong> that your effect code uses.
+        If your effect reads a value from props/state, React needs to know that value matters.
+      </p>
+
+      <div class="callout">
+        <p class="title">✅ Rule of thumb</p>
+        <p>
+          If the effect <em>uses</em> a prop or state value, that prop/state value should be in the dependency array.
+        </p>
+      </div>
+
+      <h3>Example: syncing document title 📌</h3>
+      <p class="mini">The effect depends on <code>title</code> (prop) and <code>userRating</code> (state), so both belong in the array.</p>
+      <pre><code>function MovieDetails({ title }) {
+  const [userRating, setUserRating] = useState(0);
+
+  useEffect(() =&gt; {
+    document.title = `${title} (${userRating}⭐)`;
+  }, [title, userRating]);
+
+  // ... UI that can change userRating
+}</code></pre>
+
+      <div class="callout warn">
+        <p class="title">⚠️ What happens if you forget a dependency?</p>
+        <p>
+          React may not re-run the effect when that value changes. The effect can “see” an old value,
+          causing bugs commonly described as a <strong>stale closure</strong> (using stale data captured from an earlier render).
+        </p>
+      </div>
+
+      <h2>3) Effects are about synchronization 🔄</h2>
+      <p>
+        A practical way to think about effects is: they keep your component synchronized with an external system.
+        In the example above, the external system is <code>document.title</code> (outside React).
+      </p>
+      <ul>
+        <li>State/props change → component re-renders</li>
+        <li>Dependency changed → effect runs → external system updated</li>
+      </ul>
+
+      <h2>4) The 3 dependency array patterns (and what they mean) ✅</h2>
+      <div class="callout muted">
+        <p class="title">Pattern A: Multiple dependencies</p>
+        <p><strong><code>useEffect(fn, [x, y, z])</code></strong></p>
+        <ul>
+          <li>Runs on <strong>initial mount</strong></li>
+          <li>Runs again when <strong>x OR y OR z changes</strong></li>
+          <li><strong>Does not</strong> run for re-renders triggered by other state/props</li>
+        </ul>
+      </div>
+
+      <div class="callout muted">
+        <p class="title">Pattern B: Empty array</p>
+        <p><strong><code>useEffect(fn, [])</code></strong></p>
+        <ul>
+          <li>Runs only on <strong>mount</strong> (initial render)</li>
+          <li>Useful for “run once after first paint” work (e.g., initial data fetch)</li>
+        </ul>
+      </div>
+
+      <div class="callout warn">
+        <p class="title">Pattern C: No array</p>
+        <p><strong><code>useEffect(fn)</code></strong></p>
+        <ul>
+          <li>Runs after <strong>every render</strong></li>
+          <li>Often causes performance issues and can cause loops if it sets state</li>
+        </ul>
+      </div>
+
+      <h2>5) When does an effect run (render → commit → paint → effect)? 🕒</h2>
+      <p>
+        It’s common to hear “effects run after render.” More precisely:
+      </p>
+      <ol>
+        <li>React renders the component (calls your component function)</li>
+        <li>React commits changes to the DOM</li>
+        <li>The browser paints the updated UI</li>
+        <li><strong>Then</strong> React runs the effect (asynchronously after paint)</li>
+      </ol>
+
+      <div class="callout">
+        <p class="title">✅ Why after paint?</p>
+        <p>
+          Effects can do slow work (like fetching data). Running them after paint prevents blocking the UI update.
+          Users see the new UI first, then the side effect completes.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Important consequence</p>
+        <p>
+          If an effect sets state, it can cause an <strong>additional render</strong> (because the first paint happened,
+          then state changed, then React renders again). This is one reason not to overuse effects.
+        </p>
+      </div>
+
+      <h3>Bonus: useLayoutEffect (rare) 🧱</h3>
+      <p>
+        There is another hook, <code>useLayoutEffect</code>, which runs <strong>before</strong> the browser paints.
+        It exists for special cases (layout measurements). Most apps should avoid it unless truly necessary.
+      </p>
+
+      <h2>6) Practical checklist for dependency arrays ✅</h2>
+      <ul>
+        <li>✅ Put every <strong>used</strong> prop/state value inside the dependency array.</li>
+        <li>✅ Use <code>[]</code> only when the effect truly does not depend on changing values.</li>
+        <li>⚠️ Avoid “no array” unless you are absolutely sure (it runs after every render).</li>
+        <li>⚠️ If your dependency is an object/function created during render, it may change every render → effect re-runs often.</li>
+      </ul>
+
+      <div class="callout">
+        <p class="title">💡 Common “object/function dependency” fix</p>
+        <p>
+          If an effect depends on a function or object that is recreated each render, consider stabilizing it
+          with <code>useCallback</code> or <code>useMemo</code> (or move constant values outside the component).
+        </p>
+      </div>
+
+      <h2>7) Quick mini-examples (common real-world patterns) 🎯</h2>
+
+      <h3>A) Fetch when “query” changes 🍿</h3>
+      <pre><code>useEffect(() =&gt; {
+  async function fetchMovies() {
+    const res = await fetch(`/api/movies?q=${query}`);
+    const data = await res.json();
+    setMovies(data);
+  }
+
+  fetchMovies();
+}, [query]);</code></pre>
+      <p class="mini">Here, the effect is synchronized with <code>query</code>: new query → new fetch.</p>
+
+      <h3>B) Fetch only once on mount ✅</h3>
+      <pre><code>useEffect(() =&gt; {
+  async function init() {
+    const res = await fetch(`/api/movies`);
+    const data = await res.json();
+    setMovies(data);
+  }
+
+  init();
+}, []);</code></pre>
+
+      <div class="callout warn">
+        <p class="title">⚠️ Avoid this loop pattern</p>
+        <p class="mini">No dependency array + setting state inside effect → can lead to repeated runs.</p>
+        <pre><code>// Runs after every render 😬
+useEffect(() =&gt; {
+  setCount((c) =&gt; c + 1);
+});</code></pre>
+      </div>
+
+      <h2>8) Key takeaways (memorize these) 🧠</h2>
+      <ul>
+        <li>🔁 Dependencies control <strong>when</strong> an effect re-runs.</li>
+        <li>🧩 Dependencies are the <strong>state/props values used inside the effect</strong>.</li>
+        <li>✅ Correct dependency arrays prevent stale data bugs (stale closure).</li>
+        <li>🕒 Effects run <strong>after the browser paints</strong> (async after commit/paint).</li>
+        <li>⚠️ If effects set state, expect an additional render (avoid overusing effects).</li>
+      </ul>
+
+      <div class="divider"></div>
+      <p class="mini"><strong>Self-check:</strong> When you write an effect, ask: “What external system am I syncing with?” and “Which values does this effect read?” Those values are your dependencies.</p>
+    </main>
+  </div>
+</body>
+</html>

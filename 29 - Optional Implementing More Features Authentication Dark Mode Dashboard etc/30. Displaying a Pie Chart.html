@@ -1,0 +1,470 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Dashboard — Pie Chart (Stay Duration) — Study Guide</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --soft:#fafafa;
+      --accent:#0b57d0;
+      --good:#0f766e;
+      --warn:#b45309;
+      --bad:#b91c1c;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Arial, Helvetica, sans-serif;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    /* Single-column layout */
+    .page{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 18px 40px;
+    }
+
+    header{
+      border:1px solid var(--border);
+      background: var(--soft);
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+    h1{
+      margin:0 0 6px;
+      font-size: 22px;
+      line-height:1.25;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    h2{
+      margin: 18px 0 8px;
+      font-size: 16px;
+    }
+    h3{
+      margin: 14px 0 6px;
+      font-size: 14px;
+    }
+
+    p{ margin: 8px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      border-left: 5px solid var(--accent);
+      background: #fff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    .callout.good{ border-left-color: var(--good); }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.bad{ border-left-color: var(--bad); }
+
+    .chips{ display:flex; flex-wrap:wrap; gap:6px; margin: 8px 0 0; }
+    .chip{
+      border:1px solid var(--border);
+      background: var(--soft);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+
+    ul{ margin: 6px 0 10px 18px; padding:0; }
+    li{ margin: 4px 0; }
+
+    .steps{
+      border:1px solid var(--border);
+      border-radius: 10px;
+      overflow:hidden;
+      margin: 10px 0;
+    }
+    .steps .row{
+      padding: 10px 12px;
+      border-top:1px solid var(--border);
+      background:#fff;
+    }
+    .steps .row:first-child{ border-top:none; }
+    .steps .row b{ display:block; margin-bottom:4px; }
+
+    pre{
+      margin: 10px 0;
+      padding: 10px 12px;
+      border:1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfcfc;
+      overflow:auto;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+    code{ font-family: var(--mono); font-size: 0.98em; }
+
+    .two-col{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .qa{
+      border:1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background:#fff;
+    }
+    .qa .q{ font-weight:700; }
+    .qa .a{ margin-top:6px; }
+
+    footer{
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+
+    /* Print (A4) */
+    @page { size: A4; margin: 14mm 14mm 14mm 14mm; }
+    @media print{
+      body{ background:#fff; }
+      .page{ max-width:none; padding:0; }
+      header{ background:#fff; }
+      a{ color: inherit; text-decoration: none; }
+      a[href]::after{ content:""; }
+      pre, .callout, .steps, .qa{ break-inside: avoid; page-break-inside: avoid; }
+      h2, h3{ break-after: avoid; page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>📊 Recharts Pie Chart (Stay Duration) — Reviewer / Study Guide</h1>
+      <p class="subtitle">
+        Topic: Building a <b>Pie Chart</b> for <b>stay duration distribution</b> in a React dashboard using <b>Recharts</b>, including
+        responsive sizing, legend/tooltip, theming (light/dark), and deriving real data from <code>confirmedStays</code>.
+      </p>
+      <div class="chips">
+        <span class="chip">Single-column</span>
+        <span class="chip">A4 print-ready</span>
+        <span class="chip">Beginner-friendly</span>
+        <span class="chip">Icons + emoticons</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1) Goal of this lecture</h2>
+      <p>
+        We will build a <b>Pie Chart</b> that summarizes how long guests stay in the hotel (e.g., <b>1 night</b>, <b>2 nights</b>,
+        <b>4–5 nights</b>, etc.). This is the “Stay Duration Summary” card in the dashboard. 🥧📈
+      </p>
+      <div class="callout good">
+        <b>Key idea ✅</b>
+        <p>
+          The chart is not just “pretty UI”. It helps stakeholders understand the <b>distribution</b> of stays:
+          do guests usually stay short-term (1–2 nights) or long-term (8+ nights)?
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Small improvement: show the date range in the Sales chart title</h2>
+      <p>
+        Before starting the pie chart, the lecture finishes the Sales chart title by adding <b>From → To</b> dates.
+        This uses the <code>format</code> function and the <code>allDates</code> array.
+      </p>
+      <div class="steps">
+        <div class="row">
+          <b>Step 1 — “From” date 🗓️</b>
+          <div>Use the first date: <code>allDates.at(0)</code> (or <code>allDates[0]</code>).</div>
+        </div>
+        <div class="row">
+          <b>Step 2 — “To” date 🗓️</b>
+          <div>Use the last date: <code>allDates.at(-1)</code> (or <code>allDates[allDates.length - 1]</code>).</div>
+        </div>
+        <div class="row">
+          <b>Step 3 — Format the dates ✨</b>
+          <div>Use a readable format like <code>MMM dd yyyy</code>, and place an em dash between dates.</div>
+        </div>
+      </div>
+      <pre><code>// Example title idea
+// Sales from May 11 2025 — May 17 2025
+
+&lt;Heading as=&quot;h2&quot;&gt;
+  Sales from {format(allDates.at(0), &quot;MMM dd yyyy&quot;)} — {format(allDates.at(-1), &quot;MMM dd yyyy&quot;)}
+&lt;/Heading&gt;</code></pre>
+      <div class="callout warn">
+        <b>Note ⚠️</b>
+        <p>
+          The lecture’s “MMM DD YYYY” wording is conceptual. In date-fns, common tokens are like
+          <code>MMM dd yyyy</code>. (Always verify formatting tokens in date-fns docs if unsure.)
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Dashboard placement: DurationChart component</h2>
+      <p>
+        The dashboard layout already has a slot for the durations chart. We plug in a component like:
+        <code>&lt;DurationChart confirmedStays={confirmedStays} /&gt;</code>.
+      </p>
+      <div class="callout">
+        <b>Inputs to the chart 🧩</b>
+        <ul>
+          <li><code>confirmedStays</code> — stays that are checked-in or checked-out (not unconfirmed).</li>
+          <li><code>isDarkMode</code> — for picking colors (dark vs light palette).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Pie Chart fundamentals (Recharts)</h2>
+      <p>
+        In Recharts, a pie chart uses these key components:
+      </p>
+      <ul>
+        <li><b>&lt;ResponsiveContainer&gt;</b> — makes the chart adapt to container size. 📐</li>
+        <li><b>&lt;PieChart&gt;</b> — the wrapper chart.</li>
+        <li><b>&lt;Pie&gt;</b> — the actual pie/donut.</li>
+        <li><b>&lt;Cell&gt;</b> — individual slice styling (colors).</li>
+        <li><b>&lt;Legend&gt;</b> — shows labels for slices.</li>
+        <li><b>&lt;Tooltip&gt;</b> — shows values when hovering. 🖱️</li>
+      </ul>
+
+      <h3>4.1 Data shape</h3>
+      <p>
+        The pie expects an array of objects. Example starter structure:
+      </p>
+      <pre><code>const startDataLight = [
+  { duration: &quot;1 night&quot;, value: 0, color: &quot;#...&quot; },
+  { duration: &quot;2 nights&quot;, value: 0, color: &quot;#...&quot; },
+  { duration: &quot;3 nights&quot;, value: 0, color: &quot;#...&quot; },
+  { duration: &quot;4–5 nights&quot;, value: 0, color: &quot;#...&quot; },
+  { duration: &quot;6–7 nights&quot;, value: 0, color: &quot;#...&quot; },
+  { duration: &quot;8–14 nights&quot;, value: 0, color: &quot;#...&quot; },
+  { duration: &quot;15–21 nights&quot;, value: 0, color: &quot;#...&quot; },
+  { duration: &quot;21+ nights&quot;, value: 0, color: &quot;#...&quot; },
+];</code></pre>
+
+      <div class="callout good">
+        <b>Why start at zero? ✅</b>
+        <p>
+          You will compute the real values from <code>confirmedStays</code>. Starter data gives you a
+          predictable set of categories, and then you “fill in” counts based on stay durations.
+        </p>
+      </div>
+
+      <h3>4.2 Minimal pie setup</h3>
+      <pre><code>&lt;ResponsiveContainer width=&quot;100%&quot; height={240}&gt;
+  &lt;PieChart&gt;
+    &lt;Pie
+      data={startDataLight}
+      nameKey=&quot;duration&quot;
+      dataKey=&quot;value&quot;
+    /&gt;
+  &lt;/PieChart&gt;
+&lt;/ResponsiveContainer&gt;</code></pre>
+
+      <div class="callout warn">
+        <b>Common gotcha ⚠️</b>
+        <p>
+          If you forget to give the container a height, the chart may render as “invisible”.
+          Always set <code>height</code> in <code>ResponsiveContainer</code>.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5) Making it look good (donut, spacing, center)</h2>
+      <p>
+        A polished donut chart usually needs:
+      </p>
+      <ul>
+        <li><b>innerRadius</b> and <b>outerRadius</b> to create a donut ring 🍩</li>
+        <li><b>cx</b> and <b>cy</b> to position the pie center</li>
+        <li><b>paddingAngle</b> to add spacing between slices</li>
+      </ul>
+      <pre><code>&lt;Pie
+  data={data}
+  nameKey=&quot;duration&quot;
+  dataKey=&quot;value&quot;
+  innerRadius={85}
+  outerRadius={110}
+  cx=&quot;40%&quot;
+  cy=&quot;50%&quot;
+  paddingAngle={3}
+&gt;
+  {/* Cells will go here */}
+&lt;/Pie&gt;</code></pre>
+      <div class="callout">
+        <b>Tip 🙂</b>
+        <p>
+          The exact numbers are design choices. Expect to tweak them (often 30–120 minutes of “play time”) until it feels right.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6) Coloring each slice with &lt;Cell&gt;</h2>
+      <p>
+        Instead of a self-closing <code>&lt;Pie /&gt;</code>, we render <code>&lt;Cell&gt;</code> for each entry.
+        Each entry has a <code>color</code> property, so slices match the palette.
+      </p>
+      <pre><code>&lt;Pie ...&gt;
+  {data.map((entry) =&gt; (
+    &lt;Cell
+      key={entry.duration}
+      fill={entry.color}
+      stroke={entry.color}
+    /&gt;
+  ))}
+&lt;/Pie&gt;</code></pre>
+      <div class="callout good">
+        <b>Why stroke + fill? ✅</b>
+        <p>
+          Using the same color for both makes edges consistent and reduces visual noise.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7) Legend + Tooltip (UX improvements)</h2>
+      <p>
+        Legend tells what colors mean; tooltip shows exact values on hover.
+      </p>
+      <pre><code>&lt;Tooltip /&gt;
+&lt;Legend
+  verticalAlign=&quot;middle&quot;
+  align=&quot;right&quot;
+  layout=&quot;vertical&quot;
+  width=&quot;30%&quot;
+  iconSize={15}
+  iconType=&quot;circle&quot;
+/&gt;</code></pre>
+      <div class="callout">
+        <b>Design note 🎨</b>
+        <p>
+          Moving the legend to the right keeps the donut clean, and a vertical legend reads nicely in dashboards.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>8) Replacing fake data with real data (prepareData)</h2>
+      <p>
+        The lecture uses a helper function (already written in the starter files) called <code>prepareData</code>.
+        You pass it:
+      </p>
+      <ul>
+        <li><b>startData</b> (light or dark palette) — all categories start at 0</li>
+        <li><b>confirmedStays</b> — actual stays with a <code>numNights</code> value</li>
+      </ul>
+
+      <div class="callout warn">
+        <b>What prepareData is doing (conceptually) ⚙️</b>
+        <ul>
+          <li>Loop over each stay</li>
+          <li>Figure out which duration bucket it belongs to (1, 2, 3, 4–5, etc.)</li>
+          <li>Increase that bucket’s <code>value</code> by 1</li>
+          <li>Remove buckets that stayed at 0 (so they don’t appear in the chart/legend)</li>
+        </ul>
+      </div>
+
+      <h3>8.1 Dark mode picks a different palette 🌙☀️</h3>
+      <pre><code>const { isDarkMode } = useDarkMode();
+
+const startData = isDarkMode ? startDataDark : startDataLight;
+const data = prepareData(startData, confirmedStays);</code></pre>
+
+      <p>
+        Then swap all the pie references from starter arrays to computed <code>data</code>:
+      </p>
+      <pre><code>&lt;Pie data={data} nameKey=&quot;duration&quot; dataKey=&quot;value&quot; ...&gt;
+  {data.map((entry) =&gt; (
+    &lt;Cell key={entry.duration} fill={entry.color} stroke={entry.color} /&gt;
+  ))}
+&lt;/Pie&gt;</code></pre>
+
+      <div class="callout good">
+        <b>Result ✅</b>
+        <p>
+          Changing the dashboard filter (7 / 30 / 90 days) changes <code>confirmedStays</code>, which changes <code>data</code>,
+          which automatically updates the chart. This is a clean “data → UI” pipeline.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>9) Quick checklist (common issues)</h2>
+      <div class="steps">
+        <div class="row">
+          <b>Chart not showing? 🫥</b>
+          <div>Ensure <code>&lt;ResponsiveContainer height={...}&gt;</code> has a real height.</div>
+        </div>
+        <div class="row">
+          <b>All slices same color? 🎨</b>
+          <div>Make sure you render <code>&lt;Cell&gt;</code> inside the <code>&lt;Pie&gt;</code> via <code>data.map</code>.</div>
+        </div>
+        <div class="row">
+          <b>Legend looks messy? 🧹</b>
+          <div>Try <code>layout="vertical"</code>, smaller <code>iconSize</code>, and set a fixed legend width.</div>
+        </div>
+        <div class="row">
+          <b>Data seems wrong? 🧠</b>
+          <div>Verify that <code>confirmedStays</code> are filtered correctly and that <code>numNights</code> exists.</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>10) Mini Q&amp;A (to check understanding)</h2>
+      <div class="two-col">
+        <div class="qa">
+          <div class="q">❓ Why do we need starter data with all values = 0?</div>
+          <div class="a">✅ It defines the buckets/categories first, then we count real stays into those buckets.</div>
+        </div>
+        <div class="qa">
+          <div class="q">❓ Why use ResponsiveContainer?</div>
+          <div class="a">📐 So the chart fits the dashboard card on different screen sizes without overflow/scrollbars.</div>
+        </div>
+        <div class="qa">
+          <div class="q">❓ What is the difference between legend and tooltip?</div>
+          <div class="a">🧭 Legend = meaning of colors; 🖱️ Tooltip = exact values when hovering.</div>
+        </div>
+        <div class="qa">
+          <div class="q">❓ How does dark mode affect the chart?</div>
+          <div class="a">🌙 It swaps the color palette (startDataDark vs startDataLight) while keeping the same buckets.</div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div><b>Next up:</b> “Today’s Activity” (check-ins/check-outs list) to complete the dashboard. ✅</div>
+      <div>Tip: If you print to PDF, use A4 and “background graphics” OFF (optional), since the design is already print-safe.</div>
+    </footer>
+  </main>
+</body>
+</html>

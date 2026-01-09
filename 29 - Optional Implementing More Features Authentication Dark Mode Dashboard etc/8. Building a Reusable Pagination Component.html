@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>React Study Guide — Reusable Pagination Component (URL State + Buttons + Page Math)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --link:#0b57d0;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
+
+      /* High-contrast code theme */
+      --code-bg:#0b1220;
+      --code-text:#e6edf3;
+      --code-border:#1f2937;
+      --inline-bg:#eef2ff;
+      --inline-border:#dbeafe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header{
+      padding: 18px 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, var(--panel));
+      box-shadow: var(--shadow);
+    }
+
+    h1{
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: .2px;
+      line-height: 1.25;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size: 13px;
+    }
+    .btn:hover{ border-color:#cfcfcf; }
+    .btn:active{ transform: translateY(1px); }
+
+    .meta{
+      margin-left:auto;
+      color:var(--muted);
+      font-size: 12px;
+    }
+
+    main{
+      margin-top: 18px;
+      padding: 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background:#fff;
+      box-shadow: var(--shadow);
+    }
+
+    h2{
+      margin: 18px 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style:none;
+    }
+    .chip{
+      background: var(--chip);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color:#222;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 16px 0;
+    }
+
+    .small{ color:var(--muted); font-size: 13px; }
+
+    /* Code blocks */
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Courier New", monospace;
+    }
+    code{
+      background: var(--inline-bg);
+      color:#111111;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--inline-border);
+      font-size: 0.95em;
+      opacity: 1 !important;
+    }
+    pre{
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border: 1px solid var(--code-border);
+      overflow:auto;
+      max-width: 100%;
+      box-shadow: 0 2px 14px rgba(0,0,0,.10);
+      opacity: 1 !important;
+    }
+    pre code{
+      background: transparent !important;
+      border: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+      font-size: 12.8px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      opacity: 1 !important;
+    }
+
+    @media print{
+      @page{ size: A4; margin: 12mm; }
+      body{ background:#fff; }
+      .page{ padding: 0; margin: 0; max-width: none; }
+      header, main{ box-shadow: none; }
+      header{ break-inside: avoid; }
+      .toolbar{ display:none !important; }
+      a[href]::after{ content:""; }
+
+      pre{
+        background:#ffffff !important;
+        color:#111111 !important;
+        border: 1px solid #d0d0d0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+      pre code{
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+      }
+
+      .callout{ break-inside: avoid; }
+      h2{ break-after: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧭 Reusable Pagination Component — URL State + Page Math</h1>
+      <p class="subtitle">
+        Goal: build a reusable Pagination UI component that writes the current page to the URL
+        (via search params), similar to Filter and SortBy. Later, hooks like <code>useBookings</code>
+        will read that page from the URL and fetch the correct data.
+      </p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆️ Back to Top</button>
+        <span class="meta">Single-column • A4 print-ready • High-contrast code</span>
+      </div>
+
+      <ul class="chips" aria-label="key tags">
+        <li class="chip">🧭 Pagination</li>
+        <li class="chip">🔗 URL search params</li>
+        <li class="chip">⬅️ Prev / Next</li>
+        <li class="chip">🧮 Page math</li>
+        <li class="chip">🚫 Disable buttons</li>
+        <li class="chip">♻️ Reusable UI</li>
+      </ul>
+    </header>
+
+    <main>
+      <h2>1) Why build Pagination as a reusable component?</h2>
+      <p>
+        Pagination is needed in multiple places across a real app (bookings, cabins, users, etc.).
+        So instead of hardcoding it, we build a generic component that:
+      </p>
+      <ul>
+        <li>Receives <code>count</code> (total number of results) as a prop</li>
+        <li>Reads <code>page</code> from the URL</li>
+        <li>Writes <code>page</code> back to the URL when user clicks buttons</li>
+        <li>Renders “Showing X to Y of Z results” + Prev/Next buttons</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>2) Place pagination where it belongs: Table footer</h2>
+      <p>
+        Pagination usually sits close to the data it controls. For tables, that means the footer.
+      </p>
+
+      <pre><code>// BookingTable.jsx (conceptual)
+&lt;Table.Footer&gt;
+  &lt;Pagination count={count} /&gt;
+&lt;/Table.Footer&gt;</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ UI layout idea</strong></p>
+        <p>
+          Left side: "Showing X to Y of Z results"<br/>
+          Right side: Previous / Next buttons
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>3) Pagination component inputs and building blocks</h2>
+      <p>
+        The UI folder already contains the styled components. Your job is to add logic + JSX:
+      </p>
+      <ul>
+        <li><code>count</code> prop</li>
+        <li>Read current page from URL (<code>useSearchParams</code>)</li>
+        <li>Compute total pages (<code>pageCount</code>)</li>
+        <li>Handlers: <code>nextPage()</code>, <code>prevPage()</code></li>
+        <li>Disable buttons at edges</li>
+        <li>Compute “showing from/to” values</li>
+        <li>Return <code>null</code> when no pagination is needed</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>4) Page size constant (avoid magic numbers)</h2>
+      <p>
+        You need a page size for calculations (e.g., 10 results per page).
+        Instead of writing “10” everywhere, define a constant.
+      </p>
+
+      <pre><code>// Pagination.jsx (initially)
+const PAGE_SIZE = 10;</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 Why this matters</strong></p>
+        <ul>
+          <li>“10” is a magic number—unclear and hard to maintain.</li>
+          <li>Later, you’ll move this constant into a shared constants file.</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>5) Read and write the page number via URL</h2>
+      <p>
+        Pagination state is stored in search params (e.g., <code>?page=3</code>).
+        That means the component must:
+      </p>
+      <ul>
+        <li>Read current page</li>
+        <li>Update page when user clicks Prev/Next</li>
+      </ul>
+
+      <pre><code>// Pagination.jsx (conceptual)
+import { useSearchParams } from "react-router-dom";
+
+function Pagination({ count }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const currentPage = Number(searchParams.get("page")) || 1;
+
+  // ...
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>⚠️ Common bug</strong></p>
+        <p>
+          Don’t typo <code>setSearchParams</code>. If you write something like <code>searchParams(...)</code>,
+          you’ll get errors like “searchParams is not a function.”
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>6) Compute number of pages</h2>
+      <p>
+        Total pages is the total results divided by page size, rounded up.
+      </p>
+
+      <pre><code>const pageCount = Math.ceil(count / PAGE_SIZE);</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>7) Implement next/prev handlers (with safety guards)</h2>
+      <p>
+        You must avoid going beyond valid page bounds:
+      </p>
+      <ul>
+        <li>If you’re on the last page, Next should do nothing</li>
+        <li>If you’re on the first page, Previous should do nothing</li>
+      </ul>
+
+      <pre><code>function nextPage() {
+  const next = currentPage === pageCount ? currentPage : currentPage + 1;
+  searchParams.set("page", next);
+  setSearchParams(searchParams);
+}
+
+function prevPage() {
+  const prev = currentPage === 1 ? currentPage : currentPage - 1;
+  searchParams.set("page", prev);
+  setSearchParams(searchParams);
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Better UX</strong></p>
+        <p>
+          Even with guards, it’s best to disable the buttons so users see clearly when navigation is not possible.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>8) Disable Prev/Next buttons appropriately</h2>
+      <pre><code>&lt;PaginationButton disabled={currentPage === 1} onClick={prevPage}&gt;
+  &lt;HiChevronLeft /&gt; &lt;span&gt;Previous&lt;/span&gt;
+&lt;/PaginationButton&gt;
+
+&lt;PaginationButton disabled={currentPage === pageCount} onClick={nextPage}&gt;
+  &lt;span&gt;Next&lt;/span&gt; &lt;HiChevronRight /&gt;
+&lt;/PaginationButton&gt;</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>9) Compute “showing from/to” values</h2>
+      <p>
+        The UI text “Showing X to Y of Z results” depends on the page:
+      </p>
+
+      <ul>
+        <li><strong>from</strong> = <code>(currentPage - 1) * PAGE_SIZE + 1</code></li>
+        <li><strong>to</strong> = <code>currentPage * PAGE_SIZE</code>, but capped at <code>count</code> on the last page</li>
+      </ul>
+
+      <pre><code>const from = (currentPage - 1) * PAGE_SIZE + 1;
+
+let to = currentPage * PAGE_SIZE;
+if (currentPage === pageCount) to = count;</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Fixing the last-page bug</strong></p>
+        <p>
+          Without the cap, the last page might show "41 to 50 of 45 results" which is incorrect.
+          The cap ensures "41 to 45 of 45".
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>10) When pagination is unnecessary: return <code>null</code></h2>
+      <p>
+        If there is only 1 page worth of data (or less), rendering pagination is useless.
+      </p>
+
+      <pre><code>if (pageCount &lt;= 1) return null;</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Outcome</strong></p>
+        <ul>
+          <li>Small datasets show no pagination UI.</li>
+          <li>No confusing disabled buttons for no reason.</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>11) Full component (conceptual final form)</h2>
+      <pre><code>import { useSearchParams } from "react-router-dom";
+import { HiChevronLeft, HiChevronRight } from "react-icons/hi2";
+
+const PAGE_SIZE = 10;
+
+function Pagination({ count }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get("page")) || 1;
+
+  const pageCount = Math.ceil(count / PAGE_SIZE);
+  if (pageCount &lt;= 1) return null;
+
+  const from = (currentPage - 1) * PAGE_SIZE + 1;
+  const to = currentPage === pageCount ? count : currentPage * PAGE_SIZE;
+
+  function nextPage() {
+    const next = currentPage === pageCount ? currentPage : currentPage + 1;
+    searchParams.set("page", next);
+    setSearchParams(searchParams);
+  }
+
+  function prevPage() {
+    const prev = currentPage === 1 ? currentPage : currentPage - 1;
+    searchParams.set("page", prev);
+    setSearchParams(searchParams);
+  }
+
+  return (
+    &lt;StyledPagination&gt;
+      &lt;p&gt;
+        Showing &lt;span&gt;{from}&lt;/span&gt; to &lt;span&gt;{to}&lt;/span&gt; of &lt;span&gt;{count}&lt;/span&gt; results
+      &lt;/p&gt;
+
+      &lt;Buttons&gt;
+        &lt;PaginationButton disabled={currentPage === 1} onClick={prevPage}&gt;
+          &lt;HiChevronLeft /&gt; &lt;span&gt;Previous&lt;/span&gt;
+        &lt;/PaginationButton&gt;
+
+        &lt;PaginationButton disabled={currentPage === pageCount} onClick={nextPage}&gt;
+          &lt;span&gt;Next&lt;/span&gt; &lt;HiChevronRight /&gt;
+        &lt;/PaginationButton&gt;
+      &lt;/Buttons&gt;
+    &lt;/StyledPagination&gt;
+  );
+}</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>12) Quick self-check (practice)</h2>
+      <ul>
+        <li>🔗 Why store page state in the URL instead of component state?</li>
+        <li>🧮 Why do we use <code>Math.ceil</code> for pageCount?</li>
+        <li>🚫 What two places protect against going beyond valid pages? (guards + disabled buttons)</li>
+        <li>📌 Why must the “to” value be capped at <code>count</code> on the last page?</li>
+        <li>✅ When should Pagination return <code>null</code>?</li>
+      </ul>
+
+      <p class="small">
+        End of reviewer. Next step: connect this component to <code>useBookings</code> and implement Supabase <code>range()</code> server-side pagination.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

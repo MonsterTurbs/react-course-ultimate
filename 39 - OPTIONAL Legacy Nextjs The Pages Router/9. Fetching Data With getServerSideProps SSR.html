@@ -431,34 +431,6 @@ export async function getStaticProps({ params }) {
     </section>
 
     <section>
-      <h2>📝 Original transcript (cleaned)</h2>
-      <div class="callout">
-        ℹ️ This section preserves the lecture content in a cleaner, readable format.
-      </div>
-      <p>
-        In this lecture, the goal is to understand the difference between <code>getStaticProps</code> (SSG) and <code>getServerSideProps</code> (SSR).
-        The example uses a dynamic route for a single cabin page (e.g., <code>/cabins/90</code>), where the ID is part of the URL.
-      </p>
-      <p>
-        With <code>getServerSideProps</code>, Next.js can access the route parameters via <code>params</code>, so the cabin ID can be read from <code>params.cabinId</code>.
-        The server fetches the cabin data at request time, returns it as props, and the page component renders the cabin using a <code>CabinView</code> component.
-      </p>
-      <p>
-        A key point is that in the Pages Router, developers explicitly choose the rendering strategy by choosing the data-fetching function:
-        <code>getStaticProps</code> for static generation, or <code>getServerSideProps</code> for server-side rendering.
-      </p>
-      <p>
-        Dynamic routes can be statically generated only if you also provide <code>getStaticPaths</code> (similar to App Router’s <code>generateStaticParams</code>),
-        so Next.js knows which IDs exist at build time.
-      </p>
-      <p>
-        ISR (Incremental Static Regeneration) is also possible in the Pages Router by returning a <code>revalidate</code> value from <code>getStaticProps</code>.
-        Finally, client-side fetching is always an option (useEffect / React Query / SWR), but Next.js is mainly used to do as much server-side work as possible
-        for better initial performance.
-      </p>
-    </section>
-
-    <section>
       <h2>🏁 Summary</h2>
       <ul>
         <li>✅ <code>getStaticProps</code> → SSG (build time), fast, reusable HTML</li>

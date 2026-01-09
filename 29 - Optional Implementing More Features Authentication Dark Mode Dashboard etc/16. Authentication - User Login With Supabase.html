@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>React Study Guide — Supabase Login (Auth) + React Query useLogin + Why Authorization Is Next</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --link:#0b57d0;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
+
+      /* High-contrast code theme */
+      --code-bg:#0b1220;
+      --code-text:#e6edf3;
+      --code-border:#1f2937;
+      --inline-bg:#eef2ff;
+      --inline-border:#dbeafe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header{
+      padding: 18px 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, var(--panel));
+      box-shadow: var(--shadow);
+    }
+
+    h1{
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: .2px;
+      line-height: 1.25;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size: 13px;
+    }
+    .btn:hover{ border-color:#cfcfcf; }
+    .btn:active{ transform: translateY(1px); }
+
+    .meta{
+      margin-left:auto;
+      color:var(--muted);
+      font-size: 12px;
+    }
+
+    main{
+      margin-top: 18px;
+      padding: 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background:#fff;
+      box-shadow: var(--shadow);
+    }
+
+    h2{
+      margin: 18px 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style:none;
+    }
+    .chip{
+      background: var(--chip);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color:#222;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 16px 0;
+    }
+
+    .small{ color:var(--muted); font-size: 13px; }
+
+    /* Code blocks */
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Courier New", monospace;
+    }
+    code{
+      background: var(--inline-bg);
+      color:#111111;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--inline-border);
+      font-size: 0.95em;
+      opacity: 1 !important;
+    }
+    pre{
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border: 1px solid var(--code-border);
+      overflow:auto;
+      max-width: 100%;
+      box-shadow: 0 2px 14px rgba(0,0,0,.10);
+      opacity: 1 !important;
+    }
+    pre code{
+      background: transparent !important;
+      border: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+      font-size: 12.8px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      opacity: 1 !important;
+    }
+
+    @media print{
+      @page{ size: A4; margin: 12mm; }
+      body{ background:#fff; }
+      .page{ padding: 0; margin: 0; max-width: none; }
+      header, main{ box-shadow: none; }
+      header{ break-inside: avoid; }
+      .toolbar{ display:none !important; }
+      a[href]::after{ content:""; }
+
+      pre{
+        background:#ffffff !important;
+        color:#111111 !important;
+        border: 1px solid #d0d0d0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+      pre code{
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+      }
+
+      .callout{ break-inside: avoid; }
+      h2{ break-after: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🔐 Authentication (Login) with Supabase — First Step Before Authorization</h1>
+      <p class="subtitle">
+        In this lecture you implement the login UI + Supabase login call, then improve it using React Query (mutation),
+        loading states, and error toasts. Final takeaway: login alone is not enough—you still need authorization (protected routes).
+      </p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆️ Back to Top</button>
+        <span class="meta">Single-column • A4 print-ready • High-contrast code</span>
+      </div>
+
+      <ul class="chips" aria-label="key tags">
+        <li class="chip">🔐 Login form</li>
+        <li class="chip">🧑‍💻 Supabase Auth</li>
+        <li class="chip">🧬 JWT session</li>
+        <li class="chip">⚡ React Query mutation</li>
+        <li class="chip">🔔 Toast errors</li>
+        <li class="chip">🛡️ Authorization is next</li>
+      </ul>
+    </header>
+
+    <main>
+      <h2>1) Big picture: authentication vs authorization</h2>
+      <div class="callout">
+        <p><strong>🔑 Authentication</strong> = “Who are you?” (login, session, current user)</p>
+        <p><strong>🛡️ Authorization</strong> = “Are you allowed?” (protect routes, restrict access)</p>
+      </div>
+
+      <p>
+        This lecture focuses on the first step: <strong>login</strong> using Supabase. Later lectures add authorization.
+      </p>
+
+      <div class="divider"></div>
+
+      <h2>2) Build the Login Page UI (Logo + Heading + LoginForm)</h2>
+      <p>
+        The route and page already exist, but you need real content. You import the existing <code>LoginForm</code>
+        from the authentication feature folder and enhance the page with:
+      </p>
+      <ul>
+        <li>🏢 Company logo (reuse existing <code>Logo</code> component)</li>
+        <li>📝 A centered heading like “Log in to your account”</li>
+        <li>📌 Add a new heading style (e.g., create an <code>H4</code>) if it doesn’t exist yet</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>✅ UI principle</strong></p>
+        <p>
+          Reuse components you already have (<code>Logo</code>, <code>Heading</code>, form rows) to keep the UI consistent.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>3) LoginForm basics (controlled inputs + autocomplete)</h2>
+      <p>
+        The form already uses controlled components:
+      </p>
+      <ul>
+        <li>📧 Email input (state-driven)</li>
+        <li>🔒 Password input (state-driven)</li>
+        <li>🧱 <code>FormRowVertical</code> for layout</li>
+        <li>🔑 <code>autoComplete</code> attributes to help password managers (HTML feature, not React)</li>
+      </ul>
+
+      <pre><code>// Controlled inputs (conceptual)
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
+
+&lt;input value={email} onChange={(e) =&gt; setEmail(e.target.value)} /&gt;
+&lt;input value={password} onChange={(e) =&gt; setPassword(e.target.value)} /&gt;</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>4) Create the first Supabase user (in Supabase dashboard)</h2>
+      <p>
+        Users are managed under Supabase <strong>Authentication</strong> (not as a normal database table).
+      </p>
+
+      <h3>Important dev setting: disable email confirmation</h3>
+      <p>
+        In <strong>Auth → Providers</strong>, the email provider is enabled by default.
+        For development, disable “confirm email” to make the flow faster.
+      </p>
+
+      <div class="callout">
+        <p><strong>🔌 Supabase supports many providers</strong></p>
+        <ul>
+          <li>Email/password (used here)</li>
+          <li>OAuth providers (GitHub, Apple, etc.)</li>
+        </ul>
+        <p class="small">
+          The course sticks to email/password, but OAuth is easy to add later via docs.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>5) Implement the login API call: <code>apiAuth.js</code></h2>
+      <p>
+        Use Supabase <code>auth.signInWithPassword</code>. Avoid hardcoding credentials—pass them as inputs.
+        In modern frontend code, a single object argument is common.
+      </p>
+
+      <pre><code>// services/apiAuth.js (conceptual)
+import supabase from "./supabase";
+
+export async function login({ email, password }) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) throw new Error(error.message);
+
+  return data; // includes session + user
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 What comes back from Supabase?</strong></p>
+        <ul>
+          <li><strong>session</strong>: access token (JWT), refresh token, expiry info</li>
+          <li><strong>user</strong>: email, createdAt, role, etc.</li>
+        </ul>
+      </div>
+
+      <h3>Quick direct test (before React Query)</h3>
+      <p>
+        During development, you can call the login function directly inside <code>handleSubmit</code> just to verify it works:
+      </p>
+
+      <pre><code>// LoginForm.jsx (temporary test)
+async function handleSubmit(e) {
+  e.preventDefault();
+  if (!email || !password) return;
+
+  const data = await login({ email, password });
+  console.log(data);
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>💾 Where is the session stored?</strong></p>
+        <p>
+          Supabase typically persists auth session in <code>localStorage</code>.
+          That’s why refresh can keep you logged in (until session expires).
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>6) Proper integration: <code>useLogin</code> with React Query Mutation</h2>
+      <p>
+        Login should be handled as a <strong>mutation</strong> because it changes server-side auth state.
+        React Query makes success/error/loading handling much easier.
+      </p>
+
+      <pre><code>// features/authentication/useLogin.js (conceptual)
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { login as loginApi } from "../../services/apiAuth";
+
+export function useLogin() {
+  const navigate = useNavigate();
+
+  const { mutate: login, isLoading } = useMutation({
+    mutationFn: ({ email, password }) =&gt; loginApi({ email, password }),
+    onSuccess: (data) =&gt; {
+      // data.user exists; redirect user to dashboard
+      navigate("/dashboard");
+    },
+    onError: (err) =&gt; {
+      console.error("LOGIN ERROR:", err);
+      toast.error("Provided email or password are incorrect");
+    },
+  });
+
+  return { login, isLoading };
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ UX improvements you get from React Query</strong></p>
+        <ul>
+          <li>⏳ <code>isLoading</code> for disabling inputs and showing a spinner</li>
+          <li>✅ <code>onSuccess</code> for navigation</li>
+          <li>🚫 <code>onError</code> for consistent error handling + toast notifications</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>7) Loading UX: disable inputs + show SpinnerMini</h2>
+      <p>
+        While the mutation is running:
+      </p>
+      <ul>
+        <li>🚫 Disable email/password inputs and submit button</li>
+        <li>🔄 Replace “Log in” text with a mini spinner (nice “real app” feel)</li>
+      </ul>
+
+      <pre><code>// LoginForm.jsx (conceptual)
+const { login, isLoading } = useLogin();
+
+&lt;input disabled={isLoading} ... /&gt;
+&lt;button disabled={isLoading}&gt;
+  {isLoading ? &lt;SpinnerMini /&gt; : "Log in"}
+&lt;/button&gt;</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>8) Wrong credentials test (good to validate error handling)</h2>
+      <p>
+        When the password is wrong:
+      </p>
+      <ul>
+        <li>🔔 You show a friendly toast message</li>
+        <li>🧾 Supabase error is available (e.g., “invalid login credentials”)</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Note</strong></p>
+        <p>
+          You could use Supabase’s error message directly, but having your own consistent UI message is also fine.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>9) Critical realization: login ≠ authorization</h2>
+      <p>
+        At this point, a user can successfully log in and you get a user + session in localStorage.
+        However, the app routes are not yet protected.
+      </p>
+
+      <div class="callout">
+        <p><strong>🚨 Proof</strong></p>
+        <ul>
+          <li>Delete the auth session from localStorage (simulate logout).</li>
+          <li>Reload the app.</li>
+          <li>You may still access pages because the UI routing hasn’t enforced “must be logged in.”</li>
+        </ul>
+        <p class="small">
+          That’s exactly why the next step is authorization (ProtectedRoute / route guarding).
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>10) Quick self-check (practice)</h2>
+      <ul>
+        <li>🔑 What does Supabase return after a successful login?</li>
+        <li>💾 Why is session persistence in localStorage useful?</li>
+        <li>⚡ Why should login be implemented as a React Query mutation?</li>
+        <li>🔔 What are two user-facing improvements you added (spinner + toast)?</li>
+        <li>🛡️ Why is authorization still required even after login works?</li>
+      </ul>
+
+      <p class="small">
+        End of reviewer. Next: protect routes so only authenticated users can access the app.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

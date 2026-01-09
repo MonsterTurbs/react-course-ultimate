@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>React Study Guide — Component Composition to Fix Prop Drilling</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --link:#0b57d0;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
+
+      /* Code theme (high contrast) */
+      --code-bg:#0b1220;
+      --code-text:#e6edf3;
+      --code-border:#1f2937;
+      --inline-bg:#eef2ff;
+      --inline-border:#dbeafe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.6;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    /* Single-column page */
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header{
+      padding: 18px 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, var(--panel));
+      box-shadow: var(--shadow);
+    }
+
+    h1{
+      margin: 0 0 8px;
+      font-size: 26px;
+      letter-spacing: .2px;
+      line-height: 1.25;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size: 13px;
+    }
+    .btn:hover{ border-color:#cfcfcf; }
+    .btn:active{ transform: translateY(1px); }
+
+    .meta{
+      margin-left:auto;
+      color:var(--muted);
+      font-size: 12px;
+    }
+
+    main{
+      margin-top: 18px;
+      padding: 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background:#fff;
+      box-shadow: var(--shadow);
+    }
+
+    h2{
+      margin: 18px 0 10px;
+      font-size: 19px;
+      line-height: 1.25;
+    }
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style:none;
+    }
+    .chip{
+      background: var(--chip);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color:#222;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 16px 0;
+    }
+
+    a{ color: var(--link); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    /* =========================
+       CODE BLOCKS (Readable)
+       ========================= */
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Courier New", monospace;
+    }
+
+    /* Inline code */
+    code{
+      background: var(--inline-bg);
+      color:#111111;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--inline-border);
+      font-size: 0.95em;
+      opacity: 1 !important;
+    }
+
+    /* Block code */
+    pre{
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border: 1px solid var(--code-border);
+      overflow:auto;
+      max-width: 100%;
+      box-shadow: 0 2px 14px rgba(0,0,0,.10);
+      opacity: 1 !important;
+    }
+
+    pre code{
+      background: transparent !important;
+      border: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+      font-size: 12.8px;
+      line-height: 1.6;
+
+      /* Reduce horizontal scroll */
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+
+      opacity: 1 !important;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .qa{
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background:#fff;
+    }
+    .qa h3{ margin-top:0; }
+
+    .small{ color:var(--muted); font-size: 13px; }
+
+    /* Print */
+    @media print{
+      @page{ size: A4; margin: 12mm; }
+      body{ background:#fff; }
+      .page{ padding: 0; margin: 0; max-width: none; }
+      header, main{ box-shadow: none; }
+      header{ break-inside: avoid; }
+      .toolbar{ display:none !important; }
+
+      a[href]::after{ content:""; } /* don’t print URLs */
+
+      pre{
+        background:#ffffff !important;
+        color:#111111 !important;
+        border: 1px solid #d0d0d0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+      pre code{
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+      }
+
+      .callout, .qa{ break-inside: avoid; }
+      h2{ break-after: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧩 Component Composition — Fixing Prop Drilling & Better Layouts</h1>
+      <p class="subtitle">
+        Focus: Replacing “pass props through intermediaries” with <strong>composition</strong> using <code>children</code>,
+        so the components that need the data receive it directly.
+      </p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆️ Back to Top</button>
+        <span class="meta">Single-column • A4 print-ready • High-contrast code</span>
+      </div>
+
+      <ul class="chips" aria-label="key tags">
+        <li class="chip">🧠 Prop drilling</li>
+        <li class="chip">🧩 Composition</li>
+        <li class="chip">👶 Beginner-friendly</li>
+        <li class="chip">🧱 Layout building</li>
+        <li class="chip">✅ Cleaner component tree</li>
+      </ul>
+    </header>
+
+    <main>
+      <h2>1) The problem: Prop Drilling</h2>
+      <p>
+        😵 <strong>Prop drilling</strong> happens when you pass props through components that don’t actually need them,
+        only so they can forward the props to a deeper child.
+      </p>
+
+      <div class="callout">
+        <p><strong>📌 Example from the lecture</strong></p>
+        <ul>
+          <li><code>movies</code> state lives in <code>App</code>.</li>
+          <li>But you pass <code>movies</code> into <code>NavBar</code>, then <code>NavBar</code> passes it into <code>NumResults</code>.</li>
+          <li><code>NavBar</code> is just an intermediary (middleman), so that’s unnecessary coupling.</li>
+        </ul>
+      </div>
+
+      <h3>Why prop drilling is bad</h3>
+      <ul>
+        <li>🧱 Makes components harder to reuse (they require props they don’t truly need).</li>
+        <li>🔧 Refactoring becomes painful (you update multiple layers).</li>
+        <li>📉 App structure becomes harder to understand.</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>2) The solution: Component Composition (using <code>children</code>)</h2>
+      <p>
+        ✅ With <strong>component composition</strong>, you build your UI by “nesting” components
+        and using an <strong>empty slot</strong> called <code>children</code>.
+      </p>
+
+      <div class="callout">
+        <p><strong>🧠 Mental model</strong></p>
+        <ul>
+          <li><code>children</code> = “whatever you put between the opening and closing tags.”</li>
+          <li>Parent component decides layout (where children appear).</li>
+          <li>App component becomes the place where you can “see” the whole layout clearly.</li>
+        </ul>
+      </div>
+
+      <h2>3) Fixing the easy prop drilling (NavBar → NumResults)</h2>
+      <h3>Before (prop drilling)</h3>
+      <pre><code>// App.jsx (before)
+&lt;NavBar movies={movies}&gt;
+  {/* ... */}
+&lt;/NavBar&gt;
+
+// NavBar.jsx (before)
+function NavBar({ movies }) {
+  return (
+    &lt;nav&gt;
+      &lt;Logo /&gt;
+      &lt;Search /&gt;
+      &lt;NumResults movies={movies} /&gt;
+    &lt;/nav&gt;
+  );
+}</code></pre>
+
+      <h3>After (composition)</h3>
+      <p>
+        ✅ Make <code>NavBar</code> accept <code>children</code> instead of <code>movies</code>.
+        Then render <code>NumResults</code> inside <code>App</code> (where <code>movies</code> actually lives).
+      </p>
+
+      <pre><code>// NavBar.jsx (after)
+function NavBar({ children }) {
+  return (
+    &lt;nav&gt;
+      &lt;Logo /&gt;
+      {children}
+    &lt;/nav&gt;
+  );
+}</code></pre>
+
+      <pre><code>// App.jsx (after)
+&lt;NavBar&gt;
+  &lt;Search /&gt;
+  &lt;NumResults movies={movies} /&gt;
+&lt;/NavBar&gt;</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Result</strong></p>
+        <ul>
+          <li><code>NavBar</code> no longer receives <code>movies</code>.</li>
+          <li><code>NumResults</code> receives <code>movies</code> directly from <code>App</code>.</li>
+          <li>Prop drilling eliminated (at least for this path).</li>
+        </ul>
+      </div>
+
+      <h3>Bonus: Optional UI becomes easy</h3>
+      <p>
+        🧠 Because <code>Search</code> and <code>NumResults</code> are now children, you can remove them
+        without touching <code>NavBar</code> at all.
+      </p>
+      <pre><code>// Want to remove Search?
+&lt;NavBar&gt;
+  &lt;NumResults movies={movies} /&gt;
+&lt;/NavBar&gt;</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>4) Fixing the worst prop drilling (App → Main → ListBox → MoviesList)</h2>
+      <p>
+        In the lecture, the bigger problem is passing <code>movies</code> through multiple layers:
+        <code>App</code> → <code>Main</code> → <code>ListBox</code> → <code>MoviesList</code>.
+      </p>
+
+      <h3>Step A — Make <code>Main</code> accept children</h3>
+      <pre><code>// Main.jsx (after)
+function Main({ children }) {
+  return &lt;main&gt;{children}&lt;/main&gt;;
+}</code></pre>
+
+      <pre><code>// App.jsx (after)
+&lt;Main&gt;
+  &lt;ListBox&gt;...&lt;/ListBox&gt;
+  &lt;WatchedBox&gt;...&lt;/WatchedBox&gt;
+&lt;/Main&gt;</code></pre>
+
+      <h3>Step B — Make <code>ListBox</code> accept children (remove intermediary prop passing)</h3>
+      <pre><code>// ListBox.jsx (after)
+function ListBox({ children }) {
+  return (
+    &lt;div className="box"&gt;
+      {children}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <pre><code>// App.jsx (after)
+&lt;ListBox&gt;
+  &lt;MoviesList movies={movies} /&gt;
+&lt;/ListBox&gt;</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Result</strong></p>
+        <ul>
+          <li><code>Main</code> no longer needs <code>movies</code>.</li>
+          <li><code>ListBox</code> no longer needs <code>movies</code>.</li>
+          <li>Only <code>MoviesList</code> (and <code>NumResults</code>) get <code>movies</code> — the components that truly need it.</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>5) Common error: “Objects are not valid as a React child”</h2>
+      <p>
+        ⚠️ The lecture shows a bug where React throws:
+        <strong>“Objects are not valid as a React child”</strong>.
+      </p>
+
+      <div class="callout">
+        <p><strong>Why it happens</strong></p>
+        <ul>
+          <li>You accidentally render an object in JSX, e.g. <code>{ {children} }</code> (double braces) or returning an object instead of JSX.</li>
+          <li>React can render strings, numbers, elements, arrays of elements… but not plain objects.</li>
+        </ul>
+      </div>
+
+      <h3>Wrong (creates an object)</h3>
+      <pre><code>// ❌ Wrong
+return &lt;div&gt;{{ children }}&lt;/div&gt;;</code></pre>
+
+      <h3>Correct (render children directly)</h3>
+      <pre><code>// ✅ Correct
+return &lt;div&gt;{children}&lt;/div&gt;;</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>6) Why composition is a better way to build layouts</h2>
+      <p>
+        ✅ The key advantage highlighted in the lecture: by looking at the <code>return</code> of <code>App</code>,
+        you can visually understand the whole “page layout” and component structure.
+      </p>
+
+      <ul>
+        <li>🧱 <strong>Layout becomes explicit</strong>: you literally see <code>&lt;NavBar&gt;</code> with its children, then <code>&lt;Main&gt;</code> with its boxes.</li>
+        <li>🔌 <strong>Optional UI is easy</strong>: remove a child component without editing the parent layout component.</li>
+        <li>♻️ <strong>Reusability improves</strong>: components like <code>NavBar</code> and <code>ListBox</code> don’t depend on specific props.</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>7) Quick self-check (practice)</h2>
+      <ul>
+        <li>🧠 In your own words, why is <code>NavBar</code> an “intermediary component” in the original code?</li>
+        <li>🧩 What does <code>children</code> represent?</li>
+        <li>✅ Which components should receive <code>movies</code> after refactoring?</li>
+        <li>⚠️ What coding mistake can cause “Objects are not valid as a React child”?</li>
+        <li>🏗️ Why does composition make layouts easier to understand just by reading <code>App</code>?</li>
+      </ul>
+
+      <p class="small">
+        End of reviewer. Use the Print button at the top to save as PDF (it will not appear in print).
+      </p>
+    </main>
+  </div>
+</body>
+</html>

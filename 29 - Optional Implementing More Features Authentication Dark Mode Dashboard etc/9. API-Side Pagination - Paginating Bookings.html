@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>React Study Guide — Server-side Pagination (Supabase count + range) + React Query Cache</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --link:#0b57d0;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
+
+      /* High-contrast code theme */
+      --code-bg:#0b1220;
+      --code-text:#e6edf3;
+      --code-border:#1f2937;
+      --inline-bg:#eef2ff;
+      --inline-border:#dbeafe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header{
+      padding: 18px 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, var(--panel));
+      box-shadow: var(--shadow);
+    }
+
+    h1{
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: .2px;
+      line-height: 1.25;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size: 13px;
+    }
+    .btn:hover{ border-color:#cfcfcf; }
+    .btn:active{ transform: translateY(1px); }
+
+    .meta{
+      margin-left:auto;
+      color:var(--muted);
+      font-size: 12px;
+    }
+
+    main{
+      margin-top: 18px;
+      padding: 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background:#fff;
+      box-shadow: var(--shadow);
+    }
+
+    h2{
+      margin: 18px 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style:none;
+    }
+    .chip{
+      background: var(--chip);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color:#222;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 16px 0;
+    }
+
+    .small{ color:var(--muted); font-size: 13px; }
+
+    /* Code blocks */
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Courier New", monospace;
+    }
+    code{
+      background: var(--inline-bg);
+      color:#111111;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--inline-border);
+      font-size: 0.95em;
+      opacity: 1 !important;
+    }
+    pre{
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border: 1px solid var(--code-border);
+      overflow:auto;
+      max-width: 100%;
+      box-shadow: 0 2px 14px rgba(0,0,0,.10);
+      opacity: 1 !important;
+    }
+    pre code{
+      background: transparent !important;
+      border: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+      font-size: 12.8px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      opacity: 1 !important;
+    }
+
+    @media print{
+      @page{ size: A4; margin: 12mm; }
+      body{ background:#fff; }
+      .page{ padding: 0; margin: 0; max-width: none; }
+      header, main{ box-shadow: none; }
+      header{ break-inside: avoid; }
+      .toolbar{ display:none !important; }
+      a[href]::after{ content:""; }
+
+      pre{
+        background:#ffffff !important;
+        color:#111111 !important;
+        border: 1px solid #d0d0d0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+      pre code{
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+      }
+
+      .callout{ break-inside: avoid; }
+      h2{ break-after: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>📄 Bookings Pagination — Supabase <code>count</code> + <code>range</code> + React Query Cache</h1>
+      <p class="subtitle">
+        Goal: paginate the bookings table using the reusable Pagination component.
+        Requirements: (1) total results count, (2) current page from URL, (3) server-side pagination using Supabase <code>range(from, to)</code>.
+      </p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆️ Back to Top</button>
+        <span class="meta">Single-column • A4 print-ready • High-contrast code</span>
+      </div>
+
+      <ul class="chips" aria-label="key tags">
+        <li class="chip">📄 Pagination</li>
+        <li class="chip">🧮 Supabase count</li>
+        <li class="chip">📦 Supabase range</li>
+        <li class="chip">🔗 URL page param</li>
+        <li class="chip">⚡ React Query cache</li>
+        <li class="chip">🧱 constants.js</li>
+      </ul>
+    </header>
+
+    <main>
+      <h2>1) Pagination needs the total number of results</h2>
+      <p>
+        The Pagination component needs a <strong>count</strong> so it can calculate pages and render “X results”.
+        You could compute <code>bookings.length</code>, but that only works for the current page.
+        A better approach is to ask Supabase for the exact total count.
+      </p>
+
+      <div class="callout">
+        <p><strong>✅ Supabase feature: <code>select(..., { count: "exact" })</code></strong></p>
+        <p>
+          You can pass a second argument to <code>select</code> to request a count without relying on array length.
+          Useful when you need total results for pagination.
+        </p>
+      </div>
+
+      <pre><code>// services/apiBookings.js (conceptual)
+export async function getBookings({ filter, sortBy, page }) {
+  let query = supabase
+    .from("bookings")
+    .select("*, cabins(name), guests(fullName)", { count: "exact" });
+
+  // ...filter + sort...
+
+  const { data, error, count } = await query;
+
+  if (error) throw error;
+
+  return { data, count };
+}</code></pre>
+
+      <h3>Update the consumer code to match new return shape</h3>
+      <p>
+        Since the service now returns <code>{ data, count }</code>, you destructure and rename:
+      </p>
+
+      <pre><code>// hooks/useBookings.js (conceptual)
+const { data: { data: bookings, count } = {} } = useQuery(...);</code></pre>
+
+      <div class="callout">
+        <p><strong>⚠️ Common pitfall</strong></p>
+        <p>
+          On first render, query data is <code>undefined</code>. Destructuring will crash unless you provide a default object:
+          <code>data: { ... } = {}</code>.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>2) Get the current page from the URL (search params)</h2>
+      <p>
+        Pagination state lives in the URL (e.g., <code>?page=3</code>), so the hook needs to read it.
+        You already have logic for reading filters and sorting; now you add page as well.
+      </p>
+
+      <pre><code>// hooks/useBookings.js (conceptual)
+import { useSearchParams } from "react-router-dom";
+
+const [searchParams] = useSearchParams();
+const page = Number(searchParams.get("page")) || 1;</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Important</strong></p>
+        <p>
+          Add <code>page</code> to your React Query key. Changing page should refetch data automatically.
+        </p>
+      </div>
+
+      <pre><code>// queryKey example
+queryKey: ["bookings", filter, sortBy, page]</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>3) Server-side pagination with Supabase <code>range(from, to)</code></h2>
+      <p>
+        React Query refetching on page change is only half the work. You also need to fetch the correct slice from the database.
+        Supabase provides <code>range(from, to)</code>.
+      </p>
+
+      <div class="callout">
+        <p><strong>🎯 Example (page size = 10)</strong></p>
+        <ul>
+          <li>Page 1 → results 0 to 9</li>
+          <li>Page 2 → results 10 to 19</li>
+          <li>Page 3 → results 20 to 29</li>
+        </ul>
+      </div>
+
+      <h3>Compute from/to</h3>
+      <pre><code>// utils/constants.js
+export const PAGE_SIZE = 10;</code></pre>
+
+      <pre><code>// services/apiBookings.js (conceptual)
+import { PAGE_SIZE } from "../utils/constants";
+
+if (page) {
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+
+  query = query.range(from, to);
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 Why a constants file?</strong></p>
+        <ul>
+          <li>Prevents “magic numbers” duplicated in multiple files.</li>
+          <li>Changing page size becomes a one-line change.</li>
+          <li>Avoids maintenance nightmares.</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>4) Verify the behavior (expected results)</h2>
+      <ul>
+        <li>Page 1 returns the first PAGE_SIZE bookings.</li>
+        <li>Page 2 returns the next PAGE_SIZE bookings.</li>
+        <li>Last page may return fewer results (e.g., 4 results remaining).</li>
+        <li>Count remains the full total (e.g., 24 bookings).</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>5) React Query cache effect (why some pages feel instant)</h2>
+      <p>
+        As you navigate pages, React Query caches each unique query key:
+      </p>
+      <ul>
+        <li>✅ Going back to a page you already visited often loads instantly (from cache).</li>
+        <li>⏳ Going to a new page triggers a fetch and may show a spinner.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Next improvement: Prefetching</strong></p>
+        <p>
+          The lecture ends by noting that loading spinners on “next page” clicks can feel slow.
+          Prefetching the next page can make pagination feel instant.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>6) Quick self-check (practice)</h2>
+      <ul>
+        <li>🧮 Why is <code>count: "exact"</code> useful for pagination?</li>
+        <li>📦 Why can’t you use <code>bookings.length</code> as the total count?</li>
+        <li>🔗 Why should page number live in the URL (search params)?</li>
+        <li>📐 How do you compute <code>from</code> and <code>to</code> for a given page?</li>
+        <li>⚡ Why does React Query sometimes show pages instantly?</li>
+      </ul>
+
+      <p class="small">
+        End of reviewer. Next lecture: implement prefetching for smoother pagination UX.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

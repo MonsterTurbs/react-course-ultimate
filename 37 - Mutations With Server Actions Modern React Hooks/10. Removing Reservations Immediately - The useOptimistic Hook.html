@@ -1,11 +1,9 @@
-
-
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Removing Reservations Immediately — useOptimistic (Next.js Server Actions)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>React / Next.js Study Guide — Optimistic UI with useOptimistic</title>
   <style>
     :root{
       --bg:#ffffff;
@@ -14,11 +12,8 @@
       --border:#e6e6e6;
       --panel:#fafafa;
       --chip:#f3f4f6;
-      --accent:#0b57d0;
-      --ok:#137333;
-      --warn:#b06000;
-      --bad:#b00020;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --link:#0b57d0;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
     }
 
     *{ box-sizing:border-box; }
@@ -29,471 +24,497 @@
       color:var(--text);
       font-family: Arial, Helvetica, sans-serif;
       line-height:1.6;
-      overflow-wrap:anywhere;
-      word-break: normal;
+      overflow-wrap:anywhere; /* prevent cut-off */
+      word-break:normal;
     }
 
     /* Single-column page */
     .page{
-      max-width: 900px;
+      max-width: 980px;
       margin: 0 auto;
-      padding: 28px 18px 48px;
+      padding: 28px 18px 56px;
     }
 
     header{
+      padding: 18px 18px;
       border:1px solid var(--border);
-      background: linear-gradient(180deg, #ffffff 0%, var(--panel) 100%);
-      border-radius: 12px;
-      padding: 18px 18px 14px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, var(--panel));
+      box-shadow: var(--shadow);
     }
 
     h1{
-      margin:0 0 6px;
-      font-size: 22px;
+      margin: 0 0 8px;
+      font-size: 26px;
       letter-spacing: .2px;
+      line-height: 1.25;
     }
     .subtitle{
-      margin:0;
-      color:var(--muted);
-      font-size: 13.5px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
     }
+
+    .toolbar{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size: 13px;
+    }
+    .btn:hover{ border-color:#cfcfcf; }
+    .btn:active{ transform: translateY(1px); }
 
     .meta{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top: 12px;
-    }
-    .chip{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: var(--chip);
-      border:1px solid var(--border);
-      font-size: 12.5px;
-      color:#222;
+      margin-left:auto;
+      color:var(--muted);
+      font-size: 12px;
     }
 
-    main{ margin-top: 16px; }
-
-    section{
-      margin-top: 16px;
+    main{
+      margin-top: 18px;
+      padding: 18px;
       border:1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 14px;
       background:#fff;
-      padding: 16px 16px 12px;
+      box-shadow: var(--shadow);
     }
 
     h2{
-      margin: 0 0 8px;
-      font-size: 18px;
+      margin: 18px 0 10px;
+      font-size: 19px;
+      line-height: 1.25;
     }
-
     h3{
-      margin: 14px 0 6px;
+      margin: 14px 0 8px;
       font-size: 15px;
+      line-height: 1.3;
     }
 
     p{ margin: 8px 0; }
-    ul,ol{ margin: 8px 0 10px 22px; }
+    ul{ margin: 8px 0 8px 20px; padding:0; }
     li{ margin: 6px 0; }
 
     .callout{
-      border-left: 4px solid var(--accent);
-      background: #f6f9ff;
-      padding: 10px 12px;
-      border-radius: 10px;
-      margin: 10px 0;
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
     }
 
-    .callout.ok{ border-left-color: var(--ok); background:#f4fbf6; }
-    .callout.warn{ border-left-color: var(--warn); background:#fff7ef; }
-    .callout.bad{ border-left-color: var(--bad); background:#fff5f7; }
-
-    .k{
-      font-family: var(--mono);
-      font-size: 12.5px;
-      background: #0f172a;
-      color: #e5e7eb;
-      padding: 1px 6px;
-      border-radius: 6px;
-      white-space: nowrap;
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style:none;
+    }
+    .chip{
+      background: var(--chip);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color:#222;
     }
 
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 16px 0;
+    }
+
+    a{ color: var(--link); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
     pre{
       margin: 10px 0;
       padding: 12px;
       border:1px solid var(--border);
-      border-radius: 10px;
-      background: #0b1020;
-      color: #e8eefc;
-      overflow:auto;
-      font-family: var(--mono);
+      border-radius: 12px;
+      background:#fff;
+      overflow:auto; /* ok on screen */
+      max-width: 100%;
+      box-shadow: 0 2px 14px rgba(0,0,0,.04);
+    }
+    code{
+      background: var(--chip);
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 0.95em;
+    }
+    pre code{
+      background: transparent;
+      border: 0;
+      padding: 0;
+      border-radius: 0;
       font-size: 12.5px;
       line-height: 1.55;
+      white-space: pre; /* screen */
     }
-
-    code{ font-family: var(--mono); }
 
     .grid{
       display:grid;
       grid-template-columns: 1fr;
-      gap: 10px;
+      gap: 12px;
     }
 
-    .table{
-      width:100%;
-      border-collapse: collapse;
-      margin: 10px 0 6px;
-      font-size: 13px;
-    }
-    .table th,.table td{
+    .qa{
       border:1px solid var(--border);
-      padding: 8px 9px;
-      vertical-align: top;
-      text-align:left;
+      border-radius: 12px;
+      padding: 12px;
+      background:#fff;
     }
-    .table th{ background: var(--panel); }
+    .qa h3{ margin-top:0; }
 
-    .hr{
-      height:1px;
-      background:var(--border);
-      margin: 12px 0;
-    }
+    .small{ color:var(--muted); font-size: 13px; }
 
-    a{ color: var(--accent); text-decoration: none; }
-    a:hover{ text-decoration: underline; }
-
-    /* Print styles (A4, no link URLs) */
-    @page{ size: A4; margin: 14mm 14mm; }
+    /* Avoid any “print scrollbars” by removing fixed heights/overflows in print */
     @media print{
+      @page{ size: A4; margin: 12mm; }
+
       body{ background:#fff; }
-      .page{ max-width:none; padding:0; }
-      header, section{ border: 1px solid #ddd; box-shadow:none; }
-      a{ color: #000; text-decoration:none; }
-      a[href]::after{ content: "" !important; }
-      .chip{ background:#fff; }
-      pre{ page-break-inside: avoid; }
-      section{ page-break-inside: avoid; }
+      .page{ padding: 0; margin: 0; max-width: none; }
+      header, main{ box-shadow: none; }
+      header{ break-inside: avoid; }
+
+      .toolbar{ display:none !important; }
+
+      a[href]::after{ content:""; } /* do not print URLs */
+      pre{ overflow: visible; }
+      pre code{
+        white-space: pre-wrap;        /* wrap long code lines */
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+      .callout, .qa{ break-inside: avoid; }
+      h2{ break-after: avoid; }
     }
   </style>
 </head>
+
 <body>
   <div class="page">
     <header>
-      <h1>🧠 Removing Reservations Immediately — Optimistic UI with <span class="k">useOptimistic</span></h1>
+      <h1>🧠 Optimistic UI in Modern React (useOptimistic) — Study Guide</h1>
       <p class="subtitle">
-        Study guide (Next.js + React Server Components). Focus: making “Delete reservation” feel instant by updating the UI <em>before</em> the server finishes.
+        Topic: Deleting reservations with <code>useOptimistic</code> to make the UI feel faster, plus a quick note on <code>loading.js</code> in Next.js route segments.
       </p>
-      <div class="meta">
-        <span class="chip">⚙️ Topic: Server Actions + Client UI</span>
-        <span class="chip">🚀 Goal: Snappy UX (perceived performance)</span>
-        <span class="chip">🪝 Hook: <span class="k">useOptimistic</span></span>
-        <span class="chip">🧩 Related: <span class="k">useTransition</span>, cache revalidation</span>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆️ Back to Top</button>
+        <span class="meta">Single-column • A4 print-ready • Word-wrap enabled</span>
       </div>
+
+      <ul class="chips" aria-label="key tags">
+        <li class="chip">⚡ Perceived performance</li>
+        <li class="chip">✅ Optimistic UI</li>
+        <li class="chip">🔁 Rollback on error</li>
+        <li class="chip">🧩 Client vs Server components</li>
+        <li class="chip">🧠 Reducer-like mental model</li>
+      </ul>
     </header>
 
     <main>
-      <section>
-        <h2>1) Big Idea: What is Optimistic UI?</h2>
-        <p>
-          <strong>Optimistic UI</strong> is a UX technique where we update the screen <em>immediately</em> as if an async operation succeeded, while the real work is still running in the background.
+      <h2>1) What is “Optimistic UI”?</h2>
+      <p>
+        ✅ <strong>Optimistic UI</strong> is a technique where the interface updates <em>immediately</em> as if an async operation succeeded,
+        even though the request is still running in the background.
+      </p>
+
+      <div class="callout">
+        <p><strong>🚀 Why it matters (Perceived Performance)</strong></p>
+        <ul>
+          <li>Users hate waiting and spinners everywhere.</li>
+          <li>Even if the server takes 1–2 seconds, the app can feel “instant” if the UI updates right away.</li>
+          <li>If the request fails, we “undo” (rollback) the UI change and show the item again.</li>
+        </ul>
+      </div>
+
+      <h3>🧠 The “Optimistic” part</h3>
+      <p>
+        We are “optimistic” because we assume the async operation will succeed.
+        If it fails, React can help restore the previous UI state.
+      </p>
+
+      <div class="divider"></div>
+
+      <h2>2) The new hook: <code>useOptimistic</code></h2>
+      <p>
+        React introduced <code>useOptimistic</code> to support this common pattern: show an “optimistic state” while an async action is pending.
+      </p>
+
+      <div class="callout">
+        <p><strong>📌 Key idea: you manage two states</strong></p>
+        <ul>
+          <li><strong>Actual state</strong> (truth from server/data source) — e.g., <code>bookings</code>.</li>
+          <li><strong>Optimistic state</strong> (what you want to show while async is pending) — e.g., <code>optimisticBookings</code>.</li>
+        </ul>
+        <p class="small">
+          Tip: This is why the hook can feel confusing at first—you’re thinking in “current state” and “temporary UI state.”
         </p>
-        <div class="callout">
-          <p><strong>🙂 Why it feels fast:</strong> the user sees instant feedback (item disappears), so the app feels responsive even if the network/server is slow.</p>
-        </div>
-        <p>
-          In this lecture’s example, when a guest clicks <strong>Delete</strong>, we remove that reservation card right away—even though the server action is still deleting it in Supabase.
-        </p>
-        <div class="callout warn">
-          <p><strong>⚠️ Important:</strong> “Optimistic” means we <em>assume success</em>. If deletion fails, we must restore the UI (rollback).</p>
-        </div>
-      </section>
+      </div>
 
-      <section>
-        <h2>2) Why we need a Client Component</h2>
-        <p>
-          Hooks like <span class="k">useOptimistic</span> run only on the client, so the reservations list must be rendered by a <strong>Client Component</strong>.
-        </p>
-        <ol>
-          <li>Keep data fetching on the server page (Server Component).</li>
-          <li>Move the <em>rendering of the list</em> into a new client component (e.g., <span class="k">ReservationList</span>).</li>
-          <li>Pass <span class="k">bookings</span> from server → client as props.</li>
-        </ol>
+      <h3>Signature (mental model)</h3>
+      <pre><code>// Conceptual
+const [optimisticState, triggerOptimistic] = useOptimistic(
+  actualState,
+  (currentState, payload) =&gt; nextOptimisticState
+);</code></pre>
 
-        <h3>✅ Server page: fetch bookings then render the client list</h3>
-        <pre><code>// app/account/reservations/page.js (Server Component)
-import { auth } from "@/app/_lib/auth";
-import { getBookings } from "@/app/_lib/data-service";
-import ReservationList from "@/app/_components/ReservationList";
+      <ul>
+        <li><code>actualState</code>: the baseline state when nothing is pending.</li>
+        <li><code>(currentState, payload) =&gt; nextState</code>: computes the next optimistic state.</li>
+        <li><code>optimisticState</code>: what you render in the UI.</li>
+        <li><code>triggerOptimistic(payload)</code>: “dispatch-like” function that starts the optimistic update.</li>
+      </ul>
 
-export default async function Page() {
-  const session = await auth();
-  const bookings = await getBookings(session.user.guestId);
+      <div class="divider"></div>
 
+      <h2>3) Why you must move the list into a Client Component</h2>
+      <p>
+        Because <strong>hooks run in Client Components</strong>.
+        If your reservations list was originally rendered in a Server Component (page/layout),
+        you need to extract it into something like <code>ReservationList.js</code> and add the
+        <code>'use client'</code> directive.
+      </p>
+
+      <div class="callout">
+        <p><strong>🧩 Pattern: Server fetches → Client renders</strong></p>
+        <ul>
+          <li>Server Component: fetch bookings from DB / Supabase.</li>
+          <li>Pass bookings as props into the Client Component.</li>
+          <li>Client Component: uses hooks, renders list, handles optimistic updates.</li>
+        </ul>
+      </div>
+
+      <pre><code>// Server Component (example)
+import ReservationList from "./ReservationList";
+
+export default async function AccountPage() {
+  const bookings = await getBookings(); // server-side fetch
+  return &lt;ReservationList bookings={bookings} /&gt;;
+}</code></pre>
+
+      <pre><code>// ReservationList.js (Client Component)
+"use client";
+
+import { useOptimistic } from "react";
+
+export default function ReservationList({ bookings }) {
+  // ...hooks + rendering
+}</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>4) Implementing optimistic delete (step-by-step)</h2>
+
+      <h3>Step A — set up <code>useOptimistic</code></h3>
+      <pre><code>const [optimisticBookings, optimisticDelete] = useOptimistic(
+  bookings,
+  (currentBookings, bookingId) =&gt; {
+    // compute "next optimistic state"
+    return currentBookings.filter(b =&gt; b.id !== bookingId);
+  }
+);</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ What this does</strong></p>
+        <ul>
+          <li>Before any async work: <code>optimisticBookings === bookings</code></li>
+          <li>After you call <code>optimisticDelete(id)</code>: UI uses the filtered list immediately.</li>
+          <li>If the async operation fails: UI can rollback to the original state.</li>
+        </ul>
+      </div>
+
+      <h3>Step B — move the delete handler into the list container</h3>
+      <p>
+        Instead of letting each card call the server action directly, centralize the logic in <code>ReservationList</code>.
+        Then pass down an <code>onDelete</code> prop (this is basic “prop drilling”).
+      </p>
+
+      <pre><code>// ReservationList.js
+import { deleteReservation } from "./actions"; // server action
+
+async function handleDelete(bookingId) {
+  // 1) Optimistically update UI first
+  optimisticDelete(bookingId);
+
+  // 2) Then do the real async delete on the server
+  await deleteReservation(bookingId);
+}</code></pre>
+
+      <pre><code>// Render: IMPORTANT: use optimisticBookings, not bookings
+return (
+  &lt;ul&gt;
+    {optimisticBookings.map(b =&gt; (
+      &lt;ReservationCard key={b.id} booking={b} onDelete={handleDelete} /&gt;
+    ))}
+  &lt;/ul&gt;
+);</code></pre>
+
+      <h3>Step C — wire props through components</h3>
+      <pre><code>// ReservationCard.jsx
+export default function ReservationCard({ booking, onDelete }) {
   return (
     &lt;div&gt;
-      &lt;h2&gt;Your reservations&lt;/h2&gt;
-      &lt;ReservationList bookings={bookings} /&gt;
+      &lt;div&gt;{booking.cabinName}&lt;/div&gt;
+      &lt;DeleteReservationButton bookingId={booking.id} onDelete={onDelete} /&gt;
     &lt;/div&gt;
   );
 }</code></pre>
 
-        <div class="callout ok">
-          <p><strong>💡 Pattern:</strong> Fetch on server, render interactive UI on client. This keeps sensitive logic server-side but still allows a great UX.</p>
-        </div>
-      </section>
-
-      <section>
-        <h2>3) Anatomy of <span class="k">useOptimistic</span></h2>
-        <p>
-          You’ll think in <strong>two states</strong>:
-        </p>
-        <ul>
-          <li><strong>Actual state</strong>: the real bookings list from the server (source of truth).</li>
-          <li><strong>Optimistic state</strong>: what we show temporarily while async work is pending.</li>
-        </ul>
-
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Hook Input</th>
-              <th>Meaning</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><span class="k">useOptimistic(bookings, updaterFn)</span></td>
-              <td>
-                <span class="k">bookings</span> is the initial/current state; <span class="k">updaterFn</span> computes the next optimistic state.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Hook Output</th>
-              <th>Meaning</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><span class="k">optimisticBookings</span></td>
-              <td>The list you render in the UI (temporarily modified during pending async work).</td>
-            </tr>
-            <tr>
-              <td><span class="k">optimisticDelete</span></td>
-              <td>A function you call to trigger the optimistic update.</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section>
-        <h2>4) Implementing Optimistic Delete (step-by-step)</h2>
-
-        <h3>Step A — Create <span class="k">ReservationList</span> as a Client Component</h3>
-        <pre><code>// app/_components/ReservationList.js
-"use client";
-
-import { useOptimistic } from "react";
-import ReservationCard from "@/app/_components/ReservationCard";
-import { deleteReservation } from "@/app/_lib/actions";
-
-export default function ReservationList({ bookings }) {
-  // 1) create optimistic state
-  const [optimisticBookings, optimisticDelete] = useOptimistic(
-    bookings,
-    (currentBookings, bookingId) => {
-      // 2) compute next optimistic state
-      return currentBookings.filter(b => b.id !== bookingId);
-    }
-  );
-
-  // 3) handle delete: optimistic first, then real server action
-  async function handleDelete(bookingId) {
-    optimisticDelete(bookingId);            // ✅ UI updates instantly
-    await deleteReservation(bookingId);     // ✅ real deletion (server)
-  }
-
+      <pre><code>// DeleteReservationButton.jsx
+export default function DeleteReservationButton({ bookingId, onDelete }) {
   return (
-    &lt;ul className="space-y-6"&gt;
-      {optimisticBookings.map(booking =&gt; (
-        &lt;ReservationCard
-          key={booking.id}
-          booking={booking}
-          onDelete={handleDelete}
-        /&gt;
-      ))}
-    &lt;/ul&gt;
-  );
-}</code></pre>
-
-        <div class="callout">
-          <p><strong>🧩 What changed?</strong> You render <span class="k">optimisticBookings</span> instead of <span class="k">bookings</span>, and call <span class="k">optimisticDelete(id)</span> immediately on click.</p>
-        </div>
-
-        <h3>Step B — “Prop drilling” the delete handler to the button</h3>
-        <p>
-          The delete button lives deeper in the tree (e.g., inside <span class="k">ReservationCard</span> and a <span class="k">DeleteReservation</span> button component). We pass an <span class="k">onDelete</span> prop down.
-        </p>
-        <pre><code>// ReservationCard.jsx (can be server or client depending on your app)
-export default function ReservationCard({ booking, onDelete }) {
-  const { id } = booking;
-
-  return (
-    &lt;li&gt;
-      {/* ... reservation UI ... */}
-      &lt;DeleteReservation bookingId={id} onDelete={onDelete} /&gt;
-    &lt;/li&gt;
-  );
-}</code></pre>
-
-        <pre><code>// DeleteReservation.jsx (Client Component)
-"use client";
-
-import { useTransition } from "react";
-import SpinnerMini from "@/app/_components/SpinnerMini";
-
-export default function DeleteReservation({ bookingId, onDelete }) {
-  const [isPending, startTransition] = useTransition();
-
-  function handleClick() {
-    // optional confirm
-    // if (!confirm("Delete this reservation?") ) return;
-
-    startTransition(() => onDelete(bookingId));
-  }
-
-  return (
-    &lt;button onClick={handleClick} disabled={isPending}&gt;
-      {!isPending ? "Delete" : &lt;span className="mx-auto"&gt;&lt;SpinnerMini /&gt;&lt;/span&gt;}
+    &lt;button onClick={() =&gt; onDelete(bookingId)}&gt;
+      Delete
     &lt;/button&gt;
   );
 }</code></pre>
 
-        <div class="callout ok">
-          <p><strong>✅ Why keep <span class="k">useTransition</span>?</strong> Even with optimistic UI, the server action still runs. A subtle pending state can prevent double-clicks and keeps the UI safe.</p>
-        </div>
-      </section>
+      <div class="divider"></div>
 
-      <section>
-        <h2>5) Rollback: What happens when the delete fails?</h2>
-        <p>
-          A core benefit of <span class="k">useOptimistic</span> is rollback behavior. If the async operation throws an error, React can restore the previous UI state.
-        </p>
-        <div class="callout warn">
-          <p><strong>🧪 Testing trick:</strong> add an artificial delay and throw an error to confirm the item disappears immediately and then reappears.</p>
-        </div>
+      <h2>5) Testing the rollback behavior (very important)</h2>
+      <p>
+        🧪 A good way to confirm optimistic UI is working is to add an artificial delay and then force an error.
+      </p>
 
-        <pre><code>// inside deleteReservation server action (testing only)
-await new Promise(r =&gt; setTimeout(r, 2000));
-throw new Error("Simulated failure");</code></pre>
+      <pre><code>// Example helper
+function delay(ms) {
+  return new Promise(resolve =&gt; setTimeout(resolve, ms));
+}
 
-        <ul>
-          <li>Click Delete → item disappears instantly (optimistic UI)</li>
-          <li>After 2 seconds → error occurs → item returns (rollback)</li>
-        </ul>
-
-        <div class="callout bad">
-          <p><strong>Security reminder 🔒:</strong> Your server action must still enforce authorization (user can only delete their own booking). Optimistic UI does not replace backend rules.</p>
-        </div>
-      </section>
-
-      <section>
-        <h2>6) Where cache revalidation fits</h2>
-        <p>
-          Your server action (e.g., <span class="k">deleteReservation</span>) should still revalidate the reservations route so server data stays consistent across navigation.
-        </p>
-        <pre><code>// app/_lib/actions.js
-"use server";
-
-import { auth } from "@/app/_lib/auth";
-import { getBookings } from "@/app/_lib/data-service";
-import { revalidatePath } from "next/cache";
-import supabase from "@/app/_lib/supabase";
-
-export async function deleteReservation(bookingId) {
-  const session = await auth();
-  if (!session) throw new Error("You must be logged in");
-
-  // Authorization: ensure booking belongs to this guest
-  const guestBookings = await getBookings(session.user.guestId);
-  const guestBookingIds = guestBookings.map(b =&gt; b.id);
-  if (!guestBookingIds.includes(bookingId)) {
-    throw new Error("You are not allowed to delete this booking");
-  }
-
-  const { error } = await supabase
-    .from("bookings")
-    .delete()
-    .eq("id", bookingId);
-
-  if (error) throw new Error("Could not delete booking");
-
-  revalidatePath("/account/reservations");
+// Server action (example)
+export async function deleteReservation(id) {
+  await delay(2000);          // artificial delay for testing
+  // throw new Error("Boom"); // force failure to test rollback
+  await supabaseDelete(id);
 }</code></pre>
 
-        <div class="callout">
-          <p><strong>🧠 Mental model:</strong> Optimistic UI improves perceived speed <em>now</em>, while revalidation ensures correctness <em>everywhere</em> (especially after navigation).</p>
-        </div>
-      </section>
+      <div class="callout">
+        <p><strong>✅ Expected behavior</strong></p>
+        <ul>
+          <li>Click delete → item disappears immediately.</li>
+          <li>If server succeeds → item stays gone.</li>
+          <li>If server fails → item re-appears (rollback) and you may see an error (e.g., 500).</li>
+        </ul>
+      </div>
 
-      <section>
-        <h2>7) Extra UX: Loading UI for nested routes</h2>
+      <div class="divider"></div>
+
+      <h2>6) Reducer analogy (helps reduce confusion)</h2>
+      <p>
+        <code>useOptimistic</code> can feel similar to <code>useReducer</code>:
+      </p>
+      <ul>
+        <li>🧠 The “update function” is like a reducer: <code>(currentState, payload) =&gt; nextState</code></li>
+        <li>🔁 The “optimisticDelete” function is like dispatch: you call it with a payload.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>📌 Practical rule</strong></p>
         <p>
-          The lecture mentions copying <span class="k">loading.js</span> into the <span class="k">account</span> route so nested pages show a spinner while streaming.
+          Whatever data your real async action needs (e.g., <code>bookingId</code>),
+          your optimistic updater usually needs the <em>same payload</em> to compute the optimistic UI state.
         </p>
-        <div class="callout ok">
-          <p><strong>✅ Outcome:</strong> When navigating to account-related pages, users see a consistent loading indicator instead of “nothing happening”.</p>
-        </div>
-      </section>
+      </div>
 
-      <section>
-        <h2>8) Quick Checklist (review before moving on)</h2>
+      <h3>Optimistic add example (quick contrast)</h3>
+      <pre><code>// If optimistically ADDING an item instead of deleting:
+(currentBookings, newBooking) =&gt; {
+  return [...currentBookings, newBooking];
+}</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>7) Next.js note: <code>loading.js</code> for child route segments</h2>
+      <p>
+        The lecture also mentions a UX improvement: some pages take time to load but show no loading indicator.
+        In the Next.js App Router, <code>loading.js</code> is applied at a route segment level.
+        So if a child segment does not show the spinner, you can add/copy a <code>loading.js</code> into that segment.
+      </p>
+
+      <div class="callout">
+        <p><strong>✅ Outcome</strong></p>
         <ul>
-          <li>✅ Moved reservations list into a Client Component (<span class="k">ReservationList</span>)</li>
-          <li>✅ Used <span class="k">useOptimistic</span> to remove an item immediately</li>
-          <li>✅ Called server action after the optimistic update</li>
-          <li>✅ Rollback verified by simulating an error</li>
-          <li>✅ Server-side authorization still enforced</li>
-          <li>✅ Revalidated <span class="k">/account/reservations</span> after deletion</li>
-          <li>✅ Optional: used <span class="k">useTransition</span> to disable button/spinner</li>
+          <li>Navigate/reload → you immediately see a spinner while content streams in.</li>
+          <li>This improves perceived performance and responsiveness.</li>
         </ul>
-      </section>
+      </div>
 
-      <section>
-        <h2>9) Mini FAQ</h2>
-        <div class="grid">
-          <div class="callout">
-            <p><strong>Q:</strong> Do I still need spinners if I use optimistic UI?</p>
-            <p><strong>A:</strong> Often you can reduce them. But you may still want a subtle pending state to prevent double clicks and show “work in progress”.</p>
-          </div>
-          <div class="callout">
-            <p><strong>Q:</strong> Is optimistic UI safe?</p>
-            <p><strong>A:</strong> UX-safe, yes—if you handle failures (rollback) and keep backend authorization strict.</p>
-          </div>
-          <div class="callout">
-            <p><strong>Q:</strong> What’s the simplest optimistic delete update function?</p>
-            <p><strong>A:</strong> Filter out the item: <span class="k">current.filter(x =&gt; x.id !== id)</span>.</p>
-          </div>
-        </div>
-      </section>
+      <pre><code>// Example structure (conceptual)
+app/
+  loading.js               // applies to this segment
+  account/
+    loading.js             // add/copy here if account pages need it
+    page.js</code></pre>
 
-      <section>
-        <h2>10) Key Takeaways</h2>
-        <ul>
-          <li>⚡ Optimistic UI makes apps feel fast by updating the UI before the server finishes.</li>
-          <li>🪝 <span class="k">useOptimistic</span> is designed for “temporary UI state while async work is pending”.</li>
-          <li>🔒 Never rely on client UI for security—always authorize in server actions.</li>
-          <li>🧼 Use <span class="k">revalidatePath</span> to keep server-rendered data consistent after mutations.</li>
-        </ul>
-      </section>
+      <div class="divider"></div>
 
+      <h2>8) Common pitfalls and checklist</h2>
+
+      <div class="grid">
+        <section class="qa">
+          <h3>⚠️ Pitfalls</h3>
+          <ul>
+            <li>Forgetting <code>"use client"</code> in the component that uses <code>useOptimistic</code>.</li>
+            <li>Rendering <code>bookings</code> instead of <code>optimisticBookings</code> (no visible optimistic UI).</li>
+            <li>Not passing the payload (<code>bookingId</code>) into <code>optimisticDelete</code>.</li>
+            <li>Putting delete logic inside each card (harder to manage list-level state updates).</li>
+          </ul>
+        </section>
+
+        <section class="qa">
+          <h3>✅ Implementation checklist</h3>
+          <ul>
+            <li>Client Component created for list rendering.</li>
+            <li><code>useOptimistic(bookings, updater)</code> declared.</li>
+            <li>UI renders <code>optimisticBookings</code>.</li>
+            <li><code>handleDelete(id)</code> calls:
+              <ul>
+                <li>1) <code>optimisticDelete(id)</code></li>
+                <li>2) <code>await deleteReservation(id)</code></li>
+              </ul>
+            </li>
+            <li>Test with delay + forced error to confirm rollback works.</li>
+          </ul>
+        </section>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>9) Quick self-test (no answers shown)</h2>
+      <ul>
+        <li>🧠 Why does optimistic UI improve “perceived performance” even if the server is still slow?</li>
+        <li>🧩 What are the two states you think about when using <code>useOptimistic</code>?</li>
+        <li>🔁 What should happen if the server action fails after you optimistically removed an item?</li>
+        <li>⚙️ Why must the reservations list be moved into a Client Component?</li>
+        <li>🌀 Why might adding <code>loading.js</code> to a child route segment fix missing spinners?</li>
+      </ul>
+
+      <p class="small">
+        End of reviewer. You can print this to PDF using the button at the top (it will not appear in the printed output).
+      </p>
     </main>
   </div>
 </body>

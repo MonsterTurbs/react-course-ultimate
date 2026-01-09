@@ -1,130 +1,141 @@
-
-
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>React Study Guide — Passing Elements as Props (Alternative to children)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>React Study Guide — Component Composition Alternative: Explicit “element” Prop vs children</title>
   <style>
     :root{
       --bg:#ffffff;
       --text:#111111;
       --muted:#555555;
       --border:#e6e6e6;
-      --soft:#fafafa;
-      --accent:#0b57d0;
-      --good:#1f7a1f;
-      --warn:#8a4b00;
-      --bad:#b00020;
-      --codebg:#f6f8fa;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --link:#0b57d0;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
+
+      /* High-contrast code theme */
+      --code-bg:#0b1220;
+      --code-text:#e6edf3;
+      --code-border:#1f2937;
+      --inline-bg:#eef2ff;
+      --inline-border:#dbeafe;
     }
 
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
-
     body{
       margin:0;
       background:var(--bg);
       color:var(--text);
       font-family: Arial, Helvetica, sans-serif;
-      line-height:1.6;
+      line-height:1.65;
       overflow-wrap:anywhere;
-      word-break: break-word;
+      word-break:normal;
     }
 
     .page{
-      max-width: 900px;
+      max-width: 980px;
       margin: 0 auto;
-      padding: 28px 18px 64px;
+      padding: 28px 18px 56px;
     }
 
     header{
-      border-bottom:1px solid var(--border);
-      padding-bottom:14px;
-      margin-bottom:18px;
+      padding: 18px 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, var(--panel));
+      box-shadow: var(--shadow);
     }
 
     h1{
-      font-size: 1.8rem;
-      margin:0 0 6px;
-      letter-spacing: -0.02em;
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: .2px;
+      line-height: 1.25;
     }
 
     .subtitle{
-      margin:0;
-      color:var(--muted);
-      font-size: 1rem;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
     }
 
-    .meta{
-      margin-top:10px;
+    .toolbar{
+      margin-top: 14px;
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      color:var(--muted);
-      font-size:0.95rem;
+      align-items:center;
     }
 
-    .chip{
+    .btn{
+      appearance:none;
       border:1px solid var(--border);
-      background:var(--soft);
-      padding:6px 10px;
-      border-radius:999px;
+      background:#fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size: 13px;
+    }
+    .btn:hover{ border-color:#cfcfcf; }
+    .btn:active{ transform: translateY(1px); }
+
+    .meta{
+      margin-left:auto;
+      color:var(--muted);
+      font-size: 12px;
+    }
+
+    main{
+      margin-top: 18px;
+      padding: 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background:#fff;
+      box-shadow: var(--shadow);
     }
 
     h2{
-      font-size: 1.25rem;
       margin: 18px 0 10px;
-      padding-top: 6px;
+      font-size: 18px;
+      line-height: 1.25;
     }
-
     h3{
-      font-size: 1.08rem;
       margin: 14px 0 8px;
+      font-size: 15px;
+      line-height: 1.3;
     }
 
     p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
 
     .callout{
       border:1px solid var(--border);
-      background:var(--soft);
+      background: var(--panel);
       border-radius: 12px;
-      padding: 12px 14px;
+      padding: 12px 12px;
       margin: 12px 0;
     }
 
-    .callout strong{ display:inline-block; margin-bottom:4px; }
-
-    .callout.good{ border-left: 6px solid var(--good); }
-    .callout.warn{ border-left: 6px solid var(--warn); }
-    .callout.bad{  border-left: 6px solid var(--bad); }
-
-    ul,ol{ margin: 8px 0 8px 22px; }
-    li{ margin: 6px 0; }
-
-    code{
-      font-family: var(--mono);
-      background: var(--codebg);
-      border: 1px solid #edf0f2;
-      padding: 0.12em 0.32em;
-      border-radius: 6px;
-      font-size: 0.95em;
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style:none;
     }
-
-    pre{
-      margin: 10px 0;
-      padding: 12px 14px;
-      background: var(--codebg);
-      border: 1px solid #edf0f2;
-      border-radius: 12px;
-      overflow: auto;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-family: var(--mono);
-      font-size: 0.92rem;
-      line-height: 1.45;
+    .chip{
+      background: var(--chip);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color:#222;
     }
 
     .divider{
@@ -133,282 +144,266 @@
       margin: 16px 0;
     }
 
-    .kbd{
-      font-family: var(--mono);
-      border:1px solid var(--border);
-      background: #fff;
-      border-bottom-width: 2px;
-      padding: 0.1em 0.35em;
+    .small{ color:var(--muted); font-size: 13px; }
+
+    /* Code blocks */
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Courier New", monospace;
+    }
+    code{
+      background: var(--inline-bg);
+      color:#111111;
+      padding: 1px 6px;
       border-radius: 6px;
-      font-size: 0.92em;
-      white-space: nowrap;
+      border: 1px solid var(--inline-border);
+      font-size: 0.95em;
+      opacity: 1 !important;
     }
-
-    .mini-grid{
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
+    pre{
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border: 1px solid var(--code-border);
+      overflow:auto;
+      max-width: 100%;
+      box-shadow: 0 2px 14px rgba(0,0,0,.10);
+      opacity: 1 !important;
     }
-
-    .two-col{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
+    pre code{
+      background: transparent !important;
+      border: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+      font-size: 12.8px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      opacity: 1 !important;
     }
-
-    @media (min-width: 860px){
-      .two-col{ grid-template-columns: 1fr 1fr; }
-    }
-
-    /* Print */
-    @page{ size: A4; margin: 14mm; }
 
     @media print{
+      @page{ size: A4; margin: 12mm; }
       body{ background:#fff; }
-      .page{ max-width:none; padding: 0; }
-      .chip, .callout{ background:#fff !important; }
-      a{ color: inherit; text-decoration: none; }
-      a::after{ content: ""; }
-      pre{ page-break-inside: avoid; }
-      h2, h3{ page-break-after: avoid; }
-      .callout{ page-break-inside: avoid; }
+      .page{ padding: 0; margin: 0; max-width: none; }
+      header, main{ box-shadow: none; }
+      header{ break-inside: avoid; }
+      .toolbar{ display:none !important; }
+      a[href]::after{ content:""; }
+
+      pre{
+        background:#ffffff !important;
+        color:#111111 !important;
+        border: 1px solid #d0d0d0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+      pre code{
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+      }
+
+      .callout{ break-inside: avoid; }
+      h2{ break-after: avoid; }
     }
   </style>
 </head>
+
 <body>
-  <main class="page">
+  <div class="page">
     <header>
-      <h1>🧩 Passing Elements as Props — Alternative to <code>children</code></h1>
-      <p class="subtitle">React composition refresher + beginner-friendly examples (print-ready A4, single-column)</p>
-      <div class="meta">
-        <span class="chip">✅ Topic: Component Composition</span>
-        <span class="chip">🔁 Pattern: <code>children</code> vs explicit prop (e.g., <code>element</code>)</span>
-        <span class="chip">🛠️ Bonus: VS Code “Go to Definition” trick</span>
-      </div>
-    </header>
-
-    <section>
-      <h2>🎯 What you will learn</h2>
-      <ul>
-        <li>Why <code>children</code> is the default/preferred way to do component composition in React.</li>
-        <li>How to pass JSX via an explicit prop (e.g., <code>element</code>) as an alternative.</li>
-        <li>When the explicit-prop approach is actually useful (named “slots”).</li>
-        <li>A practical VS Code productivity tip: jump to component definition quickly.</li>
-      </ul>
-
-      <div class="callout good">
-        <strong>💡 Key idea</strong>
-        <p>
-          “Component composition” means: build flexible components by letting the caller provide what should be rendered inside.
-          Most of the time, React uses <code>children</code> for this.
-        </p>
-      </div>
-    </section>
-
-    <section>
-      <h2>🧠 Concept refresher: Composition with <code>children</code></h2>
-      <p>
-        When a component accepts <code>children</code>, it’s like leaving an “empty slot” inside the component.
-        The caller can fill that slot with any JSX.
+      <h1>🧩 Component Composition — Explicit Prop (element) vs <code>children</code></h1>
+      <p class="subtitle">
+        This lecture explores an alternative to the <code>children</code> prop: passing JSX via an explicitly named prop (e.g., <code>element</code>).
+        The UI result is the same, but the API style and readability differ. Preferred approach in React is usually <code>children</code>.
       </p>
 
-      <h3>✅ Example: reusable <code>Box</code> using <code>children</code></h3>
-      <pre>// Box.jsx
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆️ Back to Top</button>
+        <span class="meta">Single-column • A4 print-ready • High-contrast code</span>
+      </div>
+
+      <ul class="chips" aria-label="key tags">
+        <li class="chip">🧩 Composition</li>
+        <li class="chip">👶 children prop</li>
+        <li class="chip">🧷 element prop</li>
+        <li class="chip">🧠 Named slots</li>
+        <li class="chip">🛣️ React Router pattern</li>
+        <li class="chip">🧰 VS Code navigation</li>
+      </ul>
+    </header>
+
+    <main>
+      <h2>1) Two ways to do component composition</h2>
+      <p>
+        In React, you can compose components (pass JSX into a component) in two common ways:
+      </p>
+      <ul>
+        <li>✅ <strong>Implicit slot</strong> using <code>children</code> (most common)</li>
+        <li>✅ <strong>Explicit slot</strong> using a named prop like <code>element</code>, <code>header</code>, <code>footer</code>, etc.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Key idea</strong></p>
+        <p>
+          Both approaches pass JSX into a component. They differ mainly in API design and readability.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>2) The usual approach: <code>children</code> (implicit)</h2>
+      <p>
+        The <code>children</code> prop represents whatever you place between a component’s opening and closing tags:
+      </p>
+
+      <pre><code>// Box.jsx
 function Box({ children }) {
-  const [isOpen, setIsOpen] = useState(true);
-
-  return (
-    &lt;div className="box"&gt;
-      &lt;button className="btn-toggle" onClick={() =&gt; setIsOpen(o =&gt; !o)}&gt;
-        {isOpen ? "–" : "+"}
-      &lt;/button&gt;
-
-      {isOpen &amp;&amp; children}
-    &lt;/div&gt;
-  );
+  return &lt;div className="box"&gt;{children}&lt;/div&gt;;
 }
 
 // Usage
 &lt;Box&gt;
   &lt;MovieList movies={movies} /&gt;
-&lt;/Box&gt;</pre>
+&lt;/Box&gt;</code></pre>
 
       <div class="callout">
-        <strong>✅ Why this is nice</strong>
+        <p><strong>✅ Why this is preferred</strong></p>
         <ul>
-          <li><strong>Clean usage:</strong> the JSX you pass looks like real content inside <code>&lt;Box&gt;...&lt;/Box&gt;</code>.</li>
-          <li><strong>Flexible:</strong> you can pass one element, many elements, or fragments.</li>
-          <li><strong>Common React convention:</strong> most libraries and teams expect this pattern.</li>
+          <li>Reads like HTML nesting (very natural)</li>
+          <li>Common pattern across the React ecosystem</li>
+          <li>Simple when there is one main “slot”</li>
         </ul>
       </div>
-    </section>
-
-    <section>
-      <h2>🧩 Alternative: Passing JSX via an explicit prop (e.g., <code>element</code>)</h2>
-      <p>
-        Instead of receiving <code>children</code>, a component can receive a prop that contains JSX.
-        In the lecture, the example prop name was <code>element</code>, but it can be anything.
-      </p>
-
-      <h3>✅ Example: <code>Box</code> with an <code>element</code> prop</h3>
-      <pre>// Box.jsx
-function Box({ element }) {
-  const [isOpen, setIsOpen] = useState(true);
-
-  return (
-    &lt;div className="box"&gt;
-      &lt;button className="btn-toggle" onClick={() =&gt; setIsOpen(o =&gt; !o)}&gt;
-        {isOpen ? "–" : "+"}
-      &lt;/button&gt;
-
-      {isOpen &amp;&amp; element}
-    &lt;/div&gt;
-  );
-}
-
-// Usage
-&lt;Box element={&lt;MovieList movies={movies} /&gt;} /&gt;</pre>
-
-      <div class="callout warn">
-        <strong>⚠️ What changed?</strong>
-        <ul>
-          <li>Before: JSX is passed <em>implicitly</em> (between opening/closing tags) → read through <code>children</code>.</li>
-          <li>Now: JSX is passed <em>explicitly</em> via a named prop → read through <code>element</code>.</li>
-        </ul>
-      </div>
-
-      <h3>🧱 Passing multiple elements</h3>
-      <p>
-        If you need to pass more than one element into a single prop, wrap it in a fragment <code>&lt;&gt;...&lt;/&gt;</code>.
-      </p>
-      <pre>&lt;Box
-  element={
-    &lt;&gt;
-      &lt;WatchedSummary watched={watched} /&gt;
-      &lt;WatchedMoviesList watched={watched} /&gt;
-    &lt;/&gt;
-  }
-/&gt;</pre>
-
-      <div class="callout">
-        <strong>🧪 Under the hood</strong>
-        <p>
-          In practice, React can render either approach the same way because both ultimately pass React elements into a component.
-          The choice is more about readability, conventions, and flexibility.
-        </p>
-      </div>
-    </section>
-
-    <section>
-      <h2>✅ When is the explicit-prop pattern actually useful?</h2>
-      <p>
-        Most of the time, <code>children</code> is preferred. But passing JSX via explicit props becomes useful when you need
-        <strong>multiple named “slots”</strong>.
-      </p>
-
-      <div class="two-col">
-        <div class="callout good">
-          <strong>✅ Good use cases</strong>
-          <ul>
-            <li><strong>Named slots:</strong> header/body/footer (or left/right panels)</li>
-            <li><strong>APIs like React Router:</strong> patterns that accept <code>element</code>/<code>Component</code> props</li>
-            <li><strong>Clarity:</strong> you want the caller to know exactly what each slot is for</li>
-          </ul>
-        </div>
-        <div class="callout warn">
-          <strong>⚠️ Trade-offs</strong>
-          <ul>
-            <li>Usage can look noisier: <code>element={...}</code> everywhere</li>
-            <li>More props to manage if you only need one slot</li>
-            <li>Team convention: most React codebases default to <code>children</code></li>
-          </ul>
-        </div>
-      </div>
-
-      <h3>🧩 Example: “slots” with explicit props</h3>
-      <pre>function Panel({ header, body, footer }) {
-  return (
-    &lt;section className="panel"&gt;
-      &lt;div className="panel__header"&gt;{header}&lt;/div&gt;
-      &lt;div className="panel__body"&gt;{body}&lt;/div&gt;
-      &lt;div className="panel__footer"&gt;{footer}&lt;/div&gt;
-    &lt;/section&gt;
-  );
-}
-
-&lt;Panel
-  header={&lt;h2&gt;Movie Details&lt;/h2&gt;}
-  body={&lt;MovieDetails movie={movie} /&gt;}
-  footer={&lt;button&gt;Close&lt;/button&gt;}
-/&gt;</pre>
-
-      <div class="callout">
-        <strong>🧠 Easy way to remember</strong>
-        <ul>
-          <li><strong>One slot?</strong> Use <code>children</code>.</li>
-          <li><strong>Multiple named slots?</strong> Consider explicit JSX props.</li>
-        </ul>
-      </div>
-    </section>
-
-    <section>
-      <h2>🖱️ VS Code tip: Jump to component definition</h2>
-      <p>
-        When you hover a component name and hold <span class="kbd">Cmd</span> (Mac) or <span class="kbd">Ctrl</span> (Windows),
-        it becomes clickable. Clicking it jumps directly to the component’s definition.
-      </p>
-
-      <div class="callout good">
-        <strong>✅ Shortcut summary</strong>
-        <ul>
-          <li>Mac: hover → hold <span class="kbd">Cmd</span> → click</li>
-          <li>Windows: hover → hold <span class="kbd">Ctrl</span> → click</li>
-          <li>To go back: use VS Code “Back” navigation (usually <span class="kbd">Alt</span>+<span class="kbd">←</span> on Windows, <span class="kbd">Ctrl</span>+<span class="kbd">-</span> in some setups, or the back button in the top left).</li>
-        </ul>
-      </div>
-
-      <div class="callout warn">
-        <strong>⚠️ If it doesn’t work</strong>
-        <ul>
-          <li>Ensure TypeScript/JS language features are enabled (built-in in VS Code).</li>
-          <li>Sometimes indexing needs a moment after big file changes.</li>
-          <li>Try <span class="kbd">F12</span> (Go to Definition) as a fallback.</li>
-        </ul>
-      </div>
-    </section>
-
-    <section>
-      <h2>📝 Quick checkpoints (self-test)</h2>
-      <ol>
-        <li>What is the main difference between <code>children</code> and an <code>element</code> prop?</li>
-        <li>Why is <code>children</code> usually preferred in React codebases?</li>
-        <li>When would you prefer named props (header/body/footer) instead of <code>children</code>?</li>
-        <li>What does wrapping with <code>&lt;&gt;...&lt;/&gt;</code> solve when passing multiple elements?</li>
-      </ol>
-
-      <div class="callout">
-        <strong>✅ Expected answers (short)</strong>
-        <ul>
-          <li><code>children</code> is implicit slot; <code>element</code> is explicit JSX prop.</li>
-          <li><code>children</code> reads cleaner and is the common convention.</li>
-          <li>When you need multiple named slots and clearer intent.</li>
-          <li>Fragments let you pass multiple sibling elements as one value.</li>
-        </ul>
-      </div>
-    </section>
-
-    <section>
-      <h2>🏁 Key takeaways</h2>
-      <ul>
-        <li>✅ Composition is about building flexible components by letting callers provide JSX.</li>
-        <li>✅ <code>children</code> is the primary, preferred composition mechanism in React.</li>
-        <li>✅ Passing JSX via explicit props (like <code>element</code>) is valid and can be useful for named slots.</li>
-        <li>🛠️ VS Code navigation (Cmd/Ctrl+Click) speeds up understanding and refactoring component trees.</li>
-      </ul>
 
       <div class="divider"></div>
-      <p class="subtitle">End of reviewer — you can now print this page to A4 PDF cleanly.</p>
-    </section>
-  </main>
+
+      <h2>3) Alternative approach: explicit prop (e.g., <code>element</code>)</h2>
+      <p>
+        Instead of <code>children</code>, you can accept a named prop such as <code>element</code>
+        (or any name: <code>content</code>, <code>left</code>, <code>right</code>, etc.).
+      </p>
+
+      <h3>Box accepts element prop</h3>
+      <pre><code>// Box.jsx (alternative)
+function Box({ element }) {
+  return &lt;div className="box"&gt;{element}&lt;/div&gt;;
+}</code></pre>
+
+      <h3>Usage: pass JSX into the element prop</h3>
+      <pre><code>// App.jsx
+&lt;Box element={&lt;MovieList movies={movies} /&gt;} /&gt;</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Outcome</strong></p>
+        <p>
+          The app looks the same. You simply passed the JSX explicitly via a prop instead of implicitly via children.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>4) Passing multiple elements via explicit prop</h2>
+      <p>
+        If you want to pass multiple elements via an explicit prop, you often need a fragment:
+      </p>
+
+      <pre><code>&lt;Box
+  element={
+    &lt;&gt;
+      &lt;Search /&gt;
+      &lt;NumResults movies={movies} /&gt;
+    &lt;/&gt;
+  }
+/&gt;</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 Why fragment is needed</strong></p>
+        <p>
+          JSX expressions in a prop must evaluate to a single value. A fragment groups multiple elements into one.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>5) When the explicit prop approach makes sense</h2>
+      <p>
+        Using an explicit prop can be a viable pattern when you want <strong>multiple named slots</strong>.
+        Example: a component might accept <code>header</code>, <code>content</code>, and <code>footer</code>.
+      </p>
+
+      <div class="callout">
+        <p><strong>Good use case</strong></p>
+        <ul>
+          <li>You want to pass multiple pieces of JSX and name them clearly.</li>
+          <li>Named slots are easier to understand than nesting everything in children.</li>
+        </ul>
+      </div>
+
+      <p class="small">
+        The lecture notes that React Router uses a similar pattern in some APIs, which is why it’s useful to recognize.
+      </p>
+
+      <div class="divider"></div>
+
+      <h2>6) Why the lecture returns to <code>children</code></h2>
+      <p>
+        For the Box use case in this app, <code>children</code> is cleaner and more idiomatic:
+      </p>
+      <ul>
+        <li>Better readability in the JSX layout</li>
+        <li>Less noise than putting large JSX inside a prop assignment</li>
+        <li>Matches how React code is commonly written</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>✅ Practical guidance</strong></p>
+        <p>
+          Prefer <code>children</code> for the “main slot” most of the time.
+          Use explicit props when you truly need multiple named slots.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>7) VS Code tip: jump to definition</h2>
+      <p>
+        Handy productivity trick in VS Code:
+      </p>
+      <ul>
+        <li>Hover over a component name</li>
+        <li>Hold <strong>Ctrl</strong> (Windows) / <strong>Cmd</strong> (Mac)</li>
+        <li>Click to jump to the component definition</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Why this matters</strong></p>
+        <p>
+          It speeds up reading and understanding codebases—especially when working with many components.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>8) Quick self-check (practice)</h2>
+      <ul>
+        <li>🧩 What is the difference between implicit composition (children) and explicit composition (element prop)?</li>
+        <li>🧠 When would you prefer an explicit prop over children?</li>
+        <li>🧱 Why do you often need a fragment when passing multiple elements via a single prop?</li>
+        <li>✅ Why is children considered the “preferred” way in most React code?</li>
+        <li>🧰 How do you jump to a component definition quickly in VS Code?</li>
+      </ul>
+
+      <p class="small">
+        End of reviewer. Main takeaway: explicit props can be useful for named slots, but children is usually the most readable default.
+      </p>
+    </main>
+  </div>
 </body>
 </html>

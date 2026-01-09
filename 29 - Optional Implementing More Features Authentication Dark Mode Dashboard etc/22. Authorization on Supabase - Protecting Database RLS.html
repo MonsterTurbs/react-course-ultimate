@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>React Study Guide — Supabase Authorization with RLS Policies (Authenticated Only)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --link:#0b57d0;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
+
+      /* High-contrast code theme */
+      --code-bg:#0b1220;
+      --code-text:#e6edf3;
+      --code-border:#1f2937;
+      --inline-bg:#eef2ff;
+      --inline-border:#dbeafe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header{
+      padding: 18px 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, var(--panel));
+      box-shadow: var(--shadow);
+    }
+
+    h1{
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: .2px;
+      line-height: 1.25;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size: 13px;
+    }
+    .btn:hover{ border-color:#cfcfcf; }
+    .btn:active{ transform: translateY(1px); }
+
+    .meta{
+      margin-left:auto;
+      color:var(--muted);
+      font-size: 12px;
+    }
+
+    main{
+      margin-top: 18px;
+      padding: 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background:#fff;
+      box-shadow: var(--shadow);
+    }
+
+    h2{
+      margin: 18px 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style:none;
+    }
+    .chip{
+      background: var(--chip);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color:#222;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 16px 0;
+    }
+
+    .small{ color:var(--muted); font-size: 13px; }
+
+    /* Code blocks */
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Courier New", monospace;
+    }
+    code{
+      background: var(--inline-bg);
+      color:#111111;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--inline-border);
+      font-size: 0.95em;
+      opacity: 1 !important;
+    }
+    pre{
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border: 1px solid var(--code-border);
+      overflow:auto;
+      max-width: 100%;
+      box-shadow: 0 2px 14px rgba(0,0,0,.10);
+      opacity: 1 !important;
+    }
+    pre code{
+      background: transparent !important;
+      border: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+      font-size: 12.8px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      opacity: 1 !important;
+    }
+
+    @media print{
+      @page{ size: A4; margin: 12mm; }
+      body{ background:#fff; }
+      .page{ padding: 0; margin: 0; max-width: none; }
+      header, main{ box-shadow: none; }
+      header{ break-inside: avoid; }
+      .toolbar{ display:none !important; }
+      a[href]::after{ content:""; }
+
+      pre{
+        background:#ffffff !important;
+        color:#111111 !important;
+        border: 1px solid #d0d0d0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+      pre code{
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+      }
+
+      .callout{ break-inside: avoid; }
+      h2{ break-after: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🔐 Supabase Authorization — Lock Down Data with Row Level Security (RLS)</h1>
+      <p class="subtitle">
+        Problem: users can still fetch/mutate data via the Supabase API even if they are logged out of the UI.
+        Solution: enforce authorization in Supabase itself by updating all RLS policies to target <strong>authenticated</strong> users.
+      </p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆️ Back to Top</button>
+        <span class="meta">Single-column • A4 print-ready • High-contrast code</span>
+      </div>
+
+      <ul class="chips" aria-label="key tags">
+        <li class="chip">🔐 RLS policies</li>
+        <li class="chip">🧑‍💻 Authenticated role</li>
+        <li class="chip">🧨 Prevent malicious API use</li>
+        <li class="chip">✅ Server-side authorization</li>
+        <li class="chip">🗃️ Supabase tables</li>
+        <li class="chip">🧩 UI login is not enough</li>
+      </ul>
+    </header>
+
+    <main>
+      <h2>1) The security problem (UI login ≠ API protection)</h2>
+      <p>
+        Right now, anyone can still read and modify data through the API even if they cannot log into the UI.
+        That’s because the API endpoint can be discovered from the frontend code, and then called directly.
+      </p>
+
+      <div class="callout">
+        <p><strong>🧨 Real risk</strong></p>
+        <ul>
+          <li>A malicious actor can find the API URL and keys in the frontend build.</li>
+          <li>They could call endpoints directly and do destructive actions:
+            delete bookings, delete cabins, etc.</li>
+          <li>Even though the UI is locked, the database is still exposed unless you enforce server-side rules.</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>2) Demo of the issue (logged out but still reading data)</h2>
+      <p>
+        The lecture demonstrates this clearly:
+      </p>
+      <ul>
+        <li>🚪 Log out of the app.</li>
+        <li>🔎 Navigate to a page (like the login page) and still render a component that fetches cabins.</li>
+        <li>✅ The cabins load successfully even though the user is not authenticated.</li>
+        <li>⚠️ Worse: you could still edit/delete from the UI component because the API allows it.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Key takeaway</strong></p>
+        <p>
+          <strong>Client-side auth is not enough.</strong> You must enforce authorization in the database/API layer.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>3) Solution: update Supabase Row Level Security policies</h2>
+      <p>
+        Supabase uses <strong>Row Level Security (RLS)</strong> policies to control who can:
+      </p>
+      <ul>
+        <li>📥 <strong>SELECT</strong> (read)</li>
+        <li>➕ <strong>INSERT</strong> (create)</li>
+        <li>✏️ <strong>UPDATE</strong> (edit)</li>
+        <li>🗑️ <strong>DELETE</strong> (remove)</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>✅ What the lecture does</strong></p>
+        <ul>
+          <li>Go to Supabase → Policies for each table.</li>
+          <li>Edit each policy.</li>
+          <li>Set the <strong>Target role</strong> to <code>authenticated</code>.</li>
+          <li>Repeat for all relevant policies (cabins, bookings, etc.).</li>
+        </ul>
+      </div>
+
+      <h3>Minimal change approach</h3>
+      <p>
+        In the lecture, the policy logic doesn’t change. Only the <strong>role</strong> changes.
+        This is the fastest way to secure the app without rewriting policy conditions.
+      </p>
+
+      <div class="divider"></div>
+
+      <h2>4) Role design note (not always “authenticated for everything”)</h2>
+      <p>
+        The instructor points out that different apps may have different access needs:
+      </p>
+      <ul>
+        <li>🌐 Some apps allow <strong>SELECT</strong> for everyone (public read).</li>
+        <li>🔐 But restrict <strong>INSERT/UPDATE/DELETE</strong> to authenticated users.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>For this hotel app</strong></p>
+        <p>
+          It makes sense to require authentication for everything, because the data is internal/admin data.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>5) Verify it worked (expected behavior)</h2>
+      <p>
+        After updating policies:
+      </p>
+
+      <h3>Logged out</h3>
+      <ul>
+        <li>❌ Fetching cabins shows “No cabins could be found” (or fails due to no permission).</li>
+        <li>🔄 Reloading does not magically fix it, because the user is still unauthenticated.</li>
+      </ul>
+
+      <h3>Logged in</h3>
+      <ul>
+        <li>✅ Bookings and cabins load normally.</li>
+        <li>✅ Mutations work because requests now include an authenticated session.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>✅ Outcome</strong></p>
+        <p>
+          Your data is protected at the source (Supabase), not just in the UI.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>6) What’s next in the course</h2>
+      <p>
+        After locking down RLS policies, the authentication section is almost complete.
+        Next features:
+      </p>
+      <ul>
+        <li>🔑 Allow users to update their password</li>
+        <li>🧾 Possibly update name</li>
+        <li>🖼️ Upload avatar</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>7) Quick self-check (practice)</h2>
+      <ul>
+        <li>🧠 Why is “UI login protection” not enough to secure a Supabase database?</li>
+        <li>🧨 What can an attacker do if your RLS policies allow anonymous access?</li>
+        <li>🔐 What does setting policy target role to <code>authenticated</code> achieve?</li>
+        <li>⚖️ When might you allow <code>SELECT</code> for everyone but restrict mutations?</li>
+        <li>✅ How do you verify your RLS changes are working correctly?</li>
+      </ul>
+
+      <p class="small">
+        End of reviewer. This is a critical real-world security step: always secure the API/database layer.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

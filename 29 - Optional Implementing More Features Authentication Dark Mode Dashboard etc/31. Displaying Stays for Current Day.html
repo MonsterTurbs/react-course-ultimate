@@ -1,392 +1,321 @@
-
-
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>React Dashboard — Today Activity (Check-ins & Check-outs) | Study Guide</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>React Study Guide — Today Activity (Dashboard) + React Query + Supabase OR/AND Filters</title>
   <style>
-    :root {
-      --bg: #ffffff;
-      --text: #111111;
-      --muted: #555555;
-      --soft: #f6f7f9;
-      --border: #e6e6e6;
-      --code-bg: #0b1020;
-      --code-text: #e8eefc;
-      --accent: #0b57d0;
-      --ok: #0f8a3c;
-      --warn: #b35c00;
-      --bad: #b00020;
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --link:#0b57d0;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
 
-      /* Print tuning */
-      --print-font: 11.5pt;
-      --print-line: 1.45;
+      /* High-contrast code theme */
+      --code-bg:#0b1220;
+      --code-text:#e6edf3;
+      --code-border:#1f2937;
+      --inline-bg:#eef2ff;
+      --inline-border:#dbeafe;
     }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
       font-family: Arial, Helvetica, sans-serif;
-      line-height: 1.6;
-      overflow-wrap: anywhere;
-      word-break: break-word;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
     }
 
-    /* Single-column page */
-    .page {
-      max-width: 900px;
+    /* Single-column */
+    .page{
+      max-width: 980px;
       margin: 0 auto;
-      padding: 28px 20px 60px;
+      padding: 28px 18px 56px;
     }
 
-    header {
-      border: 1px solid var(--border);
-      background: #fff;
-      padding: 18px 18px 14px;
-      border-radius: 12px;
+    header{
+      padding: 18px 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, var(--panel));
+      box-shadow: var(--shadow);
     }
 
-    h1 {
-      margin: 0 0 6px;
-      font-size: 22px;
-      letter-spacing: 0.2px;
-    }
-
-    .subtitle {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13.5px;
-    }
-
-    .meta {
-      margin-top: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: var(--soft);
-      font-size: 12.5px;
-      color: var(--text);
-    }
-
-    .chip b { font-weight: 700; }
-
-    nav {
-      margin: 16px 0 0;
-      padding-top: 12px;
-      border-top: 1px dashed var(--border);
-    }
-
-    nav .toc-title {
+    h1{
       margin: 0 0 8px;
-      font-size: 13px;
-      color: var(--muted);
-      font-weight: 700;
+      font-size: 24px;
       letter-spacing: .2px;
-      text-transform: uppercase;
+      line-height: 1.25;
     }
 
-    nav ul {
+    .subtitle{
       margin: 0;
-      padding-left: 18px;
+      color: var(--muted);
+      font-size: 14px;
     }
 
-    nav li { margin: 6px 0; }
-
-    nav a {
-      color: var(--accent);
-      text-decoration: none;
+    .toolbar{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
     }
 
-    nav a:hover { text-decoration: underline; }
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size: 13px;
+    }
+    .btn:hover{ border-color:#cfcfcf; }
+    .btn:active{ transform: translateY(1px); }
 
-    section {
-      margin-top: 16px;
+    .meta{
+      margin-left:auto;
+      color:var(--muted);
+      font-size: 12px;
+    }
+
+    main{
+      margin-top: 18px;
       padding: 18px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: #fff;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background:#fff;
+      box-shadow: var(--shadow);
     }
 
-    h2 {
-      margin: 0 0 10px;
+    h2{
+      margin: 18px 0 10px;
       font-size: 18px;
+      line-height: 1.25;
     }
-
-    h3 {
+    h3{
       margin: 14px 0 8px;
       font-size: 15px;
+      line-height: 1.3;
     }
 
-    p { margin: 10px 0; }
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
 
-    .callout {
-      border-left: 5px solid var(--accent);
-      background: var(--soft);
+    .callout{
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
       padding: 12px 12px;
-      border-radius: 10px;
       margin: 12px 0;
     }
 
-    .callout.ok { border-left-color: var(--ok); }
-    .callout.warn { border-left-color: var(--warn); }
-    .callout.bad { border-left-color: var(--bad); }
-
-    .callout .title {
-      margin: 0 0 6px;
-      font-weight: 700;
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style:none;
+    }
+    .chip{
+      background: var(--chip);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color:#222;
     }
 
-    ul, ol {
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 16px 0;
+    }
+
+    .small{ color:var(--muted); font-size: 13px; }
+
+    /* Code blocks */
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Courier New", monospace;
+    }
+    code{
+      background: var(--inline-bg);
+      color:#111111;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--inline-border);
+      font-size: 0.95em;
+      opacity: 1 !important;
+    }
+    pre{
       margin: 10px 0;
-      padding-left: 22px;
-    }
-
-    li { margin: 6px 0; }
-
-    code, pre {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    }
-
-    pre {
-      margin: 12px 0;
-      padding: 12px;
+      padding: 12px 14px;
       border-radius: 12px;
       background: var(--code-bg);
       color: var(--code-text);
-      overflow: auto;
-      border: 1px solid rgba(255,255,255,.08);
+      border: 1px solid var(--code-border);
+      overflow:auto;
+      max-width: 100%;
+      box-shadow: 0 2px 14px rgba(0,0,0,.10);
+      opacity: 1 !important;
+    }
+    pre code{
+      background: transparent !important;
+      border: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+      font-size: 12.8px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      opacity: 1 !important;
     }
 
-    pre code { white-space: pre; }
+    /* Print */
+    @media print{
+      @page{ size: A4; margin: 12mm; }
+      body{ background:#fff; }
+      .page{ padding: 0; margin: 0; max-width: none; }
+      header, main{ box-shadow: none; }
+      header{ break-inside: avoid; }
+      .toolbar{ display:none !important; }
+      a[href]::after{ content:""; }
 
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    .mini {
-      font-size: 12.5px;
-      color: var(--muted);
-    }
-
-    .kbd {
-      display: inline-block;
-      border: 1px solid var(--border);
-      background: var(--soft);
-      padding: 1px 6px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    }
-
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 14px 0;
-    }
-
-    footer {
-      margin-top: 16px;
-      color: var(--muted);
-      font-size: 12.5px;
-      text-align: center;
-    }
-
-    /* Print-specific CSS for clean A4 output */
-    @page { size: A4; margin: 14mm; }
-
-    @media print {
-      body { font-size: var(--print-font); line-height: var(--print-line); }
-      .page { max-width: none; padding: 0; }
-      header, section { border: 1px solid #cfcfcf; box-shadow: none; }
-      nav a { color: #000; text-decoration: none; }
-
-      /* Don’t print link URLs */
-      a[href]:after { content: "" !important; }
-
-      /* Keep code readable on print */
-      pre {
-        background: #f4f4f4;
-        color: #111;
-        border: 1px solid #d8d8d8;
+      pre{
+        background:#ffffff !important;
+        color:#111111 !important;
+        border: 1px solid #d0d0d0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+      pre code{
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
       }
 
-      /* Avoid awkward breaks */
-      h1, h2, h3 { page-break-after: avoid; }
-      section, header { break-inside: avoid; page-break-inside: avoid; }
-
-      /* Hide hover-only behaviors (none here), keep it clean */
+      .callout{ break-inside: avoid; }
+      h2{ break-after: avoid; }
     }
   </style>
 </head>
+
 <body>
-  <main class="page">
+  <div class="page">
     <header>
-      <h1>📋 Today Activity (Check-ins & Check-outs) — Dashboard Feature</h1>
+      <h1>🏨 Today Activity (Dashboard) — Arrivals & Departures</h1>
       <p class="subtitle">
-        Study guide from the lecture transcript: implementing the <b>TodayActivity</b> list that shows <b>arrivals</b> (check-ins) and <b>departures</b> (check-outs) for the current day, powered by <b>Supabase</b> + <b>React Query</b>.
+        Feature: Show guests who must <strong>check in</strong> today (arrivals) or <strong>check out</strong> today (departures),
+        powered by a targeted Supabase query + React Query state management.
       </p>
 
-      <div class="meta">
-        <span class="chip">🎯 <b>Goal:</b> show today’s arrivals & departures</span>
-        <span class="chip">🧠 <b>Concepts:</b> filtering “activities”, conditional UI</span>
-        <span class="chip">⚙️ <b>Stack:</b> Supabase + React Query + React Router</span>
-        <span class="chip">✅ <b>Outcome:</b> Check in/out directly from dashboard</span>
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆️ Back to Top</button>
+        <span class="meta">Single-column • A4 print-ready • High-contrast code</span>
       </div>
 
-      <nav>
-        <div class="toc-title">Table of contents</div>
-        <ul>
-          <li><a href="#big-picture">Big picture</a></li>
-          <li><a href="#activity-definition">What counts as “Today Activity”?</a></li>
-          <li><a href="#supabase-query">Supabase query (OR + AND)</a></li>
-          <li><a href="#react-query-hook">React Query hook: useTodayActivity</a></li>
-          <li><a href="#rendering-ui">Rendering the list (spinner + empty state)</a></li>
-          <li><a href="#today-item">TodayItem UI (Arriving/Departing tags)</a></li>
-          <li><a href="#checkin-checkout">Buttons: Check in (Link) & Check out (mutation)</a></li>
-          <li><a href="#debug">Common bugs & quick fixes</a></li>
-          <li><a href="#mini-review">Quick review (cheat sheet)</a></li>
-        </ul>
-      </nav>
+      <ul class="chips" aria-label="key tags">
+        <li class="chip">📅 Today Activity</li>
+        <li class="chip">✅ Check-in</li>
+        <li class="chip">🚪 Check-out</li>
+        <li class="chip">⚡ React Query</li>
+        <li class="chip">🧪 Supabase OR/AND</li>
+      </ul>
     </header>
 
-    <section id="big-picture">
-      <h2>🧭 Big picture</h2>
+    <main>
+      <h2>1) What is “Today Activity”?</h2>
       <p>
-        You’re building the last dashboard feature: a compact list that shows <b>who arrives today</b> and <b>who leaves today</b>.
-        In the UI, it lives on the dashboard, but in the project structure it’s stored under the <b>check-in-out</b> feature folder.
+        🧾 In this app, an <strong>activity</strong> means one of two things happening today:
       </p>
-
-      <div class="callout ok">
-        <p class="title">✅ Key idea</p>
-        <p>
-          “Folders are about <b>features</b>, not where components appear on the screen.”
-          TodayActivity belongs to the check-in/out feature because it triggers check-in/out actions.
-        </p>
-      </div>
-
-      <h3>What you will build</h3>
       <ul>
-        <li>Fetch only the bookings that matter <b>today</b> (don’t download the entire bookings table).</li>
-        <li>Show a <b>spinner</b> while loading, and an <b>empty message</b> when there is no activity.</li>
-        <li>Render each activity with: <b>Arriving/Departing</b> tag, country flag, guest name, nights, and an action button.</li>
-        <li>Action buttons:
-          <ul>
-            <li>Arriving → <b>Check in</b> (navigate to the Check-in route)</li>
-            <li>Departing → <b>Check out</b> (run a mutation)</li>
-          </ul>
-        </li>
+        <li>🟢 <strong>Arriving</strong>: guest has a booking that starts today and is <code>unconfirmed</code> (not checked in yet).</li>
+        <li>🔵 <strong>Departing</strong>: guest is <code>checked-in</code> and their booking ends today (ready to check out).</li>
       </ul>
-    </section>
 
-    <section id="activity-definition">
-      <h2>🧩 What counts as “Today Activity”?</h2>
-      <p>
-        An <b>activity</b> is either a guest who should <b>check in today</b> or a guest who should <b>check out today</b>.
-        The lecture defines it using booking <b>status</b> and booking dates.
-      </p>
-
-      <div class="two-col">
-        <div class="callout">
-          <p class="title">🟢 Arriving (Check-in)</p>
-          <ul>
-            <li><b>Status:</b> <span class="kbd">unconfirmed</span></li>
-            <li><b>Start date:</b> <span class="kbd">today</span></li>
-          </ul>
-          <p class="mini">Meaning: guest is scheduled to start today, but hasn’t been checked in yet.</p>
-        </div>
-
-        <div class="callout">
-          <p class="title">🔵 Departing (Check-out)</p>
-          <ul>
-            <li><b>Status:</b> <span class="kbd">checked-in</span></li>
-            <li><b>End date:</b> <span class="kbd">today</span></li>
-          </ul>
-          <p class="mini">Meaning: guest is currently checked in and should leave today.</p>
-        </div>
-      </div>
-
-      <div class="callout warn">
-        <p class="title">⚠️ Why you should NOT fetch all bookings</p>
+      <div class="callout">
+        <p><strong>📁 Folder structure idea (important)</strong></p>
         <p>
-          If you fetch all bookings and filter in JavaScript, you could end up downloading a huge dataset.
-          Instead, push the filtering into Supabase using a query.
+          The component is inside a <code>check-in-out</code> folder even if it appears in the <em>dashboard UI</em>.
+          That’s because folders represent <strong>features/domains</strong>, not where the component visually appears.
+        </p>
+        <p class="small">
+          ✅ This is a scalable way to organize large apps: group by feature (check-in/out) rather than by UI location (dashboard).
         </p>
       </div>
-    </section>
 
-    <section id="supabase-query">
-      <h2>🗄️ Supabase query (OR + AND)</h2>
+      <div class="divider"></div>
+
+      <h2>2) Don’t download all bookings (efficiency)</h2>
       <p>
-        The lecture uses a Supabase query that represents:
-        <b>(Arriving condition) OR (Departing condition)</b>.
-        This is done with an <span class="kbd">.or()</span> call whose string contains two “parts”, separated by a comma.
-        Each part can itself be an AND group.
+        ⚠️ A naive approach would be:
+        “Fetch all bookings ever created, then filter in JavaScript.”
+        That becomes slow and wasteful as the database grows.
       </p>
 
       <div class="callout">
-        <p class="title">🧠 Mental model</p>
+        <p><strong>✅ Better approach</strong></p>
         <p>
-          Think of it as writing SQL-like logic, but encoded as a string:
-          <b>(A AND B) OR (C AND D)</b>
+          Push filtering to the database query: fetch only bookings that match “arriving today” OR “departing today”.
         </p>
       </div>
 
-      <pre><code>// services/apiBookings.js (example shape)
-export async function getStaysTodayActivity() {
-  const todayStart = /* start of today (ISO) */;
-  const todayEnd = /* end of today (ISO) */;
+      <div class="divider"></div>
 
-  const { data, error } = await supabase
-    .from("bookings")
-    .select("*, guests(fullName, country, countryFlag)")
-    .or(
-      [
-        // Arriving: unconfirmed AND startDate is today
-        `and(status.eq.unconfirmed,startDate.gte.${todayStart},startDate.lte.${todayEnd})`,
-
-        // Departing: checked-in AND endDate is today
-        `and(status.eq.checked-in,endDate.gte.${todayStart},endDate.lte.${todayEnd})`,
-      ].join(",")
-    );
-
-  if (error) throw new Error(error.message);
-  return data;
-}
-</code></pre>
-
-      <p class="mini">
-        Notes: Your project may compute “today” using helper functions that return ISO strings.
-        The key takeaway is the OR-with-AND-grouping pattern.
-      </p>
-    </section>
-
-    <section id="react-query-hook">
-      <h2>⚡ React Query hook: <span class="kbd">useTodayActivity</span></h2>
+      <h2>3) Supabase query: OR with AND conditions</h2>
       <p>
-        Next, wrap the API call inside a React Query hook. This gives you:
-        <b>loading state</b>, caching, refetching, and a clean API in the component.
+        You build a query with an <code>or()</code> that contains two conditions (separated by a comma).
+        Inside each part, you can also include an <code>and</code>.
       </p>
 
-      <pre><code>// features/check-in-out/useTodayActivity.js
+      <h3>✅ Meaning of the filter</h3>
+      <ul>
+        <li><strong>Arriving today</strong> = <code>status = "unconfirmed"</code> AND <code>startDate = today</code></li>
+        <li><strong>Departing today</strong> = <code>status = "checked-in"</code> AND <code>endDate = today</code></li>
+      </ul>
+
+      <pre><code>// PSEUDO-CODE idea (readable form)
+( status === "unconfirmed" AND startDate === today )
+OR
+( status === "checked-in" AND endDate === today )</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 Why the Supabase syntax feels “weird”</strong></p>
+        <ul>
+          <li>Because it’s a string-based DSL (domain-specific language).</li>
+          <li>You won’t use this exact complex pattern daily, but it’s good to know it exists.</li>
+          <li>Always check Supabase docs when building advanced filters like this.</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>4) React Query: <code>useTodayActivity</code> hook</h2>
+      <p>
+        Next, we manage the API state with React Query. This is a “simple” query:
+        a <code>queryKey</code> and a <code>queryFn</code>.
+      </p>
+
+      <pre><code>// useTodayActivity.js (conceptual)
 import { useQuery } from "@tanstack/react-query";
-import { getStaysTodayActivity } from "../../services/apiBookings";
+import { getStaysTodayActivity } from "../services/apiBookings";
 
 export function useTodayActivity() {
   const { isLoading, data: activities } = useQuery({
@@ -395,131 +324,107 @@ export function useTodayActivity() {
   });
 
   return { isLoading, activities };
-}
-</code></pre>
+}</code></pre>
 
-      <div class="callout ok">
-        <p class="title">✅ Why the query key is an array</p>
+      <div class="callout">
+        <p><strong>📌 Why the query key is only <code>["today-activity"]</code></strong></p>
         <p>
-          React Query query keys are commonly arrays to support “namespacing” and future parameters.
-          Even if it’s a single key, <span class="kbd">["today-activity"]</span> is the safe convention.
+          The “today activity” is not affected by filters like “last X days” (used elsewhere in dashboard stats),
+          so it doesn’t need extra key parts.
         </p>
       </div>
-    </section>
 
-    <section id="rendering-ui">
-      <h2>🧱 Rendering the list (spinner + empty state)</h2>
+      <div class="divider"></div>
+
+      <h2>5) Rendering UI states (without hiding the whole component)</h2>
       <p>
-        In <b>TodayActivity</b>, you fetch the activities using the hook, then render:
+        In this feature, you still want to show the container while data loads,
+        so instead of returning early (e.g., <code>if (isLoading) return &lt;Spinner /&gt;</code>),
+        you render the spinner only inside the section.
       </p>
-      <ol>
-        <li>Title row</li>
-        <li>While loading → show spinner</li>
-        <li>If no activity → show “No activity today”</li>
-        <li>Otherwise → map activities to <b>TodayItem</b></li>
-      </ol>
 
-      <pre><code>// features/check-in-out/TodayActivity.jsx (core idea)
-import Spinner from "../../ui/Spinner";
-import TodayItem from "./TodayItem";
-import { useTodayActivity } from "./useTodayActivity";
-
-export default function TodayActivity() {
+      <pre><code>// TodayActivity.jsx (conceptual rendering)
+function TodayActivity() {
   const { isLoading, activities } = useTodayActivity();
 
   return (
     &lt;div&gt;
-      &lt;h2&gt;Today&lt;/h2&gt;
+      &lt;h3&gt;Today Activity&lt;/h3&gt;
 
       {isLoading ? (
         &lt;Spinner /&gt;
       ) : activities?.length &gt; 0 ? (
-        &lt;ul&gt;
-          {activities.map((activity) =&gt; (
+        &lt;TodayList&gt;
+          {activities.map(activity =&gt; (
             &lt;TodayItem key={activity.id} activity={activity} /&gt;
           ))}
-        &lt;/ul&gt;
+        &lt;/TodayList&gt;
       ) : (
         &lt;p&gt;No activity today.&lt;/p&gt;
       )}
     &lt;/div&gt;
   );
-}
-</code></pre>
+}</code></pre>
 
-      <div class="callout warn">
-        <p class="title">⚠️ Naming tip</p>
-        <p>
-          The lecture suggests renaming “stays” to “activities” to better match what the list represents.
-          Clear naming makes the code easier to reason about.
-        </p>
+      <div class="callout">
+        <p><strong>✅ The 3 UI cases you must handle</strong></p>
+        <ul>
+          <li>⏳ Loading: show spinner in the section.</li>
+          <li>📋 Has activities: render list.</li>
+          <li>😴 No activities: show “No activity today.”</li>
+        </ul>
       </div>
-    </section>
 
-    <section id="today-item">
-      <h2>🏷️ TodayItem UI (Arriving/Departing tags)</h2>
+      <div class="divider"></div>
+
+      <h2>6) TodayItem: Arriving vs Departing tag</h2>
       <p>
-        Each activity is still a booking, so you can destructure common booking fields like:
-        <span class="kbd">id</span>, <span class="kbd">status</span>, <span class="kbd">guests</span>, <span class="kbd">numNights</span>.
+        Each activity is basically a booking, so it contains data like:
+        <code>id</code>, <code>status</code>, <code>guests</code>, <code>numNights</code>, etc.
       </p>
 
-      <h3>1) Arriving vs Departing tag</h3>
+      <h3>Tag logic</h3>
       <ul>
-        <li>Status <span class="kbd">unconfirmed</span> → Tag: <b>Arriving</b> (green)</li>
-        <li>Status <span class="kbd">checked-in</span> → Tag: <b>Departing</b> (blue)</li>
+        <li>🟢 If <code>status === "unconfirmed"</code> → show <strong>Arriving</strong> (green tag)</li>
+        <li>🔵 Else (checked-in) → show <strong>Departing</strong> (blue tag)</li>
       </ul>
 
-      <pre><code>// TodayItem.jsx (core idea)
-import Tag from "../../ui/Tag";
-import Flag from "../../ui/Flag";
-
-export default function TodayItem({ activity }) {
+      <pre><code>// TodayItem.jsx (conceptual)
+function TodayItem({ activity }) {
   const { id, status, guests, numNights } = activity;
 
+  const arriving = status === "unconfirmed";
+
   return (
-    &lt;li&gt;
-      {status === "unconfirmed" ? (
+    &lt;StyledTodayItem&gt;
+      {arriving ? (
         &lt;Tag type="green"&gt;Arriving&lt;/Tag&gt;
       ) : (
         &lt;Tag type="blue"&gt;Departing&lt;/Tag&gt;
       )}
 
-      &lt;Flag
-        src={guests.countryFlag}
-        alt={`Flag of ${guests.country}`}
-      /&gt;
+      &lt;Flag src={guests.countryFlag} alt={`Flag of ${guests.country}`} /&gt;
+      &lt;Guest&gt;{guests.fullName}&lt;/Guest&gt;
 
-      &lt;span&gt;{guests.fullName}&lt;/span&gt;
       &lt;div&gt;{numNights} nights&lt;/div&gt;
 
-      {/* Buttons go here (next section) */}
-    &lt;/li&gt;
+      {/* button slot goes here */}
+    &lt;/StyledTodayItem&gt;
   );
-}
-</code></pre>
+}</code></pre>
 
-      <div class="callout ok">
-        <p class="title">✅ Beginner-friendly reminder</p>
-        <p>
-          <b>Destructuring</b> is just a shortcut. Instead of writing <span class="kbd">activity.status</span> repeatedly,
-          you do <span class="kbd">const { status } = activity</span>.
-        </p>
-      </div>
-    </section>
+      <div class="divider"></div>
 
-    <section id="checkin-checkout">
-      <h2>🚪 Buttons: Check in (Link) & Check out (mutation)</h2>
+      <h2>7) Actions: Check-in link vs Checkout button</h2>
 
-      <h3>🟢 Check in button (navigate to Check-in page)</h3>
+      <h3>🟢 Arriving: “Check in” should navigate to Check-in page</h3>
       <p>
-        For arriving guests (unconfirmed), clicking <b>Check in</b> should take you to a route like:
-        <span class="kbd">/checkin/:bookingId</span>.
+        For arriving guests, you don’t “mutate” immediately here — you navigate to the check-in route.
+        The lecture uses a styled <code>Button</code> component but renders it as a React Router <code>Link</code>
+        using the <code>as</code> prop.
       </p>
 
-      <pre><code>// Inside TodayItem, for "unconfirmed"
-import { Link } from "react-router-dom";
-import Button from "../../ui/Button";
-
+      <pre><code>// Arriving button (conceptual)
 &lt;Button
   size="small"
   variation="primary"
@@ -527,30 +432,38 @@ import Button from "../../ui/Button";
   to={`/checkin/${id}`}
 &gt;
   Check in
-&lt;/Button&gt;
-</code></pre>
+&lt;/Button&gt;</code></pre>
 
       <div class="callout">
-        <p class="title">🧠 Why use <span class="kbd">as={Link}</span>?</p>
-        <p>
-          You keep your app’s button styling (from the Button component), but render it as a React Router <b>Link</b>
-          so it navigates without a full page reload.
-        </p>
+        <p><strong>🧠 Why <code>as={Link}</code> is useful</strong></p>
+        <ul>
+          <li>Your design system keeps consistent button styling.</li>
+          <li>But the underlying element becomes a link (anchor) for navigation.</li>
+        </ul>
       </div>
 
-      <div class="divider"></div>
-
-      <h3>🔵 Check out button (run a mutation)</h3>
+      <h3>🔵 Departing: Checkout needs logic → extract to <code>CheckoutButton</code></h3>
       <p>
-        For departing guests (checked-in), you typically need more logic (mutation + loading state),
-        so the lecture extracts it to a <b>CheckoutButton</b> component.
+        For checked-in guests, checkout triggers more logic (mutation + loading/disable state),
+        so it’s cleaner to extract it into its own component.
       </p>
 
-      <pre><code>// CheckoutButton.jsx (core idea)
-import Button from "../../ui/Button";
-import { useCheckout } from "./useCheckout";
+      <pre><code>// TodayItem.jsx (conceptual)
+{status === "unconfirmed" ? (
+  &lt;Button
+    size="small"
+    variation="primary"
+    as={Link}
+    to={`/checkin/${id}`}
+  &gt;
+    Check in
+  &lt;/Button&gt;
+) : (
+  &lt;CheckoutButton bookingId={id} /&gt;
+)}</code></pre>
 
-export default function CheckoutButton({ bookingId }) {
+      <pre><code>// CheckoutButton.jsx (conceptual)
+function CheckoutButton({ bookingId }) {
   const { checkout, isCheckingOut } = useCheckout();
 
   return (
@@ -563,101 +476,50 @@ export default function CheckoutButton({ bookingId }) {
       Check out
     &lt;/Button&gt;
   );
-}
-</code></pre>
-
-      <div class="callout ok">
-        <p class="title">✅ Expected result after actions</p>
-        <ul>
-          <li>After check-in: the guest disappears from “Arriving” list (status changes).</li>
-          <li>Dashboard stats/charts can update if queries are invalidated/refetched.</li>
-          <li>After check-out: the guest is no longer “checked-in ending today”.</li>
-        </ul>
-      </div>
-    </section>
-
-    <section id="debug">
-      <h2>🛠️ Common bugs & quick fixes</h2>
-
-      <div class="callout bad">
-        <p class="title">🐞 Export/Import mismatch</p>
-        <p>
-          If your component exports <span class="kbd">Today</span> but you import <span class="kbd">TodayActivity</span>, you’ll get errors.
-          Align the export name with the import name.
-        </p>
-      </div>
-
-      <div class="callout warn">
-        <p class="title">🐞 Button prop mismatch (size vs type)</p>
-        <p>
-          If your button suddenly breaks layout, check prop names. The lecture highlights a mistake where <b>type</b>
-          was used instead of <b>size</b>. Ensure you use the correct prop expected by your Button component.
-        </p>
-      </div>
+}</code></pre>
 
       <div class="callout">
-        <p class="title">🐞 Unexpected wrapping / lack of space</p>
-        <p>
-          If items wrap to a new line, inspect your styled component (flex settings, gap, min-width).
-          Often you can fix it with:
-        </p>
+        <p><strong>✅ UX detail</strong></p>
         <ul>
-          <li><span class="kbd">display: flex</span>, <span class="kbd">align-items: center</span></li>
-          <li>Reduce text width or allow horizontal scroll only inside the list container</li>
-          <li>Make sure the action button is not too wide</li>
+          <li>Disable the button while checking out (<code>isCheckingOut</code>) to prevent double clicks.</li>
+          <li>After successful check-in/out, the dashboard stats and TodayActivity list update.</li>
         </ul>
       </div>
 
-      <div class="callout ok">
-        <p class="title">✅ Debugging routine (fast)</p>
-        <ol>
-          <li>Confirm the API returns only today’s arrivals/departures.</li>
-          <li>Verify query key is correct and stable (e.g., <span class="kbd">["today-activity"]</span>).</li>
-          <li>Check status strings exactly match your DB values (case-sensitive).</li>
-          <li>Open React Query devtools and confirm the query has data.</li>
-        </ol>
-      </div>
-    </section>
+      <div class="divider"></div>
 
-    <section id="mini-review">
-      <h2>🧾 Quick review (cheat sheet)</h2>
+      <h2>8) What you observe after check-in/out (data refresh)</h2>
+      <p>
+        After checking someone in:
+      </p>
       <ul>
-        <li>🎯 <b>Today Activity</b> = (unconfirmed &amp; starts today) OR (checked-in &amp; ends today)</li>
-        <li>🗄️ Do filtering in Supabase (efficient) rather than downloading all bookings</li>
-        <li>⚡ Wrap API in <b>React Query</b> → <span class="kbd">useTodayActivity</span></li>
-        <li>🧱 UI states:
-          <ul>
-            <li>⏳ Loading → spinner</li>
-            <li>😴 No results → “No activity today”</li>
-            <li>✅ Results → map to TodayItem</li>
-          </ul>
-        </li>
-        <li>🏷️ Tag logic:
-          <ul>
-            <li>🟢 Arriving if status is <span class="kbd">unconfirmed</span></li>
-            <li>🔵 Departing if status is <span class="kbd">checked-in</span></li>
-          </ul>
-        </li>
-        <li>🚪 Actions:
-          <ul>
-            <li>Check in = styled Button rendered as Link (<span class="kbd">as={Link}</span>)</li>
-            <li>Check out = mutation in CheckoutButton with loading state</li>
-          </ul>
-        </li>
+        <li>📊 Dashboard stats/graphs update (you may see smooth animation on charts).</li>
+        <li>🧾 The guest disappears from “Arriving” list because they’re no longer <code>unconfirmed</code>.</li>
       </ul>
 
-      <div class="callout ok">
-        <p class="title">🏁 What’s next in the course</p>
-        <p>
-          After completing the dashboard, the lecture mentions finishing touches and small fixes in follow-up videos.
-          At this stage, you have a highly realistic production-style app feature set.
-        </p>
-      </div>
-    </section>
+      <p>
+        After checking someone out:
+      </p>
+      <ul>
+        <li>🚪 Booking status changes and the “Departing” list updates.</li>
+        <li>✅ You can now manage checkouts from the dashboard (not only from the bookings table).</li>
+      </ul>
 
-    <footer>
-      Prepared as an A4 print-friendly single-column reviewer/study guide.
-    </footer>
-  </main>
+      <div class="divider"></div>
+
+      <h2>9) Quick self-check (practice)</h2>
+      <ul>
+        <li>🧠 Define “activity” in this app. What are the two types?</li>
+        <li>⚡ Why is filtering in Supabase better than downloading all bookings and filtering in JS?</li>
+        <li>🧩 Why do we use <code>as={Link}</code> for the Check-in action?</li>
+        <li>🔁 Why is checkout extracted into a <code>CheckoutButton</code> component?</li>
+        <li>✅ What 3 UI states does TodayActivity handle?</li>
+      </ul>
+
+      <p class="small">
+        End of reviewer. Use Print / Save as PDF. The design avoids cut-off and prints cleanly on A4.
+      </p>
+    </main>
+  </div>
 </body>
 </html>

@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>React Study Guide — Server-side Filtering (Supabase) + URL Status Filter + React Query queryKey</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --link:#0b57d0;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
+
+      /* High-contrast code theme */
+      --code-bg:#0b1220;
+      --code-text:#e6edf3;
+      --code-border:#1f2937;
+      --inline-bg:#eef2ff;
+      --inline-border:#dbeafe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header{
+      padding: 18px 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, var(--panel));
+      box-shadow: var(--shadow);
+    }
+
+    h1{
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: .2px;
+      line-height: 1.25;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size: 13px;
+    }
+    .btn:hover{ border-color:#cfcfcf; }
+    .btn:active{ transform: translateY(1px); }
+
+    .meta{
+      margin-left:auto;
+      color:var(--muted);
+      font-size: 12px;
+    }
+
+    main{
+      margin-top: 18px;
+      padding: 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background:#fff;
+      box-shadow: var(--shadow);
+    }
+
+    h2{
+      margin: 18px 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style:none;
+    }
+    .chip{
+      background: var(--chip);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color:#222;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 16px 0;
+    }
+
+    .small{ color:var(--muted); font-size: 13px; }
+
+    /* Code blocks */
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Courier New", monospace;
+    }
+    code{
+      background: var(--inline-bg);
+      color:#111111;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--inline-border);
+      font-size: 0.95em;
+      opacity: 1 !important;
+    }
+    pre{
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border: 1px solid var(--code-border);
+      overflow:auto;
+      max-width: 100%;
+      box-shadow: 0 2px 14px rgba(0,0,0,.10);
+      opacity: 1 !important;
+    }
+    pre code{
+      background: transparent !important;
+      border: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+      font-size: 12.8px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      opacity: 1 !important;
+    }
+
+    @media print{
+      @page{ size: A4; margin: 12mm; }
+      body{ background:#fff; }
+      .page{ padding: 0; margin: 0; max-width: none; }
+      header, main{ box-shadow: none; }
+      header{ break-inside: avoid; }
+      .toolbar{ display:none !important; }
+      a[href]::after{ content:""; }
+
+      pre{
+        background:#ffffff !important;
+        color:#111111 !important;
+        border: 1px solid #d0d0d0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+      pre code{
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+      }
+
+      .callout{ break-inside: avoid; }
+      h2{ break-after: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🔎 Server-side Filtering — Supabase Query Building + URL Status Filter + React Query Cache</h1>
+      <p class="subtitle">
+        Goal: filter bookings on the server (Supabase), not the client.
+        Flow: Filter UI writes <code>status</code> to URL → <code>useBookings</code> reads it and builds a filter object → <code>getBookings</code> conditionally adds query methods (eq/gt/gte…) → React Query refetches and caches per filter combination.
+      </p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆️ Back to Top</button>
+        <span class="meta">Single-column • A4 print-ready • High-contrast code</span>
+      </div>
+
+      <ul class="chips" aria-label="key tags">
+        <li class="chip">🔎 Filter</li>
+        <li class="chip">🗃️ Supabase eq/gt/gte</li>
+        <li class="chip">🔗 URL search params</li>
+        <li class="chip">⚡ React Query queryKey</li>
+        <li class="chip">🧩 Query builder</li>
+        <li class="chip">♻️ Flexible filters</li>
+      </ul>
+    </header>
+
+    <main>
+      <h2>1) UI is already reusable — now make data filtering real</h2>
+      <p>
+        You already have reusable <strong>Filter</strong> and <strong>SortBy</strong> components (from Cabins).
+        For bookings, you reuse the same components but with different options:
+      </p>
+      <ul>
+        <li>Filter by status: <code>all</code>, <code>unconfirmed</code>, <code>checked-in</code>, <code>checked-out</code></li>
+        <li>Sort by startDate (asc/desc), totalPrice, etc. (sorting comes next lecture)</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>✅ Important</strong></p>
+        <p>
+          Clicking filter buttons already updates the URL. The missing piece is:
+          making the API return only filtered bookings.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>2) Client-side vs server-side filtering (why change approach)</h2>
+      <p>
+        In the cabins table, you fetched all cabins then filtered/sorted in the UI (client-side).
+        For bookings, you implement filtering server-side:
+      </p>
+      <ul>
+        <li>✅ Less data downloaded</li>
+        <li>✅ Faster tables as data grows</li>
+        <li>✅ Works naturally with pagination later</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>3) Supabase filtering basics (hard-coded demo)</h2>
+      <p>
+        The lecture demonstrates how filtering works in Supabase queries:
+      </p>
+
+      <pre><code>// Example: status = "unconfirmed"
+query.eq("status", "unconfirmed");
+
+// Example: totalPrice &gt;= 5000
+query.gte("totalPrice", 5000);</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 Key idea</strong></p>
+        <p>
+          Supabase queries are chainable. You can add multiple conditions (eq + gte + etc.) by chaining.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>4) Where should we read the filter from the URL?</h2>
+      <p>
+        <code>getBookings()</code> is a plain function, so it cannot use React hooks like <code>useSearchParams()</code>.
+        The correct place to read URL state is the custom hook: <code>useBookings()</code>.
+      </p>
+
+      <div class="callout">
+        <p><strong>Why this is a good design</strong></p>
+        <ul>
+          <li><code>useBookings()</code> becomes self-contained: it reads from URL and returns bookings.</li>
+          <li>You can reuse <code>useBookings()</code> anywhere without passing filter props around.</li>
+          <li>Keeps UI components cleaner (no extra prop drilling).</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>5) Build a flexible “filter object” in <code>useBookings</code></h2>
+      <p>
+        Instead of hardcoding <code>status</code> filtering, create a filter object with:
+      </p>
+      <ul>
+        <li><code>field</code> — which column to filter</li>
+        <li><code>value</code> — desired value</li>
+        <li><code>method</code> — how to filter (eq, gte, gt, lte, etc.)</li>
+      </ul>
+
+      <pre><code>// hooks/useBookings.js (conceptual)
+import { useSearchParams } from "react-router-dom";
+
+const [searchParams] = useSearchParams();
+
+const filterValue = searchParams.get("status");
+
+// "all" or missing means: no filter
+const filter =
+  !filterValue || filterValue === "all"
+    ? null
+    : { field: "status", value: filterValue };</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Why “null” is useful</strong></p>
+        <p>
+          It gives you a clean way to say “no filtering applied” and conditionally skip query changes.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>6) Build a query in parts inside <code>getBookings</code></h2>
+      <p>
+        To conditionally add filters, convert your Supabase call into a query builder pattern:
+      </p>
+
+      <pre><code>// services/apiBookings.js (conceptual)
+export async function getBookings({ filter, sortBy }) {
+  let query = supabase
+    .from("bookings")
+    .select("*, cabins(name), guests(fullName)");
+
+  // Conditionally apply filter
+  if (filter) {
+    const method = filter.method || "eq";
+    query = query[method](filter.field, filter.value);
+  }
+
+  // Sorting will be added next lecture...
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  return data;
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 The dynamic method trick</strong></p>
+        <p>
+          Using <code>query[method](...)</code> allows switching between <code>eq</code>, <code>gte</code>, <code>gt</code>, etc.
+          Default back to <code>eq</code> when no method is provided.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>7) Why clicking filters didn’t refetch initially (the real issue)</h2>
+      <p>
+        At first, the URL updates correctly but the table doesn’t refetch when you click a different status.
+        Reason: React Query doesn’t know that it should refetch because the queryKey didn’t change.
+      </p>
+
+      <div class="callout">
+        <p><strong>✅ Fix: add filter to queryKey</strong></p>
+        <p>
+          Include any variable that affects the data in the queryKey array.
+          When it changes, React Query refetches and caches new results.
+        </p>
+      </div>
+
+      <pre><code>// hooks/useBookings.js (conceptual)
+import { useQuery } from "@tanstack/react-query";
+import { getBookings } from "../../services/apiBookings";
+
+const { data: bookings, isLoading } = useQuery({
+  queryKey: ["bookings", filter], // 👈 key depends on filter
+  queryFn: () =&gt; getBookings({ filter, sortBy: null }),
+});</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 Dependency array mental model</strong></p>
+        <p>
+          Think of queryKey like the dependency array of <code>useEffect</code>:
+          if a dependency changes, the work reruns (refetch).
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>8) React Query cache benefit (fast switching between filters)</h2>
+      <p>
+        Once each filter combination has been fetched once, switching feels instant:
+      </p>
+      <ul>
+        <li>Click “checked-in” → fetch + store in cache for that queryKey</li>
+        <li>Click back to “all” → data returns instantly from cache</li>
+        <li>Over time, you can have all statuses cached</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>📌 Practical outcome</strong></p>
+        <p>
+          Table becomes “snappy” after a few interactions, because React Query reuses cached responses.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>9) Making filtering even more flexible (beyond status)</h2>
+      <p>
+        The lecture shows how you could filter on other fields like totalPrice using different methods:
+      </p>
+
+      <pre><code>// Example: totalPrice &gt;= 5000
+const filter = {
+  field: "totalPrice",
+  value: 5000,
+  method: "gte",
+};</code></pre>
+
+      <div class="callout">
+        <p><strong>Scaling idea (advanced)</strong></p>
+        <p>
+          If you ever need multiple conditions at once (e.g., checked-in AND price &gt; 5000),
+          pass an <strong>array of filter objects</strong> and loop to apply them all:
+        </p>
+        <pre><code>// advanced idea (conceptual)
+filters.forEach(f =&gt; {
+  const method = f.method || "eq";
+  query = query[method](f.field, f.value);
+});</code></pre>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>10) Next step: server-side sorting</h2>
+      <p>
+        Now that filtering is server-side and URL-driven, you will apply the same principles to sorting:
+      </p>
+      <ul>
+        <li>Read sort value from URL</li>
+        <li>Include it in queryKey</li>
+        <li>Apply it to Supabase query</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>11) Quick self-check (practice)</h2>
+      <ul>
+        <li>🧠 Why is server-side filtering better than client-side filtering for bookings?</li>
+        <li>🔗 Why should <code>useBookings</code> read the URL instead of passing filter props down?</li>
+        <li>⚡ Why didn’t the UI refetch when you clicked filters at first?</li>
+        <li>🗃️ What does <code>query[method](field, value)</code> enable?</li>
+        <li>✅ How does React Query caching improve filter switching UX?</li>
+      </ul>
+
+      <p class="small">
+        End of reviewer. Next: implement server-side sorting using Supabase <code>order()</code>.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

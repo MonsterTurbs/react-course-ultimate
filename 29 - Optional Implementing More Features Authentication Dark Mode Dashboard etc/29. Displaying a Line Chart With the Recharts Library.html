@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>React Study Guide — Recharts Line/Area Chart + Time-Series Aggregation (date-fns)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --link:#0b57d0;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
+
+      /* High-contrast code theme */
+      --code-bg:#0b1220;
+      --code-text:#e6edf3;
+      --code-border:#1f2937;
+      --inline-bg:#eef2ff;
+      --inline-border:#dbeafe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header{
+      padding: 18px 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, var(--panel));
+      box-shadow: var(--shadow);
+    }
+
+    h1{
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: .2px;
+      line-height: 1.25;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size: 13px;
+    }
+    .btn:hover{ border-color:#cfcfcf; }
+    .btn:active{ transform: translateY(1px); }
+
+    .meta{
+      margin-left:auto;
+      color:var(--muted);
+      font-size: 12px;
+    }
+
+    main{
+      margin-top: 18px;
+      padding: 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background:#fff;
+      box-shadow: var(--shadow);
+    }
+
+    h2{
+      margin: 18px 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style:none;
+    }
+    .chip{
+      background: var(--chip);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color:#222;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 16px 0;
+    }
+
+    .small{ color:var(--muted); font-size: 13px; }
+
+    /* Code blocks */
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Courier New", monospace;
+    }
+    code{
+      background: var(--inline-bg);
+      color:#111111;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--inline-border);
+      font-size: 0.95em;
+      opacity: 1 !important;
+    }
+    pre{
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border: 1px solid var(--code-border);
+      overflow:auto;
+      max-width: 100%;
+      box-shadow: 0 2px 14px rgba(0,0,0,.10);
+      opacity: 1 !important;
+    }
+    pre code{
+      background: transparent !important;
+      border: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+      font-size: 12.8px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      opacity: 1 !important;
+    }
+
+    @media print{
+      @page{ size: A4; margin: 12mm; }
+      body{ background:#fff; }
+      .page{ padding: 0; margin: 0; max-width: none; }
+      header, main{ box-shadow: none; }
+      header{ break-inside: avoid; }
+      .toolbar{ display:none !important; }
+      a[href]::after{ content:""; }
+
+      pre{
+        background:#ffffff !important;
+        color:#111111 !important;
+        border: 1px solid #d0d0d0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+      pre code{
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+      }
+
+      .callout{ break-inside: avoid; }
+      h2{ break-after: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>📈 Recharts Sales Chart — Line/Area Chart Over Time</h1>
+      <p class="subtitle">
+        Goal: render a responsive Sales chart (Total Sales + Extras/Breakfast Sales) and then replace fake data
+        with real aggregated bookings using <code>date-fns</code>.
+      </p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆️ Back to Top</button>
+        <span class="meta">Single-column • A4 print-ready • High-contrast code</span>
+      </div>
+
+      <ul class="chips" aria-label="key tags">
+        <li class="chip">📦 Recharts</li>
+        <li class="chip">📈 Area / Line chart</li>
+        <li class="chip">📐 ResponsiveContainer</li>
+        <li class="chip">🗓️ date-fns</li>
+        <li class="chip">🧮 Aggregation</li>
+        <li class="chip">🌙 Dark mode colors</li>
+      </ul>
+    </header>
+
+    <main>
+      <h2>1) Install Recharts</h2>
+      <p>
+        Recharts is a popular and beginner-friendly chart library in the React ecosystem.
+      </p>
+
+      <pre><code># Terminal
+npm i recharts@2</code></pre>
+
+      <div class="callout">
+        <p><strong>📌 Notes</strong></p>
+        <ul>
+          <li>Version used in the lecture: <code>recharts@2</code>.</li>
+          <li>Documentation exists, but the lecture teaches the practical setup and common pitfalls.</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>2) Start with a SalesChart component (fake data first)</h2>
+      <p>
+        The lecture begins with a <strong>styled SalesChart</strong> component and some <strong>fake data</strong> to quickly see a chart on screen.
+      </p>
+
+      <h3>Minimum pieces needed for a visible chart</h3>
+      <ul>
+        <li>🧱 A chart container: <code>&lt;AreaChart data={...}&gt;</code></li>
+        <li>🌊 At least one <code>&lt;Area dataKey="..." /&gt;</code> (otherwise nothing is drawn)</li>
+        <li>📏 Dimensions: either fixed <code>width/height</code> or use <code>ResponsiveContainer</code></li>
+      </ul>
+
+      <pre><code>// Minimal Recharts setup (fixed width/height first)
+import {
+  AreaChart,
+  Area,
+  CartesianGrid,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+function SalesChart({ data }) {
+  return (
+    &lt;AreaChart data={data} width={700} height={300}&gt;
+      &lt;CartesianGrid /&gt;
+      &lt;Tooltip /&gt;
+      &lt;XAxis dataKey="label" /&gt;
+      &lt;YAxis unit="$" /&gt;
+
+      &lt;Area
+        dataKey="totalSales"
+        type="monotone"
+        stroke="red"
+        fill="orange"
+      /&gt;
+    &lt;/AreaChart&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 Why “nothing shows” at first</strong></p>
+        <ul>
+          <li>If you render only <code>&lt;AreaChart /&gt;</code> without an <code>&lt;Area /&gt;</code>, no series exists to draw.</li>
+          <li>If the chart has no dimensions, it may render at 0 height.</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>3) Make it responsive (no horizontal scrollbars)</h2>
+      <p>
+        Fixed dimensions work for quick testing, but real dashboards need fluid resizing.
+        Recharts provides <code>ResponsiveContainer</code> for this.
+      </p>
+
+      <pre><code>import { ResponsiveContainer, AreaChart, Area } from "recharts";
+
+function SalesChart({ data }) {
+  return (
+    &lt;ResponsiveContainer width="100%" height={300}&gt;
+      &lt;AreaChart data={data}&gt;
+        {/* ... axes, tooltip, areas ... */}
+      &lt;/AreaChart&gt;
+    &lt;/ResponsiveContainer&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Outcome</strong></p>
+        <ul>
+          <li>Chart expands to fill the container width.</li>
+          <li>On smaller screens, it shrinks without creating annoying horizontal scroll.</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>4) Add UX features: grid, axes, tooltip</h2>
+      <p>
+        These components turn a basic chart into a “dashboard-quality” chart:
+      </p>
+      <ul>
+        <li>🧱 <code>CartesianGrid</code>: background grid lines</li>
+        <li>🧭 <code>XAxis</code> / <code>YAxis</code>: show labels and units</li>
+        <li>🧾 <code>Tooltip</code>: show exact values on hover</li>
+      </ul>
+
+      <pre><code>&lt;Tooltip /&gt;
+&lt;XAxis dataKey="label" /&gt;
+&lt;YAxis unit="$" /&gt;</code></pre>
+
+      <h3>Style ticks + tooltip background (dark mode friendly)</h3>
+      <p>
+        You can customize “ticks” (axis label color) and tooltip styling using props like:
+        <code>tick</code>, <code>tickLine</code>, and <code>contentStyle</code>.
+      </p>
+
+      <pre><code>&lt;XAxis
+  dataKey="label"
+  tick={{ fill: colors.text }}
+  tickLine={{ stroke: colors.text }}
+/&gt;
+
+&lt;YAxis
+  unit="$"
+  tick={{ fill: colors.text }}
+  tickLine={{ stroke: colors.text }}
+/&gt;
+
+&lt;Tooltip contentStyle={{ backgroundColor: colors.background }} /&gt;</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>5) Two series: Total Sales + Extras Sales</h2>
+      <p>
+        The data has (at least) these fields:
+      </p>
+      <ul>
+        <li><code>label</code> (date label)</li>
+        <li><code>totalSales</code></li>
+        <li><code>extrasSales</code> (e.g., breakfast)</li>
+      </ul>
+
+      <pre><code>&lt;Area
+  dataKey="totalSales"
+  type="monotone"
+  stroke={colors.totalSales.stroke}
+  fill={colors.totalSales.fill}
+  strokeWidth={2}
+  name="Total sales"
+  unit="$"
+/&gt;
+
+&lt;Area
+  dataKey="extrasSales"
+  type="monotone"
+  stroke={colors.extras.stroke}
+  fill={colors.extras.fill}
+  strokeWidth={2}
+  name="Extras"
+  unit="$"
+/&gt;</code></pre>
+
+      <div class="callout">
+        <p><strong>📌 Tooltip improvements</strong></p>
+        <ul>
+          <li><code>name</code> controls the label shown in the tooltip.</li>
+          <li><code>unit</code> appends “$” after values.</li>
+          <li><code>strokeWidth</code> makes lines clearer.</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>6) Dark mode: color system + manual CSS “hack”</h2>
+      <p>
+        The lecture uses a color object that changes depending on whether the app is in dark mode.
+        Colors are computed inside the component (because only there you know if dark mode is active).
+      </p>
+
+      <pre><code>// inside SalesChart component
+const { isDarkMode } = useDarkMode();
+
+const colors = isDarkMode
+  ? darkModeColors
+  : lightModeColors;</code></pre>
+
+      <p class="small">
+        The lecture also mentions a styled-component “hack” to force certain Recharts elements to use the correct colors.
+        This is common with third-party SVG libs: sometimes you must target their generated elements in CSS.
+      </p>
+
+      <div class="divider"></div>
+
+      <h2>7) IMPORTANT: Replace fake data with real data (bookings → time series)</h2>
+      <p>
+        The chart should not be static. Instead, it must be derived from real bookings.
+        The challenge: build a <strong>time series</strong> array with <strong>one entry per day</strong>,
+        even for days with zero sales.
+      </p>
+
+      <div class="callout">
+        <p><strong>🎯 Target output structure (per day)</strong></p>
+        <pre><code>[
+  { label: "May 11", totalSales: 0,   extrasSales: 0   },
+  { label: "May 12", totalSales: 540, extrasSales: 60  },
+  ...
+]</code></pre>
+      </div>
+
+      <h3>Step A — Generate all dates in the interval (date-fns)</h3>
+      <p>
+        Use <code>eachDayOfInterval</code> to create a list of dates from:
+        <strong>today - (numDays - 1)</strong> up to <strong>today</strong>.
+      </p>
+
+      <pre><code>import {
+  eachDayOfInterval,
+  subDays,
+  format,
+  isSameDay,
+} from "date-fns";
+
+function buildSalesData(bookings, numDays) {
+  const today = new Date();
+
+  const allDates = eachDayOfInterval({
+    start: subDays(today, numDays - 1),
+    end: today,
+  });
+
+  // map each date to one chart entry
+  return allDates.map((date) =&gt; {
+    const label = format(date, "MMM dd");
+
+    // bookings made on this date
+    const bookingsForDate = bookings.filter((booking) =&gt;
+      isSameDay(date, new Date(booking.createdAt))
+    );
+
+    const totalSales = bookingsForDate.reduce(
+      (acc, cur) =&gt; acc + cur.totalPrice,
+      0
+    );
+
+    const extrasSales = bookingsForDate.reduce(
+      (acc, cur) =&gt; acc + cur.extrasPrice,
+      0
+    );
+
+    return { label, totalSales, extrasSales };
+  });
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 Why this works well</strong></p>
+        <ul>
+          <li>✅ Produces a real time series with fixed length (<code>numDays</code> entries).</li>
+          <li>✅ Includes “zero days” so the chart doesn’t skip gaps in time.</li>
+          <li>✅ Easy to swap from 7 → 30 → 90 days by changing <code>numDays</code>.</li>
+        </ul>
+      </div>
+
+      <h3>Step B — Use computed data in Recharts</h3>
+      <pre><code>function SalesChart({ bookings, numDays }) {
+  const data = buildSalesData(bookings, numDays);
+
+  return (
+    &lt;ResponsiveContainer width="100%" height={300}&gt;
+      &lt;AreaChart data={data}&gt;
+        {/* grid, axes, tooltip, areas */}
+      &lt;/AreaChart&gt;
+    &lt;/ResponsiveContainer&gt;
+  );
+}</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>8) Practical debugging tips from the lecture</h2>
+      <ul>
+        <li>🧪 Start with fake data to validate the chart rendering.</li>
+        <li>🪵 Log intermediate arrays (like <code>allDates</code>) to confirm you generated the correct interval.</li>
+        <li>📦 If your chart looks “empty”, you might have no recent bookings — re-upload seed data if the course expects it.</li>
+        <li>🧹 Remove <code>console.log</code> calls once you’ve confirmed the logic.</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>9) Quick self-check (practice)</h2>
+      <ul>
+        <li>📦 What 3–4 Recharts components are required for a good “dashboard quality” chart?</li>
+        <li>📐 Why do we wrap <code>AreaChart</code> in <code>ResponsiveContainer</code>?</li>
+        <li>🧮 Why do we generate all dates first (instead of only using dates that have bookings)?</li>
+        <li>🗓️ Why do we convert <code>booking.createdAt</code> into <code>new Date(...)</code>?</li>
+        <li>🌙 Why must colors be computed inside the component (not outside)?</li>
+      </ul>
+
+      <p class="small">
+        End of reviewer. Next lecture: Pie chart (as mentioned in the transcript).
+      </p>
+    </main>
+  </div>
+</body>
+</html>

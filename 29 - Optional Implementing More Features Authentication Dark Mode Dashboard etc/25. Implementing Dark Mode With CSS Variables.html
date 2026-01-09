@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>React Study Guide — Dark Mode with CSS Variables + Context + LocalStorage</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --link:#0b57d0;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
+
+      /* High-contrast code theme */
+      --code-bg:#0b1220;
+      --code-text:#e6edf3;
+      --code-border:#1f2937;
+      --inline-bg:#eef2ff;
+      --inline-border:#dbeafe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header{
+      padding: 18px 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, var(--panel));
+      box-shadow: var(--shadow);
+    }
+
+    h1{
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: .2px;
+      line-height: 1.25;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size: 13px;
+    }
+    .btn:hover{ border-color:#cfcfcf; }
+    .btn:active{ transform: translateY(1px); }
+
+    .meta{
+      margin-left:auto;
+      color:var(--muted);
+      font-size: 12px;
+    }
+
+    main{
+      margin-top: 18px;
+      padding: 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background:#fff;
+      box-shadow: var(--shadow);
+    }
+
+    h2{
+      margin: 18px 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style:none;
+    }
+    .chip{
+      background: var(--chip);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color:#222;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 16px 0;
+    }
+
+    .small{ color:var(--muted); font-size: 13px; }
+
+    /* Code blocks */
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Courier New", monospace;
+    }
+    code{
+      background: var(--inline-bg);
+      color:#111111;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--inline-border);
+      font-size: 0.95em;
+      opacity: 1 !important;
+    }
+    pre{
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border: 1px solid var(--code-border);
+      overflow:auto;
+      max-width: 100%;
+      box-shadow: 0 2px 14px rgba(0,0,0,.10);
+      opacity: 1 !important;
+    }
+    pre code{
+      background: transparent !important;
+      border: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+      font-size: 12.8px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      opacity: 1 !important;
+    }
+
+    @media print{
+      @page{ size: A4; margin: 12mm; }
+      body{ background:#fff; }
+      .page{ padding: 0; margin: 0; max-width: none; }
+      header, main{ box-shadow: none; }
+      header{ break-inside: avoid; }
+      .toolbar{ display:none !important; }
+      a[href]::after{ content:""; }
+
+      pre{
+        background:#ffffff !important;
+        color:#111111 !important;
+        border: 1px solid #d0d0d0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+      pre code{
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+      }
+
+      .callout{ break-inside: avoid; }
+      h2{ break-after: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🌙 Dark Mode — CSS Variables + Context + Local Storage</h1>
+      <p class="subtitle">
+        Feature: implement a professional dark mode by switching CSS variables via a class on the HTML element,
+        controlled by a global context state that persists in <code>localStorage</code>.
+      </p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆️ Back to Top</button>
+        <span class="meta">Single-column • A4 print-ready • High-contrast code</span>
+      </div>
+
+      <ul class="chips" aria-label="key tags">
+        <li class="chip">🌗 Dark / Light mode</li>
+        <li class="chip">🎛️ CSS variables</li>
+        <li class="chip">🧠 Context API</li>
+        <li class="chip">💾 localStorage</li>
+        <li class="chip">🧰 documentElement class</li>
+        <li class="chip">⚡ Immediate UI update</li>
+      </ul>
+    </header>
+
+    <main>
+      <h2>1) Quick bugfix before dark mode (React Query update)</h2>
+      <p>
+        The lecture starts by fixing a small issue from the previous lesson: we want to
+        <strong>set the updated user directly in the React Query cache</strong> so the UI updates immediately
+        (e.g., avatar shows instantly) instead of waiting for invalidation + refetch.
+      </p>
+
+      <div class="callout">
+        <p><strong>✅ Two fixes</strong></p>
+        <ul>
+          <li>🧩 Query key must be an <strong>array</strong>, not a string.</li>
+          <li>⏳ In the API auth update function, we forgot to <strong>await</strong> the async call, so it returned <code>undefined</code>.</li>
+        </ul>
+      </div>
+
+      <p class="small">
+        Result: after updating name/image, the header UI updates immediately (no extra refresh needed).
+      </p>
+
+      <div class="divider"></div>
+
+      <h2>2) Dark mode strategy: switch CSS variables using classes</h2>
+      <p>
+        Instead of rewriting a lot of CSS, we define all app colors (and other theme values) using CSS variables.
+        Then we swap those variables based on a class on the <code>&lt;html&gt;</code> element.
+      </p>
+
+      <div class="callout">
+        <p><strong>🎛️ Key idea</strong></p>
+        <ul>
+          <li><code>html.light-mode</code> → use light theme variables</li>
+          <li><code>html.dark-mode</code> → use dark theme variables</li>
+          <li>Since the UI uses variables everywhere, switching the class switches the entire theme.</li>
+        </ul>
+      </div>
+
+      <h3>Why the class goes on the HTML element</h3>
+      <ul>
+        <li>✅ It affects the entire app globally (without prop drilling theme values).</li>
+        <li>✅ The <code>:root</code> selector is essentially the HTML element, so it’s a natural place to attach theme classes.</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>3) CSS setup: light variables + dark variables</h2>
+      <p>
+        The starter files already include theme variables in <code>styles.css</code>. The task is to:
+      </p>
+      <ul>
+        <li>Move light variables under <code>html.light-mode</code> (and also as default)</li>
+        <li>Move dark variables under <code>html.dark-mode</code></li>
+      </ul>
+
+      <pre><code>/* Example structure (conceptual) */
+
+/* Default + Light mode */
+:root,
+:root.light-mode {
+  --color-bg: #ffffff;
+  --color-text: #111111;
+  /* ...many more... */
+
+  /* Image tuning for light mode */
+  --image-grayscale: 0;
+  --image-opacity: 1;
+}
+
+/* Dark mode */
+:root.dark-mode {
+  --color-bg: #0b1220;
+  --color-text: #e6edf3;
+  /* ...many more... */
+
+  /* Image tuning for dark mode */
+  --image-grayscale: 0.2;
+  --image-opacity: 0.9;
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>🖼️ Nice UX detail from the lecture</strong></p>
+        <p>
+          In dark mode, images can feel too “bright”. A common trick is to reduce opacity and add a bit of grayscale
+          to make them blend better with a dark background.
+        </p>
+      </div>
+
+      <h3>Quick manual test</h3>
+      <p>
+        You can confirm the system works by manually adding the class to the HTML element:
+      </p>
+      <pre><code>&lt;html class="dark-mode"&gt;</code></pre>
+      <p class="small">If variables are wired correctly, the entire UI flips theme instantly.</p>
+
+      <div class="divider"></div>
+
+      <h2>4) UI control: add a DarkModeToggle button</h2>
+      <p>
+        Create a new component (e.g., <code>DarkModeToggle</code>) that renders an icon button.
+        Initially it’s just UI, then we wire it to state.
+      </p>
+
+      <pre><code>// DarkModeToggle.jsx (conceptual)
+import { HiOutlineMoon, HiOutlineSun } from "react-icons/hi2";
+
+function DarkModeToggle() {
+  return (
+    &lt;ButtonIcon&gt;
+      &lt;HiOutlineMoon /&gt;
+    &lt;/ButtonIcon&gt;
+  );
+}</code></pre>
+
+      <p>
+        Add it to the header menu (e.g., inside a list item) so it appears in the top bar.
+      </p>
+
+      <div class="divider"></div>
+
+      <h2>5) Why this needs global state (Context)</h2>
+      <p>
+        Dark mode state is needed in multiple places:
+      </p>
+      <ul>
+        <li>🌙 Toggle button icon must change (moon ↔ sun)</li>
+        <li>🧾 Logo may change depending on theme (light logo vs dark logo)</li>
+        <li>🔮 Future: charts, tables, tooltips, etc. might depend on theme state</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>✅ Important architecture point</strong></p>
+        <p>
+          This becomes the main “local global state” in the app.
+          Most other global state is remote/server state handled by React Query.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>6) Create DarkModeContext + Provider (with localStorage)</h2>
+      <p>
+        Implement a <strong>DarkModeProvider</strong> that holds:
+      </p>
+      <ul>
+        <li><code>isDarkMode</code> (boolean)</li>
+        <li><code>toggleDarkMode</code> (function)</li>
+        <li>Persist state using <code>useLocalStorageState</code> so it survives refresh.</li>
+      </ul>
+
+      <pre><code>// context/DarkModeContext.jsx (conceptual)
+import { createContext, useContext, useEffect } from "react";
+import useLocalStorageState from "../hooks/useLocalStorageState";
+
+const DarkModeContext = createContext();
+
+function DarkModeProvider({ children }) {
+  const [isDarkMode, setIsDarkMode] = useLocalStorageState(false, "isDarkMode");
+
+  function toggleDarkMode() {
+    setIsDarkMode((d) =&gt; !d);
+  }
+
+  // We'll add DOM class switching here (next section)
+  useEffect(() =&gt; {
+    // ...
+  }, [isDarkMode]);
+
+  return (
+    &lt;DarkModeContext.Provider value={{ isDarkMode, toggleDarkMode }}&gt;
+      {children}
+    &lt;/DarkModeContext.Provider&gt;
+  );
+}
+
+function useDarkMode() {
+  const context = useContext(DarkModeContext);
+  if (context === undefined)
+    throw new Error("DarkModeContext was used outside of DarkModeProvider");
+  return context;
+}
+
+export { DarkModeProvider, useDarkMode };</code></pre>
+
+      <div class="callout">
+        <p><strong>💡 Why the custom hook throws an error</strong></p>
+        <ul>
+          <li>Prevents silent bugs when someone uses <code>useDarkMode()</code> outside the provider.</li>
+          <li>Gives a clear, friendly error message during development.</li>
+        </ul>
+      </div>
+
+      <h3>Wrap your app with the provider</h3>
+      <pre><code>// e.g., in App.jsx or main entry file
+&lt;DarkModeProvider&gt;
+  &lt;App /&gt;
+&lt;/DarkModeProvider&gt;</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>7) Wire the toggle button + logo to context state</h2>
+
+      <h3>Toggle icon switches based on <code>isDarkMode</code></h3>
+      <pre><code>// DarkModeToggle.jsx (conceptual)
+import { HiOutlineMoon, HiOutlineSun } from "react-icons/hi2";
+import { useDarkMode } from "../context/DarkModeContext";
+
+function DarkModeToggle() {
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
+
+  return (
+    &lt;ButtonIcon onClick={toggleDarkMode}&gt;
+      {isDarkMode ? &lt;HiOutlineSun /&gt; : &lt;HiOutlineMoon /&gt;}
+    &lt;/ButtonIcon&gt;
+  );
+}</code></pre>
+
+      <h3>Logo switches based on <code>isDarkMode</code></h3>
+      <pre><code>// Logo.jsx (conceptual)
+import { useDarkMode } from "../context/DarkModeContext";
+import logoLight from "../assets/logo-light.png";
+import logoDark from "../assets/logo-dark.png";
+
+function Logo() {
+  const { isDarkMode } = useDarkMode();
+  return &lt;img src={isDarkMode ? logoDark : logoLight} alt="App logo" /&gt;;
+}</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>8) The final step: apply theme class to <code>&lt;html&gt;</code> using an effect</h2>
+      <p>
+        The UI responds to <code>isDarkMode</code>, but the theme won’t switch until we update the HTML class
+        (because our CSS variables depend on <code>html.dark-mode</code> / <code>html.light-mode</code>).
+      </p>
+
+      <pre><code>// inside DarkModeProvider
+useEffect(() =&gt; {
+  const root = document.documentElement;
+
+  if (isDarkMode) {
+    root.classList.add("dark-mode");
+    root.classList.remove("light-mode");
+  } else {
+    root.classList.add("light-mode");
+    root.classList.remove("dark-mode");
+  }
+}, [isDarkMode]);</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ What this achieves</strong></p>
+        <ul>
+          <li>Click toggle → state changes</li>
+          <li>Effect runs → HTML class changes</li>
+          <li>CSS variables swap → entire app theme updates</li>
+          <li>State persists → refresh keeps the same theme (localStorage)</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>9) Quick self-check (practice)</h2>
+      <ul>
+        <li>🎛️ Why are CSS variables a great fit for dark mode?</li>
+        <li>🧠 Why does dark mode require global state instead of component-local state?</li>
+        <li>💾 What’s the benefit of using <code>useLocalStorageState</code>?</li>
+        <li>🧩 Why do we apply the theme class on <code>document.documentElement</code>?</li>
+        <li>⚠️ What two bug fixes were required for the “update user immediately” cache update to work?</li>
+      </ul>
+
+      <p class="small">
+        End of reviewer. This approach is “real-world standard”: fast theme switching, minimal CSS duplication,
+        and persistent user preference.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

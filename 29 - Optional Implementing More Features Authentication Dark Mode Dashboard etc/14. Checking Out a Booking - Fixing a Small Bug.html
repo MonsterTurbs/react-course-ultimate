@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>React Study Guide — Checkout Feature + React Query Mutation + Pagination Filter Bug Fix</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --link:#0b57d0;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
+
+      /* High-contrast code theme */
+      --code-bg:#0b1220;
+      --code-text:#e6edf3;
+      --code-border:#1f2937;
+      --inline-bg:#eef2ff;
+      --inline-border:#dbeafe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header{
+      padding: 18px 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, var(--panel));
+      box-shadow: var(--shadow);
+    }
+
+    h1{
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: .2px;
+      line-height: 1.25;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size: 13px;
+    }
+    .btn:hover{ border-color:#cfcfcf; }
+    .btn:active{ transform: translateY(1px); }
+
+    .meta{
+      margin-left:auto;
+      color:var(--muted);
+      font-size: 12px;
+    }
+
+    main{
+      margin-top: 18px;
+      padding: 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background:#fff;
+      box-shadow: var(--shadow);
+    }
+
+    h2{
+      margin: 18px 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style:none;
+    }
+    .chip{
+      background: var(--chip);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color:#222;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 16px 0;
+    }
+
+    .small{ color:var(--muted); font-size: 13px; }
+
+    /* Code blocks */
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Courier New", monospace;
+    }
+    code{
+      background: var(--inline-bg);
+      color:#111111;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--inline-border);
+      font-size: 0.95em;
+      opacity: 1 !important;
+    }
+    pre{
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border: 1px solid var(--code-border);
+      overflow:auto;
+      max-width: 100%;
+      box-shadow: 0 2px 14px rgba(0,0,0,.10);
+      opacity: 1 !important;
+    }
+    pre code{
+      background: transparent !important;
+      border: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+      font-size: 12.8px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      opacity: 1 !important;
+    }
+
+    @media print{
+      @page{ size: A4; margin: 12mm; }
+      body{ background:#fff; }
+      .page{ padding: 0; margin: 0; max-width: none; }
+      header, main{ box-shadow: none; }
+      header{ break-inside: avoid; }
+      .toolbar{ display:none !important; }
+      a[href]::after{ content:""; }
+
+      pre{
+        background:#ffffff !important;
+        color:#111111 !important;
+        border: 1px solid #d0d0d0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+      pre code{
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+      }
+
+      .callout{ break-inside: avoid; }
+      h2{ break-after: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🚪 Checkout Feature + 🧭 Pagination Bug Fix</h1>
+      <p class="subtitle">
+        Part 1: Implement “Check out guest” via a simple React Query mutation (update booking status to <code>checked-out</code>).
+        Part 2: Fix a critical pagination bug—when filter changes, reset the page back to 1.
+      </p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆️ Back to Top</button>
+        <span class="meta">Single-column • A4 print-ready • High-contrast code</span>
+      </div>
+
+      <ul class="chips" aria-label="key tags">
+        <li class="chip">🚪 Check-out</li>
+        <li class="chip">✏️ Update booking</li>
+        <li class="chip">⚡ React Query mutation</li>
+        <li class="chip">🧾 BookingRow menu</li>
+        <li class="chip">📄 BookingDetail button</li>
+        <li class="chip">🧭 Pagination reset</li>
+      </ul>
+    </header>
+
+    <main>
+      <h2>1) Feature goal: allow employees to check guests out</h2>
+      <p>
+        Checkout is simpler than check-in:
+      </p>
+      <ul>
+        <li>✅ No separate “checkout page” needed</li>
+        <li>✅ Only a button in:
+          <ul>
+            <li>Booking table row actions (menu)</li>
+            <li>Booking detail page</li>
+          </ul>
+        </li>
+        <li>⚠️ Only bookings with status <code>checked-in</code> can be checked out</li>
+      </ul>
+
+      <div class="divider"></div>
+
+      <h2>2) Add “Check out” action in BookingRow (only for checked-in)</h2>
+      <p>
+        In <code>BookingRow</code>, you duplicate the existing action pattern (like Check-in),
+        but render it only when:
+        <code>status === "checked-in"</code>.
+      </p>
+
+      <pre><code>// BookingRow.jsx (conceptual)
+{status === "checked-in" &amp;&amp; (
+  &lt;Menus.Button
+    icon={&lt;HiArrowUpOnSquare /&gt;}
+    onClick={() =&gt; {/* checkout later */}}
+  &gt;
+    Check out
+  &lt;/Menus.Button&gt;
+)}</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ UX rule</strong></p>
+        <p>
+          Hide actions that are not valid. You can’t check out an unconfirmed booking, so don’t show the button.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>3) Implement checkout logic as a mutation (useCheckout)</h2>
+      <p>
+        Checkout is an “update booking” operation, just like check-in—so the pattern is very similar.
+        The difference is simpler payload:
+      </p>
+      <ul>
+        <li>Check-in: might update breakfast/other fields</li>
+        <li>Check-out: only updates <code>status</code> to <code>checked-out</code></li>
+      </ul>
+
+      <pre><code>// hooks/useCheckout.js (conceptual)
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { updateBooking } from "../../services/apiBookings";
+
+export function useCheckout() {
+  const queryClient = useQueryClient();
+
+  const { mutate: checkout, isLoading: isCheckingOut } = useMutation({
+    mutationFn: (bookingId) =&gt;
+      updateBooking(bookingId, { status: "checked-out" }),
+    onSuccess: () =&gt; {
+      toast.success("Booking successfully checked out");
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+    },
+    onError: (err) =&gt; toast.error(err.message),
+  });
+
+  return { checkout, isCheckingOut };
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>🧠 Key idea</strong></p>
+        <p>
+          You only need the <code>bookingId</code> to check out, because the update payload is constant:
+          <code>{ status: "checked-out" }</code>.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>4) Wire the button (disable while loading)</h2>
+      <p>
+        In BookingRow (menu) you:
+      </p>
+      <ul>
+        <li>Call <code>checkout(bookingId)</code> on click</li>
+        <li>Disable the action while <code>isCheckingOut</code> is true</li>
+      </ul>
+
+      <pre><code>// BookingRow.jsx (conceptual)
+const { checkout, isCheckingOut } = useCheckout();
+
+&lt;Menus.Button
+  icon={&lt;HiArrowUpOnSquare /&gt;}
+  disabled={isCheckingOut}
+  onClick={() =&gt; checkout(bookingId)}
+&gt;
+  Check out
+&lt;/Menus.Button&gt;</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Expected behavior</strong></p>
+        <ul>
+          <li>After checkout, the booking disappears from “Checked in” list</li>
+          <li>It appears under “Checked out” list</li>
+          <li>React Query invalidation triggers a refetch</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>5) Add the same checkout button to BookingDetail</h2>
+      <p>
+        BookingDetail already has a Check-in button. You add a similar conditional button for checkout.
+        Since checkout requires more logic, you reuse the same <code>useCheckout</code> hook.
+      </p>
+
+      <pre><code>// BookingDetail.jsx (conceptual)
+const { checkout, isCheckingOut } = useCheckout();
+
+{status === "checked-in" &amp;&amp; (
+  &lt;Button
+    variation="primary"
+    disabled={isCheckingOut}
+    onClick={() =&gt; checkout(bookingId)}
+  &gt;
+    Check out
+  &lt;/Button&gt;
+)}</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Nice result</strong></p>
+        <p>
+          After you click “Check out”, the status updates on the detail page too,
+          because the booking query gets invalidated and refetched.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>6) Small decision: should checkout redirect to dashboard?</h2>
+      <p>
+        The lecture notes that redirecting to dashboard after checkout might not be necessary in this case.
+        You can remove the navigation logic if it feels disruptive.
+      </p>
+
+      <div class="divider"></div>
+
+      <h2>7) Important bug: pagination breaks after changing filter</h2>
+      <p>
+        The lecture discovers a classic issue:
+      </p>
+      <ul>
+        <li>You are on the last page (e.g., page 3)</li>
+        <li>You change filter to “Unconfirmed”</li>
+        <li>But “Unconfirmed” may have fewer pages (maybe only 1)</li>
+        <li>App still requests offset for page 3 → API returns an error (“offset 20 requested but only 10 rows”)</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Root cause</strong></p>
+        <p>
+          Page number is still set to the old value when filter changes. The URL/search params still say <code>page=3</code>.
+        </p>
+      </div>
+
+      <h3>Fix: whenever filter changes, reset page to 1</h3>
+      <p>
+        In the Filter component (where you update search params), add:
+      </p>
+
+      <pre><code>// Filter.jsx (conceptual)
+function handleFilterChange(value) {
+  const searchParams = new URLSearchParams(window.location.search);
+
+  searchParams.set("status", value);
+
+  // ✅ Reset pagination whenever filter changes
+  if (searchParams.get("page")) searchParams.set("page", "1");
+
+  setSearchParams(searchParams);
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Expected outcome</strong></p>
+        <ul>
+          <li>Switch filter → page resets to 1</li>
+          <li>No “invalid offset” request</li>
+          <li>Pagination UI updates correctly (may even disappear if only one page exists)</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>8) Quick self-check (practice)</h2>
+      <ul>
+        <li>🚪 Why can only “checked-in” bookings be checked out?</li>
+        <li>✏️ Why is checkout implemented as an update (mutation) rather than a separate page?</li>
+        <li>⚡ What does React Query invalidation do after a successful checkout?</li>
+        <li>🧭 Why does the pagination bug happen when you change filters?</li>
+        <li>✅ What’s the simplest fix for filter + pagination consistency?</li>
+      </ul>
+
+      <p class="small">
+        End of reviewer. Next: add “delete booking” feature, plus fix remaining small issues.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

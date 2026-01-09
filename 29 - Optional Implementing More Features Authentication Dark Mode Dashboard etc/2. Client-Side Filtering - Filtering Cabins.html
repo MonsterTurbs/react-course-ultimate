@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>React Study Guide — Reusable Filter Component (URL State) + Client-side Cabin Filtering</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --border:#e6e6e6;
+      --panel:#fafafa;
+      --chip:#f3f4f6;
+      --link:#0b57d0;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
+
+      /* High-contrast code theme */
+      --code-bg:#0b1220;
+      --code-text:#e6edf3;
+      --code-border:#1f2937;
+      --inline-bg:#eef2ff;
+      --inline-border:#dbeafe;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height:1.65;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+
+    .page{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header{
+      padding: 18px 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, var(--panel));
+      box-shadow: var(--shadow);
+    }
+
+    h1{
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: .2px;
+      line-height: 1.25;
+    }
+
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size: 13px;
+    }
+    .btn:hover{ border-color:#cfcfcf; }
+    .btn:active{ transform: translateY(1px); }
+
+    .meta{
+      margin-left:auto;
+      color:var(--muted);
+      font-size: 12px;
+    }
+
+    main{
+      margin-top: 18px;
+      padding: 18px;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background:#fff;
+      box-shadow: var(--shadow);
+    }
+
+    h2{
+      margin: 18px 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    h3{
+      margin: 14px 0 8px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    p{ margin: 8px 0; }
+    ul{ margin: 8px 0 8px 20px; padding:0; }
+    li{ margin: 6px 0; }
+
+    .callout{
+      border:1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 12px 12px;
+      margin: 12px 0;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style:none;
+    }
+    .chip{
+      background: var(--chip);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color:#222;
+    }
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin: 16px 0;
+    }
+
+    .small{ color:var(--muted); font-size: 13px; }
+
+    /* Code blocks */
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Courier New", monospace;
+    }
+    code{
+      background: var(--inline-bg);
+      color:#111111;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--inline-border);
+      font-size: 0.95em;
+      opacity: 1 !important;
+    }
+    pre{
+      margin: 10px 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border: 1px solid var(--code-border);
+      overflow:auto;
+      max-width: 100%;
+      box-shadow: 0 2px 14px rgba(0,0,0,.10);
+      opacity: 1 !important;
+    }
+    pre code{
+      background: transparent !important;
+      border: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+      font-size: 12.8px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      opacity: 1 !important;
+    }
+
+    @media print{
+      @page{ size: A4; margin: 12mm; }
+      body{ background:#fff; }
+      .page{ padding: 0; margin: 0; max-width: none; }
+      header, main{ box-shadow: none; }
+      header{ break-inside: avoid; }
+      .toolbar{ display:none !important; }
+      a[href]::after{ content:""; }
+
+      pre{
+        background:#ffffff !important;
+        color:#111111 !important;
+        border: 1px solid #d0d0d0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+      pre code{
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+      }
+
+      .callout{ break-inside: avoid; }
+      h2{ break-after: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <h1>🧰 Client-side Cabin Filtering — Reusable Filter Component + URL State</h1>
+      <p class="subtitle">
+        Goal: filter the Cabins table by discount (all / no discount / with discount) using URL-based state.
+        Then refactor the Filter component to be reusable for other tables (e.g., bookings status).
+      </p>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆️ Back to Top</button>
+        <span class="meta">Single-column • A4 print-ready • High-contrast code</span>
+      </div>
+
+      <ul class="chips" aria-label="key tags">
+        <li class="chip">🔎 Filter</li>
+        <li class="chip">🔗 URL state</li>
+        <li class="chip">🔖 Bookmarkable</li>
+        <li class="chip">♻️ Reusable component</li>
+        <li class="chip">🏨 Cabins discounts</li>
+        <li class="chip">🧠 Active option styling</li>
+      </ul>
+    </header>
+
+    <main>
+      <h2>1) Feature goal: filter cabins by discount</h2>
+      <p>
+        The first feature in this section is client-side filtering for cabins. You want buttons like:
+      </p>
+      <ul>
+        <li>✅ All cabins</li>
+        <li>🚫 No discount</li>
+        <li>💸 With discount</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Why start with cabins?</strong></p>
+        <p>
+          It’s a simpler dataset to introduce the pattern. Later, you’ll apply the same pattern to bookings (status filtering).
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>2) Use URL state instead of component state</h2>
+      <p>
+        The lecture chooses to store the filter value in the URL (search params) instead of <code>useState</code>.
+        Benefits:
+      </p>
+      <ul>
+        <li>🔖 Bookmarkable (reload preserves filter)</li>
+        <li>🔗 Shareable URL (“send me the filtered view”)</li>
+        <li>🧩 Filter component can live anywhere in the tree (not necessarily near the table)</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Key insight</strong></p>
+        <p>
+          If you used <code>useState</code>, the table must be a child of the state owner.
+          With URL state, any component can read the filter value.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>3) Place the UI: CabinTableOperations (Filter now, Sort later)</h2>
+      <p>
+        Instead of placing filter controls directly in the table, create a dedicated component:
+        <code>CabinTableOperations</code>.
+      </p>
+
+      <ul>
+        <li>Contains Filter now</li>
+        <li>Will contain SortBy later</li>
+        <li>Uses a styled layout wrapper like <code>TableOperations</code></li>
+      </ul>
+
+      <pre><code>// CabinsPage.jsx (conceptual)
+&lt;CabinTableOperations /&gt;
+&lt;CabinTable /&gt;</code></pre>
+
+      <div class="divider"></div>
+
+      <h2>4) Initial Filter component: buttons + URL updates</h2>
+      <p>
+        Build a Filter component that renders buttons and updates the search param when clicked.
+      </p>
+
+      <pre><code>// Filter.jsx (early version concept)
+import { useSearchParams } from "react-router-dom";
+
+function Filter() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  function handleClick(value) {
+    searchParams.set("discount", value);
+    setSearchParams(searchParams);
+  }
+
+  return (
+    &lt;StyledFilter&gt;
+      &lt;FilterButton onClick={() =&gt; handleClick("all")}&gt;All&lt;/FilterButton&gt;
+      &lt;FilterButton onClick={() =&gt; handleClick("no-discount")}&gt;No discount&lt;/FilterButton&gt;
+      &lt;FilterButton onClick={() =&gt; handleClick("with-discount")}&gt;With discount&lt;/FilterButton&gt;
+    &lt;/StyledFilter&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Result</strong></p>
+        <p>
+          Clicking buttons updates URL: <code>?discount=with-discount</code>, etc.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>5) Read filter value in CabinTable and filter the data</h2>
+      <p>
+        CabinTable reads the current filter value from the URL and filters the cabins array accordingly.
+      </p>
+
+      <h3>Read value with a default</h3>
+      <p>
+        If the URL has no <code>discount</code> param, <code>searchParams.get()</code> returns <code>null</code>.
+        Default to <code>"all"</code>.
+      </p>
+
+      <pre><code>// CabinTable.jsx (conceptual)
+import { useSearchParams } from "react-router-dom";
+
+const [searchParams] = useSearchParams();
+const filterValue = searchParams.get("discount") || "all";</code></pre>
+
+      <h3>Filter logic</h3>
+      <pre><code>let filteredCabins;
+
+if (filterValue === "all") filteredCabins = cabins;
+
+if (filterValue === "no-discount")
+  filteredCabins = cabins.filter((c) =&gt; c.discount === 0);
+
+if (filterValue === "with-discount")
+  filteredCabins = cabins.filter((c) =&gt; c.discount &gt; 0);</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Key outcome</strong></p>
+        <p>
+          Reloading the page preserves filter results because the filter value is in the URL.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>6) Make Filter reusable (for bookings table later)</h2>
+      <p>
+        The initial Filter is hardcoded for cabins. To reuse it for bookings status, you refactor:
+      </p>
+      <ul>
+        <li>Pass the search param field name as <code>filterField</code></li>
+        <li>Pass the list of choices as <code>options</code></li>
+      </ul>
+
+      <h3>New props</h3>
+      <ul>
+        <li><code>filterField</code> (e.g., <code>"discount"</code>, later <code>"status"</code>)</li>
+        <li><code>options</code> array: <code>{ value, label }</code> per button</li>
+      </ul>
+
+      <pre><code>// CabinTableOperations.jsx (conceptual)
+&lt;Filter
+  filterField="discount"
+  options={[
+    { value: "all", label: "All" },
+    { value: "no-discount", label: "No discount" },
+    { value: "with-discount", label: "With discount" },
+  ]}
+/&gt;</code></pre>
+
+      <h3>Render buttons via map</h3>
+      <pre><code>// Filter.jsx (reusable concept)
+function Filter({ filterField, options }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const currentFilter =
+    searchParams.get(filterField) || options.at(0).value;
+
+  function handleClick(value) {
+    searchParams.set(filterField, value);
+    setSearchParams(searchParams);
+  }
+
+  return (
+    &lt;StyledFilter&gt;
+      {options.map((option) =&gt; (
+        &lt;FilterButton
+          key={option.value}
+          active={option.value === currentFilter}
+          disabled={option.value === currentFilter}
+          onClick={() =&gt; handleClick(option.value)}
+        &gt;
+          {option.label}
+        &lt;/FilterButton&gt;
+      ))}
+    &lt;/StyledFilter&gt;
+  );
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>✅ Two UX details</strong></p>
+        <ul>
+          <li><code>active</code> prop styles the currently selected option (blue background).</li>
+          <li><code>disabled</code> prevents re-clicking the active filter.</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>7) Pattern takeaway</h2>
+      <p>
+        This introduces a powerful real-world pattern:
+      </p>
+      <ul>
+        <li>UI controls write state to URL</li>
+        <li>Data components read state from URL</li>
+        <li>Filtering becomes bookmarkable and reusable</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Next step</strong></p>
+        <p>
+          Implement the second table operation: sorting (SortBy component), then reuse both Filter and SortBy in bookings.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>8) Quick self-check (practice)</h2>
+      <ul>
+        <li>🔖 Why is storing filter state in the URL a good idea?</li>
+        <li>🧩 Why can the Filter component live anywhere in the tree when using URL state?</li>
+        <li>✅ How do you default to “All” when the URL param is missing?</li>
+        <li>♻️ What props make Filter reusable for other tables?</li>
+        <li>🎨 Why do we set <code>active</code> and <code>disabled</code> on the selected option?</li>
+      </ul>
+
+      <p class="small">
+        End of reviewer. Next: build the SortBy component and add sorting to cabins.
+      </p>
+    </main>
+  </div>
+</body>
+</html>

@@ -16,6 +16,11 @@
       --accent2: #0b57d0;
       --ok: #0f766e;
       --warn: #b45309;
+
+      /* ✅ Avoid dark code blocks */
+      --codebg: #f5f5f5;   /* light gray */
+      --codetext: #111111; /* dark text */
+      --codeborder: #d1d5db;
     }
 
     * { box-sizing: border-box; }
@@ -139,18 +144,21 @@
       font-size: 12.5px;
     }
 
+    /* ✅ Light code blocks */
     pre {
       margin: 10px 0 0;
       padding: 10px 12px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--codeborder);
       border-radius: 10px;
-      background: #0b1020;
-      color: #eaf0ff;
+      background: var(--codebg);
+      color: var(--codetext);
       overflow: auto;
       line-height: 1.5;
       white-space: pre-wrap;
       word-break: break-word;
     }
+
+    pre code { color: inherit; }
 
     .grid {
       display: grid;
@@ -201,6 +209,14 @@
       .chip {
         background: #fff;
       }
+
+      /* Ensure code stays ink-friendly */
+      pre {
+        background: #fff !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+      }
+      pre code { color: inherit !important; }
     }
   </style>
 </head>
@@ -263,7 +279,7 @@
         <div class="grid">
           <div class="mini">
             <strong>🧩 Component Tree</strong>
-            <p class="muted">Shows the parent → child structure of your UI. In small apps you may only see <code>App</code>, but in real projects you’ll see dozens/hundreds of components.</p>
+            <p class="muted">Shows the parent → child structure of your UI. In small apps you may only see App, but in real projects you’ll see dozens/hundreds of components.</p>
           </div>
           <div class="mini">
             <strong>📦 Props</strong>
@@ -271,13 +287,13 @@
           </div>
           <div class="mini">
             <strong>🪝 Hooks / State</strong>
-            <p class="muted">Lists hooks like <code>useState</code>. Each state hook shows the current value (e.g., <code>step</code>, <code>isOpen</code>).</p>
+            <p class="muted">Lists hooks like useState. Each state hook shows the current value (e.g., step, isOpen).</p>
           </div>
         </div>
 
         <div class="callout">
           <div class="label">Key connection 🔗</div>
-          <p><strong>State is stored in hooks</strong> (e.g., <code>useState</code>), so DevTools shows them under the <strong>Hooks</strong> section.</p>
+          <p><strong>State is stored in hooks</strong> (e.g., useState), so DevTools shows them under the <strong>Hooks</strong> section.</p>
         </div>
       </section>
 
@@ -287,14 +303,14 @@
 
         <h3>Examples</h3>
         <ul>
-          <li>✅ If a piece of state is a boolean, DevTools often shows a checkbox (toggle <code>true</code>/<code>false</code>).</li>
-          <li>✅ If state is a number (like <code>step</code>), you can set it directly (e.g., jump from 1 → 3).</li>
-          <li>🧪 You can even set values the UI normally can’t reach (e.g., set <code>step</code> to <code>10</code>) to stress-test screens and edge cases.</li>
+          <li>✅ If a piece of state is a boolean, DevTools often shows a checkbox (toggle true/false).</li>
+          <li>✅ If state is a number (like step), you can set it directly (e.g., jump from 1 → 3).</li>
+          <li>🧪 You can even set values the UI normally can’t reach (e.g., set step to 10) to stress-test screens and edge cases.</li>
         </ul>
 
         <div class="callout warn">
           <div class="label">Important note ⚠️</div>
-          <p>This is mainly for <strong>debugging and experimentation</strong>. In real apps, setting impossible values (like <code>step = 10</code>) can reveal missing guards/validation in your code.</p>
+          <p>This is mainly for <strong>debugging and experimentation</strong>. In real apps, setting impossible values (like step = 10) can reveal missing guards/validation in your code.</p>
         </div>
       </section>
 
@@ -333,11 +349,11 @@
           <li>🧠 State (hooks) = the component’s memory</li>
         </ul>
 
-        <pre><code>// What you typically want to confirm when debugging:
+        <pre>// What you typically want to confirm when debugging:
 // 1) Is this the right component?
 // 2) What props did it receive?
 // 3) What is its current state?
-// 4) If state changes, does the UI update as expected?</code></pre>
+// 4) If state changes, does the UI update as expected?</pre>
 
         <p class="footer">End of lecture notes: React DevTools are extremely handy. Install them now — you will use them repeatedly in future lessons.</p>
       </section>

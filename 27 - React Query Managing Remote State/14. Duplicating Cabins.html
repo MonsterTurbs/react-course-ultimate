@@ -120,8 +120,8 @@
     pre {
       margin: 10px 0;
       padding: 12px;
-      background: #0b1020;
-      color: #e5e7eb;
+      background: #f5f5f5;
+      color: #111111;
       border-radius: 12px;
       border: 1px solid #10183a;
       overflow: auto;
@@ -215,19 +215,19 @@
       </section>
 
       <section>
-        <h2>🔁 Implementing “Duplicate” using <code>useCreateCabin</code></h2>
+        <h2>🔁 Implementing “Duplicate” using useCreateCabin</h2>
         <p>
-          You already have a custom hook that wraps <code>useMutation</code> for cabin creation.
+          You already have a custom hook that wraps useMutation for cabin creation.
           So in <b>CabinRow</b>, you simply:
         </p>
         <ol>
-          <li>Call the hook: <code>useCreateCabin()</code></li>
+          <li>Call the hook: useCreateCabin()</li>
           <li>Build a new cabin payload using the current cabin’s fields</li>
-          <li>Call <code>createCabin(newCabinPayload)</code> on click</li>
+          <li>Call createCabin(newCabinPayload) on click</li>
         </ol>
 
         <h3>✅ Example: handleDuplicate</h3>
-        <pre><code>// CabinRow.jsx (conceptual)
+        <pre>// CabinRow.jsx (conceptual)
 import { HiSquare2Stack, HiPencil, HiTrash } from "react-icons/hi2";
 import { useCreateCabin } from "./useCreateCabin";
 
@@ -265,13 +265,13 @@ function CabinRow({ cabin }) {
     &lt;/&gt;
   );
 }
-</code></pre>
+</pre>
 
         <div class="callout warn">
           ⚠️ Common bug: <b>“createCabin is not a function”</b>
           <ul>
             <li>Cause: you destructured from the hook <b>without calling it</b>.</li>
-            <li>Fix: make sure you do <code>useCreateCabin()</code>, not just <code>useCreateCabin</code>.</li>
+            <li>Fix: make sure you do useCreateCabin(), not just useCreateCabin.</li>
           </ul>
         </div>
 
@@ -288,8 +288,8 @@ function CabinRow({ cabin }) {
           In that case, your create function should <b>not</b> attempt a new upload.
         </p>
 
-        <h3>✅ Early return when <code>hasImagePath</code> is true</h3>
-        <pre><code>// apiCabins.js (conceptual)
+        <h3>✅ Early return when hasImagePath is true</h3>
+        <pre>// apiCabins.js (conceptual)
 export async function createEditCabin(newCabin, id) {
   // ...build query, create/update cabin row...
   const hasImagePath = newCabin.image?.startsWith(supabaseUrl);
@@ -312,7 +312,7 @@ export async function createEditCabin(newCabin, id) {
 
   return data;
 }
-</code></pre>
+</pre>
 
         <div class="callout">
           🧠 Why this matters: duplication often reuses the existing image URL.
@@ -323,10 +323,10 @@ export async function createEditCabin(newCabin, id) {
       <section>
         <h2>✅ UX improvement: disable the duplicate button while creating</h2>
         <p>
-          Use the mutation loading state from <code>useCreateCabin</code> to avoid double-click duplicates.
+          Use the mutation loading state from useCreateCabin to avoid double-click duplicates.
         </p>
         <ul>
-          <li>🔒 Disable button: <code>disabled={isCreating}</code></li>
+          <li>🔒 Disable button: disabled={isCreating}</li>
           <li>🧾 User feedback: toast appears automatically (centralized in the hook)</li>
         </ul>
       </section>
@@ -352,15 +352,15 @@ export async function createEditCabin(newCabin, id) {
             <h3>Core idea</h3>
             <ul>
               <li>🔁 Duplicate = <b>Create</b> using existing cabin data</li>
-              <li>🧩 Reuse <code>useCreateCabin()</code> for consistent behavior</li>
+              <li>🧩 Reuse useCreateCabin() for consistent behavior</li>
               <li>🔔 Toasts + invalidation are centralized in the hook</li>
             </ul>
           </div>
           <div>
             <h3>Common pitfalls</h3>
             <ul>
-              <li>❌ Forgetting to call the hook: <code>useCreateCabin</code> vs <code>useCreateCabin()</code></li>
-              <li>📦 Re-uploading an image when it’s already a URL → fix with <code>hasImagePath</code> early return</li>
+              <li>❌ Forgetting to call the hook: useCreateCabin vs useCreateCabin()</li>
+              <li>📦 Re-uploading an image when it’s already a URL → fix with hasImagePath early return</li>
               <li>🖱️ Double-click duplicates → disable while creating</li>
             </ul>
           </div>

@@ -11,8 +11,8 @@
       --muted:#555555;
       --border:#e6e6e6;
       --soft:#f7f7f8;
-      --code:#0b1020;
-      --codeBg:#f3f4f6;
+      --code:#111111;
+      --codeBg:#f5f5f5;
       --accent:#1a73e8;
       --ok:#137333;
       --warn:#b05a00;
@@ -155,11 +155,11 @@
 
       <div class="card">
         <h3>✅ Register the field as <span class="k">image</span></h3>
-        <pre><code>// CreateCabinForm.jsx
+        <pre>// CreateCabinForm.jsx
 &lt;Input
   id="image"
   {...register("image", { required: "Cabin photo is required" })}
-/&gt;</code></pre>
+/&gt;</pre>
         <p class="muted">🧠 Why <span class="k">image</span>? Because it matches your Supabase column naming convention and makes mapping easier.</p>
       </div>
 
@@ -178,12 +178,12 @@
 
       <div class="card">
         <h3>✅ Styled Components: <span class="k">attrs</span> trick</h3>
-        <pre><code>// Input.jsx (or wherever your styled Input is)
+        <pre>// Input.jsx (or wherever your styled Input is)
 import styled from "styled-components";
 
 export const Input = styled.input.attrs({ type: "file" })`
   /* your existing styles */
-`;</code></pre>
+`;</pre>
         <p class="muted">🙂 Benefit: You don’t have to manually write <span class="k">type="file"</span> each time you use this Input component.</p>
       </div>
     </section>
@@ -194,7 +194,7 @@ export const Input = styled.input.attrs({ type: "file" })`
 
       <div class="card">
         <h3>✅ Create a clean payload</h3>
-        <pre><code>// CreateCabinForm.jsx
+        <pre>// CreateCabinForm.jsx
 function onSubmit(data) {
   const imageFile = data.image[0];
 
@@ -204,7 +204,7 @@ function onSubmit(data) {
   };
 
   createCabin(newCabin); // mutate(newCabin)
-}</code></pre>
+}</pre>
         <p class="muted">📝 At this point, <span class="k">newCabin.image</span> is a real file object (it contains the image data).</p>
       </div>
     </section>
@@ -223,24 +223,24 @@ function onSubmit(data) {
 
       <div class="card">
         <h3>✅ Build a unique file name (avoid collisions) 🔐</h3>
-        <pre><code>// apiCabins.js (service)
-const imageName = `${Math.random()}-${newCabin.image.name}`.replaceAll("/", "");</code></pre>
+        <pre>// apiCabins.js (service)
+const imageName = `${Math.random()}-${newCabin.image.name}`.replaceAll("/", "");</pre>
         <p class="muted">😅 Why replace slashes? A file name containing <span class="k">/</span> can create folders in storage, which you typically don’t want.</p>
       </div>
 
       <div class="card">
         <h3>✅ Construct the final image path you store in the DB 🔗</h3>
-        <pre><code>// supabaseUrl should come from your supabase client file
+        <pre>// supabaseUrl should come from your supabase client file
 // Example path format:
 // {supabaseUrl}/storage/v1/object/public/cabin-images/{imageName}
 
-const imagePath = `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;</code></pre>
+const imagePath = `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;</pre>
         <p class="muted">📌 The bucket must be public if you want the browser to render the image by URL.</p>
       </div>
 
       <div class="card">
         <h3>✅ Full service flow: insert row then upload file</h3>
-        <pre><code>// apiCabins.js
+        <pre>// apiCabins.js
 import supabase, { supabaseUrl } from "./supabase";
 
 export async function createCabin(newCabin) {
@@ -270,7 +270,7 @@ export async function createCabin(newCabin) {
   }
 
   return data;
-}</code></pre>
+}</pre>
         <p class="muted">✅ Result: the DB row points to the file, and the file exists in storage. UI can render it.</p>
       </div>
     </section>
@@ -296,13 +296,13 @@ export async function createCabin(newCabin) {
     <section>
       <h2>6) Common bug: <span class="k">data.image.at</span> is not a function 🐛</h2>
       <p>If you see an error like:</p>
-      <pre><code>data.image.at is not a function</code></pre>
+      <pre>data.image.at is not a function</pre>
       <p>It’s because <span class="k">data.image</span> is a <span class="k">FileList</span> (not a real array). Fix it like this:</p>
-      <pre><code>// ✅ Correct
+      <pre>// ✅ Correct
 const file = data.image[0];
 
 // ❌ Risky / may fail
-const file = data.image.at(0);</code></pre>
+const file = data.image.at(0);</pre>
     </section>
 
     <section>

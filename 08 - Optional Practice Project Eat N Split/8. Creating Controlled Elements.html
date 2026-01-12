@@ -1,5 +1,3 @@
-
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -13,7 +11,11 @@
       --muted: #555555;
       --border: #e6e6e6;
       --soft: #fafafa;
-      --codebg: #0b1020;
+
+      /* ✅ Code AREA ONLY (pre blocks) */
+      --codebg: #f5f5f5;   /* light gray */
+      --codetext: #111111; /* dark text */
+      --codeborder: #d1d5db;
     }
 
     * { box-sizing: border-box; }
@@ -106,23 +108,48 @@
 
     .muted { color: var(--muted); }
 
+    /* ✅ CODE BLOCKS (pre) only */
     pre {
       margin: 10px 0;
       padding: 12px;
       border-radius: 12px;
       background: var(--codebg);
-      color: #e7e7e7;
+      color: var(--codetext);
+      border: 1px solid var(--codeborder);
+
       overflow: auto;
       white-space: pre-wrap;
       word-break: break-word;
+
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-size: 12.5px;
       line-height: 1.55;
     }
 
+    pre code { color: inherit; }
+
+    /* Base monospace */
     code {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-size: 0.95em;
+    }
+
+    /* ✅ REMOVE background ONLY for inline code (specific text like value={state}, onChange, etc.)
+       This prevents those "dark pills" in normal paragraphs/tables. */
+    p code,
+    li code,
+    .sub code,
+    .muted code,
+    .kpi code,
+    .val code,
+    .callout code,
+    .box code {
+      background: transparent !important;
+      border: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      color: inherit !important;
     }
 
     .grid {
@@ -171,6 +198,14 @@
       header, .box { break-inside: avoid; page-break-inside: avoid; }
       pre { break-inside: avoid; page-break-inside: avoid; }
       a { color: inherit; text-decoration: none; }
+
+      /* keep inline code clean in print too */
+      p code, li code, .kpi code, .val code, .callout code, .box code {
+        background: transparent !important;
+        border: 0 !important;
+        padding: 0 !important;
+        color: inherit !important;
+      }
     }
   </style>
 </head>
@@ -191,8 +226,8 @@
       <section class="box">
         <h2>Goal of this lecture ✅</h2>
         <p>
-          Convert the bill-splitting form inputs into <strong>controlled elements</strong> — meaning React state is the
-          <strong>single source of truth</strong> for what the user sees inside the inputs.
+          Convert the bill-splitting form inputs into <strong>controlled elements</strong> — meaning React state is the single source of truth
+          for what the user sees inside the inputs.
         </p>
         <div class="kpi">
           <div class="row">
@@ -208,9 +243,7 @@
 
       <section class="box">
         <h2>1) Create state for each input 🧾</h2>
-        <p>
-          The form has three user-controlled inputs:
-        </p>
+        <p>The form has three user-controlled inputs:</p>
         <ul>
           <li>🧾 Bill value (text input)</li>
           <li>👤 Your expense (text/number input)</li>
@@ -229,16 +262,14 @@ const [paidByUser, setPaidByUser] = useState("");
 const [whoIsPaying, setWhoIsPaying] = useState("user"); // matches your option values</code></pre>
 
         <p class="muted">
-          📝 Note: You could model paying as a boolean (<code>true/false</code>), but select values are strings. Using
-          <code>"user"</code> / <code>"friend"</code> is simple and practical.
+          📝 Note: You could model paying as a boolean (<code>true/false</code>), but select values are strings.
+          Using <code>"user"</code> / <code>"friend"</code> is simple and practical.
         </p>
       </section>
 
       <section class="box">
         <h2>2) Wire them as controlled elements 🎛️</h2>
-        <p>
-          “Controlled” is always the same recipe:
-        </p>
+        <p>“Controlled” is always the same recipe:</p>
         <ol>
           <li><strong>Define</strong> state (<code>useState</code>)</li>
           <li><strong>Use</strong> it as the input value (<code>value={...}</code>)</li>
@@ -271,9 +302,7 @@ const [whoIsPaying, setWhoIsPaying] = useState("user"); // matches your option v
         <div class="divider"></div>
 
         <h3>Common gotcha ⚠️: strings vs numbers</h3>
-        <p>
-          Inputs return strings by default. If you plan to do math (like subtraction), convert:
-        </p>
+        <p>Inputs return strings by default. If you plan to do math (like subtraction), convert:</p>
         <ul>
           <li>✅ <code>Number(e.target.value)</code></li>
           <li>✅ <code>+e.target.value</code> (shorthand)</li>
@@ -331,9 +360,7 @@ const paidByFriend = bill ? bill - paidByUser : "";
 
       <section class="box">
         <h2>5) Mental model: why derived values update automatically 🔁</h2>
-        <p>
-          When you type in an input:
-        </p>
+        <p>When you type in an input:</p>
         <ol>
           <li><code>onChange</code> fires</li>
           <li>State updates (e.g., <code>setBill</code>)</li>

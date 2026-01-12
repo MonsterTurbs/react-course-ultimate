@@ -11,9 +11,16 @@
       --muted:#555555;
       --border:#e6e6e6;
       --soft:#fafafa;
-      --codebg:#0b1020;
-      --code:#e7e9ee;
+
+      /* ✅ APPLY (code area colors) */
+      --codebg:#f5f5f5;   /* light gray */
+      --codetext:#111111; /* optional: make text dark */
+
+      /* keep your other vars */
       --accent:#0b57d0;
+
+      /* optional helper for nicer border on light code blocks */
+      --codeborder:#d1d5db;
     }
 
     *{box-sizing:border-box;}
@@ -92,15 +99,20 @@
       white-space: nowrap;
     }
 
+    /* ✅ CODE BLOCK updated to use --codebg and --codetext */
     pre{
       background: var(--codebg);
-      color: var(--code);
+      color: var(--codetext);
       border-radius: 12px;
       padding: 12px 14px;
       overflow-x: auto;
       margin: 10px 0;
-      border: 1px solid rgba(255,255,255,.08);
+
+      /* optional: better border on light background */
+      border: 1px solid var(--codeborder);
     }
+
+    pre code { color: inherit; }
 
     code{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -155,7 +167,7 @@
         <ul class="bullets">
           <li>✅ A pill-shaped “Search order #” input (responsive width + focus behavior)</li>
           <li>✅ A standard text input (border, padding, focus ring, full width)</li>
-          <li>✅ A styled checkbox using <code>accent-*</code> and focus ring</li>
+          <li>✅ A styled checkbox using accent-* and focus ring</li>
         </ul>
       </div>
     </section>
@@ -165,15 +177,15 @@
       <p>When styling inputs, you typically combine:</p>
       <div class="card">
         <p>
-          <span class="tag">Shape: <code>rounded-full</code> / <code>rounded</code></span>
-          <span class="tag">Spacing: <code>px-*</code> <code>py-*</code></span>
-          <span class="tag">Text: <code>text-sm</code></span>
-          <span class="tag">Background: <code>bg-yellow-100</code></span>
-          <span class="tag">Border: <code>border</code> <code>border-stone-200</code></span>
-          <span class="tag">Placeholder: <code>placeholder:text-stone-400</code></span>
-          <span class="tag">Focus: <code>focus:outline-none</code> + <code>focus:ring</code></span>
-          <span class="tag">Transitions: <code>transition-all</code> <code>duration-300</code></span>
-          <span class="tag">Responsive: <code>sm:</code> <code>md:</code></span>
+          <span class="tag">Shape: rounded-full / rounded</span>
+          <span class="tag">Spacing: px-* py-*</span>
+          <span class="tag">Text: text-sm</span>
+          <span class="tag">Background: bg-yellow-100</span>
+          <span class="tag">Border: border border-stone-200</span>
+          <span class="tag">Placeholder: placeholder:text-stone-400</span>
+          <span class="tag">Focus: focus:outline-none + focus:ring</span>
+          <span class="tag">Transitions: transition-all duration-300</span>
+          <span class="tag">Responsive: sm: md:</span>
         </p>
       </div>
     </section>
@@ -190,7 +202,7 @@
       </ul>
 
       <h3>👨‍💻 Tailwind class recipe</h3>
-      <pre><code>&lt;input
+      <pre>&lt;input
   placeholder="Search order #"
   className="
     w-28 rounded-full bg-yellow-100 px-4 py-2 text-sm
@@ -199,10 +211,10 @@
     focus:outline-none focus:ring focus:ring-yellow-500 focus:ring-opacity-50
     sm:w-64 sm:focus:w-72
   "
-/&gt;</code></pre>
+/&gt;</pre>
 
       <div class="card">
-        <p><strong>Why the focus-width is prefixed with <code>sm:</code>?</strong> ⚠️</p>
+        <p><strong>Why the focus-width is prefixed with sm:?</strong> ⚠️</p>
         <p>
           If the input is very small on mobile, expanding it on focus can <em>break the header layout</em>.
           So you only enable “expand on focus” from the <strong>small breakpoint</strong> upward.
@@ -211,11 +223,11 @@
 
       <h3>🧪 Quick breakdown (mentally group the classes)</h3>
       <ul class="bullets">
-        <li><strong>Base styling:</strong> <code>rounded-full</code>, <code>px-4</code>, <code>py-2</code>, <code>text-sm</code>, <code>bg-yellow-100</code></li>
-        <li><strong>Placeholder:</strong> <code>placeholder:text-stone-400</code></li>
-        <li><strong>Focus UX:</strong> remove outline → <code>focus:outline-none</code>, add ring → <code>focus:ring ...</code></li>
-        <li><strong>Smoothness:</strong> <code>transition-all duration-300</code></li>
-        <li><strong>Responsiveness:</strong> <code>w-28</code> on mobile, bigger on <code>sm:</code> screens</li>
+        <li><strong>Base styling:</strong> rounded-full, px-4, py-2, text-sm, bg-yellow-100</li>
+        <li><strong>Placeholder:</strong> placeholder:text-stone-400</li>
+        <li><strong>Focus UX:</strong> remove outline → focus:outline-none, add ring → focus:ring ...</li>
+        <li><strong>Smoothness:</strong> transition-all duration-300</li>
+        <li><strong>Responsiveness:</strong> w-28 on mobile, bigger on sm: screens</li>
       </ul>
     </section>
 
@@ -229,7 +241,7 @@
       </p>
 
       <h3>👨‍💻 Tailwind class recipe</h3>
-      <pre><code>&lt;input
+      <pre>&lt;input
   type="text"
   placeholder="Address"
   className="
@@ -240,12 +252,12 @@
     focus:outline-none focus:ring focus:ring-yellow-400
     md:px-6 md:py-3 md:text-base
   "
-/&gt;</code></pre>
+/&gt;</pre>
 
       <div class="card">
-        <p><strong>Beginner note:</strong> <code>w-full</code> means “take 100% width of the parent container.” ✅</p>
+        <p><strong>Beginner note:</strong> w-full means “take 100% width of the parent container.” ✅</p>
         <p>
-          If the form is centered using a wrapper like <code>max-w-*</code> + <code>mx-auto</code>,
+          If the form is centered using a wrapper like max-w-* + mx-auto,
           the input will still look clean and centered because its “full width” is <em>relative to that centered form</em>.
         </p>
       </div>
@@ -256,17 +268,17 @@
     <section>
       <h2>☑️ Example 3 — Checkbox (size + accent color + focus ring)</h2>
       <p>
-        Checkboxes are a bit special. You can size them using <code>h-*</code> and <code>w-*</code>,
-        and style their “checked” color using the modern CSS <code>accent-color</code> via Tailwind’s <code>accent-*</code>.
+        Checkboxes are a bit special. You can size them using h-* and w-*,
+        and style their “checked” color using the modern CSS accent-color via Tailwind’s accent-*.
       </p>
 
-      <pre><code>&lt;input
+      <pre>&lt;input
   type="checkbox"
   className="
     h-6 w-6 accent-yellow-500
     focus:outline-none focus:ring focus:ring-yellow-500 focus:ring-offset-2
   "
-/&gt;</code></pre>
+/&gt;</pre>
 
       <div class="card">
         <p><strong>Keyboard UX reminder:</strong> Use <span class="kbd">Tab</span> to test focus states. 🧠</p>
@@ -280,13 +292,13 @@
     <section>
       <h2>✅ Common patterns you should memorize</h2>
       <ul class="bullets">
-        <li><strong>Pill input:</strong> <code>rounded-full px-4 py-2</code></li>
-        <li><strong>Bordered input:</strong> <code>border border-stone-200</code></li>
-        <li><strong>Placeholder styling:</strong> <code>placeholder:text-stone-400</code></li>
-        <li><strong>Focus ring:</strong> <code>focus:outline-none focus:ring focus:ring-yellow-400</code></li>
-        <li><strong>Subtle ring:</strong> <code>focus:ring-opacity-50</code></li>
-        <li><strong>Smooth UX:</strong> <code>transition-all duration-300</code></li>
-        <li><strong>Responsive overrides:</strong> <code>sm:w-64</code>, <code>md:text-base</code></li>
+        <li><strong>Pill input:</strong> rounded-full px-4 py-2</li>
+        <li><strong>Bordered input:</strong> border border-stone-200</li>
+        <li><strong>Placeholder styling:</strong> placeholder:text-stone-400</li>
+        <li><strong>Focus ring:</strong> focus:outline-none focus:ring focus:ring-yellow-400</li>
+        <li><strong>Subtle ring:</strong> focus:ring-opacity-50</li>
+        <li><strong>Smooth UX:</strong> transition-all duration-300</li>
+        <li><strong>Responsive overrides:</strong> sm:w-64, md:text-base</li>
       </ul>
     </section>
 
@@ -296,21 +308,21 @@
         <h3 style="margin-top:0;">1) “My focus width breaks the header on mobile”</h3>
         <p>
           Fix by scoping the focus width change to larger screens:
-          <code>sm:focus:w-72</code> (instead of <code>focus:w-72</code>).
+          sm:focus:w-72 (instead of focus:w-72).
         </p>
       </div>
       <div class="card">
         <h3 style="margin-top:0;">2) “My placeholder styles don’t show”</h3>
         <p>
           Placeholder classes only affect the placeholder text. Ensure your input actually has
-          a <code>placeholder</code> attribute.
+          a placeholder attribute.
         </p>
       </div>
       <div class="card">
         <h3 style="margin-top:0;">3) “I removed outline, now focus is invisible”</h3>
         <p>
-          Always pair <code>focus:outline-none</code> with a replacement, typically a ring:
-          <code>focus:ring</code> + a ring color.
+          Always pair focus:outline-none with a replacement, typically a ring:
+          focus:ring + a ring color.
         </p>
       </div>
     </section>

@@ -134,8 +134,8 @@
       padding: 12px 12px;
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      background: #0f172a;
-      color: #f8fafc;
+      background: #f5f5f5;
+      color: #111111;
       overflow: auto;
       tab-size: 2;
     }
@@ -202,11 +202,11 @@
     <main>
       <section class="card">
         <h2>🎯 What you are building</h2>
-        <p>An <strong>Accordion</strong> with multiple <strong>AccordionItem</strong> entries:</p>
+        <p>An Accordion with multiple AccordionItem entries:</p>
         <ul>
           <li>Click a closed item → it opens (shows the answer/content).</li>
           <li>Click an open item → it closes again.</li>
-          <li>In <strong>v1</strong>, each item is <strong>independent</strong> (many can be open at once).</li>
+          <li>In v1, each item is independent (many can be open at once).</li>
         </ul>
         <p class="mini">Think of it like an FAQ list: question (title) on top, answer (text) hidden until opened.</p>
       </section>
@@ -214,18 +214,18 @@
       <section class="callout ok">
         <h2>🧠 Thinking in React (the workflow used here)</h2>
         <ol>
-          <li><strong>Break UI into components</strong> (Accordion → AccordionItem).</li>
-          <li><strong>Build static version first</strong> (render list, layout, CSS classes).</li>
-          <li><strong>Add state</strong> only when UI must change over time.</li>
-          <li><strong>Wire events</strong> to update state (click toggles open/close).</li>
+          <li>Break UI into components (Accordion → AccordionItem).</li>
+          <li>Build static version first (render list, layout, CSS classes).</li>
+          <li>Add state only when UI must change over time.</li>
+          <li>Wire events to update state (click toggles open/close).</li>
         </ol>
       </section>
 
       <section class="card">
         <h2>📦 Starter files you typically get</h2>
         <ul>
-          <li>📚 <strong>Data array</strong>: FAQ objects, usually like <span class="k">{ title, text }</span> (sometimes with an <span class="k">id</span>).</li>
-          <li>🎨 <strong>CSS</strong>: class names such as <span class="k">accordion</span>, <span class="k">item</span>, <span class="k">open</span>, <span class="k">number</span>, <span class="k">title</span>, <span class="k">icon</span>, <span class="k">content-box</span>.</li>
+          <li>📚 Data array: FAQ objects, usually like <span class="k">{ title, text }</span> (sometimes with an <span class="k">id</span>).</li>
+          <li>🎨 CSS: class names such as <span class="k">accordion</span>, <span class="k">item</span>, <span class="k">open</span>, <span class="k">number</span>, <span class="k">title</span>, <span class="k">icon</span>, <span class="k">content-box</span>.</li>
         </ul>
         <p class="mini">You can build locally in VS Code or fork a CodeSandbox. The logic is the same.</p>
       </section>
@@ -256,7 +256,7 @@
       <section class="callout warn">
         <h2>🔍 Key observation: “UI changed” ⇒ you need state</h2>
         <p>When you click and something visibly changes (content appears/disappears, icon changes, styles change), that’s a signal that you need state.</p>
-        <p><strong>In v1</strong>, each item opens/closes independently, so each item can hold <strong>its own local state</strong>.</p>
+        <p>In v1, each item opens/closes independently, so each item can hold its own local state.</p>
       </section>
 
       <section class="card">
@@ -264,7 +264,7 @@
 
         <h3>Step A — Build AccordionItem (static first) 🧱</h3>
         <p>Create the markup and CSS class wiring before state:</p>
-        <pre><code>function AccordionItem({ num, title, text }) {
+        <pre>function AccordionItem({ num, title, text }) {
   return (
     &lt;div className="item"&gt;
       &lt;p className="number"&gt;{num}&lt;/p&gt;
@@ -273,13 +273,13 @@
       &lt;div className="content-box"&gt;{text}&lt;/div&gt;
     &lt;/div&gt;
   );
-}</code></pre>
+}</pre>
         <p class="mini">Later, the icon and content will become conditional (plus/minus, show/hide content).</p>
 
         <div class="divider"></div>
 
         <h3>Step B — Render list in Accordion using <span class="k">map</span> 🔁</h3>
-        <pre><code>function Accordion({ data }) {
+        <pre>function Accordion({ data }) {
   return (
     &lt;div className="accordion"&gt;
       {data.map((el, i) =&gt; (
@@ -292,7 +292,7 @@
       ))}
     &lt;/div&gt;
   );
-}</code></pre>
+}</pre>
 
         <div class="callout">
           <h3>🧷 About <span class="k">key</span></h3>
@@ -308,14 +308,14 @@
 
         <h3>Step C — Format the number like <span class="k">01</span>, <span class="k">02</span> 🧮</h3>
         <p>In the transcript, the numbering is shown as <span class="k">01</span>, <span class="k">02</span>, <span class="k">03</span>.</p>
-        <pre><code>const displayNum = num &lt; 9 ? `0${num + 1}` : `${num + 1}`;</code></pre>
+        <pre>const displayNum = num &lt; 9 ? `0${num + 1}` : `${num + 1}`;</pre>
         <p>Then render <span class="k">displayNum</span> inside <span class="k">.number</span>.</p>
 
         <div class="divider"></div>
 
         <h3>Step D — Add state to AccordionItem (v1) 🧠</h3>
         <p>Each item is independent, so we store state inside each item:</p>
-        <pre><code>import { useState } from "react";
+        <pre>import { useState } from "react";
 
 function AccordionItem({ num, title, text }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -335,7 +335,7 @@ function AccordionItem({ num, title, text }) {
       )}
     &lt;/div&gt;
   );
-}</code></pre>
+}</pre>
 
         <div class="callout ok">
           <h3>✅ What this demonstrates</h3>
@@ -351,9 +351,9 @@ function AccordionItem({ num, title, text }) {
 
         <h3>Step E — Add “open” styling class when expanded 🎨</h3>
         <p>The demo shows a special style (green border / green title) when open. Usually CSS expects a class like <span class="k">open</span>.</p>
-        <pre><code>&lt;div className={`item ${isOpen ? "open" : ""}`} onClick={handleToggle}&gt;
+        <pre>&lt;div className={`item ${isOpen ? "open" : ""}`} onClick={handleToggle}&gt;
   ...
-&lt;/div&gt;</code></pre>
+&lt;/div&gt;</pre>
         <p class="mini">This is “conditional classes” using template literals.</p>
       </section>
 
@@ -369,7 +369,7 @@ function AccordionItem({ num, title, text }) {
 
       <section class="callout warn">
         <h2>🧠 Heads-up: v2 will require “lifted state”</h2>
-        <p>The transcript hints that later you will build a more realistic accordion where <strong>only one item can be open at a time</strong>.</p>
+        <p>The transcript hints that later you will build a more realistic accordion where only one item can be open at a time.</p>
         <p>That is a different requirement and usually means:</p>
         <ul>
           <li>Store a single <span class="k">openItemId</span> (or index) in the parent Accordion.</li>
@@ -381,11 +381,11 @@ function AccordionItem({ num, title, text }) {
       <section class="card">
         <h2>🧯 Common mistakes (and quick fixes)</h2>
         <ul>
-          <li><strong>Nothing happens on click</strong> → ensure <span class="k">onClick={handleToggle}</span> is on the clickable container.</li>
-          <li><strong>Content always visible</strong> → wrap content with conditional rendering: <span class="k">{isOpen &amp;&amp; (...)}</span></li>
-          <li><strong>Icon never changes</strong> → render icon conditionally: <span class="k">{isOpen ? "-" : "+"}</span></li>
-          <li><strong>React warning: missing key</strong> → add <span class="k">key</span> in the <span class="k">map</span> output.</li>
-          <li><strong>Open styles not applying</strong> → verify conditional class: <span class="k">item open</span> matches CSS selector.</li>
+          <li>Nothing happens on click → ensure <span class="k">onClick={handleToggle}</span> is on the clickable container.</li>
+          <li>Content always visible → wrap content with conditional rendering: <span class="k">{isOpen &amp;&amp; (...)}</span></li>
+          <li>Icon never changes → render icon conditionally: <span class="k">{isOpen ? "-" : "+"}</span></li>
+          <li>React warning: missing key → add <span class="k">key</span> in the <span class="k">map</span> output.</li>
+          <li>Open styles not applying → verify conditional class: <span class="k">item open</span> matches CSS selector.</li>
         </ul>
       </section>
 

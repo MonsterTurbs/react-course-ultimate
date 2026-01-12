@@ -1,7 +1,6 @@
-
-
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -13,11 +12,22 @@
       --muted: #555555;
       --border: #e6e6e6;
       --soft: #f7f7f7;
-      --codebg: #0b1020;
+
+      /* Screen code area (light) */
+      --codebg: #f5f5f5;
+      --codetext: #111111;
+      --codeborder: #d1d5db;
     }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
     body {
       margin: 0;
       background: var(--bg);
@@ -88,9 +98,17 @@
       font-size: 14px;
     }
 
-    p { margin: 8px 0; }
-    ul { margin: 8px 0 0 18px; }
-    li { margin: 6px 0; }
+    p {
+      margin: 8px 0;
+    }
+
+    ul {
+      margin: 8px 0 0 18px;
+    }
+
+    li {
+      margin: 6px 0;
+    }
 
     .callout {
       border-left: 4px solid #111;
@@ -100,16 +118,24 @@
       margin: 10px 0;
     }
 
-    .callout strong { display: inline-block; margin-bottom: 4px; }
+    .callout strong {
+      display: inline-block;
+      margin-bottom: 4px;
+    }
 
+    /* ✅ Code blocks (screen: light bg + dark text) */
     pre {
       margin: 10px 0;
       padding: 12px;
       background: var(--codebg);
-      color: #e9eefc;
+      color: var(--codetext);
       border-radius: 10px;
       overflow: auto;
-      border: 1px solid rgba(255,255,255,.12);
+      border: 1px solid var(--codeborder);
+    }
+
+    pre code {
+      color: inherit;
     }
 
     code {
@@ -133,7 +159,9 @@
     }
 
     @media (min-width: 820px) {
-      .grid2 { grid-template-columns: 1fr 1fr; }
+      .grid2 {
+        grid-template-columns: 1fr 1fr;
+      }
     }
 
     /* PRINT (A4) */
@@ -142,11 +170,21 @@
       margin: 14mm;
     }
 
+    strong,
+    b {
+      background: transparent !important;
+      background-color: transparent !important;
+      padding: 0 !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
     @media print {
+
+      /* Base print */
       body {
-        background: #fff;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+        background: #fff !important;
+        color: #000 !important;
       }
 
       .page {
@@ -154,32 +192,88 @@
         padding: 0;
       }
 
-      header, section {
-        border: 1px solid #d9d9d9;
-        border-radius: 0;
-        box-shadow: none;
+      header,
+      section {
+        border: 1px solid #d9d9d9 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
         break-inside: avoid;
       }
 
+      /* Optional: remove soft backgrounds for print clarity */
+      .chip,
+      .callout,
+      header,
+      section {
+        background: #fff !important;
+      }
+
+      /* ✅ Code blocks print: pure B/W + no “striped highlights” */
       pre {
-        break-inside: avoid;
+        background: #fff !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+
+        font-size: 11px !important;
+        line-height: 1.45 !important;
+        padding: 8px 10px !important;
+
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
       }
 
-      a, a:visited {
+      /* Kill any nested syntax-highlighting backgrounds inside the code area */
+      pre code,
+      pre * {
+        background: transparent !important;
+        color: inherit !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+        border: 0 !important;
+      }
+
+      /* Inline code should not print as dark chips */
+      code {
+        background: transparent !important;
+        color: inherit !important;
+        border: 0 !important;
+        padding: 0 !important;
+      }
+
+      /* No URLs after links */
+      a,
+      a:visited {
         color: inherit;
         text-decoration: none;
       }
 
-      /* Ensure no URLs appear on print */
-      a[href]::after { content: ""; }
+      a[href]::after {
+        content: "" !important;
+      }
+
+      strong,
+      b {
+        background: transparent !important;
+        background-color: transparent !important;
+        padding: 0 !important;
+        border: 0 !important;
+      }
+
     }
   </style>
 </head>
+
 <body>
   <main class="page">
     <header>
       <h1>🧩 Confirming Cabin Deletions (Reusing the Compound Modal)</h1>
-      <p class="subtitle">Reviewer / Study Guide — Modal reuse for <strong>Edit</strong> and <strong>Delete confirmation</strong> in the Cabins feature.</p>
+      <p class="subtitle">Reviewer / Study Guide — Modal reuse for Edit and Delete
+        confirmation in the Cabins feature.</p>
       <div class="meta">
         <span class="chip">Single-column</span>
         <span class="chip">A4 print-ready</span>
@@ -191,15 +285,17 @@
     <section>
       <h2>✅ What you are building</h2>
       <p>
-        You will reuse your compound <strong>Modal</strong> two more times:
+        You will reuse your compound Modal two more times:
       </p>
       <ul>
-        <li>✏️ <strong>Edit a cabin</strong> inside a modal (using <code>CreateCabinForm</code> prefilled).</li>
-        <li>🗑️ <strong>Confirm cabin deletion</strong> inside a modal (using a reusable <code>ConfirmDelete</code> component).</li>
+        <li>✏️ Edit a cabin inside a modal (using <code>CreateCabinForm</code> prefilled).</li>
+        <li>🗑️ Confirm cabin deletion inside a modal (using a reusable <code>ConfirmDelete</code>
+          component).</li>
       </ul>
       <div class="callout">
-        <strong>Key benefit:</strong>
-        You no longer need row-level <code>useState</code> like <code>showForm</code> to toggle edit UI. The <strong>Modal</strong> keeps open/close state internally.
+        Key benefit:
+        You no longer need row-level <code>useState</code> like <code>showForm</code> to toggle edit UI. The
+        Modal keeps open/close state internally.
       </div>
     </section>
 
@@ -218,9 +314,9 @@
   &lt;/Modal.Window&gt;
 &lt;/Modal&gt;</code></pre>
       <ul>
-        <li><code>Modal.Open</code> = the “trigger” (button/icon) 🟦</li>
-        <li><code>Modal.Window</code> = the content that appears in the portal 🪟</li>
-        <li><code>opens</code> and <code>name</code> connect trigger → window 🔗</li>
+        <li><code>Modal.Open</code> = the “trigger” (button/icon)</li>
+        <li><code>Modal.Window</code> = the content that appears in the portal</li>
+        <li><code>opens</code> and <code>name</code> connect trigger → window</li>
       </ul>
     </section>
 
@@ -232,7 +328,8 @@
         <li>Delete unused imports/handlers/states to make the component readable.</li>
       </ul>
       <div class="callout">
-        <strong>Rule of thumb:</strong> pages should be “thin” (minimal state/effects). Put interactive logic in feature components.
+        Rule of thumb: pages should be “thin” (minimal state/effects). Put interactive logic in feature
+        components.
       </div>
     </section>
 
@@ -262,14 +359,16 @@
 &lt;/Modal&gt;</code></pre>
 
       <div class="callout">
-        <strong>Why this works:</strong>
-        Modal manages <code>openName</code> internally. Clicking the trigger sets <code>openName</code> to <code>"edit"</code> and the window renders.
+        Why this works:
+        Modal manages <code>openName</code> internally. Clicking the trigger sets <code>openName</code> to
+        <code>"edit"</code> and the window renders.
       </div>
 
       <h3>Expected behavior</h3>
       <ul>
         <li>✅ Clicking ✏️ opens the edit form for the correct cabin (prefilled).</li>
-        <li>✅ On success (edit mutation), modal closes (because modal injects <code>onCloseModal</code> into the child).</li>
+        <li>✅ On success (edit mutation), modal closes (because modal injects <code>onCloseModal</code> into the child).
+        </li>
       </ul>
     </section>
 
@@ -316,7 +415,7 @@
 &lt;/Modal&gt;</code></pre>
 
       <div class="callout">
-        <strong>Important:</strong>
+        Important:
         Deletion should only happen inside <code>onConfirm</code>, not directly on the trash icon click.
       </div>
     </section>
@@ -324,7 +423,8 @@
     <section>
       <h2>🔒 Step 4 — Make Cancel work (close the modal)</h2>
       <p>
-        Since <code>ConfirmDelete</code> is rendered inside <code>Modal.Window</code>, the modal can <strong>inject</strong> <code>onCloseModal</code> into it
+        Since <code>ConfirmDelete</code> is rendered inside <code>Modal.Window</code>, the modal can
+        inject <code>onCloseModal</code> into it
         (using <code>cloneElement</code>), just like it did for <code>CreateCabinForm</code>.
       </p>
 
@@ -346,8 +446,9 @@
 }</code></pre>
 
       <div class="callout">
-        <strong>Why injection matters:</strong>
-        You don’t pass <code>onCloseModal</code> manually from every parent. The modal “wires” close behavior automatically.
+        Why injection matters:
+        You don’t pass <code>onCloseModal</code> manually from every parent. The modal “wires” close behavior
+        automatically.
       </div>
     </section>
 
@@ -357,21 +458,26 @@
         This feels like “magic” the first time you see it:
       </p>
       <ul>
-        <li>You click <strong>Delete</strong> → mutation runs → cabin row is removed from the UI.</li>
+        <li>You click Delete → mutation runs → cabin row is removed from the UI.</li>
         <li>The modal instance lives <em>inside</em> that row (component tree).</li>
         <li>When the row unmounts, the modal also unmounts, so the portal content disappears too.</li>
       </ul>
       <div class="callout">
-        <strong>Takeaway:</strong>
-        The modal disappears because the React component that owns it is gone, not necessarily because you called <code>close()</code>.
+        Takeaway:
+        The modal disappears because the React component that owns it is gone, not necessarily because you called
+        <code>close()</code>.
       </div>
     </section>
 
     <section>
       <h2>⚠️ Common mistakes & quick checks</h2>
       <ul>
-        <li>❌ <strong>Mismatch between</strong> <code>opens</code> and <code>name</code> (e.g., <code>opens="Edit"</code> vs <code>name="edit"</code>).</li>
-        <li>❌ Passing <code>onConfirm={deleteCabin(cabin.id)}</code> (this executes immediately). Use a function: <code>() =&gt; deleteCabin(cabin.id)</code>.</li>
+        <li>❌ Mismatch between <code>opens</code> and <code>name</code> (e.g.,
+          <code>opens="Edit"</code> vs <code>name="edit"</code>).
+        </li>
+        <li>❌ Passing <code>onConfirm={deleteCabin(cabin.id)}</code> (this executes immediately). Use a function:
+          <code>() =&gt; deleteCabin(cabin.id)</code>.
+        </li>
         <li>❌ Forgetting to disable buttons using loading state → users can double-submit.</li>
         <li>✅ Verify: Edit form closes on success (means <code>onCloseModal</code> injection is working).</li>
       </ul>
@@ -391,4 +497,5 @@
     </section>
   </main>
 </body>
+
 </html>

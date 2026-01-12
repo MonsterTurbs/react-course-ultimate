@@ -12,7 +12,13 @@
       --border: #e6e6e6;
       --soft: #fafafa;
       --chip: #f3f4f6;
-      --codebg: #0b1020;
+
+      /* ✅ APPLY (code area colors) */
+      --codebg: #f5f5f5;   /* light gray */
+      --codetext: #111111; /* optional: make text dark */
+
+      /* optional helper for nicer border on light code blocks */
+      --codeborder: #d1d5db;
     }
 
     * { box-sizing: border-box; }
@@ -124,16 +130,23 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
+    /* ✅ CODE BLOCKS updated to use --codebg and --codetext */
     pre {
       margin: 10px 0 0;
       padding: 12px;
       background: var(--codebg);
-      color: #e8eefc;
+      color: var(--codetext);
       border-radius: 10px;
       overflow: auto;
+
+      /* keep your current behavior */
       white-space: pre;
-      border: 1px solid #1f2a44;
+
+      /* optional: better border for light background */
+      border: 1px solid var(--codeborder);
     }
+
+    pre code { color: inherit; }
 
     .kbd {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -202,7 +215,7 @@
       <section>
         <h2>😵 The Problem: Prop Drilling</h2>
         <p>
-          Imagine a component tree where <strong>deep child components</strong> need some state (e.g., <code>count</code>),
+          Imagine a component tree where <strong>deep child components</strong> need some state (e.g., count),
           but that state lives high up in the tree.
         </p>
 
@@ -212,8 +225,8 @@
         </div>
 
         <h3>🧩 Example scenario</h3>
-        <p class="muted">B and F need <code>count</code>, but <code>count</code> is defined in A.</p>
-        <pre><code>A (count state)
+        <p class="muted">B and F need count, but count is defined in A.</p>
+        <pre>A (cote)
 ├─ B  ✅ needs count
 │  └─ C
 │     └─ D
@@ -229,7 +242,7 @@
         </ul>
 
         <div class="callout">
-          <strong>Note:</strong> Better component composition (using <code>children</code>) can reduce prop drilling sometimes…
+          <strong>Note:</strong> Better component composition (using childde>) can reduce prop drilling sometimes…
           but not always. Some UI structures simply require deep trees.
         </div>
       </section>
@@ -267,7 +280,7 @@
               The <strong>data</strong> you share.
               Often includes <strong>state variables</strong> + <strong>setter functions</strong>.
             </p>
-            <p class="muted">Example: <code>{count, setCount}</code></p>
+            <p class="muted">Example: {counount}</code></p>
           </div>
           <div class="card">
             <h3>3) 👀 Consumers</h3>
@@ -275,12 +288,12 @@
               Any component that <strong>reads/subscribes</strong> to the context value.
               You can have <strong>as many consumers as you want</strong>.
             </p>
-            <p class="muted">Typically via <code>useContext()</code>.</p>
+            <p class="muted">Typically via useCo</code>.</p>
           </div>
         </div>
 
         <h3>🗺️ Mental model</h3>
-        <pre><code>&lt;Provider value={...}&gt;
+        <pre>&lt;P value={...}&gt;
   ...many nested components...
   &lt;Consumer /&gt;  // can read the value directly ✅
 &lt;/Provider&gt;
@@ -315,7 +328,7 @@
           create a context, provide a value, and consume it.
         </p>
 
-        <pre><code>// 1) Create context
+        <pre>// 1) context
 import { createContext, useContext, useState } from "react";
 
 const CounterContext = createContext();
@@ -362,8 +375,8 @@ export default function App() {
 </code></pre>
 
         <div class="callout">
-          <strong>Key takeaway:</strong> <code>DeepChild</code> gets <code>count</code> directly from context.
-          No more passing <code>count</code> through unrelated components.
+          <strong>Key takeaway:</strong> DeepCode> gets count directly from context.
+          No more passing count through unrelated components.
         </div>
       </section>
 
@@ -379,7 +392,7 @@ export default function App() {
 
         <h3>⚠️ Not ideal</h3>
         <ul>
-          <li>Highly local state (only one component needs it): use <code>useState</code>.</li>
+          <li>Highly local state (only one component needs it): use useStde>.</li>
           <li>Very frequent updates affecting many consumers (can cause lots of re-renders).</li>
           <li>Complex state logic where a reducer or external store might be cleaner (later topics).</li>
         </ul>
@@ -396,7 +409,7 @@ export default function App() {
           <li>Problem: <strong>prop drilling</strong> (passing props down many levels).</li>
           <li>Solution: <strong>Context API</strong> broadcasts data without manual prop passing.</li>
           <li>Provider: shares a <strong>value</strong> to its subtree.</li>
-          <li>Consumers: subscribe/read the value (often via <code>useContext</code>).</li>
+          <li>Consumers: subscribe/read the value (often via useCocode>).</li>
           <li>When value changes: all subscribed consumers <strong>re-render</strong>.</li>
         </ul>
       </section>
